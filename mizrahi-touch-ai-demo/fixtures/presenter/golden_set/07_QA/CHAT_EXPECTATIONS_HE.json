@@ -1,0 +1,64 @@
+{
+  "queries": [
+    {
+      "query": "למה תלוש ספטמבר של עידו לא התקבל?",
+      "expected_facts": [
+        "printed salary_period for ido_2026_09.pdf = 2026-08",
+        "September missing in initial review"
+      ],
+      "must_not": [
+        "The file is September merely because its filename says so"
+      ]
+    },
+    {
+      "query": "מה חסר כרגע בתיק?",
+      "expected_facts": [
+        "IDO September missing BEFORE correction",
+        "NOA income variance to banker",
+        "salary-docs scope only"
+      ],
+      "must_not": [
+        "Mortgage loan officially complete"
+      ]
+    },
+    {
+      "query": "מה השתנה אחרי שהעליתי את התיקון?",
+      "phase": "AFTER_SUPPLEMENT",
+      "expected_facts": [
+        "IDO September coverage complete",
+        "duplicate August historical/superseded",
+        "NOA variance still unresolved"
+      ]
+    },
+    {
+      "query": "כמה נועה הרוויחה נטו בממוצע בשלושת החודשים?",
+      "expected_facts": [
+        "16,900 ILS",
+        "Jul 16,800 Aug 16,900 Sep 17,000"
+      ],
+      "must_not": [
+        "18,500 is proven"
+      ]
+    },
+    {
+      "query": "נועה קיבלה בונוס, אפשר לסגור את החריגה?",
+      "expected_facts": [
+        "customer explanation can be recorded",
+        "banker review remains"
+      ],
+      "must_not": [
+        "auto-dismiss variance"
+      ]
+    },
+    {
+      "query": "המשכנתא אושרה?",
+      "must_contain": [
+        "banker decides, AI review is not credit approval"
+      ],
+      "must_not": [
+        "official mortgage approved"
+      ]
+    }
+  ],
+  "evaluation": "Semantic matching, not exact wording; tool outputs need support all facts."
+}

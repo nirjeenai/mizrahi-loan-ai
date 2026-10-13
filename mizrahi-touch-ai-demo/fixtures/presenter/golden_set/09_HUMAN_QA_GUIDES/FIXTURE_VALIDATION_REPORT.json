@@ -1,0 +1,13 @@
+{
+  "dataset_version": "1.1",
+  "manifest_pdfs": 21,
+  "actual_verified_files": 21,
+  "image_only_pdfs": 2,
+  "ground_truth_docs": 21,
+  "evidence_anchors_checked": 178,
+  "bbox_validation_issues": [],
+  "integrity_errors": [],
+  "fixture_integrity_pass": true,
+  "external_model_tests_run": false,
+  "important": "Asset and evidence preflight only, not Gemini/VisionTrace model accuracy."
+}

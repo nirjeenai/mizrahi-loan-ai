@@ -1,0 +1,101 @@
+# Code map
+
+Where to look, by topic. Paths are relative to `mizrahi-touch-ai-demo/`. Behavior and rationale live in
+`README.md`; this file only routes you to code and lists what must change together.
+Verified against the code on 2026-10-13. Update the entry in the same task when a responsibility moves.
+
+## Request flow in one picture
+```
+UploadSheet.tsx → api.upload → POST /api/cases/{id}/documents            api/routes.py::upload
+  → review_desk.check_request_link → engine.submit_document               (mime, 15 MB, SHA-256 dedupe, file to DATA_DIR/uploads)
+  → review_desk.link_upload · continuation.record_intent                  (answers a banker request · upload intent, never sent to the reviewer)
+  → worker engine._run_document → registry.active() → GeminiReviewProvider._review_document
+       extract (blind Gemini) → _verify (evidence.py) → _deterministic (deterministic.py) → _judge (Gemini) → _merge (verdict by code)
+  → review_runs.result + audit → engine.request_case_review
+  → worker engine._run_case → case_review.run → engine.reconcile_findings → readiness.compute → case_state
+UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCheckCard, DocumentSummary, RecentUpdates), Documents, DocumentReview+EvidenceViewer
+```
+
+## Backend (`backend/app/`)
+| Topic | Start here | Then |
+|---|---|---|
+| App wiring | `main.py` (routers, SPA fallback, lifespan starts workers) | `config.py` (reads `backend/.env`, `DATA_DIR`, `SIMULATION_DATE`, MCP key→case map, `SESSION_*`, `DEMO_IDENTITY`, `DEMO_RESET`) |
+| Sessions and access | `auth.py` (signed sessions, `require_customer_case` / `require_reader` / `require_staff` / `require_assigned_staff`, `/api/session` + demo-session routes) | every route in `api/*.py` calls one of these; demo identity on/off: `DEMO_IDENTITY` |
+| Persistence | `store/repo.py` (all case data access) | `db.py` (13-table schema, `tx()`, `ADDED_COLUMNS`); job queue SQL in `workflow/engine.py`; LLM ledger in `llm/gemini.py` |
+| Customer + system API | `api/routes.py` | customer projection: `CUSTOMER_SAFE_DETAIL`, `_customer_update`, `_customer_finding`; presenter + fixtures endpoints; `/system/*` |
+| Assistant API | `api/assistant.py` | `POST /actions/resolve`, `GET /documents/{id}/outcome` |
+| Banker API | `api/banker.py` (staff-session gate via `auth.py`, request models; conversation read; handoff acknowledge; confirm) | decisions → `workflow/review_desk.py`; queue/workspace (incl. open handoffs, lapsed confirmation) → `api/banker_package.py::build_workspace`; confirmation validity → `workflow/readiness.py::confirmation` |
+| Banker transitions | `workflow/review_desk.py` (`TRANSITIONS`, `decide_document`, `decide_finding`, `request_missing`, `draft_*` templates, `@_serialized`) | derived banker status: `workflow/desk_state.py` |
+| Durable jobs + findings | `workflow/engine.py` (`submit_document`, `_run_document`, `_run_case`, `reconcile_findings`, 3 workers, 3 attempts) | |
+| Readiness | `workflow/readiness.py` (`compute` → AI state; `customer_status` → home card) | required months: `policy_months()` from case rubric + simulation date |
+| PASS / REVIEW / BLOCKER | `workflow/outcomes.py` (`document_outcome`, `set_outcome`, `for_case`; derived on read, never stored) | exposed as `outcomes` in `GET /api/cases/{id}`, `outcome` in `GET /api/documents/{id}` and on banker workspace document items |
+| Customer replacement | `review_desk.check_replacement` (validation before storing) · `upload_intents.replaces_document_id` · `desk_state.replacements(requests, case_id)` | `engine.reconcile_findings` supersedes only non-banker findings of a customer-replaced document |
+| Executive demo reset | `workflow/demo.py::reset_executive_cases` ↔ `POST /api/presenter/demo-reset` (cases flagged `executive_demo`) | worker guards in `engine._run_document` / `_run_case` drop results for a reset case |
+| Provider boundary | `review/contract.py` (Pydantic models, `ReviewProvider`) | `review/registry.py` (`REVIEW_PROVIDER`; `hybrid` raises) |
+| Document review | `review/gemini_provider.py` | `review/prompts.py` (`PROMPT_VERSION`, response schemas), `review/evidence.py` (text-layer boxes, crops, witnesses), `review/deterministic.py` (months, amounts, names/IDs, injection, pay date) |
+| Case review | `review/case_review.py::run` (coverage, duplicates, IS-04 income, `_semantic`) | `income_comparable()` decides which payslips feed IS-04; a customer-escalation criterion becomes a customer action only on FAIL (`DOC_FINDING_UNCERTAIN_TEXT` otherwise) |
+| Rubrics | `backend/rubrics/<id>.v<semver>.json` | loader/validation: `review/rubrics.py` (`latest`, `for_document`, `for_case`) |
+| Gemini client | `llm/gemini.py::generate` (hourly budget, retries on 429/5xx, ledger) | the only place that calls the Gemini API |
+| Agent | `agent/agent.py` (loop, `guard_reply`, no-model fallback) | `agent/tools.py` (one tool registry for agent + MCP), `agent/actions.py` (`app_action.v1`), `agent/continuation.py` (upload outcome, follow-up turn) |
+| MCP server | `mcp/server.py` (bearer key → one case, `additionalProperties: false`, 3,800-char results) | tools come from `agent/tools.py` |
+| Bank (demo) | `bank/mock_bank.py` (cases 001–008, staff, stage dictionary, `authoritative=False`; 006–008 `executive_demo`) | `executive_demo_case_ids()` is the reset allow-list |
+| VisionTrace | `review/visiontrace_provider.py` (stub + read-only probe + untested `map_envelope`) | BLOCKED; see README "VisionTrace" |
+
+## Reason codes — where each lives
+- Document-level codes: `reason_code` on each criterion in `backend/rubrics/payslip.il.salaried.v*.json`.
+  Hebrew finding text per code: `review/case_review.py::DOC_FINDING_TEXT`.
+- Case-level codes: emitted in `review/case_review.py` (`REQUIRED_PERIOD_MISSING`, `DUPLICATE_PERIOD`, `BORROWER_MISMATCH`,
+  `DOCUMENT_NOT_VALID`, `DECLARED_VS_DOCUMENT_INCOME_VARIANCE`, plus `FILE_NAME_PERIOD_MISMATCH` and `IDENTITY_INCONSISTENT`,
+  which are not in any rubric file).
+- Also referenced by name in `workflow/engine.py` and `workflow/review_desk.py` (`COVERAGE_CODES`), `api/banker_package.py`,
+  `frontend/src/components/ScenarioPresenter.tsx`, `fixtures/presenter/presenter_scenarios_manifest.json`, and the tests.
+- There is no central reason-code catalog in this app (`visiontrace-mortgage-spec/…/reason_codes.json` is spec-only).
+
+## Frontend (`frontend/src/`)
+| Topic | Files |
+|---|---|
+| Routes | `App.tsx` (`/customer/*`, `/banker`, `/system`; `HubSide` = desktop side pane) |
+| API client + types | `api.ts` (every endpoint, hand-written types mirroring backend JSON, `usePolling`, `ils`/`monthHe`/`timeHe`, Hebrew label maps) |
+| Case state | `caseContext.tsx` (selected case in `localStorage` `mz.case`, polling, `stale` after two failed refreshes, assistant/upload sheet state) |
+| Customer screens | `pages/customer/Home.tsx` (greeting, bank stage card, banker card, layout), `Documents.tsx` (requirements, banker requests, upload entry, `?request=` / `?upload=` / `?focus=` deep links), `DocumentReview.tsx` (verdict, criteria, evidence), `Secondary.tsx` (request details, stages, meetings, tools) |
+| Customer components | `components/TouchShell.tsx` (phone frame, bottom nav, case-picker drawer), `DocumentCheckCard.tsx` (home action card ↔ `readiness.customer_status`, open requests, `available_actions` upload targets), `DocumentSummary.tsx` (per-borrower months, uploaded/reviewed/accepted/fulfilled counts, secondary upload), `RecentUpdates.tsx` (customer wording of audit events, display-only folding, full list), `UploadSheet.tsx` (upload + live outcome), `EvidenceViewer.tsx` (page image + boxes), `AssistantSheet.tsx` + `AssistantActions.tsx` (chat, voice, action buttons), `StageRing.tsx` (`compact` for the home stage card), `Icons.tsx` |
+| Voice | `voice.ts` (`VoiceChannel`, `BrowserVoice`, `JeenTalkVoice` slot; `?voice=server`) |
+| Presenter pane | `App.tsx::HubSide` (layout) · `components/FeaturedScenarios.tsx` (three featured cards from manifest `featured`, `NewDemoButton`, open cards in `mz.presenter.featured.v1`) · `components/ScenarioPresenter.tsx` (10 scenarios inside the collapsed "כל תרחישי הבדיקה", marks in `mz.presenter.marks.v1`) ↔ `GET /api/presenter/scenarios`, `/api/presenter/file`, `POST /api/presenter/demo-reset` |
+| Banker console | `pages/banker/BankerConsole.tsx` (case bar; `?view=` review · conversation · technical), `ReviewWorkspace.tsx` (queue + evidence + confirmation), `DecisionPanel.tsx` (all decision forms), `deskUi.tsx` (`newRequestId`, shared UI); the console obtains its staff session itself (`BankerConsole.tsx`) |
+| System page | `pages/system/SystemPage.tsx` (integrations, MCP self-test, rubrics) |
+| Styles | `styles.css` (single stylesheet, `--mz-*` tokens, `.ltr` for IDs/numbers in RTL) |
+
+## Change together
+- Backend response shape (routes, banker_package, readiness, tools) ↔ types and methods in `frontend/src/api.ts`.
+- New customer-visible field from banker data ↔ customer projection in `api/routes.py` (never leak rationale).
+- New customer-visible audit action ↔ `CUSTOMER_UPDATES` in `api/routes.py` ↔ wording in `RecentUpdates.describe` (home timeline).
+- Rubric criterion or reason code ↔ `deterministic.py` / `gemini_provider.py` (`_deterministic`, `_judge`, `_merge`) ↔
+  `case_review.DOC_FINDING_TEXT` ↔ tests ↔ presenter manifest expectations ↔ README "Rubrics".
+- Prompt or response schema in `review/prompts.py` ↔ bump `PROMPT_VERSION`.
+- New column on an existing table ↔ `db.ADDED_COLUMNS`.
+- Agent tool ↔ MCP catalog (same registry) ↔ `e2e/test_mcp_sdk.py` tool-count check.
+- Fixture PDFs ↔ SHA-256s in `fixtures/out/manifest.json` / presenter manifest.
+- Featured scenarios (`featured` in the presenter manifest) ↔ executive demo cases in `mock_bank.py` ↔ `e2e/test_featured_demo.py` ↔ `backend/tests/test_featured_demo.py`.
+- A new golden file in a featured scenario ↔ a REPLAY entry: `backend/.venv/bin/python e2e/replay/build_recordings.py`.
+- Outcome rules (`workflow/outcomes.py`) ↔ labels in `DocumentReview.tsx` (`OUTCOME_TONE`), `UploadSheet.tsx`, `DocumentCheckCard.tsx`.
+
+## Demo data and fixtures (`fixtures/`)
+- `world.json` (ground truth) + `generate.py` → `out/main/` (initial set + corrected September), `out/negative/` (4 edge cases), `out/manifest.json` (served by `GET /api/fixtures`).
+- `pay_date/` — PS-10 regression payslips. `presenter/presenter_scenarios_manifest.json` + `presenter/golden_set/` (10 scenarios, 21 PDFs, expected JSON; never edit).
+- Cases: 001 Lavi demo · 002 second case (MCP key 2) · 003 Lavi QA (negative files) · 004 golden profile (scenarios 01, 02, 10) · 005 golden QA (03–09) · 006 / 007 / 008 executive demo PASS (Ido) / REVIEW (Noa) / BLOCKER (Ido), the only cases "התחל דמו חדש" wipes.
+- `e2e/replay/recordings.json` (built by `e2e/replay/build_recordings.py`): REPLAY model answers by file SHA-256 — `RECORDED_LIVE` for the golden payslips, `AUTHORED` (labelled) for the bank statement.
+
+## Tests
+| Test | Covers |
+|---|---|
+| `backend/tests/test_deterministic.py` | `review/deterministic.py`, `review/evidence.py` |
+| `backend/tests/test_pay_date.py` | PS-10 rule, IS-04 income selection (`case_review`, `gemini_provider`) |
+| `backend/tests/test_readiness.py` | `readiness.customer_status`, `policy_months` |
+| `backend/tests/test_actions.py` | `agent/actions.py`, `agent/continuation.py` |
+| `backend/tests/test_guard.py` | `agent.guard_reply` |
+| `backend/tests/test_review_desk.py` | banker desk end-to-end through real routes (`TestClient`), seeding reviews via `repo` |
+| `backend/tests/test_integration_closure.py` | QA findings G-01…G-13: sessions and case isolation, staff-only data, projections, retry/reset gates, confirmation lapse, withdrawal, handoffs, missing-request guard, replaced payslip, atomic decision+audit |
+| `backend/tests/test_featured_demo.py` | cases 006–008, PASS/REVIEW/BLOCKER outcomes, customer replacement, uncertainty routing, demo reset, worker guards, golden-set independence |
+| `e2e/replay_backend.py` + `e2e/test_featured_demo.py` | REPLAY stack (Gemini transport only replaced) and the browser suite for the executive demo — zero Gemini calls |
+| `e2e/*.py` | browser suites (real Chrome, mostly real Gemini) — ports, env vars and resets in `.claude/skills/run-stack/SKILL.md`; `e2e/demo_auth.py` gives their API calls sessions |
+| `backend/tests/live_journey.py` | not a test: uploads scenes to a running backend (real Gemini) |

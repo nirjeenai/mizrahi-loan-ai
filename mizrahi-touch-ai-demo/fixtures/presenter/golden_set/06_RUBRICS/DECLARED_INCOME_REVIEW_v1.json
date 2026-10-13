@@ -1,0 +1,35 @@
+{
+  "rubric_id": "DECLARED_INCOME_REVIEW",
+  "version": "1.0-demo",
+  "document_type": "CROSS_DOCUMENT",
+  "policy_classification": "DEMO_TEST_RULE_NOT_VERIFIED_BANK_POLICY",
+  "parameters": {
+    "comparison_field": "NET_MONTHLY_INCOME",
+    "threshold_ils": 1000,
+    "threshold_origin": "ENGINEERING_TEST_ONLY",
+    "required_months": 3
+  },
+  "criteria": [
+    {
+      "id": "SAME_FIELD_AND_PERIOD",
+      "method": "DETERMINISTIC",
+      "criterion": "Never compare gross to net or non-comparable periods"
+    },
+    {
+      "id": "NET_3_MONTH_AVG",
+      "method": "DETERMINISTIC",
+      "criterion": "Only average three matched payslips per borrower; no double-counted months"
+    },
+    {
+      "id": "DECLARATION_VARIANCE",
+      "method": "DETERMINISTIC",
+      "criterion": "Escalate if abs(declared_net - three_month_net_mean) > 1000 ILS (TEST threshold)"
+    },
+    {
+      "id": "BONUS_EXPLANATION",
+      "method": "LLM_JUDGE",
+      "criterion": "Explanation is not confirmed evidence of income received; refer to banker"
+    }
+  ],
+  "verdict_policy": "Discrepancy triggers BANKER_REVIEW, not invalid document or credit refusal."
+}

@@ -1,0 +1,1046 @@
+{
+ "label": "REPLAY",
+ "note": "Builds e2e/replay/recordings.json — the model answers the REPLAY backend serves (see e2e/replay_backend.py).\n\n    backend/.venv/bin/python e2e/replay/build_recordings.py",
+ "documents": {
+  "03411c918ad7d1c7c5d6d433bcef8d98e112cc6fb18c0a609bc9050a264f1be3": {
+   "file": "01_INITIAL_UPLOADS/ido_2026_07.pdf",
+   "provenance": "RECORDED_LIVE",
+   "source": "live Gemini review 2026-10-12 · ido_2026_07.pdf · verdict VALID · printed 2026-07",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת ״תלוש שכר חודשי״, טבלת רכיבי שכר וניכויים ושכר נטו להעברה.",
+    "title_quote": "תלוש שכר חודשי",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "עידו לוי",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employee_id",
+      "value": "DEMO-ID-001",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employer_name",
+      "value": "אביב מערכות דיגיטל בע\"מ",
+      "normalized": "אביב מערכות דיגיטל בע\"מ",
+      "quote": "אביב מערכות דיגיטל בע\"מ",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "salary_period",
+      "value": "יולי 2026",
+      "normalized": "2026-07",
+      "quote": "יולי 2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "issue_date",
+      "value": "01.08.2026",
+      "normalized": "01.08.2026",
+      "quote": "01.08.2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-IDO-07-01082026",
+      "normalized": "SYN-IDO-07-01082026",
+      "quote": "SYN-IDO-07-01082026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "gross_pay",
+      "value": "20,700",
+      "normalized": "20700.00",
+      "quote": "20,700",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "total_deductions",
+      "value": "6,300",
+      "normalized": "6300.00",
+      "quote": "6,300",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "net_pay",
+      "value": "14,400",
+      "normalized": "14400.00",
+      "quote": "14,400",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "19,200",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות/ תוספת",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "3,780",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,520",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך הוא תלוש שכר חודשי: כותרת, רכיבי שכר, ניכויים ונטו להעברה."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "האזורים המרכזיים (זהות, תקופה, רכיבים, נטו) קריאים והעמוד שלם."
+     },
+     "PS-03": {
+      "outcome": "PASS",
+      "explanation_he": "שם העובד ומספר הזהות המודפסים תואמים ללווה שאליו שויך המסמך."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת; סימון ״מסמך דמו״ הוא סימון הסביבה הסינתטית ואינו סימן לשינוי."
+     },
+     "PS-10": {
+      "outcome": "PASS",
+      "explanation_he": "לא מודפס תאריך תשלום; ההכרעה בקריטריון זה היא של כלל הקוד."
+     }
+    },
+    "summary_he": "תלוש שכר תקין לחודש יולי 2026; הערכים המכריעים אומתו מול הקובץ.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  },
+  "dce6d28a5a7ea971015458850edac3864a838f2528d9512edfa98563570c6205": {
+   "file": "01_INITIAL_UPLOADS/ido_2026_08.pdf",
+   "provenance": "RECORDED_LIVE",
+   "source": "live Gemini review 2026-10-12 · ido_2026_08.pdf · verdict VALID · printed 2026-08",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת ״תלוש שכר חודשי״, טבלת רכיבי שכר וניכויים ושכר נטו להעברה.",
+    "title_quote": "תלוש שכר חודשי",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "עידו לוי",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employee_id",
+      "value": "DEMO-ID-001",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employer_name",
+      "value": "אביב מערכות דיגיטל בע״מ",
+      "normalized": "אביב מערכות דיגיטל בע״מ",
+      "quote": "אביב מערכות דיגיטל בע״מ",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "salary_period",
+      "value": "אוגוסט 2026",
+      "normalized": "2026-08",
+      "quote": "אוגוסט 2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "issue_date",
+      "value": "01.09.2026",
+      "normalized": "01.09.2026",
+      "quote": "01.09.2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-IDO-08-01092026",
+      "normalized": "SYN-IDO-08-01092026",
+      "quote": "SYN-IDO-08-01092026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "gross_pay",
+      "value": "21,100",
+      "normalized": "21100.00",
+      "quote": "21,100",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "total_deductions",
+      "value": "6,400",
+      "normalized": "6400.00",
+      "quote": "6,400",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "net_pay",
+      "value": "14,700",
+      "normalized": "14700.00",
+      "quote": "14,700",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "19,600",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות/ תוספת",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "3,840",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,560",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך הוא תלוש שכר חודשי: כותרת, רכיבי שכר, ניכויים ונטו להעברה."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "האזורים המרכזיים (זהות, תקופה, רכיבים, נטו) קריאים והעמוד שלם."
+     },
+     "PS-03": {
+      "outcome": "PASS",
+      "explanation_he": "שם העובד ומספר הזהות המודפסים תואמים ללווה שאליו שויך המסמך."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת; סימון ״מסמך דמו״ הוא סימון הסביבה הסינתטית ואינו סימן לשינוי."
+     },
+     "PS-10": {
+      "outcome": "PASS",
+      "explanation_he": "לא מודפס תאריך תשלום; ההכרעה בקריטריון זה היא של כלל הקוד."
+     }
+    },
+    "summary_he": "תלוש שכר תקין לחודש אוגוסט 2026; הערכים המכריעים אומתו מול הקובץ.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  },
+  "f98b2f7ec72c231573a31b84739dda4c6479f457aaa1ed0f728a31a6f0882e42": {
+   "file": "01_INITIAL_UPLOADS/noa_2026_07.pdf",
+   "provenance": "RECORDED_LIVE",
+   "source": "live Gemini review 2026-10-12 · noa_2026_07.pdf · verdict VALID · printed 2026-07",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת ״תלוש שכר חודשי״, טבלת רכיבי שכר וניכויים ושכר נטו להעברה.",
+    "title_quote": "תלוש שכר חודשי",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "נועה לוי",
+      "normalized": "נועה לוי",
+      "quote": "נועה לוי",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employee_id",
+      "value": "DEMO-ID-002",
+      "normalized": "DEMO-ID-002",
+      "quote": "DEMO-ID-002",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employer_name",
+      "value": "אורן פתרונות תוכנה בע״מ",
+      "normalized": "אורן פתרונות תוכנה בע״מ",
+      "quote": "אורן פתרונות תוכנה בע״מ",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "salary_period",
+      "value": "יולי 2026",
+      "normalized": "2026-07",
+      "quote": "יולי 2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "issue_date",
+      "value": "01.08.2026",
+      "normalized": "01.08.2026",
+      "quote": "01.08.2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "gross_pay",
+      "value": "23,700",
+      "normalized": "23700.00",
+      "quote": "23,700",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "total_deductions",
+      "value": "6,900",
+      "normalized": "6900.00",
+      "quote": "6,900",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "net_pay",
+      "value": "16,800",
+      "normalized": "16800.00",
+      "quote": "16,800",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-NOA-07-01082026",
+      "normalized": "SYN-NOA-07-01082026",
+      "quote": "SYN-NOA-07-01082026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "22,200",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות/ תוספת",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "4,140",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,760",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך הוא תלוש שכר חודשי: כותרת, רכיבי שכר, ניכויים ונטו להעברה."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "האזורים המרכזיים (זהות, תקופה, רכיבים, נטו) קריאים והעמוד שלם."
+     },
+     "PS-03": {
+      "outcome": "PASS",
+      "explanation_he": "שם העובד ומספר הזהות המודפסים תואמים ללווה שאליו שויך המסמך."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת; סימון ״מסמך דמו״ הוא סימון הסביבה הסינתטית ואינו סימן לשינוי."
+     },
+     "PS-10": {
+      "outcome": "PASS",
+      "explanation_he": "לא מודפס תאריך תשלום; ההכרעה בקריטריון זה היא של כלל הקוד."
+     }
+    },
+    "summary_he": "תלוש שכר תקין לחודש יולי 2026; הערכים המכריעים אומתו מול הקובץ.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  },
+  "e6299454e11f6637213e236c898d716405482bb829aafce2453a8986694b1fba": {
+   "file": "01_INITIAL_UPLOADS/noa_2026_08.pdf",
+   "provenance": "RECORDED_LIVE",
+   "source": "live Gemini review 2026-10-12 · noa_2026_08.pdf · verdict VALID · printed 2026-08",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת ״תלוש שכר חודשי״, טבלת רכיבי שכר וניכויים ושכר נטו להעברה.",
+    "title_quote": "תלוש שכר חודשי",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "נועה לוי",
+      "normalized": "נועה לוי",
+      "quote": "נועה לוי",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employee_id",
+      "value": "DEMO-ID-002",
+      "normalized": "DEMO-ID-002",
+      "quote": "DEMO-ID-002",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employer_name",
+      "value": "אורן פתרונות תוכנה בע״מ",
+      "normalized": "אורן פתרונות תוכנה בע״מ",
+      "quote": "אורן פתרונות תוכנה בע״מ",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "salary_period",
+      "value": "אוגוסט 2026",
+      "normalized": "2026-08",
+      "quote": "אוגוסט 2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "issue_date",
+      "value": "01.09.2026",
+      "normalized": "01.09.2026",
+      "quote": "01.09.2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "gross_pay",
+      "value": "23,800",
+      "normalized": "23800.00",
+      "quote": "23,800",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "total_deductions",
+      "value": "6,900",
+      "normalized": "6900.00",
+      "quote": "6,900",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "net_pay",
+      "value": "16,900",
+      "normalized": "16900.00",
+      "quote": "16,900",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-NOA-08-01092026",
+      "normalized": "SYN-NOA-08-01092026",
+      "quote": "SYN-NOA-08-01092026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "22,300",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות/ תוספת",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "4,140",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,760",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך הוא תלוש שכר חודשי: כותרת, רכיבי שכר, ניכויים ונטו להעברה."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "האזורים המרכזיים (זהות, תקופה, רכיבים, נטו) קריאים והעמוד שלם."
+     },
+     "PS-03": {
+      "outcome": "PASS",
+      "explanation_he": "שם העובד ומספר הזהות המודפסים תואמים ללווה שאליו שויך המסמך."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת; סימון ״מסמך דמו״ הוא סימון הסביבה הסינתטית ואינו סימן לשינוי."
+     },
+     "PS-10": {
+      "outcome": "PASS",
+      "explanation_he": "לא מודפס תאריך תשלום; ההכרעה בקריטריון זה היא של כלל הקוד."
+     }
+    },
+    "summary_he": "תלוש שכר תקין לחודש אוגוסט 2026; הערכים המכריעים אומתו מול הקובץ.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  },
+  "0716d2decafd9609f035ecebbaf6677907c9d76ad2dfa384754f969adcc1cc82": {
+   "file": "01_INITIAL_UPLOADS/noa_2026_09.pdf",
+   "provenance": "RECORDED_LIVE",
+   "source": "live Gemini review 2026-10-12 · noa_2026_09.pdf · verdict VALID · printed 2026-09",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת ״תלוש שכר חודשי״, טבלת רכיבי שכר וניכויים ושכר נטו להעברה.",
+    "title_quote": "תלוש שכר חודשי",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "נועה לוי",
+      "normalized": "נועה לוי",
+      "quote": "נועה לוי",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employee_id",
+      "value": "DEMO-ID-002",
+      "normalized": "DEMO-ID-002",
+      "quote": "DEMO-ID-002",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employer_name",
+      "value": "אורן פתרונות תוכנה בע\"מ",
+      "normalized": "אורן פתרונות תוכנה בע\"מ",
+      "quote": "אורן פתרונות תוכנה בע\"מ",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "salary_period",
+      "value": "ספטמבר 2026",
+      "normalized": "2026-09",
+      "quote": "ספטמבר 2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "issue_date",
+      "value": "01.10.2026",
+      "normalized": "01.10.2026",
+      "quote": "01.10.2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-NOA-09-01102026",
+      "normalized": "SYN-NOA-09-01102026",
+      "quote": "SYN-NOA-09-01102026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "gross_pay",
+      "value": "24,000",
+      "normalized": "24000.00",
+      "quote": "24,000",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "total_deductions",
+      "value": "7,000",
+      "normalized": "7000.00",
+      "quote": "7,000",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "net_pay",
+      "value": "17,000",
+      "normalized": "17000.00",
+      "quote": "17,000",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "22,500",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות/ תוספת",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "4,200",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,800",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך הוא תלוש שכר חודשי: כותרת, רכיבי שכר, ניכויים ונטו להעברה."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "האזורים המרכזיים (זהות, תקופה, רכיבים, נטו) קריאים והעמוד שלם."
+     },
+     "PS-03": {
+      "outcome": "PASS",
+      "explanation_he": "שם העובד ומספר הזהות המודפסים תואמים ללווה שאליו שויך המסמך."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת; סימון ״מסמך דמו״ הוא סימון הסביבה הסינתטית ואינו סימן לשינוי."
+     },
+     "PS-10": {
+      "outcome": "PASS",
+      "explanation_he": "לא מודפס תאריך תשלום; ההכרעה בקריטריון זה היא של כלל הקוד."
+     }
+    },
+    "summary_he": "תלוש שכר תקין לחודש ספטמבר 2026; הערכים המכריעים אומתו מול הקובץ.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  },
+  "074bba3f5e619adcc61d182cc1d414007e1addf5245d05ca1b799054ba05cf9d": {
+   "file": "02_CORRECTION/ido_2026_09_CORRECTED.pdf",
+   "provenance": "RECORDED_LIVE",
+   "source": "live Gemini review 2026-10-12 · ido_2026_09_CORRECTED.pdf · verdict VALID · printed 2026-09",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת ״תלוש שכר חודשי״, טבלת רכיבי שכר וניכויים ושכר נטו להעברה.",
+    "title_quote": "תלוש שכר חודשי",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "עידו לוי",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employee_id",
+      "value": "DEMO-ID-001",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "employer_name",
+      "value": "אביב מערכות דיגיטל בע״מ",
+      "normalized": "אביב מערכות דיגיטל בע״מ",
+      "quote": "אביב מערכות דיגיטל בע״מ",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "salary_period",
+      "value": "ספטמבר 2026",
+      "normalized": "2026-09",
+      "quote": "ספטמבר 2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "issue_date",
+      "value": "01.10.2026",
+      "normalized": "01.10.2026",
+      "quote": "01.10.2026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-IDO-09-01102026",
+      "normalized": "SYN-IDO-09-01102026",
+      "quote": "SYN-IDO-09-01102026",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "gross_pay",
+      "value": "21,500",
+      "normalized": "21500.00",
+      "quote": "21,500",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "total_deductions",
+      "value": "6,500",
+      "normalized": "6500.00",
+      "quote": "6,500",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     },
+     {
+      "name": "net_pay",
+      "value": "15,000",
+      "normalized": "15000.00",
+      "quote": "15,000",
+      "label_quote": null,
+      "page": 1,
+      "box_2d": null,
+      "confidence": 0.97,
+      "legible": true
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "20,000",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות/ תוספת",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "3,900",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,600",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך הוא תלוש שכר חודשי: כותרת, רכיבי שכר, ניכויים ונטו להעברה."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "האזורים המרכזיים (זהות, תקופה, רכיבים, נטו) קריאים והעמוד שלם."
+     },
+     "PS-03": {
+      "outcome": "PASS",
+      "explanation_he": "שם העובד ומספר הזהות המודפסים תואמים ללווה שאליו שויך המסמך."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת; סימון ״מסמך דמו״ הוא סימון הסביבה הסינתטית ואינו סימן לשינוי."
+     },
+     "PS-10": {
+      "outcome": "PASS",
+      "explanation_he": "לא מודפס תאריך תשלום; ההכרעה בקריטריון זה היא של כלל הקוד."
+     }
+    },
+    "summary_he": "תלוש שכר תקין לחודש ספטמבר 2026; הערכים המכריעים אומתו מול הקובץ.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  },
+  "e2dca5376e23cfb1bd882e6916a20c2e4622fce69c840406bce5ee556529269b": {
+   "file": "03_SUPPORTING_DOCS/bank_statement_Jul_Sep_2026.pdf",
+   "provenance": "AUTHORED",
+   "source": "no live response exists for a bank statement uploaded as a payslip; written to describe the file (title ״תדפיס תנועות עו״ש״, account holders, transactions; no payslip fields)",
+   "extract": {
+    "doc_type": "bank_statement",
+    "doc_type_reason": "כותרת ״תדפיס תנועות עו״ש״, בעלי חשבון ורשימת תנועות. אין במסמך רכיבי שכר, ניכויים או שכר נטו.",
+    "title_quote": "תדפיס תנועות עו״ש",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [],
+    "uncertainties": []
+   },
+   "judge": {
+    "criteria": {
+     "PS-01": {
+      "outcome": "FAIL",
+      "explanation_he": "המסמך הוא תדפיס תנועות עו״ש של חשבון בנק, לא תלוש שכר."
+     },
+     "PS-02": {
+      "outcome": "PASS",
+      "explanation_he": "המסמך קריא ושלם."
+     },
+     "PS-03": {
+      "outcome": "NEEDS_REVIEW",
+      "explanation_he": "אין במסמך פרטי עובד להשוואה."
+     },
+     "PS-08": {
+      "outcome": "PASS",
+      "explanation_he": "אין טקסט המופנה למערכת."
+     },
+     "PS-10": {
+      "outcome": "NEEDS_REVIEW",
+      "explanation_he": "אין תאריך תשלום של שכר."
+     }
+    },
+    "summary_he": "המסמך שהועלה הוא דף חשבון בנק ולא תלוש שכר.",
+    "limitations_he": [],
+    "uncertainty_he": []
+   }
+  }
+ }
+}

@@ -1,0 +1,84 @@
+{
+  "_notice": "SYNTHETIC GOLDEN WORLD — invented people, employers, identifiers and amounts. Not a Mizrahi-Tefahot document or API payload.",
+  "case_id": "DEMO-MTZ-2026-001",
+  "as_of": "2026-10-12",
+  "borrowers": {
+    "BRW-A": {
+      "name": "עידו לביא",
+      "national_id": "039812457",
+      "employer": "אופק לוגיסטיקה בע״מ",
+      "employer_id": "514873920",
+      "employee_no": "E-325",
+      "department": "תפעול ומחסנים",
+      "declared_net_monthly_ils": 13500
+    },
+    "BRW-B": {
+      "name": "נועה לביא",
+      "national_id": "204376815",
+      "employer": "גלי טכנולוגיות בע״מ",
+      "employer_id": "516204338",
+      "employee_no": "E-102",
+      "department": "פיתוח מוצר",
+      "declared_net_monthly_ils": 18500
+    }
+  },
+  "payslips": {
+    "ido-2026-07": {
+      "borrower": "BRW-A", "period": "2026-07", "pay_date": "09.08.2026", "issued": "06.08.2026", "doc_no": "SAL-ido-2026-07",
+      "earnings": [["שכר בסיס", 15500], ["שעות נוספות", 900], ["החזר נסיעות", 600]],
+      "deductions": [["מס הכנסה", 1950], ["ביטוח לאומי", 760], ["מס בריאות", 470], ["פנסיה — חלק עובד", 620]]
+    },
+    "ido-2026-08": {
+      "borrower": "BRW-A", "period": "2026-08", "pay_date": "09.09.2026", "issued": "06.09.2026", "doc_no": "SAL-ido-2026-08",
+      "earnings": [["שכר בסיס", 15500], ["שעות נוספות", 1400], ["החזר נסיעות", 600]],
+      "deductions": [["מס הכנסה", 2080], ["ביטוח לאומי", 790], ["מס בריאות", 490], ["פנסיה — חלק עובד", 640]]
+    },
+    "ido-2026-09": {
+      "borrower": "BRW-A", "period": "2026-09", "pay_date": "09.10.2026", "issued": "06.10.2026", "doc_no": "SAL-ido-2026-09",
+      "earnings": [["שכר בסיס", 15500], ["שעות נוספות", 1200], ["החזר נסיעות", 600]],
+      "deductions": [["מס הכנסה", 2010], ["ביטוח לאומי", 780], ["מס בריאות", 480], ["פנסיה — חלק עובד", 630]]
+    },
+    "noa-2026-07": {
+      "borrower": "BRW-B", "period": "2026-07", "pay_date": "09.08.2026", "issued": "05.08.2026", "doc_no": "SAL-noa-2026-07",
+      "earnings": [["שכר בסיס", 21500], ["החזר נסיעות", 600], ["אחזקת טלפון", 500]],
+      "deductions": [["מס הכנסה", 3420], ["ביטוח לאומי", 1090], ["מס בריאות", 610], ["פנסיה — חלק עובד", 580]]
+    },
+    "noa-2026-08": {
+      "borrower": "BRW-B", "period": "2026-08", "pay_date": "09.09.2026", "issued": "05.09.2026", "doc_no": "SAL-noa-2026-08",
+      "earnings": [["שכר בסיס", 21500], ["החזר נסיעות", 600], ["אחזקת טלפון", 500]],
+      "deductions": [["מס הכנסה", 3420], ["ביטוח לאומי", 1090], ["מס בריאות", 610], ["פנסיה — חלק עובד", 580]]
+    },
+    "noa-2026-09": {
+      "borrower": "BRW-B", "period": "2026-09", "pay_date": "09.10.2026", "issued": "05.10.2026", "doc_no": "SAL-noa-2026-09",
+      "earnings": [["שכר בסיס", 21500], ["החזר נסיעות", 600], ["אחזקת טלפון", 500]],
+      "deductions": [["מס הכנסה", 3420], ["ביטוח לאומי", 1090], ["מס בריאות", 610], ["פנסיה — חלק עובד", 580]]
+    }
+  },
+  "files": [
+    {"file": "main/ido_payslip_2026-07.pdf", "source": "ido-2026-07", "variant": "digital", "upload_as": "BRW-A", "scene": "initial",
+     "expect": {"doc_type": "payslip", "period": "2026-07", "gross": 17000, "net": 13200, "verdict": "VALID", "codes": []}},
+    {"file": "main/ido_payslip_2026-08.pdf", "source": "ido-2026-08", "variant": "digital", "upload_as": "BRW-A", "scene": "initial",
+     "expect": {"doc_type": "payslip", "period": "2026-08", "gross": 17500, "net": 13500, "verdict": "VALID", "codes": []}},
+    {"file": "main/ido_payslip_2026-09.pdf", "source": "ido-2026-08", "variant": "digital_reissued", "upload_as": "BRW-A", "scene": "initial",
+     "expect": {"doc_type": "payslip", "period": "2026-08", "gross": 17500, "net": 13500, "verdict": "VALID", "codes": ["FILE_NAME_PERIOD_MISMATCH"],
+                "case_codes": ["DUPLICATE_PERIOD:BRW-A:2026-08", "REQUIRED_PERIOD_MISSING:BRW-A:2026-09"]}},
+    {"file": "main/noa_payslip_2026-07_scan.pdf", "source": "noa-2026-07", "variant": "scan", "upload_as": "BRW-B", "scene": "initial",
+     "expect": {"doc_type": "payslip", "period": "2026-07", "gross": 22600, "net": 16900, "verdict": "VALID_OR_NEEDS_REVIEW", "codes": []}},
+    {"file": "main/noa_payslip_2026-08.pdf", "source": "noa-2026-08", "variant": "digital", "upload_as": "BRW-B", "scene": "initial",
+     "expect": {"doc_type": "payslip", "period": "2026-08", "gross": 22600, "net": 16900, "verdict": "VALID", "codes": []}},
+    {"file": "main/noa_payslip_2026-09.pdf", "source": "noa-2026-09", "variant": "digital", "upload_as": "BRW-B", "scene": "initial",
+     "expect": {"doc_type": "payslip", "period": "2026-09", "gross": 22600, "net": 16900, "verdict": "VALID", "codes": [],
+                "case_codes": ["DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"]}},
+    {"file": "main/ido_payslip_2026-09_corrected.pdf", "source": "ido-2026-09", "variant": "digital", "upload_as": "BRW-A", "scene": "correction",
+     "expect": {"doc_type": "payslip", "period": "2026-09", "gross": 17300, "net": 13400, "verdict": "VALID", "codes": [],
+                "case_resolves": ["REQUIRED_PERIOD_MISSING:BRW-A:2026-09"]}},
+    {"file": "negative/noa_payslip_2026-08_uploaded_as_ido.pdf", "source": "noa-2026-08", "variant": "digital_reissued", "upload_as": "BRW-A", "scene": "negative",
+     "expect": {"doc_type": "payslip", "period": "2026-08", "verdict": "INVALID", "codes": ["BORROWER_MISMATCH"]}},
+    {"file": "negative/ido_payslip_unreadable.pdf", "source": "ido-2026-08", "variant": "unreadable", "upload_as": "BRW-A", "scene": "negative",
+     "expect": {"verdict": "NEEDS_REVIEW", "codes": ["DOCUMENT_UNREADABLE"]}},
+    {"file": "negative/ido_payslip_2026-08_injection.pdf", "source": "ido-2026-08", "variant": "injection", "upload_as": "BRW-A", "scene": "negative",
+     "expect": {"doc_type": "payslip", "period": "2026-08", "verdict": "NEEDS_REVIEW", "codes": ["UNTRUSTED_INSTRUCTION_IN_DOCUMENT"]}},
+    {"file": "negative/ido_payslip_2026-09_contradictory.pdf", "source": "ido-2026-09", "variant": "contradictory", "upload_as": "BRW-A", "scene": "negative",
+     "expect": {"doc_type": "payslip", "period": "2026-09", "verdict": "NEEDS_REVIEW_OR_INVALID", "codes": ["INTERNAL_ARITHMETIC_MISMATCH"]}}
+  ]
+}

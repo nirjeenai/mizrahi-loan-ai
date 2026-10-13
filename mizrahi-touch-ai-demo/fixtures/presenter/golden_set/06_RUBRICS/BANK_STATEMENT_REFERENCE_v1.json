@@ -1,0 +1,23 @@
+{
+  "rubric_id": "BANK_STATEMENT_REFERENCE",
+  "version": "1.0-demo",
+  "document_type": "BANK_STATEMENT",
+  "policy_classification": "DEMO_CHECKS",
+  "criteria": [
+    {
+      "id": "STATEMENT_OWNER_MATCH",
+      "method": "DETERMINISTIC_AFTER_EXTRACTION",
+      "criterion": "Printed account holder belongs to case borrowers"
+    },
+    {
+      "id": "STATEMENT_PERIOD",
+      "method": "DETERMINISTIC_AFTER_EXTRACTION",
+      "criterion": "Covers period in requirement snapshot, if this document is in scope"
+    },
+    {
+      "id": "DEPOSIT_CROSSCHECK",
+      "method": "DETERMINISTIC",
+      "criterion": "Salary deposit dates and sums can be compared with payslip net amounts, without assuming automatic full validation"
+    }
+  ]
+}

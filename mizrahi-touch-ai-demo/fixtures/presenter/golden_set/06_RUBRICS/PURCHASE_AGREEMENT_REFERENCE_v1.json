@@ -1,0 +1,28 @@
+{
+  "rubric_id": "PURCHASE_AGREEMENT_REFERENCE",
+  "version": "1.0-demo",
+  "document_type": "PURCHASE_AGREEMENT",
+  "policy_classification": "DEMO_CHECKS",
+  "criteria": [
+    {
+      "id": "PARTIES_MATCH",
+      "method": "DETERMINISTIC_AFTER_EXTRACTION",
+      "criterion": "Buyer names should align with application; mismatches require review"
+    },
+    {
+      "id": "PROPERTY_IDS_MATCH",
+      "method": "DETERMINISTIC",
+      "criterion": "Block, parcel, subparcel align with application and other supporting docs"
+    },
+    {
+      "id": "PURCHASE_PRICE_MATCH",
+      "method": "DETERMINISTIC",
+      "criterion": "Compare price with case declaration, no autonomous legal approval"
+    },
+    {
+      "id": "AUTHENTICITY_UNVERIFIED",
+      "method": "MANUAL",
+      "criterion": "Never assert legal validity, signatures or ownership from synthetic docs"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "case_id": "MTZ-DEMO-2026-001",
+  "phase": "AFTER_SUPPLEMENT",
+  "bank_stage": {
+    "value": "PRELIMINARY_APPROVAL_ISSUED",
+    "source": "MOCK_BANK",
+    "official_approval_created": false
+  },
+  "review_scope": "SALARIED_BORROWER_PAYSLIPS_ONLY",
+  "supplement_document": "02_CORRECTION/ido_2026_09_CORRECTED.pdf",
+  "superseded_document": "01_INITIAL_UPLOADS/ido_2026_09.pdf",
+  "by_borrower": {
+    "IDO": {
+      "accepted_period_candidates": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "missing_periods": [],
+      "duplicate_periods": [],
+      "coverage": "COMPLETE"
+    },
+    "NOA": {
+      "accepted_period_candidates": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "missing_periods": [],
+      "duplicate_periods": [],
+      "coverage": "COMPLETE"
+    }
+  },
+  "expected_findings": [
+    {
+      "id": "F-MISSING-IDO-SEP",
+      "reason_code": "REQUIRED_PERIOD_MISSING",
+      "state": "RESOLVED",
+      "resolved_by": "02_CORRECTION/ido_2026_09_CORRECTED.pdf"
+    },
+    {
+      "id": "F-DUP-IDO-AUG",
+      "reason_code": "DUPLICATE_PERIOD",
+      "state": "SUPERSEDED",
+      "note": "The mismatched August copy remains in audit/history but not current accepted evidence."
+    },
+    {
+      "id": "F-FILENAME-MISMATCH",
+      "reason_code": "FILENAME_CONTENT_PERIOD_MISMATCH",
+      "state": "SUPERSEDED"
+    },
+    {
+      "id": "F-NOA-INCOME",
+      "reason_code": "DECLARED_NET_INCOME_VARIANCE",
+      "state": "READY_FOR_BANKER",
+      "owner": "BANKER",
+      "customer_explanation": "הלקוחה טוענת שקיבלה בונוס; יש לברר ללא סגירה אוטומטית."
+    }
+  ],
+  "income_check": {
+    "policy": "DEMO_TEST_RULE_NOT_VERIFIED_BANK_THRESHOLD",
+    "field": "NET_MONTHLY_INCOME",
+    "variance_threshold_ils": 1000,
+    "NOA": {
+      "declared": 18500,
+      "document_monthly_avg": 16900,
+      "difference": 1600,
+      "outcome": "BANKER_REVIEW"
+    },
+    "IDO": {
+      "declared": 14700,
+      "document_monthly_avg": 14700,
+      "difference": 0,
+      "outcome": "NO_VARIANCE"
+    }
+  },
+  "salary_documents_readiness": "READY_FOR_BANKER_REVIEW",
+  "whole_mortgage_case_readiness": "NOT_EVALUATED",
+  "bank_decision": null,
+  "customer_explanation_verified": false
+}

@@ -1,0 +1,53 @@
+{
+  "rubric_id": "PAYSLIP_REVIEW",
+  "version": "1.0-demo",
+  "document_type": "PAYSLIP",
+  "policy_classification": "DEMO_CRITERIA_NOT_BANK_POLICY",
+  "criteria": [
+    {
+      "id": "PAYSLIP_IS_PAYSLIP",
+      "method": "LLM_CLASSIFICATION",
+      "criterion": "Payslip content is recognizable; filename insufficient",
+      "if_uncertain": "NEEDS_REVIEW"
+    },
+    {
+      "id": "PAYSLIP_IDENTITY_MATCH",
+      "method": "DETERMINISTIC_AFTER_EXTRACTION",
+      "criterion": "Employee identity matches the case borrower",
+      "if_missing": "NEEDS_REVIEW"
+    },
+    {
+      "id": "PAYSLIP_PERIOD_READABLE",
+      "method": "MULTIMODAL_EXTRACTION",
+      "criterion": "Salary month and year printed within document must be legible",
+      "if_missing": "NEEDS_REVIEW"
+    },
+    {
+      "id": "PAYSLIP_GROSS_NET_COEXIST",
+      "method": "DETERMINISTIC_AFTER_EXTRACTION",
+      "criterion": "Both gross and net available and valid numbers; amounts do not define credit eligibility",
+      "if_missing": "NEEDS_REVIEW"
+    },
+    {
+      "id": "PAYSLIP_ARITHMETIC",
+      "method": "DETERMINISTIC",
+      "criterion": "Gross minus stated deductions equals net within formatting normalization, unless pay components demand additional evidence",
+      "if_uncertain": "NEEDS_REVIEW"
+    },
+    {
+      "id": "PAYSLIP_SOURCE_EVIDENCE",
+      "method": "EVIDENCE_VERIFY",
+      "criterion": "Each extracted amount and period has actual source PDF page and verified excerpt; coordinates optional if unavailable",
+      "if_missing": "NEEDS_REVIEW"
+    }
+  ],
+  "verdict_policy": "VALID if all required document-level checks pass; INVALID if clearly wrong borrower/type or confirmed failure; NEEDS_REVIEW if uncertain; never certify authenticity.",
+  "required_output": [
+    "criterion_id",
+    "outcome",
+    "reason_code",
+    "evidence_refs",
+    "confidence_or_uncertainty",
+    "reviewer_action"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "rubric_id": "SALARY_PERIOD_COVERAGE",
+  "version": "1.0-demo",
+  "document_type": "DOCUMENT_SET",
+  "policy_classification": "DEMO_SCENARIO_INPUT",
+  "criteria": [
+    {
+      "id": "REQUIRED_PERIODS",
+      "method": "DETERMINISTIC",
+      "criterion": "For each salaried borrower, exactly one accepted payslip per configured required month",
+      "required_months": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "source": "https://www.mizrahi-tefahot.co.il/mortgages/mortgagetoollib/second-hand/"
+    },
+    {
+      "id": "DUPLICATE_PERIOD",
+      "method": "DETERMINISTIC",
+      "criterion": "Multiple document candidates with same printed month; flag duplicate/superseded"
+    },
+    {
+      "id": "FILE_VS_CONTENT",
+      "method": "DETERMINISTIC",
+      "criterion": "Compare filename hint to extracted printed period, document content authoritative to classification"
+    }
+  ],
+  "verdict_policy": "Aggregate requirement readiness only; does not approve/reject whole loan."
+}

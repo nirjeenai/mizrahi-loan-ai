@@ -1,0 +1,57 @@
+{
+  "case_id": "MTZ-DEMO-2026-001",
+  "data": "SYNTHETIC_DEMO_ONLY",
+  "borrowers": {
+    "IDO": {
+      "id": "DEMO-ID-001",
+      "name": "עידו לוי",
+      "employer": "אביב מערכות דיגיטל בע״מ",
+      "role": "מהנדס מערכות",
+      "declared_net": 14700
+    },
+    "NOA": {
+      "id": "DEMO-ID-002",
+      "name": "נועה לוי",
+      "employer": "אורן פתרונות תוכנה בע״מ",
+      "role": "מנהלת מוצר",
+      "declared_net": 18500
+    },
+    "OTHER": {
+      "id": "DEMO-ID-099",
+      "name": "איתי רון",
+      "employer": "אביב מערכות דיגיטל בע״מ",
+      "role": "מנתח מערכות",
+      "declared_net": 0
+    }
+  },
+  "deal": {
+    "transaction_type": "SECOND_HAND_PURCHASE",
+    "address": "רחוב האלמוג 12, רמת גן",
+    "block": "6123",
+    "parcel": "45",
+    "subparcel": "9",
+    "purchase_price_ils": 2400000,
+    "requested_mortgage_ils": 1500000,
+    "declared_equity_ils": 900000
+  },
+  "bank_stage": {
+    "value": "PRELIMINARY_APPROVAL_ISSUED",
+    "source": "MOCK_BANK",
+    "real_bank_connection": false
+  },
+  "requirements_in_demo": {
+    "salary_periods_for_each_salaried_borrower": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "bank_statements_last_3_months": "REFERENCE_ONLY_IN_PACKAGE",
+    "loan_balances_if_any": "REFERENCE_ONLY_IN_PACKAGE",
+    "legal_and_collateral_documents": "OUT_OF_SCOPE_P0"
+  },
+  "business_rule_note": "Three payslips and three months bank statement cited from public official bank web page. Exact covered months as of synthetic demo cutoff and income variance threshold are DEMO INPUT, not bank policy.",
+  "sources": [
+    "https://www.mizrahi-tefahot.co.il/mortgages/mortgagetoollib/second-hand/",
+    "https://www.mizrahi-tefahot.co.il/mortgages/takemortgagelib/mortgage-documents/"
+  ]
+}

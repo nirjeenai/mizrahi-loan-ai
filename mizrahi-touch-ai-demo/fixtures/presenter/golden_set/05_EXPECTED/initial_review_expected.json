@@ -1,0 +1,109 @@
+{
+  "case_id": "MTZ-DEMO-2026-001",
+  "phase": "INITIAL_REVIEW",
+  "bank_stage": {
+    "value": "PRELIMINARY_APPROVAL_ISSUED",
+    "source": "MOCK_BANK",
+    "official_approval_created": false
+  },
+  "review_scope": "SALARIED_BORROWER_PAYSLIPS_ONLY",
+  "required_months": [
+    "2026-07",
+    "2026-08",
+    "2026-09"
+  ],
+  "by_borrower": {
+    "IDO": {
+      "accepted_period_candidates": [
+        "2026-07",
+        "2026-08"
+      ],
+      "missing_periods": [
+        "2026-09"
+      ],
+      "duplicate_periods": [
+        "2026-08"
+      ],
+      "coverage": "INCOMPLETE"
+    },
+    "NOA": {
+      "accepted_period_candidates": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "missing_periods": [],
+      "duplicate_periods": [],
+      "coverage": "COMPLETE"
+    }
+  },
+  "expected_findings": [
+    {
+      "id": "F-MISSING-IDO-SEP",
+      "reason_code": "REQUIRED_PERIOD_MISSING",
+      "borrower_ref": "IDO",
+      "period": "2026-09",
+      "owner": "CUSTOMER",
+      "state": "OPEN",
+      "evidence_refs": [],
+      "note": "Absence cannot have a source-page bbox."
+    },
+    {
+      "id": "F-DUP-IDO-AUG",
+      "reason_code": "DUPLICATE_PERIOD",
+      "borrower_ref": "IDO",
+      "period": "2026-08",
+      "owner": "CUSTOMER",
+      "state": "OPEN",
+      "evidence_refs": [
+        "01_INITIAL_UPLOADS/ido_2026_08.pdf#salary_period",
+        "01_INITIAL_UPLOADS/ido_2026_09.pdf#salary_period"
+      ]
+    },
+    {
+      "id": "F-FILENAME-MISMATCH",
+      "reason_code": "FILENAME_CONTENT_PERIOD_MISMATCH",
+      "borrower_ref": "IDO",
+      "period": "2026-08",
+      "owner": "CUSTOMER",
+      "state": "OPEN",
+      "evidence_refs": [
+        "01_INITIAL_UPLOADS/ido_2026_09.pdf#salary_period"
+      ]
+    },
+    {
+      "id": "F-NOA-INCOME",
+      "reason_code": "DECLARED_NET_INCOME_VARIANCE",
+      "borrower_ref": "NOA",
+      "owner": "BANKER",
+      "state": "READY_FOR_BANKER",
+      "evidence_refs": [
+        "03_SUPPORTING_DOCS/application_declarations.pdf#noa_declared_net",
+        "01_INITIAL_UPLOADS/noa_2026_07.pdf#net_salary_ils",
+        "01_INITIAL_UPLOADS/noa_2026_08.pdf#net_salary_ils",
+        "01_INITIAL_UPLOADS/noa_2026_09.pdf#net_salary_ils"
+      ]
+    }
+  ],
+  "income_check": {
+    "policy": "DEMO_TEST_RULE_NOT_VERIFIED_BANK_THRESHOLD",
+    "field": "NET_MONTHLY_INCOME",
+    "sample_months": 3,
+    "variance_threshold_ils": 1000,
+    "NOA": {
+      "declared": 18500,
+      "document_monthly_avg": 16900,
+      "difference": 1600,
+      "outcome": "BANKER_REVIEW"
+    },
+    "IDO": {
+      "declared": 14700,
+      "document_monthly_avg": null,
+      "difference": null,
+      "outcome": "DEFER_UNTIL_COVERAGE_COMPLETE"
+    }
+  },
+  "salary_documents_readiness": "NEEDS_CUSTOMER_ACTION",
+  "whole_mortgage_case_readiness": "NOT_EVALUATED",
+  "bank_decision": null
+}

@@ -1,0 +1,53 @@
+{
+  "purpose": "PS-10 printed payment date (golden-set payslips print none)",
+  "files": [
+    {
+      "file": "ido_2026_09_PAYDATE_PRINTED.pdf",
+      "payment_date": "09.10.2026",
+      "issue_date": "15.09.2026",
+      "expect": {
+        "PS-10": "PASS",
+        "verdict": "VALID"
+      },
+      "sha256": "07d2eeaacc10ff8a61b1c05c7848c2568573e530a75613568d7c7900627b55cb",
+      "bytes": 139205,
+      "borrower": "IDO",
+      "period": "2026-09",
+      "gross": 21500,
+      "net": 15000,
+      "synthetic": true
+    },
+    {
+      "file": "ido_2026_09_PAYDATE_BEFORE_PERIOD.pdf",
+      "payment_date": "25.08.2026",
+      "issue_date": "01.10.2026",
+      "expect": {
+        "PS-10": "FAIL",
+        "verdict": "NEEDS_REVIEW"
+      },
+      "sha256": "9ff8658c5a9dabd9ec4e68ba27b664a43ade7297cfb59c8d1bf4f47d2668102c",
+      "bytes": 139860,
+      "borrower": "IDO",
+      "period": "2026-09",
+      "gross": 21500,
+      "net": 15000,
+      "synthetic": true
+    },
+    {
+      "file": "ido_2026_09_PAYDATE_MID_PERIOD.pdf",
+      "payment_date": "15.09.2026",
+      "issue_date": "01.10.2026",
+      "expect": {
+        "PS-10": "NEEDS_REVIEW",
+        "verdict": "NEEDS_REVIEW"
+      },
+      "sha256": "fac194918edee29cbbef0da34ee15d2b3a4c8917ba521208c5901bcb71afdf80",
+      "bytes": 139211,
+      "borrower": "IDO",
+      "period": "2026-09",
+      "gross": 21500,
+      "net": 15000,
+      "synthetic": true
+    }
+  ]
+}

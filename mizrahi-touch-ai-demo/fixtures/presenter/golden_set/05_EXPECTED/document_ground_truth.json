@@ -1,0 +1,3240 @@
+{
+  "dataset_version": "1.0",
+  "case_id": "MTZ-DEMO-2026-001",
+  "notice": "All persons/employers/transactions synthetic; ground truth authored, not model output. Bboxes top-left PDF points.",
+  "documents": {
+    "01_INITIAL_UPLOADS/ido_2026_07.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "baseline",
+      "input_mode": "digital",
+      "sha256": "03411c918ad7d1c7c5d6d433bcef8d98e112cc6fb18c0a609bc9050a264f1be3",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "employee_name": "עידו לוי",
+        "employee_identifier": "DEMO-ID-001",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-07",
+        "gross_salary_ils": 20700,
+        "net_salary_ils": 14400,
+        "deductions_ils": 6300,
+        "issue_date": "01.08.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-001",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "יולי 2026",
+            "bbox_pt": [
+              490.6,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.08.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "20,700",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,300",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "14,400",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "01_INITIAL_UPLOADS/ido_2026_08.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "baseline",
+      "input_mode": "digital",
+      "sha256": "dce6d28a5a7ea971015458850edac3864a838f2528d9512edfa98563570c6205",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "employee_name": "עידו לוי",
+        "employee_identifier": "DEMO-ID-001",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-08",
+        "gross_salary_ils": 21100,
+        "net_salary_ils": 14700,
+        "deductions_ils": 6400,
+        "issue_date": "01.09.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-001",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "אוגוסט 2026",
+            "bbox_pt": [
+              474.6,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.09.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "21,100",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,400",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "14,700",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "01_INITIAL_UPLOADS/ido_2026_09.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "baseline",
+      "input_mode": "digital",
+      "sha256": "cf48d4c089c69723a58be0aa5484c9575786443af68bd31cfb112ad70b064a8f",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "employee_name": "עידו לוי",
+        "employee_identifier": "DEMO-ID-001",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-08",
+        "gross_salary_ils": 21100,
+        "net_salary_ils": 14700,
+        "deductions_ils": 6400,
+        "issue_date": "08.09.2026",
+        "document_note": "עותק נוסף של תלוש אוגוסט"
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-001",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "אוגוסט 2026",
+            "bbox_pt": [
+              474.6,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "08.09.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "21,100",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,400",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "14,700",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "01_INITIAL_UPLOADS/noa_2026_07.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "baseline",
+      "input_mode": "digital",
+      "sha256": "f98b2f7ec72c231573a31b84739dda4c6479f457aaa1ed0f728a31a6f0882e42",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "NOA",
+        "employee_name": "נועה לוי",
+        "employee_identifier": "DEMO-ID-002",
+        "employer_name": "אורן פתרונות תוכנה בע״מ",
+        "salary_period": "2026-07",
+        "gross_salary_ils": 23700,
+        "net_salary_ils": 16800,
+        "deductions_ils": 6900,
+        "issue_date": "01.08.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "נועה לוי",
+            "bbox_pt": [
+              496.1,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-002",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אורן פתרונות תוכנה בע״מ",
+            "bbox_pt": [
+              413.3,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "יולי 2026",
+            "bbox_pt": [
+              490.6,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.08.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "23,700",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,900",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "16,800",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "01_INITIAL_UPLOADS/noa_2026_08.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "baseline",
+      "input_mode": "digital",
+      "sha256": "e6299454e11f6637213e236c898d716405482bb829aafce2453a8986694b1fba",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "NOA",
+        "employee_name": "נועה לוי",
+        "employee_identifier": "DEMO-ID-002",
+        "employer_name": "אורן פתרונות תוכנה בע״מ",
+        "salary_period": "2026-08",
+        "gross_salary_ils": 23800,
+        "net_salary_ils": 16900,
+        "deductions_ils": 6900,
+        "issue_date": "01.09.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "נועה לוי",
+            "bbox_pt": [
+              496.1,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-002",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אורן פתרונות תוכנה בע״מ",
+            "bbox_pt": [
+              413.3,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "אוגוסט 2026",
+            "bbox_pt": [
+              474.6,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.09.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "23,800",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,900",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "16,900",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "01_INITIAL_UPLOADS/noa_2026_09.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "baseline",
+      "input_mode": "digital",
+      "sha256": "0716d2decafd9609f035ecebbaf6677907c9d76ad2dfa384754f969adcc1cc82",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "NOA",
+        "employee_name": "נועה לוי",
+        "employee_identifier": "DEMO-ID-002",
+        "employer_name": "אורן פתרונות תוכנה בע״מ",
+        "salary_period": "2026-09",
+        "gross_salary_ils": 24000,
+        "net_salary_ils": 17000,
+        "deductions_ils": 7000,
+        "issue_date": "01.10.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "נועה לוי",
+            "bbox_pt": [
+              496.1,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-002",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אורן פתרונות תוכנה בע״מ",
+            "bbox_pt": [
+              413.3,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "ספטמבר 2026",
+            "bbox_pt": [
+              467.2,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.10.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "24,000",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "7,000",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "17,000",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "02_CORRECTION/ido_2026_09_CORRECTED.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supplement",
+      "input_mode": "digital",
+      "sha256": "074bba3f5e619adcc61d182cc1d414007e1addf5245d05ca1b799054ba05cf9d",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "employee_name": "עידו לוי",
+        "employee_identifier": "DEMO-ID-001",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-09",
+        "gross_salary_ils": 21500,
+        "net_salary_ils": 15000,
+        "deductions_ils": 6500,
+        "issue_date": "01.10.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-001",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "ספטמבר 2026",
+            "bbox_pt": [
+              467.2,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.10.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "21,500",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,500",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "15,000",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "03_SUPPORTING_DOCS/application_declarations.pdf": {
+      "document_type": "APPLICATION_DECLARATION",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supporting",
+      "input_mode": "digital",
+      "sha256": "28aadb0018f332b40b4e3df78e66e3bf4cd85b484447a5ac37bf4e10d0a724d3",
+      "expected_facts": {
+        "document_type": "APPLICATION_DECLARATION",
+        "case_id": "MTZ-DEMO-2026-001",
+        "borrowers": [
+          "IDO",
+          "NOA"
+        ],
+        "borrower_names": [
+          "עידו לוי",
+          "נועה לוי"
+        ],
+        "declared_monthly_net_income_ils": {
+          "IDO": 14700,
+          "NOA": 18500
+        },
+        "property_price_ils": 2400000,
+        "requested_mortgage_ils": 1500000,
+        "declared_equity_ils": 900000,
+        "property_address": "רחוב האלמוג 12, רמת גן",
+        "block": "6123",
+        "parcel": "45",
+        "subparcel": "9",
+        "application_date": "02.10.2026"
+      },
+      "evidence_anchors": {
+        "case_id": [
+          {
+            "page": 1,
+            "quote": "MTZ-DEMO-2026-001",
+            "bbox_pt": [
+              311.1,
+              223.9,
+              415.1,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "application_date": [
+          {
+            "page": 1,
+            "quote": "02.10.2026",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              114.7,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "borrower_1": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "borrower_2": [
+          {
+            "page": 1,
+            "quote": "נועה לוי",
+            "bbox_pt": [
+              247.1,
+              276.4,
+              284.1,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "ido_declared_net": [
+          {
+            "page": 1,
+            "quote": "14,700",
+            "bbox_pt": [
+              311.1,
+              328.9,
+              343.3,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "noa_declared_net": [
+          {
+            "page": 1,
+            "quote": "18,500",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              94.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "property_price": [
+          {
+            "page": 1,
+            "quote": "2,400,000",
+            "bbox_pt": [
+              311.1,
+              381.4,
+              357.9,
+              395.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "requested_mortgage": [
+          {
+            "page": 1,
+            "quote": "1,500,000",
+            "bbox_pt": [
+              62.1,
+              381.4,
+              108.8,
+              395.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "declared_equity": [
+          {
+            "page": 1,
+            "quote": "900,000",
+            "bbox_pt": [
+              311.1,
+              433.9,
+              349.1,
+              448.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "property_address": [
+          {
+            "page": 1,
+            "quote": "רחוב האלמוג 12, רמת גן",
+            "bbox_pt": [
+              172.0,
+              433.9,
+              284.1,
+              448.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "property_ids": [
+          {
+            "page": 1,
+            "quote": "6123 / 45 / 9",
+            "bbox_pt": [
+              311.1,
+              486.4,
+              369.2,
+              500.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "03_SUPPORTING_DOCS/bank_statement_Jul_Sep_2026.pdf": {
+      "document_type": "BANK_STATEMENT",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supporting",
+      "input_mode": "digital",
+      "sha256": "e2dca5376e23cfb1bd882e6916a20c2e4622fce69c840406bce5ee556529269b",
+      "expected_facts": {
+        "document_type": "BANK_STATEMENT",
+        "account_holders": [
+          "עידו לוי",
+          "נועה לוי"
+        ],
+        "account_no_masked": "***-***-4021",
+        "date_start": "01.07.2026",
+        "date_end": "30.09.2026",
+        "opening_balance_ils": 24000,
+        "closing_balance_ils": 85300,
+        "transactions": [
+          {
+            "date": "05.07.2026",
+            "description": "הפקדת משכורת עידו לוי",
+            "amount_ils": 14400,
+            "balance_ils": 38400
+          },
+          {
+            "date": "06.07.2026",
+            "description": "הפקדת משכורת נועה לוי",
+            "amount_ils": 16800,
+            "balance_ils": 55200
+          },
+          {
+            "date": "10.07.2026",
+            "description": "תשלום שכירות",
+            "amount_ils": -4900,
+            "balance_ils": 50300
+          },
+          {
+            "date": "15.07.2026",
+            "description": "כרטיס אשראי",
+            "amount_ils": -2800,
+            "balance_ils": 47500
+          },
+          {
+            "date": "18.07.2026",
+            "description": "הוראת קבע גן",
+            "amount_ils": -1900,
+            "balance_ils": 45600
+          },
+          {
+            "date": "24.07.2026",
+            "description": "החזר הלוואה",
+            "amount_ils": -1200,
+            "balance_ils": 44400
+          },
+          {
+            "date": "05.08.2026",
+            "description": "הפקדת משכורת עידו לוי",
+            "amount_ils": 14700,
+            "balance_ils": 59100
+          },
+          {
+            "date": "06.08.2026",
+            "description": "הפקדת משכורת נועה לוי",
+            "amount_ils": 16900,
+            "balance_ils": 76000
+          },
+          {
+            "date": "10.08.2026",
+            "description": "תשלום שכירות",
+            "amount_ils": -5000,
+            "balance_ils": 71000
+          },
+          {
+            "date": "15.08.2026",
+            "description": "כרטיס אשראי",
+            "amount_ils": -2900,
+            "balance_ils": 68100
+          },
+          {
+            "date": "18.08.2026",
+            "description": "הוראת קבע גן",
+            "amount_ils": -2000,
+            "balance_ils": 66100
+          },
+          {
+            "date": "24.08.2026",
+            "description": "החזר הלוואה",
+            "amount_ils": -1200,
+            "balance_ils": 64900
+          },
+          {
+            "date": "05.09.2026",
+            "description": "הפקדת משכורת עידו לוי",
+            "amount_ils": 15000,
+            "balance_ils": 79900
+          },
+          {
+            "date": "06.09.2026",
+            "description": "הפקדת משכורת נועה לוי",
+            "amount_ils": 17000,
+            "balance_ils": 96900
+          },
+          {
+            "date": "10.09.2026",
+            "description": "תשלום שכירות",
+            "amount_ils": -5200,
+            "balance_ils": 91700
+          },
+          {
+            "date": "15.09.2026",
+            "description": "כרטיס אשראי",
+            "amount_ils": -3200,
+            "balance_ils": 88500
+          },
+          {
+            "date": "18.09.2026",
+            "description": "הוראת קבע גן",
+            "amount_ils": -2000,
+            "balance_ils": 86500
+          },
+          {
+            "date": "24.09.2026",
+            "description": "החזר הלוואה",
+            "amount_ils": -1200,
+            "balance_ils": 85300
+          }
+        ]
+      },
+      "evidence_anchors": {
+        "account_holders": [
+          {
+            "page": 1,
+            "quote": "עידו לוי; נועה לוי",
+            "bbox_pt": [
+              454.5,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "account_no_masked": [
+          {
+            "page": 1,
+            "quote": "***-***-4021",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              116.7,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "opening_balance": [
+          {
+            "page": 1,
+            "quote": "24,000",
+            "bbox_pt": [
+              62.1,
+              276.4,
+              94.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_1_date": [
+          {
+            "page": 1,
+            "quote": "05.07.2026",
+            "bbox_pt": [
+              492.6,
+              374.5,
+              533.9,
+              385.7
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_1_amount": [
+          {
+            "page": 1,
+            "quote": "+14,400",
+            "bbox_pt": [
+              199.1,
+              374.5,
+              229.2,
+              385.7
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_1_balance": [
+          {
+            "page": 1,
+            "quote": "38,400",
+            "bbox_pt": [
+              112.5,
+              374.5,
+              137.7,
+              385.7
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_2_date": [
+          {
+            "page": 1,
+            "quote": "06.07.2026",
+            "bbox_pt": [
+              492.6,
+              401.9,
+              533.9,
+              413.2
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_2_amount": [
+          {
+            "page": 1,
+            "quote": "+16,800",
+            "bbox_pt": [
+              199.1,
+              401.9,
+              229.2,
+              413.2
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_2_balance": [
+          {
+            "page": 1,
+            "quote": "55,200",
+            "bbox_pt": [
+              112.5,
+              401.9,
+              137.7,
+              413.2
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_3_date": [
+          {
+            "page": 1,
+            "quote": "10.07.2026",
+            "bbox_pt": [
+              492.6,
+              429.4,
+              533.9,
+              440.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_3_amount": [
+          {
+            "page": 1,
+            "quote": "-4,900",
+            "bbox_pt": [
+              205.9,
+              429.4,
+              229.2,
+              440.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_3_balance": [
+          {
+            "page": 1,
+            "quote": "50,300",
+            "bbox_pt": [
+              112.5,
+              429.4,
+              137.7,
+              440.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_4_date": [
+          {
+            "page": 1,
+            "quote": "15.07.2026",
+            "bbox_pt": [
+              492.6,
+              456.8,
+              533.9,
+              468.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_4_amount": [
+          {
+            "page": 1,
+            "quote": "-2,800",
+            "bbox_pt": [
+              205.9,
+              456.8,
+              229.2,
+              468.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_4_balance": [
+          {
+            "page": 1,
+            "quote": "47,500",
+            "bbox_pt": [
+              112.5,
+              456.8,
+              137.7,
+              468.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_5_date": [
+          {
+            "page": 1,
+            "quote": "18.07.2026",
+            "bbox_pt": [
+              492.6,
+              484.3,
+              533.9,
+              495.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_5_amount": [
+          {
+            "page": 1,
+            "quote": "-1,900",
+            "bbox_pt": [
+              205.9,
+              484.3,
+              229.2,
+              495.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_5_balance": [
+          {
+            "page": 1,
+            "quote": "45,600",
+            "bbox_pt": [
+              112.5,
+              484.3,
+              137.7,
+              495.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_6_date": [
+          {
+            "page": 1,
+            "quote": "24.07.2026",
+            "bbox_pt": [
+              492.6,
+              511.7,
+              533.9,
+              523.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_6_amount": [
+          {
+            "page": 1,
+            "quote": "-1,200",
+            "bbox_pt": [
+              205.9,
+              511.7,
+              229.2,
+              523.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_6_balance": [
+          {
+            "page": 1,
+            "quote": "44,400",
+            "bbox_pt": [
+              112.5,
+              511.7,
+              137.7,
+              523.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_7_date": [
+          {
+            "page": 1,
+            "quote": "05.08.2026",
+            "bbox_pt": [
+              492.6,
+              539.2,
+              533.9,
+              550.4
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_7_amount": [
+          {
+            "page": 1,
+            "quote": "+14,700",
+            "bbox_pt": [
+              199.1,
+              539.2,
+              229.2,
+              550.4
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_7_balance": [
+          {
+            "page": 1,
+            "quote": "59,100",
+            "bbox_pt": [
+              112.5,
+              539.2,
+              137.7,
+              550.4
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_8_date": [
+          {
+            "page": 1,
+            "quote": "06.08.2026",
+            "bbox_pt": [
+              492.6,
+              566.6,
+              533.9,
+              577.9
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_8_amount": [
+          {
+            "page": 1,
+            "quote": "+16,900",
+            "bbox_pt": [
+              199.1,
+              566.6,
+              229.2,
+              577.9
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_8_balance": [
+          {
+            "page": 1,
+            "quote": "76,000",
+            "bbox_pt": [
+              112.5,
+              566.6,
+              137.7,
+              577.9
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_9_date": [
+          {
+            "page": 1,
+            "quote": "10.08.2026",
+            "bbox_pt": [
+              492.6,
+              594.1,
+              533.9,
+              605.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_9_amount": [
+          {
+            "page": 1,
+            "quote": "-5,000",
+            "bbox_pt": [
+              205.9,
+              594.1,
+              229.2,
+              605.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_9_balance": [
+          {
+            "page": 1,
+            "quote": "71,000",
+            "bbox_pt": [
+              112.5,
+              594.1,
+              137.7,
+              605.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_10_date": [
+          {
+            "page": 2,
+            "quote": "15.08.2026",
+            "bbox_pt": [
+              492.6,
+              374.5,
+              533.9,
+              385.7
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_10_amount": [
+          {
+            "page": 2,
+            "quote": "-2,900",
+            "bbox_pt": [
+              205.9,
+              374.5,
+              229.2,
+              385.7
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_10_balance": [
+          {
+            "page": 2,
+            "quote": "68,100",
+            "bbox_pt": [
+              112.5,
+              374.5,
+              137.7,
+              385.7
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_11_date": [
+          {
+            "page": 2,
+            "quote": "18.08.2026",
+            "bbox_pt": [
+              492.6,
+              401.9,
+              533.9,
+              413.2
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_11_amount": [
+          {
+            "page": 2,
+            "quote": "-2,000",
+            "bbox_pt": [
+              205.9,
+              401.9,
+              229.2,
+              413.2
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_11_balance": [
+          {
+            "page": 2,
+            "quote": "66,100",
+            "bbox_pt": [
+              112.5,
+              401.9,
+              137.7,
+              413.2
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_12_date": [
+          {
+            "page": 2,
+            "quote": "24.08.2026",
+            "bbox_pt": [
+              492.6,
+              429.4,
+              533.9,
+              440.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_12_amount": [
+          {
+            "page": 2,
+            "quote": "-1,200",
+            "bbox_pt": [
+              205.9,
+              429.4,
+              229.2,
+              440.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_12_balance": [
+          {
+            "page": 2,
+            "quote": "64,900",
+            "bbox_pt": [
+              112.5,
+              429.4,
+              137.7,
+              440.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_13_date": [
+          {
+            "page": 2,
+            "quote": "05.09.2026",
+            "bbox_pt": [
+              492.6,
+              456.8,
+              533.9,
+              468.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_13_amount": [
+          {
+            "page": 2,
+            "quote": "+15,000",
+            "bbox_pt": [
+              199.1,
+              456.8,
+              229.2,
+              468.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_13_balance": [
+          {
+            "page": 2,
+            "quote": "79,900",
+            "bbox_pt": [
+              112.5,
+              456.8,
+              137.7,
+              468.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_14_date": [
+          {
+            "page": 2,
+            "quote": "06.09.2026",
+            "bbox_pt": [
+              492.6,
+              484.3,
+              533.9,
+              495.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_14_amount": [
+          {
+            "page": 2,
+            "quote": "+17,000",
+            "bbox_pt": [
+              199.1,
+              484.3,
+              229.2,
+              495.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_14_balance": [
+          {
+            "page": 2,
+            "quote": "96,900",
+            "bbox_pt": [
+              112.5,
+              484.3,
+              137.7,
+              495.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_15_date": [
+          {
+            "page": 2,
+            "quote": "10.09.2026",
+            "bbox_pt": [
+              492.6,
+              511.7,
+              533.9,
+              523.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_15_amount": [
+          {
+            "page": 2,
+            "quote": "-5,200",
+            "bbox_pt": [
+              205.9,
+              511.7,
+              229.2,
+              523.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_15_balance": [
+          {
+            "page": 2,
+            "quote": "91,700",
+            "bbox_pt": [
+              112.5,
+              511.7,
+              137.7,
+              523.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_16_date": [
+          {
+            "page": 2,
+            "quote": "15.09.2026",
+            "bbox_pt": [
+              492.6,
+              539.2,
+              533.9,
+              550.4
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_16_amount": [
+          {
+            "page": 2,
+            "quote": "-3,200",
+            "bbox_pt": [
+              205.9,
+              539.2,
+              229.2,
+              550.4
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_16_balance": [
+          {
+            "page": 2,
+            "quote": "88,500",
+            "bbox_pt": [
+              112.5,
+              539.2,
+              137.7,
+              550.4
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_17_date": [
+          {
+            "page": 2,
+            "quote": "18.09.2026",
+            "bbox_pt": [
+              492.6,
+              566.6,
+              533.9,
+              577.9
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_17_amount": [
+          {
+            "page": 2,
+            "quote": "-2,000",
+            "bbox_pt": [
+              205.9,
+              566.6,
+              229.2,
+              577.9
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_17_balance": [
+          {
+            "page": 2,
+            "quote": "86,500",
+            "bbox_pt": [
+              112.5,
+              566.6,
+              137.7,
+              577.9
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_18_date": [
+          {
+            "page": 2,
+            "quote": "24.09.2026",
+            "bbox_pt": [
+              492.6,
+              594.1,
+              533.9,
+              605.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_18_amount": [
+          {
+            "page": 2,
+            "quote": "-1,200",
+            "bbox_pt": [
+              205.9,
+              594.1,
+              229.2,
+              605.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "tx_18_balance": [
+          {
+            "page": 2,
+            "quote": "85,300",
+            "bbox_pt": [
+              112.5,
+              594.1,
+              137.7,
+              605.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "closing_balance": [
+          {
+            "page": 2,
+            "quote": "85,300",
+            "bbox_pt": [
+              311.1,
+              677.0,
+              343.3,
+              691.3
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "03_SUPPORTING_DOCS/loan_balance_summary.pdf": {
+      "document_type": "LOAN_BALANCES",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supporting",
+      "input_mode": "digital",
+      "sha256": "d91d72df958ef65a7f20281b0213da8dd086d0ab8111b9284cde4a6ff8c50815",
+      "expected_facts": {
+        "document_type": "LOAN_BALANCES",
+        "borrower_refs": [
+          "IDO",
+          "NOA"
+        ],
+        "remaining_balance_ils": 128000,
+        "monthly_repayment_ils": 1200,
+        "as_of_date": "30.09.2026"
+      },
+      "evidence_anchors": {
+        "as_of_date": [
+          {
+            "page": 1,
+            "quote": "30.09.2026",
+            "bbox_pt": [
+              311.1,
+              223.9,
+              363.7,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "remaining_balance_ils": [
+          {
+            "page": 1,
+            "quote": "128,000",
+            "bbox_pt": [
+              311.1,
+              276.4,
+              349.1,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "monthly_repayment_ils": [
+          {
+            "page": 1,
+            "quote": "1,200",
+            "bbox_pt": [
+              62.1,
+              276.4,
+              88.4,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "borrower_names": [
+          {
+            "page": 1,
+            "quote": "עידו לוי / נועה לוי",
+            "bbox_pt": [
+              452.2,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "03_SUPPORTING_DOCS/purchase_agreement_SYNTHETIC.pdf": {
+      "document_type": "PURCHASE_AGREEMENT",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supporting",
+      "input_mode": "digital",
+      "sha256": "d192ae7c68094be94249f670408f6ac6de7d7455c029ce4bf91eaebfcb5f24e0",
+      "expected_facts": {
+        "document_type": "PURCHASE_AGREEMENT",
+        "buyers": [
+          "עידו לוי",
+          "נועה לוי"
+        ],
+        "seller": "דקל איתן",
+        "property_address": "רחוב האלמוג 12, רמת גן",
+        "block": "6123",
+        "parcel": "45",
+        "subparcel": "9",
+        "purchase_price_ils": 2400000,
+        "date": "01.10.2026",
+        "signature_presence": "SYNTHETIC_SIGNATURE_TEXT_ONLY"
+      },
+      "evidence_anchors": {
+        "buyers": [
+          {
+            "page": 1,
+            "quote": "עידו לוי; נועה לוי",
+            "bbox_pt": [
+              454.5,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "seller": [
+          {
+            "page": 1,
+            "quote": "דקל איתן",
+            "bbox_pt": [
+              241.1,
+              223.9,
+              284.1,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "property_address": [
+          {
+            "page": 1,
+            "quote": "רחוב האלמוג 12, רמת גן",
+            "bbox_pt": [
+              421.0,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "block": [
+          {
+            "page": 1,
+            "quote": "6123",
+            "bbox_pt": [
+              62.1,
+              276.4,
+              85.5,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "parcel": [
+          {
+            "page": 1,
+            "quote": "45",
+            "bbox_pt": [
+              311.1,
+              328.9,
+              322.8,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "subparcel": [
+          {
+            "page": 1,
+            "quote": "9",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              67.9,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "purchase_price": [
+          {
+            "page": 1,
+            "quote": "2,400,000",
+            "bbox_pt": [
+              311.1,
+              381.4,
+              357.9,
+              395.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "contract_date": [
+          {
+            "page": 1,
+            "quote": "01.10.2026",
+            "bbox_pt": [
+              62.1,
+              381.4,
+              114.7,
+              395.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "03_SUPPORTING_DOCS/property_reference_NOT_TABU.pdf": {
+      "document_type": "PROPERTY_REFERENCE",
+      "expected_document_verdict": "NEEDS_REVIEW",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supporting",
+      "input_mode": "digital",
+      "sha256": "20f521a3f03de30d1f2dd694502ff1e8c761cabb4d6ac6adc9300ba923be6819",
+      "expected_facts": {
+        "document_type": "PROPERTY_REFERENCE",
+        "block": "6123",
+        "parcel": "45",
+        "subparcel": "9",
+        "property_address": "רחוב האלמוג 12, רמת גן",
+        "owner_name": "דקל איתן",
+        "verification_status": "NOT_GOVERNMENT_VERIFIED"
+      },
+      "evidence_anchors": {
+        "property_address": [
+          {
+            "page": 1,
+            "quote": "רחוב האלמוג 12, רמת גן",
+            "bbox_pt": [
+              421.0,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "block": [
+          {
+            "page": 1,
+            "quote": "6123",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              85.5,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "parcel": [
+          {
+            "page": 1,
+            "quote": "45",
+            "bbox_pt": [
+              311.1,
+              276.4,
+              322.8,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "subparcel": [
+          {
+            "page": 1,
+            "quote": "9",
+            "bbox_pt": [
+              62.1,
+              276.4,
+              67.9,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "owner_name": [
+          {
+            "page": 1,
+            "quote": "דקל איתן",
+            "bbox_pt": [
+              490.1,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "03_SUPPORTING_DOCS/noa_employer_letter_UNVERIFIED_BONUS.pdf": {
+      "document_type": "EMPLOYER_LETTER",
+      "expected_document_verdict": "NEEDS_REVIEW",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "supporting",
+      "input_mode": "digital",
+      "sha256": "94d823cd3bafcaf886301b4947d52cedc3bd4971787b7eed66b7e66111b9b83c",
+      "expected_facts": {
+        "document_type": "EMPLOYER_LETTER",
+        "borrower_ref": "NOA",
+        "employee_name": "נועה לוי",
+        "employer_name": "אורן פתרונות תוכנה בע״מ",
+        "regular_net_income_ils": 16900,
+        "possible_variable_bonus_ils": 1600,
+        "income_confirmation": "regular_pay_only"
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "נועה לוי",
+            "bbox_pt": [
+              496.1,
+              261.4,
+              533.2,
+              275.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אורן פתרונות תוכנה בע״מ",
+            "bbox_pt": [
+              164.3,
+              261.4,
+              284.1,
+              275.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "regular_net": [
+          {
+            "page": 1,
+            "quote": "16,900",
+            "bbox_pt": [
+              311.1,
+              313.9,
+              343.3,
+              328.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "variable_bonus": [
+          {
+            "page": 1,
+            "quote": "1,600",
+            "bbox_pt": [
+              62.1,
+              313.9,
+              88.4,
+              328.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "04_NEGATIVE_TESTS/wrong_borrower_2026_09.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "INVALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "wrong_borrower",
+      "input_mode": "digital",
+      "sha256": "860dfbcc8d63e74bdb6d7468b12ea59f0e7c6ddb9a7c632765d5331980572ad1",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "OTHER",
+        "employee_name": "איתי רון",
+        "employee_identifier": "DEMO-ID-099",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-09",
+        "gross_salary_ils": 18700,
+        "net_salary_ils": 13200,
+        "deductions_ils": 5500,
+        "issue_date": "01.10.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "איתי רון",
+            "bbox_pt": [
+              496.3,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-099",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "ספטמבר 2026",
+            "bbox_pt": [
+              467.2,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.10.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "18,700",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "5,500",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "13,200",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "04_NEGATIVE_TESTS/ido_2026_09_INJECTION.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "NEEDS_REVIEW",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "prompt_injection",
+      "input_mode": "digital",
+      "sha256": "3cd6c3bc43d6aeaa998cf300dba38ef3a550ba7af65cc6072a51c2611e01b4da",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "employee_name": "עידו לוי",
+        "employee_identifier": "DEMO-ID-001",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-08",
+        "gross_salary_ils": 21100,
+        "net_salary_ils": 14700,
+        "deductions_ils": 6400,
+        "issue_date": "08.09.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-001",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "אוגוסט 2026",
+            "bbox_pt": [
+              474.6,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "08.09.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "21,100",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,400",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "14,700",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "04_NEGATIVE_TESTS/ido_2026_09_SCANNED_SOURCE.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "ocr_source",
+      "input_mode": "digital",
+      "sha256": "46098b439fca52816333e167d5346e0a00c93f3105ee7b413cf1347c5e92c681",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "employee_name": "עידו לוי",
+        "employee_identifier": "DEMO-ID-001",
+        "employer_name": "אביב מערכות דיגיטל בע״מ",
+        "salary_period": "2026-09",
+        "gross_salary_ils": 21500,
+        "net_salary_ils": 15000,
+        "deductions_ils": 6500,
+        "issue_date": "01.10.2026",
+        "document_note": ""
+      },
+      "evidence_anchors": {
+        "employee_name": [
+          {
+            "page": 1,
+            "quote": "עידו לוי",
+            "bbox_pt": [
+              497.8,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employee_identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-001",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "employer_name": [
+          {
+            "page": 1,
+            "quote": "אביב מערכות דיגיטל בע״מ",
+            "bbox_pt": [
+              411.4,
+              276.4,
+              533.2,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "salary_period": [
+          {
+            "page": 1,
+            "quote": "ספטמבר 2026",
+            "bbox_pt": [
+              467.2,
+              328.9,
+              533.2,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "issue_date": [
+          {
+            "page": 1,
+            "quote": "01.10.2026",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              114.7,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "gross_salary_ils": [
+          {
+            "page": 1,
+            "quote": "21,500",
+            "bbox_pt": [
+              311.1,
+              592.3,
+              343.3,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "deductions_ils": [
+          {
+            "page": 1,
+            "quote": "6,500",
+            "bbox_pt": [
+              62.1,
+              592.3,
+              88.4,
+              606.5
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "net_salary_ils": [
+          {
+            "page": 1,
+            "quote": "15,000",
+            "bbox_pt": [
+              311.1,
+              644.8,
+              343.3,
+              659.0
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "04_NEGATIVE_TESTS/purchase_agreement_WRONG_PARCEL.pdf": {
+      "document_type": "PURCHASE_AGREEMENT",
+      "expected_document_verdict": "NEEDS_REVIEW",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "property_mismatch",
+      "input_mode": "digital",
+      "sha256": "709dcda662a507cd2cd48fa1e7af1ac74c2d78b746d7631f0f59589a89e53399",
+      "expected_facts": {
+        "document_type": "PURCHASE_AGREEMENT",
+        "buyers": [
+          "עידו לוי",
+          "נועה לוי"
+        ],
+        "seller": "דקל איתן",
+        "property_address": "רחוב האלמוג 12, רמת גן",
+        "block": "6123",
+        "parcel": "46",
+        "subparcel": "9",
+        "purchase_price_ils": 2400000,
+        "date": "01.10.2026",
+        "signature_presence": "SYNTHETIC_SIGNATURE_TEXT_ONLY"
+      },
+      "evidence_anchors": {
+        "buyers": [
+          {
+            "page": 1,
+            "quote": "עידו לוי; נועה לוי",
+            "bbox_pt": [
+              454.5,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "property_address": [
+          {
+            "page": 1,
+            "quote": "רחוב האלמוג 12, רמת גן",
+            "bbox_pt": [
+              172.0,
+              223.9,
+              284.1,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "block": [
+          {
+            "page": 1,
+            "quote": "6123",
+            "bbox_pt": [
+              311.1,
+              276.4,
+              334.5,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "parcel": [
+          {
+            "page": 1,
+            "quote": "46",
+            "bbox_pt": [
+              62.1,
+              276.4,
+              73.8,
+              290.6
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "subparcel": [
+          {
+            "page": 1,
+            "quote": "9",
+            "bbox_pt": [
+              311.1,
+              328.9,
+              317.0,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "purchase_price": [
+          {
+            "page": 1,
+            "quote": "2,400,000",
+            "bbox_pt": [
+              62.1,
+              328.9,
+              108.8,
+              343.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "04_NEGATIVE_TESTS/third_party_account_statement.pdf": {
+      "document_type": "BANK_STATEMENT",
+      "expected_document_verdict": "INVALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "wrong_account_owner",
+      "input_mode": "digital",
+      "sha256": "ba9f6597a6431bfaef4cada27018744935dd68f5d173072a6ea72949b80951f8",
+      "expected_facts": {
+        "document_type": "BANK_STATEMENT",
+        "account_holder": "איתי רון",
+        "borrower_ref": "OTHER"
+      },
+      "evidence_anchors": {
+        "account_holder": [
+          {
+            "page": 1,
+            "quote": "איתי רון",
+            "bbox_pt": [
+              496.3,
+              223.9,
+              533.2,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ],
+        "identifier": [
+          {
+            "page": 1,
+            "quote": "DEMO-ID-099",
+            "bbox_pt": [
+              62.1,
+              223.9,
+              128.3,
+              238.1
+            ],
+            "bbox_origin": "TOP_LEFT",
+            "locator_quality": "PDF_TEXT_CONFIRMED",
+            "verified_text_hit": true
+          }
+        ]
+      }
+    },
+    "04_NEGATIVE_TESTS/ido_2026_09_SCANNED_READABLE.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "VALID",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "scanned_readable",
+      "input_mode": "image_only",
+      "sha256": "d48bcb3ed67abd8a5a71cc2cde888d8599b8ee7882c8ae437b23ca89ed7b17ef",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "salary_period": "2026-09",
+        "net_salary_ils": 15000,
+        "quality": "readable"
+      },
+      "evidence_anchors": {}
+    },
+    "04_NEGATIVE_TESTS/ido_2026_09_SCANNED_UNREADABLE.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "NEEDS_REVIEW",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "scanned_unreadable",
+      "input_mode": "image_only",
+      "sha256": "5490d88f396958211a0ebeae1a220a46ccdf9b4583f1614cb684857c81a03719",
+      "expected_facts": {
+        "document_type": "PAYSLIP",
+        "borrower_ref": "IDO",
+        "salary_period": "2026-09",
+        "net_salary_ils": 15000,
+        "quality": "unreadable"
+      },
+      "evidence_anchors": {}
+    },
+    "04_NEGATIVE_TESTS/ido_2026_08_EXACT_BINARY_COPY.pdf": {
+      "document_type": "PAYSLIP",
+      "expected_document_verdict": "DUPLICATE",
+      "case_id": "MTZ-DEMO-2026-001",
+      "scenario": "exact_hash_duplicate",
+      "input_mode": "digital",
+      "sha256": "dce6d28a5a7ea971015458850edac3864a838f2528d9512edfa98563570c6205",
+      "expected_facts": {
+        "duplicate_of": "01_INITIAL_UPLOADS/ido_2026_08.pdf"
+      },
+      "evidence_anchors": {}
+    }
+  }
+}

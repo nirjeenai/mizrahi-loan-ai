@@ -1,0 +1,202 @@
+{
+  "case_id": "DEMO-MTZ-2026-001",
+  "files": [
+    {
+      "file": "main/ido_payslip_2026-07.pdf",
+      "sha256": "6ce5cb49a98c87dd7e03846ada70efb4269a4889980ba85f0fff8601abd8195e",
+      "bytes": 156316,
+      "variant": "digital",
+      "text_layer_chars": 754,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-07",
+        "gross": 17000,
+        "net": 13200,
+        "verdict": "VALID",
+        "codes": []
+      },
+      "upload_as": "BRW-A",
+      "scene": "initial"
+    },
+    {
+      "file": "main/ido_payslip_2026-08.pdf",
+      "sha256": "680432f731b4701b7c9df229926b4e6690e1b784ac4d062e1dd325b28dd7febb",
+      "bytes": 157866,
+      "variant": "digital",
+      "text_layer_chars": 758,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-08",
+        "gross": 17500,
+        "net": 13500,
+        "verdict": "VALID",
+        "codes": []
+      },
+      "upload_as": "BRW-A",
+      "scene": "initial"
+    },
+    {
+      "file": "main/ido_payslip_2026-09.pdf",
+      "sha256": "a1b5f7724a84eca23b8e6d5ce5288d2288cde5b1e648559e9e76056129fdc7d2",
+      "bytes": 169585,
+      "variant": "digital_reissued",
+      "text_layer_chars": 775,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-08",
+        "gross": 17500,
+        "net": 13500,
+        "verdict": "VALID",
+        "codes": [
+          "FILE_NAME_PERIOD_MISMATCH"
+        ],
+        "case_codes": [
+          "DUPLICATE_PERIOD:BRW-A:2026-08",
+          "REQUIRED_PERIOD_MISSING:BRW-A:2026-09"
+        ]
+      },
+      "upload_as": "BRW-A",
+      "scene": "initial"
+    },
+    {
+      "file": "main/noa_payslip_2026-07_scan.pdf",
+      "sha256": "c342226ca8cbc1f993be07b8492feaf857cc48a7834d86fed5c6026494b203b9",
+      "bytes": 67554,
+      "variant": "scan",
+      "text_layer_chars": 0,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-07",
+        "gross": 22600,
+        "net": 16900,
+        "verdict": "VALID_OR_NEEDS_REVIEW",
+        "codes": []
+      },
+      "upload_as": "BRW-B",
+      "scene": "initial"
+    },
+    {
+      "file": "main/noa_payslip_2026-08.pdf",
+      "sha256": "51a02a0fcac08d6756e807f679677b22ca3c25c891f49d7caf8b13d282e27e6b",
+      "bytes": 158928,
+      "variant": "digital",
+      "text_layer_chars": 755,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-08",
+        "gross": 22600,
+        "net": 16900,
+        "verdict": "VALID",
+        "codes": []
+      },
+      "upload_as": "BRW-B",
+      "scene": "initial"
+    },
+    {
+      "file": "main/noa_payslip_2026-09.pdf",
+      "sha256": "c6e43db7d88057fad8507c6bbc528b5cc6e22c6c72df9dc2c321b0b52693a5a5",
+      "bytes": 158627,
+      "variant": "digital",
+      "text_layer_chars": 755,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-09",
+        "gross": 22600,
+        "net": 16900,
+        "verdict": "VALID",
+        "codes": [],
+        "case_codes": [
+          "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"
+        ]
+      },
+      "upload_as": "BRW-B",
+      "scene": "initial"
+    },
+    {
+      "file": "main/ido_payslip_2026-09_corrected.pdf",
+      "sha256": "ceb3507096d28edc000933c0de62358e8edc47f905d142f8486b3362a6c7c7b2",
+      "bytes": 157591,
+      "variant": "digital",
+      "text_layer_chars": 758,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-09",
+        "gross": 17300,
+        "net": 13400,
+        "verdict": "VALID",
+        "codes": [],
+        "case_resolves": [
+          "REQUIRED_PERIOD_MISSING:BRW-A:2026-09"
+        ]
+      },
+      "upload_as": "BRW-A",
+      "scene": "correction"
+    },
+    {
+      "file": "negative/noa_payslip_2026-08_uploaded_as_ido.pdf",
+      "sha256": "35d95f3de5c1519182b55147e75956372e784256ff3c3031a52c980c89ffd4a9",
+      "bytes": 170311,
+      "variant": "digital_reissued",
+      "text_layer_chars": 772,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-08",
+        "verdict": "INVALID",
+        "codes": [
+          "BORROWER_MISMATCH"
+        ]
+      },
+      "upload_as": "BRW-A",
+      "scene": "negative"
+    },
+    {
+      "file": "negative/ido_payslip_unreadable.pdf",
+      "sha256": "272e796c06a6943a64cd770d8d3fe8d0209b23a7ccfa8640e98fbcf963482f9b",
+      "bytes": 24117,
+      "variant": "unreadable",
+      "text_layer_chars": 0,
+      "expect": {
+        "verdict": "NEEDS_REVIEW",
+        "codes": [
+          "DOCUMENT_UNREADABLE"
+        ]
+      },
+      "upload_as": "BRW-A",
+      "scene": "negative"
+    },
+    {
+      "file": "negative/ido_payslip_2026-08_injection.pdf",
+      "sha256": "464483b16ecf408702b5b7fd16e241c37160057805f544609d000404814f43a2",
+      "bytes": 166503,
+      "variant": "injection",
+      "text_layer_chars": 943,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-08",
+        "verdict": "NEEDS_REVIEW",
+        "codes": [
+          "UNTRUSTED_INSTRUCTION_IN_DOCUMENT"
+        ]
+      },
+      "upload_as": "BRW-A",
+      "scene": "negative"
+    },
+    {
+      "file": "negative/ido_payslip_2026-09_contradictory.pdf",
+      "sha256": "6be7bbb1b0d1a87a09c28bda4b1adc6e3194e500d48da9f5d908c472e18bc873",
+      "bytes": 157306,
+      "variant": "contradictory",
+      "text_layer_chars": 758,
+      "expect": {
+        "doc_type": "payslip",
+        "period": "2026-09",
+        "verdict": "NEEDS_REVIEW_OR_INVALID",
+        "codes": [
+          "INTERNAL_ARITHMETIC_MISMATCH"
+        ]
+      },
+      "upload_as": "BRW-A",
+      "scene": "negative"
+    }
+  ]
+}

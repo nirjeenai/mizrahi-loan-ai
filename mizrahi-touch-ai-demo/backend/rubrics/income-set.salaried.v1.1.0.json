@@ -1,0 +1,35 @@
+{
+  "rubric_id": "income-set.salaried",
+  "version": "1.1.0",
+  "scope": "case",
+  "title_he": "סט מסמכי הכנסה — לווים שכירים",
+  "description": "Case-level review of the income documents of salaried borrowers after preliminary approval. Requested months follow the public Mizrahi-Tefahot checklist (3 latest payslips per salaried borrower); the window and tolerances are configuration, not bank policy.",
+  "policy": {
+    "requested_months": 3,
+    "payday_day_of_next_month": 9,
+    "freshness_days": 45,
+    "income_variance_tolerance_pct": 5.0,
+    "income_comparison_requires_pass": ["PS-01", "PS-02", "PS-03", "PS-04", "PS-05", "PS-06", "PS-08", "PS-09"]
+  },
+  "criteria": [
+    { "id": "IS-01", "title_he": "כל החודשים הנדרשים מכוסים בתלוש משלהם", "method": "deterministic", "severity": "blocking",
+      "reason_code": "REQUIRED_PERIOD_MISSING", "escalation": "customer" },
+    { "id": "IS-02", "title_he": "אין כפילות חודשים שלא טופלה", "method": "deterministic", "severity": "minor",
+      "reason_code": "DUPLICATE_PERIOD", "escalation": "customer" },
+    { "id": "IS-03", "title_he": "כל תלוש שויך ללווה הנכון", "method": "deterministic", "severity": "blocking",
+      "reason_code": "BORROWER_MISMATCH", "escalation": "customer" },
+    { "id": "IS-04", "title_he": "ההכנסה המוצהרת מתיישבת עם התלושים", "method": "judge", "severity": "major",
+      "reason_code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE", "escalation": "banker",
+      "guidance": "Compare like with like (net with net, gross with gross, the same months). An unverified customer explanation is context, never proof. Use INCONSISTENT for a grounded difference, INSUFFICIENT_EVIDENCE when the definitions or months cannot be compared, CONSISTENT only when the documents support the declaration." },
+    { "id": "IS-05", "title_he": "המסמכים עדכניים", "method": "deterministic", "severity": "minor",
+      "reason_code": "DOCUMENT_STALE", "escalation": "customer" },
+    { "id": "IS-06", "title_he": "כל מסמכי השכר הנדרשים עברו בדיקה תקינה", "method": "deterministic", "severity": "major",
+      "reason_code": "DOCUMENT_NOT_VALID", "escalation": "customer" }
+  ],
+  "changelog": [
+    { "version": "1.1.0", "date": "2026-10-12", "changes": [
+      "IS-04 averages the net pay of payslips whose income-relevant criteria all passed (document type, legibility, identity, period, gross and net present, arithmetic, no instructions, verified decisive evidence) instead of requiring an overall VALID verdict. A criterion that does not bear on the compared amounts, such as the payment-date check PS-10, cannot suppress the declared-income comparison.",
+      "Declared income is the customer's declaration held in the bank case (provenance CUSTOMER_DECLARED), never verified income." ] },
+    { "version": "1.0.0", "date": "2026-10-12", "changes": ["initial rubric"] }
+  ]
+}

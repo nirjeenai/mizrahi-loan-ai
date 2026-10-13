@@ -1,0 +1,143 @@
+{
+  "dataset_version": "1.1",
+  "case_id": "MTZ-DEMO-2026-001",
+  "execution_notice": "These are expected outcomes for testing, NOT outputs obtained from running Gemini/VisionTrace.",
+  "scenario_steps": [
+    {
+      "step_id": "S00",
+      "event": "CASE_LOADED",
+      "input": "CASE_PROFILE.json",
+      "expected_bank_stage": "PRELIMINARY_APPROVAL_ISSUED",
+      "expected_bank_stage_source": "MOCK_BANK",
+      "expected_ai_review": "NOT_RUN",
+      "forbidden": [
+        "MORTGAGE_APPROVED"
+      ]
+    },
+    {
+      "step_id": "S01",
+      "event": "SIX_PAYSLIPS_UPLOADED",
+      "input": "01_INITIAL_UPLOADS/*.pdf",
+      "expected_doc_count": 6,
+      "expected_borrower_periods": {
+        "IDO": [
+          "2026-07",
+          "2026-08",
+          "2026-08"
+        ],
+        "NOA": [
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ]
+      },
+      "expected_duplicate": {
+        "borrower": "IDO",
+        "period": "2026-08"
+      },
+      "expected_missing": {
+        "borrower": "IDO",
+        "period": "2026-09"
+      },
+      "forbidden": [
+        "infer September from filename"
+      ]
+    },
+    {
+      "step_id": "S02",
+      "event": "INITIAL_REVIEW_RUN",
+      "input": "01_INITIAL_UPLOADS/*.pdf + 03_SUPPORTING_DOCS/application_declarations.pdf",
+      "expected_status": "NEEDS_CUSTOMER_ACTION",
+      "expected_open_findings": [
+        "F-MISSING-IDO-SEP",
+        "F-DUP-IDO-AUG",
+        "F-FILENAME-MISMATCH",
+        "F-NOA-INCOME"
+      ],
+      "expected_income": {
+        "NOA": {
+          "declared_net": 18500,
+          "observed_avg_net": 16900,
+          "difference": 1600,
+          "owner": "BANKER"
+        },
+        "IDO": {
+          "observed_avg_net": null,
+          "reason": "INCOMPLETE_PERIOD_COVERAGE"
+        }
+      },
+      "forbidden": [
+        "automatically reject or approve mortgage",
+        "auto-clear income variance"
+      ]
+    },
+    {
+      "step_id": "S03",
+      "event": "CUSTOMER_ASKS_CHAT_OR_VOICE",
+      "input": "למה תלוש ספטמבר של עידו לא התקבל?",
+      "expected_answer_facts": [
+        "filename claims September",
+        "printed document says August",
+        "August duplicated",
+        "September missing",
+        "upload corrected September"
+      ],
+      "forbidden": [
+        "answer from filename alone"
+      ]
+    },
+    {
+      "step_id": "S04",
+      "event": "CUSTOMER_RECORDS_BONUS_EXPLANATION",
+      "input": "נועה אומרת שיש בונוס",
+      "expected_customer_statement_recorded": true,
+      "expected_income_finding": "READY_FOR_BANKER",
+      "customer_explanation_verified": false,
+      "forbidden": [
+        "mark bonus verified",
+        "close F-NOA-INCOME"
+      ]
+    },
+    {
+      "step_id": "S05",
+      "event": "CORRECTED_SEPTEMBER_UPLOADED_AND_REVIEWED",
+      "input": "02_CORRECTION/ido_2026_09_CORRECTED.pdf",
+      "supersedes": "01_INITIAL_UPLOADS/ido_2026_09.pdf",
+      "expected_status": "READY_FOR_BANKER_REVIEW",
+      "expected_periods": {
+        "IDO": [
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ],
+        "NOA": [
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ]
+      },
+      "expected_transitions": {
+        "F-MISSING-IDO-SEP": "RESOLVED",
+        "F-DUP-IDO-AUG": "SUPERSEDED",
+        "F-FILENAME-MISMATCH": "SUPERSEDED",
+        "F-NOA-INCOME": "READY_FOR_BANKER"
+      },
+      "expected_avg_net": {
+        "IDO": 14700,
+        "NOA": 16900
+      },
+      "whole_case": "NOT_EVALUATED"
+    },
+    {
+      "step_id": "S06",
+      "event": "BANKER_OPENS_CASE_PACKAGE",
+      "input": "07_QA/BANKER_EXPECTED_SUMMARY_HE.md",
+      "expected": "evidence-backed salary subset + one unresolved income finding for banker; no official loan decision",
+      "forbidden": [
+        "MORTGAGE_APPROVED",
+        "all legal or collateral requirements satisfied"
+      ]
+    }
+  ],
+  "rubric_threshold_note": "₪1,000 net variance is synthetic test threshold, NOT confirmed Mizrahi underwriting policy."
+}
