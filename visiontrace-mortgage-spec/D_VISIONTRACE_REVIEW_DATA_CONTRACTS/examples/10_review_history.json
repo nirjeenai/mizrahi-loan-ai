@@ -1,0 +1,134 @@
+{
+  "review_case_id": "rc_7k2m9q4x1d",
+  "items": [
+    {
+      "review_run_id": "a3f91c2e7b",
+      "review_run_reference": "R-A3F91",
+      "parent_run_id": null,
+      "trigger": "initial",
+      "state": "succeeded",
+      "started_at": "2026-10-12T08:10:02Z",
+      "finished_at": "2026-10-12T08:11:31Z",
+      "documents": [
+        "DOC-A1@1",
+        "DOC-A2@1",
+        "DOC-A3@1",
+        "DOC-B1@1",
+        "DOC-B2@1",
+        "DOC-B3@1"
+      ],
+      "readiness_status": "ACTION_REQUIRED",
+      "findings_diff": {
+        "opened": [
+          "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+          "DUPLICATE_PERIOD:BRW-A:2026-08",
+          "FILE_NAME_PERIOD_MISMATCH:DOC-A3",
+          "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"
+        ],
+        "resolved": [],
+        "changed": [],
+        "unchanged": [],
+        "reopened": []
+      },
+      "provenance": {
+        "provider": "visiontrace",
+        "provider_version": "visiontrace@5a1ca7d+mortgage-documents(TO-BUILD)",
+        "mode": "LIVE",
+        "workflow": "mortgage-documents",
+        "workflow_version": "1.0.0",
+        "rubrics": [
+          "mortgage.document.intake_quality@1.0.0",
+          "mortgage.payslip.classification_identity@1.0.0",
+          "mortgage.payslip.period@1.0.0",
+          "mortgage.payslip.financials@1.0.0",
+          "mortgage.income.payslip_coverage@1.0.0",
+          "mortgage.payslip.duplicates@1.0.0",
+          "mortgage.income.declared_vs_documented@1.0.0",
+          "mortgage.identity.consistency@1.0.0"
+        ],
+        "rule_set_version": "mortgage-documents-rules/1",
+        "policy_store_version": "pol-demo-3",
+        "models": {
+          "read": "gemini-3.8-flash",
+          "ocr": "unselected (OTD-03 — Azure Read / Document AI / Tesseract heb)",
+          "judge": "gemini-3.8-flash",
+          "semantic": "gemini-3.8-flash"
+        },
+        "prompt_versions": {
+          "read": "vt-mortgage-read/1.0.0",
+          "judge": "vt-mortgage-judge/1.0.0",
+          "semantic": "vt-mortgage-semantic/1.0.0"
+        },
+        "input_hash": "f65a89fb372b85bad51ba7af8e37bd24e45ecea5c9f875ef4f426a02459fc89b",
+        "generated_at": "2026-10-12T08:11:31Z",
+        "trace_id": "trc-a3f91c2e7b"
+      },
+      "is_current": false
+    },
+    {
+      "review_run_id": "b7d204e9c1",
+      "review_run_reference": "R-B7D20",
+      "parent_run_id": "a3f91c2e7b",
+      "trigger": "replacement",
+      "state": "succeeded",
+      "started_at": "2026-10-12T08:41:40Z",
+      "finished_at": "2026-10-12T08:42:58Z",
+      "documents": [
+        "DOC-A1@1",
+        "DOC-A2@1",
+        "DOC-A3@2",
+        "DOC-B1@1",
+        "DOC-B2@1",
+        "DOC-B3@1"
+      ],
+      "readiness_status": "HUMAN_REVIEW_REQUIRED",
+      "findings_diff": {
+        "opened": [],
+        "resolved": [
+          "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+          "DUPLICATE_PERIOD:BRW-A:2026-08",
+          "FILE_NAME_PERIOD_MISMATCH:DOC-A3"
+        ],
+        "changed": [
+          "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"
+        ],
+        "unchanged": [],
+        "reopened": []
+      },
+      "provenance": {
+        "provider": "visiontrace",
+        "provider_version": "visiontrace@5a1ca7d+mortgage-documents(TO-BUILD)",
+        "mode": "LIVE",
+        "workflow": "mortgage-documents",
+        "workflow_version": "1.0.0",
+        "rubrics": [
+          "mortgage.document.intake_quality@1.0.0",
+          "mortgage.payslip.classification_identity@1.0.0",
+          "mortgage.payslip.period@1.0.0",
+          "mortgage.payslip.financials@1.0.0",
+          "mortgage.income.payslip_coverage@1.0.0",
+          "mortgage.payslip.duplicates@1.0.0",
+          "mortgage.income.declared_vs_documented@1.0.0",
+          "mortgage.identity.consistency@1.0.0"
+        ],
+        "rule_set_version": "mortgage-documents-rules/1",
+        "policy_store_version": "pol-demo-3",
+        "models": {
+          "read": "gemini-3.8-flash",
+          "ocr": "unselected (OTD-03 — Azure Read / Document AI / Tesseract heb)",
+          "judge": "gemini-3.8-flash",
+          "semantic": "gemini-3.8-flash"
+        },
+        "prompt_versions": {
+          "read": "vt-mortgage-read/1.0.0",
+          "judge": "vt-mortgage-judge/1.0.0",
+          "semantic": "vt-mortgage-semantic/1.0.0"
+        },
+        "input_hash": "8377d1a16fa11fa19df390f6cd7022da0dba43fb4f8ed6eac6e65226c37a74bb",
+        "generated_at": "2026-10-12T08:42:58Z",
+        "trace_id": "trc-b7d204e9c1"
+      },
+      "is_current": true
+    }
+  ]
+}

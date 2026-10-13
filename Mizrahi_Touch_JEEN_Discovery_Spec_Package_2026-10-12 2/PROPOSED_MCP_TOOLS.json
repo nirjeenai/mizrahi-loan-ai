@@ -1,0 +1,15 @@
+{
+  "_notice": "DESIGN ONLY: no verified Tefahot Touch / Mizrahi MCP server or API was discovered.",
+  "version": "0.1-design",
+  "transport_choice": "TBD_AFTER_DISCOVERY",
+  "security_requirements": ["bank-approved identity broker", "case-scoped consent", "RBAC/ABAC", "server-side secrets", "tool allowlist", "structured input validation", "audit", "idempotency for writes", "timeout/retry", "PII redaction and retention"],
+  "tools": [
+    {"name":"get_mortgage_case", "permission":"mortgage.case.read", "mode":"READ_ONLY", "input":{"case_id":"string"}, "output":{"case_id":"string","stage_source":"BANK_OR_MOCK","official_stage":"string","updated_at":"iso8601"}},
+    {"name":"list_case_requirements", "permission":"mortgage.requirements.read", "mode":"READ_ONLY", "input":{"case_id":"string"}, "output":{"requirements":"array<requirement>","version":"string"}},
+    {"name":"list_case_documents", "permission":"mortgage.documents.read", "mode":"READ_ONLY", "input":{"case_id":"string"}, "output":{"documents":"array<document_metadata>"}},
+    {"name":"submit_document_for_review", "permission":"mortgage.documents.submit", "mode":"WRITE_APPROVAL_REQUIRED", "input":{"case_id":"string","file_ref":"string","customer_approval_ref":"string","idempotency_key":"string"}, "output":{"request_id":"string","submission_state":"string"}},
+    {"name":"create_banker_followup_draft", "permission":"mortgage.followup.draft", "mode":"DRAFT_ONLY", "input":{"case_id":"string","finding_ids":"array<string>"}, "output":{"draft_id":"string","draft_status":"NOT_SENT"}},
+    {"name":"get_case_stage_dictionary", "permission":"mortgage.stage_dictionary.read", "mode":"READ_ONLY", "input":{}, "output":{"stage_dictionary":"array<stage>","source":"BANK_OR_MOCK"}}
+  ],
+  "state_boundary": {"bank_case_stage":"bank_authoritative_read_only_until_approved","ai_document_readiness":"jeen_owned_synthetic_or_authorized_case_store"}
+}

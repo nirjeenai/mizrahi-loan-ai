@@ -1,0 +1,155 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.payslip.period",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "תלוש שכר — חילוץ חודש ושנה",
+  "name_en": "Payslip month and year extraction",
+  "description": "Extracts the calendar month a payslip is FOR (never the payment or print date), detects a file name that claims another month, checks the payment date against the period and places the period relative to the requested window. The PRINTED month is what every downstream check counts (VisionTrace unemployment months.py semantics).",
+  "scope": "document",
+  "document_category": "payslip",
+  "applies_to": {"doc_types": ["payslip"], "requirement_codes": ["INC.PAYSLIP"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["salaried", "controlling_shareholder", "salaried_and_self_employed"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "PSL-CLS-01 = PASS (המסמך הוא תלוש שכר).", "on_unmet": "NOT_APPLICABLE."}],
+  "required_fields": ["salary_period"],
+  "decisive_fields": ["salary_period"],
+  "field_lexicon": {
+    "salary_period": ["תקופת שכר", "חודש שכר", "לחודש", "תלוש שכר לחודש", "חודש/שנה", "חודש עבודה", "תקופת התשלום", "Pay period", "Month"],
+    "payment_date": ["תאריך תשלום", "תאריך העברה", "מועד תשלום", "תאריך זיכוי"],
+    "issue_date": ["תאריך הפקה", "הופק בתאריך", "תאריך הדפסה"],
+    "reissue_markers": ["העתק", "הופק מחדש", "העתק נאמן", "תלוש מתוקן", "תלוש מתקן", "הפרשים"]
+  },
+  "policy_parameters": [
+    {"name": "payday_day_of_next_month", "value": 9, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "SEC-02", "note_he": "שכר חודשי משולם עם תום החודש ולא יאוחר מה־9 בחודש העוקב (חוק הגנת השכר ס׳ 9 + הגדרת 'היום הקובע'; כל זכות). זהו כלל חוקי, לא כלל בנקאי."},
+    {"name": "payment_grace_days_after_payday", "value": 0, "status": "ENGINEERING_DEFAULT", "note_he": "תשלום אחרי ה־9 = שכר מולן לפי החוק; כאן רק INFO, לא פגם במסמך."}
+  ],
+  "evidence_policy": {
+    "verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"],
+    "decisive_fields_must_be_verified": true,
+    "citation_rule_he": "salary_period חייב לצטט את השדה המתויג (או את הכותרת) — לעולם לא את תאריך התשלום או ההפקה. שני מקורות שונים (כותרת + שדה) שמסכימים מחזקים; שני מקורות שסותרים → ambiguous.",
+    "pages_in_scope": "page 1 (and the page carrying the period label)"
+  },
+  "allowed_inference_he": [
+    "לנרמל 08/2026, 8.2026, 2026-08, 'אוגוסט 2026', 'אוג׳ 26' ל־2026-08 באמצעות מנתח דטרמיניסטי.",
+    "להתייחס לשורת כותרת שחולצה בסדר ויזואלי ('2026 תלוש שכר לחודש אוגוסט') כאותה כותרת — כשהשנה והחודש באותה שורה עם תווית התקופה."
+  ],
+  "prohibited_inference_he": [
+    "להסיק את חודש השכר מתאריך התשלום, מתאריך ההפקה או משם הקובץ.",
+    "להשלים שנה חסרה ('אוגוסט') מתוך הקשר.",
+    "לבחור באופן שקט אחד משני חודשים סותרים."
+  ],
+  "missing_data_treatment": {
+    "absent": "אין תקופה מודפסת → PSL-PER-01 FAIL (PERIOD_UNCLEAR) — החוק מחייב 'התקופה הקלנדרית שבעדה שולם השכר' (תוספת פרט 4(1), LAW-01); המסמך אינו נספר לכיסוי.",
+    "illegible": "התקופה מודפסת אך לא קריאה → INSUFFICIENT_EVIDENCE, escalation=customer.",
+    "ambiguous": "שני חודשים שונים במסמך (כותרת ≠ שדה) → NEEDS_REVIEW (PERIOD_CONFLICT), המסמך אינו נספר עד הכרעה.",
+    "unverified": "ערך לא מעוגן → NEEDS_REVIEW, לא נספר."
+  },
+  "model_instructions": {
+    "reader_he": "salary_period = החודש שעבורו התלוש (תקופת שכר / חודש שכר / לחודש) כפי שמודפס, למשל 08/2026. לעולם לא תאריך התשלום ולא תאריך ההפקה. אם מודפסים שני חודשים שונים — החזר את שניהם כמועמדים.",
+    "judge_system_en": "Judge only PSL-PER-03 when code could not decide (payment date printed in an unusual form). Never re-derive the salary period."
+  },
+  "criteria": [
+    {
+      "id": "PSL-PER-01", "title_he": "תקופת השכר מודפסת וחד־משמעית", "title_en": "Salary period printed and unambiguous",
+      "dimension": "period_relevance", "method": "deterministic", "severity": "major",
+      "inputs": ["facts.salary_period (all candidates)", "classification.signals (title)"],
+      "required_fields": ["salary_period"],
+      "deterministic_logic": "cands := {parse_month(c.raw) for c in salary_period.candidates ∪ title_period} − {None}. parse_month accepts: ^MM[/.-]YYYY$, ^YYYY-MM$, '<חודש עברי> YYYY', and the bidi-reordered 'YYYY ... <חודש עברי>' ONLY on a line that also carries a period label (fixture evidence: text layer of ido_payslip_2026-09.pdf extracts the title as '2026 תלוש שכר לחודש אוגוסט'). Reuse VisionTrace unemployment.months.parse_month and extend with the reordered form. |cands| == 1 and verified → PASS(period). |cands| == 0 → FAIL. |cands| > 1 → NEEDS_REVIEW(PERIOD_CONFLICT).",
+      "pass_when": "חודש אחד בדיוק מנותח מהמסמך ומאומת.",
+      "fail_when": "אין תקופה מודפסת שניתן לנתח.",
+      "needs_review_when": "מודפסים שני חודשים שונים, או הערך אינו מאומת.",
+      "insufficient_evidence_when": "התקופה אינה קריאה.",
+      "citations_required": ["salary_period"],
+      "reason_code": "PERIOD_UNCLEAR", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "PERIOD_UNCLEAR", "key_template": "PERIOD_UNCLEAR:{document_id}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "בתלוש {filename} לא ניתן לזהות לאיזה חודש הוא שייך. אפשר להעלות עותק שבו תקופת השכר מופיעה בבירור.",
+                  "internal_message_he": "תקופה: {detail}.", "requested_item_template": "reupload:{party_id}:{document_id}"},
+      "escalation": "customer", "requirement_basis": "STATUTORY", "source_refs": ["LAW-01"]
+    },
+    {
+      "id": "PSL-PER-02", "title_he": "החודש ששם הקובץ מציין תואם לחודש המודפס", "title_en": "File-name month vs printed month",
+      "dimension": "period_relevance", "method": "deterministic", "severity": "info",
+      "inputs": ["document.filename", "PSL-PER-01.period"],
+      "deterministic_logic": "named := named_month(filename) (VisionTrace months.named_month: Hebrew month word + year, or MM-YYYY / YYYY-MM). named is None → NOT_APPLICABLE. named == period → PASS. else FAIL(info) — display only; the printed month is what counts.",
+      "pass_when": "שם הקובץ מציין את אותו חודש שמודפס.",
+      "fail_when": "שם הקובץ מציין חודש אחר מזה שמודפס (מידע בלבד).",
+      "needs_review_when": "לא רלוונטי.",
+      "insufficient_evidence_when": "PSL-PER-01 לא הכריע.",
+      "not_applicable_when": "שם הקובץ אינו מציין חודש.",
+      "citations_required": ["salary_period"],
+      "reason_code": "FILE_NAME_PERIOD_MISMATCH", "on_fail": "INFO_ONLY",
+      "finding": {"code": "FILE_NAME_PERIOD_MISMATCH", "key_template": "FILE_NAME_PERIOD_MISMATCH:{document_id}", "review_state": "INFO",
+                  "customer_message_he": "שם הקובץ {filename} מציין את {named_month_he}, אך במסמך עצמו מודפס {printed_month_he}. הבדיקה מסתמכת על החודש המודפס.",
+                  "internal_message_he": "file_name_claims={named}; document_prints={period}.", "requested_item_template": null},
+      "escalation": "none", "requirement_basis": "PROPOSED_VALIDATION", "source_refs": ["VT-CODE:backend/app/services/unemployment/months.py#named_month"]
+    },
+    {
+      "id": "PSL-PER-03", "title_he": "תאריך התשלום מתיישב עם תקופת השכר", "title_en": "Payment date plausible for the period",
+      "dimension": "internal_consistency", "method": "hybrid", "severity": "minor",
+      "inputs": ["facts.payment_date", "PSL-PER-01.period"],
+      "required_fields": ["payment_date"],
+      "deterministic_logic": "payment_date absent → NOT_APPLICABLE (the Addendum does not list a payment date — LAW-01; R4 §F.8). d := parse_day(payment_date). end := last day of period. d < first day of period → FAIL. first_day ≤ d < end-3 days → NEEDS_REVIEW (paid before the month ended — advance or mislabeled period). end-3 ≤ d ≤ day payday_day of next month → PASS. d later than that → PASS + INFO WAGE_PAID_AFTER_LEGAL_DEADLINE (not a document defect). unparseable → JUDGE.",
+      "judge_instructions": "Only when the payment date is printed in a form code cannot parse. Return the parsed date in rationale and PASS/NEEDS_REVIEW per the same rule.",
+      "pass_when": "התשלום בוצע בסוף החודש או עד ה־9 בחודש העוקב (או מאוחר יותר — עם הערת מידע).",
+      "fail_when": "תאריך התשלום לפני תחילת תקופת השכר.",
+      "needs_review_when": "תאריך התשלום בתוך תקופת השכר, יותר מ־3 ימים לפני סופה.",
+      "insufficient_evidence_when": "תאריך התשלום מודפס אך לא קריא.",
+      "not_applicable_when": "תאריך תשלום אינו מודפס (אינו שדה חובה לפי התוספת לחוק).",
+      "citations_required": ["payment_date", "salary_period"],
+      "reason_code": "PAY_DATE_INCONSISTENT", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "PAY_DATE_INCONSISTENT", "key_template": "PAY_DATE_INCONSISTENT:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED",
+                  "customer_message_he": null, "internal_message_he": "תאריך התשלום {payment_date} אינו מתיישב עם תקופת השכר {period_he}: {detail}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION", "source_refs": ["SEC-02"]
+    },
+    {
+      "id": "PSL-PER-04", "title_he": "התקופה בתוך החלון המבוקש", "title_en": "Period inside the requested window",
+      "dimension": "recency", "method": "deterministic", "severity": "minor",
+      "inputs": ["PSL-PER-01.period", "set.required_periods", "case_context.as_of"],
+      "deterministic_logic": "period in required_periods → PASS. period > month(as_of) → NEEDS_REVIEW(PERIOD_IN_FUTURE). period < min(required_periods) → FAIL(info) PERIOD_OUT_OF_SCOPE (kept for history, not counted). period between required months but not required (gap in custom MCS list) → INFO.",
+      "pass_when": "החודש המודפס הוא אחד החודשים הנדרשים.",
+      "fail_when": "החודש ישן מהחלון (לא נספר; מידע).",
+      "needs_review_when": "החודש עתידי ביחס לתאריך הבדיקה.",
+      "insufficient_evidence_when": "PSL-PER-01 לא הכריע.",
+      "reason_code": "PERIOD_OUT_OF_SCOPE", "on_fail": "INFO_ONLY",
+      "finding": {"code": "PERIOD_OUT_OF_SCOPE", "key_template": "PERIOD_OUT_OF_SCOPE:{document_id}", "review_state": "INFO",
+                  "customer_message_he": "התלוש {filename} הוא של {printed_month_he}, שאינו אחד מהחודשים הנדרשים ({required_he}). הוא לא נספר.",
+                  "internal_message_he": "period={period}; required={required}.", "requested_item_template": null},
+      "escalation": "none", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-PER-05", "title_he": "תאריך ההפקה וסימני העתק/תיקון", "title_en": "Issue date and reissue/correction markers",
+      "dimension": "internal_consistency", "method": "deterministic", "severity": "info",
+      "inputs": ["facts.issue_date", "classification.signals", "PSL-PER-01.period"],
+      "deterministic_logic": "markers := reissue_markers found in page text. 'תלוש מתוקן'/'הפרשים' → INFO CORRECTED_PAYSLIP (a correction can legitimately duplicate a month; feeds PSL-DUP-03). 'העתק'/'הופק מחדש' or issue_date > period_end + 20 days → INFO REISSUED_COPY. issue_date < period start → NEEDS_REVIEW (ISSUE_DATE_BEFORE_PERIOD).",
+      "pass_when": "אין סימני העתק/תיקון, ותאריך ההפקה אחרי תחילת התקופה.",
+      "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "תאריך הפקה לפני תחילת התקופה.",
+      "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "REISSUED_COPY", "on_fail": "INFO_ONLY", "finding": null,
+      "escalation": "none", "requirement_basis": "PROPOSED_VALIDATION"
+    }
+  ],
+  "verdict_policy": {
+    "rules_he": [
+      "PSL-PER-01 FAIL/NEEDS_REVIEW → verdict המסמך NEEDS_REVIEW והמסמך אינו נספר לכיסוי.",
+      "PSL-PER-02 FAIL (info) → אינו משנה verdict; מייצר ממצא INFO.",
+      "PSL-PER-03 FAIL/NEEDS_REVIEW → NEEDS_REVIEW (banker).",
+      "PSL-PER-04 FAIL (info) → המסמך VALID כתלוש אך אינו נספר; NEEDS_REVIEW (עתידי) → NEEDS_REVIEW."
+    ],
+    "precedence": ["UNSUPPORTED", "UNREADABLE", "INVALID", "NEEDS_REVIEW", "VALID"]
+  },
+  "cross_document_dependencies": [
+    {"rubric_or_doc": "mortgage.income.payslip_coverage", "relation_he": "מספקת את החודש המודפס שעליו נבנה הכיסוי."},
+    {"rubric_or_doc": "mortgage.payslip.duplicates", "relation_he": "מספקת named_month וסימני העתק/תיקון לסיווג הכפילות."}
+  ],
+  "examples": [
+    {"label": "valid", "situation_he": "ido_payslip_2026-08.pdf: 'תקופת שכר 08/2026', 'תאריך תשלום 09.09.2026'.", "expected": {"PSL-PER-01": "PASS (2026-08)", "PSL-PER-02": "PASS", "PSL-PER-03": "PASS", "PSL-PER-04": "PASS"}},
+    {"label": "edge", "situation_he": "ido_payslip_2026-09.pdf מדפיס 'תקופת שכר 08/2026', מסומן 'העתק — הופק מחדש', תאריך הפקה 15.09.2026.", "expected": {"PSL-PER-01": "PASS (2026-08)", "PSL-PER-02": "FAIL (info) FILE_NAME_PERIOD_MISMATCH", "PSL-PER-05": "INFO REISSUED_COPY", "verdict": "VALID", "counts_as": "2026-08"}},
+    {"label": "invalid", "situation_he": "תלוש ספטמבר 2026 שתאריך התשלום בו 09.09.2026 (fixture negative/ido_payslip_2026-09_contradictory.pdf).", "expected": {"PSL-PER-03": "NEEDS_REVIEW (שולם לפני סוף תקופת השכר)", "review_state": "BANKER_REVIEW_REQUIRED"}},
+    {"label": "uncertain", "situation_he": "הכותרת 'תלוש שכר לחודש יולי 2026' והשדה 'תקופת שכר 08/2026'.", "expected": {"PSL-PER-01": "NEEDS_REVIEW (PERIOD_CONFLICT)", "counted": false}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/CriterionOutcome",
+                        "example": {"criterion_id": "PSL-PER-02", "rubric": "mortgage.payslip.period@1.0.0", "method": "deterministic", "outcome": "FAIL", "severity": "info", "reason_code": "FILE_NAME_PERIOD_MISMATCH", "rationale_internal_he": "שם הקובץ מציין ספטמבר 2026, במסמך מודפס אוגוסט 2026. הבדיקה סופרת את החודש המודפס.", "evidence_ids": ["ev_a3f91c2e7b_DOC-A3_v1_salary_period"], "decided_by": "code", "escalation": "none"}},
+  "source_refs": ["LAW-01", "SEC-02", "VT-CODE:backend/app/services/unemployment/months.py"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה; PS-04/PS-10 של הדמו עודנו: תאריך תשלום חסר → NOT_APPLICABLE (אינו שדה חובה בחוק)."}]
+}

@@ -1,0 +1,9 @@
+.DS_Store
+*.log
+logs/
+.claude/settings.local.json
+
+# duplicate copies of visiontrace-mortgage-spec/
+visiontrace-mortgage-spec 2/
+visiontrace-mortgage-spec 3/
+VisionTrace_Mortgage_Spec_Package_2026-10-12.zip

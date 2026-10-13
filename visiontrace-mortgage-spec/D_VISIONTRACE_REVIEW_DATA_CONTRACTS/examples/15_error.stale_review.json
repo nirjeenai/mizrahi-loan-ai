@@ -1,0 +1,10 @@
+{
+  "code": "stale_review",
+  "message": "The decision names review a3f91c2e7b, but the case's current review is b7d204e9c1. Reload the case and decide on the review you see.",
+  "retryable": false,
+  "retry_after_seconds": null,
+  "trace_id": "trc-dec-0002",
+  "details": {
+    "current_review_id": "b7d204e9c1"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.seller.documents",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "P2",
+  "name_he": "מסמכי המוכרים (יד שנייה)",
+  "name_en": "Seller-side documents (second-hand purchase)",
+  "description": "Set-level review of the seller documents Mizrahi-Tefahot lists for a second-hand purchase (MZ-05): sellers' ID incl. appendix showing marital status, spouse consent when a spouse is not a seller, the signed seller undertaking (original, lawyer-verified), a letter of intent from the seller's mortgage bank when the seller pays a mortgage, and the land-books approval for a foreign-resident seller. Originals are delivered at the branch; a digital copy is a pre-check only.",
+  "scope": "document_set",
+  "document_category": "seller_documents",
+  "applies_to": {"doc_types": ["id_card", "id_appendix", "passport", "seller_spouse_consent", "seller_undertaking", "letter_of_intent_seller_bank", "foreign_resident_land_books_approval", "lease_agreement"], "requirement_codes": ["SEL.*"], "party_roles": ["seller", "seller_spouse"], "employment_types": ["*"], "transaction_types": ["second_hand_purchase"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "רשימת המוכרים ידועה מהחוזה (RB-10) או מ־MCS.", "on_unmet": "INSUFFICIENT_EVIDENCE."}],
+  "required_fields": ["seller_ids", "marital_status", "signatures_present", "lawyer_verification_present"],
+  "decisive_fields": ["seller_ids"],
+  "policy_parameters": [{"name": "letter_of_intent_validity_days", "value": null, "status": "PENDING_BANK_POLICY", "note_he": "תוקף 30 יום פורסם למכתבי כוונות שמזרחי עצמו מנפיק (MZ-08/MZ-31) — לא ידוע לגבי בנקים אחרים."}],
+  "evidence_policy": {"verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"], "decisive_fields_must_be_verified": true, "citation_rule_he": "מזהים מצוטטים; חתימות ואימות עו״ד — אזור עמוד (נוכחות בלבד).", "pages_in_scope": "all"},
+  "allowed_inference_he": ["לקבוע שמוכר נשוי לפי הספח ושבן/בת הזוג אינם מוכרים בחוזה.", "לקבוע שמוכר מזוהה בדרכון (תושב חוץ אפשרי)."],
+  "prohibited_inference_he": ["לקבוע תושבות מס של המוכר.", "לקבוע שהסכמת בן הזוג תקפה משפטית.", "לקבוע שחתימת עו״ד אמיתית."],
+  "missing_data_treatment": {"absent": "→ FAIL של הדרישה המותנית.", "illegible": "→ INSUFFICIENT_EVIDENCE.", "ambiguous": "→ NEEDS_REVIEW.", "unverified": "→ NEEDS_REVIEW."},
+  "criteria": [
+    {"id": "SEL-IDN-01", "title_he": "ת״ז לכל מוכר (כולל ספח) ותואמת לחוזה", "dimension": "identity_binding", "method": "deterministic", "severity": "major", "deterministic_logic": "for each seller in the agreement: VALID id document with matching id → ok; missing → FAIL(SELLER_ID_MISSING); mismatch → NEEDS_REVIEW.", "pass_when": "לכל מוכר ת״ז תואמת.", "fail_when": "חסרה ת״ז מוכר.", "needs_review_when": "אי־התאמה.", "insufficient_evidence_when": "אין חוזה.", "reason_code": "SELLER_ID_MISSING", "on_fail": "NEEDS_REVIEW", "finding": {"code": "SELLER_ID_MISSING", "key_template": "SELLER_ID_MISSING:{seller_ref}", "review_state": "CUSTOMER_ACTION_REQUIRED", "customer_message_he": "חסר צילום תעודת זהות (כולל ספח) של המוכר/ת {seller_name}.", "internal_message_he": "מוכר {seller_ref} ללא ת״ז.", "requested_item_template": "seller_id:{seller_ref}"}, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05", "MZ-03"]},
+    {"id": "SEL-MAR-01", "title_he": "הסכמת בן/בת זוג של מוכר שאינם מוכרים", "dimension": "completeness", "method": "deterministic", "severity": "major", "deterministic_logic": "seller appendix marital_status ∈ married and spouse (id from appendix) ∉ sellers → require seller_spouse_consent document naming the spouse; missing → FAIL(SPOUSE_CONSENT_MISSING).", "pass_when": "אין בן זוג שאינו מוכר, או ההסכמה הוגשה.", "fail_when": "בן זוג שאינו מוכר וללא הסכמה.", "needs_review_when": "מצב אישי לא קריא.", "insufficient_evidence_when": "אין ספח.", "reason_code": "SPOUSE_CONSENT_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "SEL-UND-01", "title_he": "טופס 'התחייבות' חתום ע״י כל המוכרים ומאומת ע״י עו״ד", "dimension": "completeness", "method": "judge", "severity": "major", "deterministic_logic": "judge: signature marks for every seller + lawyer verification block present. Also INFO ORIGINAL_REQUIRED (the bank needs the original — MZ-05).", "judge_instructions": "Presence only, per seller line and for the lawyer verification block.", "pass_when": "סימני חתימה לכל המוכרים ובלוק אימות עו״ד.", "fail_when": "חסר סימן חתימה של מוכר.", "needs_review_when": "לא ברור.", "insufficient_evidence_when": "עמוד חתימה חסר.", "reason_code": "SIGNATURE_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "SEL-LOI-01", "title_he": "מכתב כוונות מבנק המוכר כשקיימת משכנתא", "dimension": "completeness", "method": "deterministic", "severity": "major", "deterministic_logic": "registry extract shows a mortgage (TABU-ENC-01) or agreement says the seller pays a mortgage → letter_of_intent present with lender == encumbrance lender → PASS; missing → FAIL(LETTER_OF_INTENT_MISSING).", "pass_when": "אין משכנתא, או מכתב כוונות תואם הוגש.", "fail_when": "יש משכנתא וחסר מכתב.", "needs_review_when": "המלווה במכתב שונה מהרשום.", "insufficient_evidence_when": "אין נסח.", "reason_code": "LETTER_OF_INTENT_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05", "MZ-07"]},
+    {"id": "SEL-FOR-01", "title_he": "מוכר תושב חוץ — אישור לרישום בפנקסי המקרקעין", "dimension": "completeness", "method": "deterministic", "severity": "major", "deterministic_logic": "seller identified by passport → require foreign_resident_land_books_approval before transfer; missing → FAIL (blocks only the disbursement stage — MCS gate).", "pass_when": "לא רלוונטי או הוגש.", "fail_when": "מוכר בדרכון וללא אישור.", "needs_review_when": "לא ברור אם המוכר תושב חוץ.", "insufficient_evidence_when": "לא רלוונטי.", "reason_code": "FOREIGN_SELLER_APPROVAL_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]}
+  ],
+  "verdict_policy": {"rules_he": ["רובריקת סט."], "set_status_rules_he": ["FAIL → INCOMPLETE; NEEDS_REVIEW → NEEDS_REVIEW; אחרת COMPLETE."]},
+  "cross_document_dependencies": [{"rubric_or_doc": "mortgage.identity.id_card", "relation_he": "מצב אישי מהספח."}, {"rubric_or_doc": "mortgage.land_registry_extract", "relation_he": "שעבודים."}],
+  "examples": [
+    {"label": "valid", "situation_he": "אבי ושרה כהן — שני המוכרים, נשואים זה לזה; ת״ז + ספחים; התחייבות חתומה ומאומתת.", "expected": {"SEL-MAR-01": "PASS (בן הזוג מוכר)"}},
+    {"label": "invalid", "situation_he": "מוכר יחיד נשוי; בת הזוג אינה בחוזה; לא הוגשה הסכמה.", "expected": {"SEL-MAR-01": "FAIL", "finding": "SPOUSE_CONSENT_MISSING"}},
+    {"label": "uncertain", "situation_he": "בנסח משכנתא לטובת בנק X; מכתב הכוונות מבנק Y.", "expected": {"SEL-LOI-01": "NEEDS_REVIEW"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/SetReview"},
+  "source_refs": ["MZ-03", "MZ-05", "MZ-07", "MZ-08", "MZ-31"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

@@ -1,0 +1,106 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.payslip.duplicates",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "תלושים כפולים או לא תואמים",
+  "name_en": "Duplicate or mismatched payslip detection",
+  "description": "Set-level, per party. Separates four situations that look alike: (1) the same file twice; (2) a reissued copy of the same payslip; (3) two DIFFERENT payslips printing the same month (correction or conflict); (4) a document number reused across months. Only (3) and (4) are banker matters; (1) and (2) are counted once. A duplicate that coincides with a missing month is escalated to the customer because the likely cause is a wrong file.",
+  "scope": "document_set",
+  "document_category": "payslip",
+  "applies_to": {"doc_types": ["payslip"], "requirement_codes": ["INC.PAYSLIP"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["*"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "רובריקות המסמך הסתיימו לכל תלושי הצד.", "on_unmet": "המתנה."}],
+  "required_fields": ["salary_period", "gross_pay", "net_pay"],
+  "decisive_fields": ["salary_period", "gross_pay", "net_pay"],
+  "policy_parameters": [
+    {"name": "same_amount_tolerance_ils", "value": 0.5, "status": "ENGINEERING_DEFAULT"},
+    {"name": "reissue_issue_date_gap_days", "value": 20, "status": "ENGINEERING_DEFAULT"}
+  ],
+  "evidence_policy": {
+    "verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"],
+    "decisive_fields_must_be_verified": true,
+    "citation_rule_he": "כל ממצא כפילות מצטט את salary_period של כל המסמכים המעורבים; סיווג 'אותו תוכן' מצטט גם document_number/gross/net שהושוו.",
+    "pages_in_scope": "n/a"
+  },
+  "allowed_inference_he": ["לקבוע ששני מסמכים מדפיסים אותו חודש, אותו מספר מסמך ואותם סכומים — ולכן הם עותקים של אותו תלוש.", "לקשר כפילות לחודש חסר כ'סבירות לקובץ שגוי' בניסוח ללקוח."],
+  "prohibited_inference_he": ["לקבוע איזה משני תלושים סותרים 'נכון'.", "לטעון שתלוש מתוקן או עותק מהווה זיוף.", "למחוק או להתעלם בשקט ממסמך כפול — הוא נשמר ומוצג."],
+  "missing_data_treatment": {"absent": "סכומים חסרים באחד העותקים → הסיווג 'unknown' → NEEDS_REVIEW אם יש חודש חסר, אחרת INFO.", "illegible": "כנ״ל.", "ambiguous": "מסמך עם PERIOD_CONFLICT אינו משתתף.", "unverified": "סכומים לא מאומתים → הסיווג אינו 'same_content'."},
+  "criteria": [
+    {
+      "id": "PSL-DUP-01", "title_he": "אותו קובץ הוגש פעמיים", "title_en": "Exact duplicate file",
+      "dimension": "completeness", "method": "deterministic", "severity": "info",
+      "inputs": ["intake.duplicate_of"],
+      "deterministic_logic": "for d in party payslips with duplicate_of != null → FAIL(info) FILE_DUPLICATE_EXACT (counted once).",
+      "pass_when": "אין קבצים זהים ביט־לביט.", "fail_when": "קובץ זהה הוגש שוב (מידע).",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "FILE_DUPLICATE_EXACT", "on_fail": "INFO_ONLY", "finding": null,
+      "escalation": "none", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-DUP-02", "title_he": "יותר ממסמך אחד לאותו חודש מודפס", "title_en": "More than one document for the same printed month",
+      "dimension": "completeness", "method": "deterministic", "severity": "major",
+      "inputs": ["eligible payslips grouped by printed period", "INC-COV-01.missing"],
+      "deterministic_logic": "groups := {m: docs for eligible docs (excluding exact duplicates) if len(docs) > 1}. for each group: severity := major if party has any missing month else minor; review_state := CUSTOMER_ACTION_REQUIRED if missing else INFO; detail.named_months := [named_month(d.filename) for d in docs]. FAIL per group.",
+      "pass_when": "לכל חודש מסמך אחד לכל היותר.",
+      "fail_when": "לחודש יש יותר ממסמך אחד.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא רלוונטי.",
+      "citations_required": ["salary_period"],
+      "reason_code": "DUPLICATE_PERIOD", "on_fail": "INFO_ONLY",
+      "finding": {"code": "DUPLICATE_PERIOD", "key_template": "DUPLICATE_PERIOD:{party_id}:{month}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "התקבלו {n} מסמכים של תלוש {month_he} ({filenames}).{named_hint} {action_hint}",
+                  "internal_message_he": "{n} מסמכים מדפיסים {month}: {doc_ids}; סיווג: {duplicate_kind}; נספר: {counted_doc}.",
+                  "requested_item_template": null},
+      "escalation": "customer", "requirement_basis": "PROPOSED_VALIDATION",
+      "human_review_required_when": "PSL-DUP-03 מסווג conflicting_content."
+    },
+    {
+      "id": "PSL-DUP-03", "title_he": "סיווג הכפילות: עותק, תיקון או תוכן סותר", "title_en": "Duplicate kind",
+      "dimension": "internal_consistency", "method": "deterministic", "severity": "major",
+      "inputs": ["facts.document_number", "facts.gross_pay", "facts.net_pay", "facts.total_deductions", "facts.employer_name", "PSL-PER-05 markers"],
+      "deterministic_logic": "for each DUPLICATE_PERIOD group: same := all decisive amounts equal within tolerance AND employer equal. if same and (reissue marker on one or issue dates differ by ≥ gap or document_number equal) → reissued_copy_same_content → PASS (counted once). same otherwise → same_content → PASS. not same and a doc carries 'תלוש מתוקן'/'הפרשים' → corrected_payslip → NEEDS_REVIEW (banker decides which counts for income). not same otherwise → conflicting_content → FAIL.",
+      "pass_when": "הכפילות היא עותק של אותו תלוש (אותם סכומים/מספר מסמך).",
+      "fail_when": "שני תלושים שונים בסכומיהם לאותו חודש, ללא סימון תיקון.",
+      "needs_review_when": "אחד המסמכים מסומן כתלוש מתוקן/הפרשים — שניהם עשויים להיות לגיטימיים.",
+      "insufficient_evidence_when": "סכומים לא מאומתים באחד המסמכים.",
+      "citations_required": ["gross_pay", "net_pay", "document_number"],
+      "reason_code": "DUPLICATE_PERIOD_CONFLICTING_CONTENT", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "DUPLICATE_PERIOD_CONFLICTING_CONTENT", "key_template": "DUPLICATE_PERIOD_CONFLICTING_CONTENT:{party_id}:{month}", "review_state": "BANKER_REVIEW_REQUIRED",
+                  "customer_message_he": null,
+                  "internal_message_he": "לחודש {month} הוגשו תלושים שונים: {comparison}. אף אחד מהם אינו נבחר אוטומטית לחישוב הכנסה.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-DUP-04", "title_he": "אותו מספר מסמך על חודשים שונים", "title_en": "Document number reused across months",
+      "dimension": "authenticity_signals", "method": "deterministic", "severity": "minor",
+      "inputs": ["facts.document_number", "PSL-PER-01.period"],
+      "deterministic_logic": "group eligible docs by normalized document_number (non-null). any group with >1 distinct periods → NEEDS_REVIEW(DOCUMENT_NUMBER_REUSED). Weak signal only.",
+      "pass_when": "מספרי מסמך (כשמודפסים) ייחודיים לכל חודש.",
+      "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "אותו מספר מסמך מופיע על תלושים של חודשים שונים.",
+      "insufficient_evidence_when": "לא רלוונטי.",
+      "not_applicable_when": "המעסיק אינו מדפיס מספר מסמך.",
+      "reason_code": "DOCUMENT_NUMBER_REUSED", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "DOCUMENT_NUMBER_REUSED", "key_template": "DOCUMENT_NUMBER_REUSED:{party_id}:{document_number}", "review_state": "BANKER_REVIEW_REQUIRED",
+                  "customer_message_he": null, "internal_message_he": "מספר המסמך {document_number} מודפס על תלושים של {periods}. אות חלש בלבד.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    }
+  ],
+  "verdict_policy": {
+    "rules_he": ["רובריקת סט; אינה משנה verdict של מסמך בודד."],
+    "set_status_rules_he": ["PSL-DUP-03 FAIL או NEEDS_REVIEW → set status לכל היותר NEEDS_REVIEW.", "PSL-DUP-02 לבדו אינו משנה set status (הכיסוי נקבע ב־INC-COV-01)."]
+  },
+  "cross_document_dependencies": [
+    {"rubric_or_doc": "mortgage.income.payslip_coverage", "relation_he": "מצב 'חודש חסר' קובע את חומרת PSL-DUP-02 ואת מי שצריך לפעול."},
+    {"rubric_or_doc": "mortgage.income.declared_vs_documented", "relation_he": "חודש עם conflicting_content/corrected_payslip אינו נכנס לממוצע ההכנסה; ההשוואה מתבצעת על שאר החודשים ומסומנת."}
+  ],
+  "examples": [
+    {"label": "uncertain", "situation_he": "עידו: DOC-A2 (אוגוסט) ו־DOC-A3 (שם קובץ ספטמבר) מדפיסים 08/2026, מספר מסמך SAL-ido-2026-08, ברוטו 17,500.00 ונטו 13,500.00; DOC-A3 מסומן 'העתק — הופק מחדש'; ספטמבר חסר.", "expected": {"PSL-DUP-02": "FAIL major → DUPLICATE_PERIOD:BRW-A:2026-08 CUSTOMER_ACTION_REQUIRED", "PSL-DUP-03": "PASS (reissued_copy_same_content)", "customer_message": "התקבלו שני מסמכים של תלוש אוגוסט 2026 (אחד מהם בשם קובץ של ספטמבר). התלוש של ספטמבר עדיין חסר."}},
+    {"label": "valid", "situation_he": "כל החודשים כוסו; הלקוח העלה גם עותק נוסף של יולי (תוכן זהה).", "expected": {"PSL-DUP-02": "FAIL minor → DUPLICATE_PERIOD INFO ('נספר פעם אחת — אין צורך בפעולה')", "PSL-DUP-03": "PASS"}},
+    {"label": "invalid", "situation_he": "שני תלושי ספטמבר: באחד נטו 13,400.00 ובשני נטו 15,400.00, ללא סימון תיקון.", "expected": {"PSL-DUP-03": "FAIL", "finding": "DUPLICATE_PERIOD_CONFLICTING_CONTENT:BRW-A:2026-09", "review_state": "BANKER_REVIEW_REQUIRED", "income_effect": "ספטמבר לא נכנס לממוצע"}},
+    {"label": "edge", "situation_he": "שני תלושי אוגוסט: המקורי, ותלוש 'הפרשים' עם רכיב הפרשי שכר בלבד.", "expected": {"PSL-DUP-03": "NEEDS_REVIEW (corrected_payslip)", "review_state": "BANKER_REVIEW_REQUIRED"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/Finding"},
+  "source_refs": ["VT-CODE:backend/app/services/unemployment/months.py#coverage", "DEMO-CODE:backend/app/review/case_review.py"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה; מרחיב את IS-02 בדמו בסיווג סוג הכפילות."}]
+}

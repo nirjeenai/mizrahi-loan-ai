@@ -1,0 +1,69 @@
+{
+  "_notice": "SYNTHETIC GOLDEN WORLD v1 — invented people, employers, accounts, property and amounts. Extends mizrahi-touch-ai-demo/fixtures/world.json (same case, borrowers, employers and payslips) with the financial, property, collateral and insurance facts the VisionTrace mortgage workflow needs. Not a Mizrahi-Tefahot document or API payload. Every generated page must print the demo marker 'מסמך דמו' (VisionTrace DEMO_MARK).",
+  "case_ref": "DEMO-MTZ-2026-001",
+  "as_of": "2026-10-12",
+  "id_policy": {
+    "note": "The demo's borrower IDs (039812457, 204376815) FAIL the Israeli check digit (SEC-03). They are kept for fixture compatibility, with enforce_id_checksum=false in the demo tenant. Golden scenario GS-31 regenerates the set with valid IDs to exercise PSL-IDN-03 / IDC-CHK-01.",
+    "valid_alternatives": {"BRW-A": "039812458", "BRW-B": "204376818"}
+  },
+  "bank_case": {
+    "source": "MOCK_BANK_ADAPTER", "authoritative": false,
+    "stage": {"code": "DECISION_RECEIVED", "label_he": "קיבלנו החלטה"},
+    "preliminary_approval": {"issued_on": "2026-09-21", "valid_until": "2026-12-20", "amount_ils": 1400000},
+    "loan": {"amount_ils": 1400000, "term_years": 25, "planned_execution_date": "2026-11-15", "branch_no": "412", "branch_address_he": "שדרות הדמו 1, חיפה"},
+    "transaction": {"type": "second_hand_purchase", "dwelling_status": "single", "declared_price_ils": 2000000, "property_city_he": "חיפה"}
+  },
+  "parties": {
+    "BRW-A": {"role": "borrower", "name": "עידו לביא", "national_id": "039812457", "dob": "1991-03-14", "employment": "salaried",
+              "employer": "אופק לוגיסטיקה בע״מ", "employer_id": "514873920", "employment_start": "2019-02-01",
+              "declared_income": {"net_monthly_ils": 13500, "basis": "net_regular", "note_he": "שכר קבוע"},
+              "declared_liabilities": [{"lender": "בנק 20", "kind": "car_loan", "monthly_ils": 1320, "outstanding_ils": 38000}],
+              "salary_account": {"bank_code": "20", "branch": "412", "account_masked": "****2457", "joint_with": ["BRW-B"], "account_ref": "ACC-1"}},
+    "BRW-B": {"role": "co_borrower", "name": "נועה לביא", "national_id": "204376815", "dob": "1992-07-02", "employment": "salaried",
+              "employer": "גלי טכנולוגיות בע״מ", "employer_id": "516204338", "employment_start": "2021-09-05",
+              "declared_income": {"net_monthly_ils": 18500, "basis": "net_regular", "note_he": "ייתכנו רכיבים משתנים"},
+              "declared_liabilities": [],
+              "salary_account": {"bank_code": "20", "branch": "412", "account_masked": "****6815", "joint_with": [], "account_ref": "ACC-2"}},
+    "SLR-1": {"role": "seller", "name": "אבי כהן", "national_id": "058271644", "marital_status": "נשוי", "spouse_id": "030194559"},
+    "SLR-2": {"role": "seller", "name": "שרה כהן", "national_id": "030194559", "marital_status": "נשואה", "spouse_id": "058271644"}
+  },
+  "accounts": {
+    "ACC-1": {"bank_code": "20", "bank_name_he": "בנק מזרחי־טפחות", "branch": "412", "account_masked": "****2457", "holders": ["BRW-A", "BRW-B"],
+              "opening_balance_2026-07-15": 21430.55, "credit_line_ils": 15000,
+              "recurring": [{"desc_he": "אופק לוגיסטיקה בע״מ — משכורת", "credit": "payslip_net(BRW-A)", "day": 9},
+                            {"desc_he": "החזר הלוואה 20-412", "debit": 1320.00, "day": 2},
+                            {"desc_he": "ועד בית", "debit": 250.00, "day": 10},
+                            {"desc_he": "חברת חשמל", "debit": "varies 380-520", "day": 18}]},
+    "ACC-2": {"bank_code": "20", "bank_name_he": "בנק מזרחי־טפחות", "branch": "412", "account_masked": "****6815", "holders": ["BRW-B"],
+              "opening_balance_2026-07-15": 8920.10, "credit_line_ils": 5000,
+              "recurring": [{"desc_he": "גלי טכנולוגיות בע״מ — משכורת", "credit": "payslip_net(BRW-B)", "day": 9},
+                            {"desc_he": "העברה לחשבון 20-412-****2457", "debit": 9000.00, "day": 11}]}
+  },
+  "statement_window": {"engineering_default": {"mode": "rolling_days_90_ending_within_recency", "from": "2026-07-15", "to": "2026-10-11", "recency_days": 21}},
+  "loans": {"LN-A-1": {"party": "BRW-A", "issuing_bank": "20", "loan_number": "20-412-778812", "kind_he": "הלוואה לרכישת רכב", "original_principal": 60000, "disbursement_date": "2024-05-02",
+                       "balance_principal": 37990.12, "balance_interest": 409.88, "balance_indexation": 0.00, "balance_total": 38400.00, "arrears": 0, "maturity": "2029-05-02", "report_date": "2026-10-04"}},
+  "property": {"address_he": "רחוב הגפן 12, חיפה", "apartment_no": "9", "floor": 3, "rooms": 4, "area_sqm": 96,
+               "gush": "10780", "helka": "15", "tat_helka": "7", "registration": "tabu_registered_in_seller_name",
+               "note": "apartment_no (9) ≠ tat_helka (7) on purpose: the rule is never to compare them (LAND-02)."},
+  "purchase_agreement": {"date": "2026-10-05", "pages": 18, "price_ils": 2000000, "linkage": "none",
+                         "payment_schedule": [{"amount": 200000, "due": "2026-10-05"}, {"amount": 400000, "due": "2026-10-20"}, {"amount": 1000000, "due": "on_mortgage_disbursement"}, {"amount": 400000, "due": "2027-01-15"}],
+                         "possession_date": "2027-01-15", "buyers": ["BRW-A", "BRW-B"], "sellers": ["SLR-1", "SLR-2"],
+                         "lawyers": [{"side": "buyers", "name": "עו״ד מיכל דמו", "license": "70001"}, {"side": "sellers", "name": "עו״ד רון דמו", "license": "70002"}],
+                         "clauses": ["warning_note_buyers", "mortgage_financing", "seller_mortgage_payoff"]},
+  "registry_extract": {"issued_at": "2026-10-06T09:12:00+03:00", "type": "regular_full", "owners": ["SLR-1", "SLR-2"], "shares": ["1/2", "1/2"],
+                       "mortgages": [{"mortgagee": "בנק דמו־אחר בע״מ", "rank": 1, "deed_no": "D-48812/2015"}], "warning_notes": [], "attachments": [],
+                       "signature": "test-CA signed in the golden set (production trust roots are a bank decision — TABU-SIG-01)"},
+  "appraisal": {"valuation_date": "2026-10-09", "visit_date": "2026-10-08", "appraised_value_ils": 2050000, "reinstatement_value_ils": 780000, "land_value_ils": 900000, "delivered_by": "appraiser_direct_to_bank"},
+  "insurance": {
+    "life": {"insurer_he": "ביטוח דמו בע״מ", "policies": [{"insured": "BRW-A", "sum_ils": 1400000, "start": "2026-11-15", "end": "2051-11-15"},
+                                                       {"insured": "BRW-B", "sum_ils": 1400000, "start": "2026-11-15", "end": "2051-11-15"}],
+             "beneficiary_he": "בנק מזרחי טפחות — מוטב בלתי חוזר", "pledge_clause_branch": "412", "cancellation_notice_days": 30},
+    "property": {"insurer_he": "ביטוח דמו בע״מ", "sum_structure_ils": 780000, "basis": "reinstatement", "earthquake": true, "cancellation_notice_days": 30, "pledge_clause_branch": "412"}
+  },
+  "payslips_ref": "mizrahi-touch-ai-demo/fixtures/world.json#/payslips (unchanged: Ido Jul/Aug/Sep, Noa Jul/Aug/Sep; Ido Sep 'reissued' file prints August)",
+  "payslip_layouts": {
+    "A": "demo layout (HTML → Chrome PDF): labels 'שכר ברוטו', 'סה״כ ניכויים', 'נטו לתשלום'; period field 'תקופת שכר MM/YYYY'",
+    "B": "two-column legacy layout: labels 'סה״כ תשלומים', 'ניכויי חובה' + 'ניכויים שונים', 'שכר נטו' + 'נטו לתשלום'; period only in the title 'לחודש אוגוסט 2026'; includes 'שווי רכב' benefit line",
+    "C": "dense table layout with YTD columns ('מצטבר מתחילת השנה'), period 'חודש/שנה 08/26' (two-digit year — must route to NEEDS_REVIEW unless the year is printed in full elsewhere)"
+  }
+}

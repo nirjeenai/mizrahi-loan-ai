@@ -1,0 +1,309 @@
+{
+  "schema_version": "mortgage-review/1",
+  "tenant_id": "mizrahi-tefahot-demo",
+  "case_ref": "DEMO-MTZ-2026-001",
+  "review_case_id": null,
+  "workflow": "mortgage-documents",
+  "workflow_version": null,
+  "trigger": "initial",
+  "parent_run_id": null,
+  "case_context": {
+    "as_of": "2026-10-12",
+    "product": "purchase",
+    "transaction": {
+      "type": "second_hand_purchase",
+      "property_city_he": "חיפה",
+      "declared_price": {
+        "amount": 2000000.0,
+        "currency": "ILS"
+      },
+      "requested_loan": {
+        "amount": 1400000.0,
+        "currency": "ILS"
+      },
+      "dwelling_status": "single",
+      "preliminary_approval": {
+        "issued_on": "2026-09-21",
+        "valid_until": "2026-12-20",
+        "source": "mock_bank_adapter"
+      }
+    },
+    "parties": [
+      {
+        "party_id": "BRW-A",
+        "role": "borrower",
+        "display_name_he": "עידו לביא",
+        "national_id": "039812457",
+        "employment_type": "salaried",
+        "employers_declared": [
+          "אופק לוגיסטיקה בע״מ"
+        ],
+        "declared_income": {
+          "net_monthly": {
+            "amount": 13500.0,
+            "currency": "ILS"
+          },
+          "basis": "net_regular",
+          "note_he": "שכר קבוע",
+          "source": "mock_bank_adapter"
+        }
+      },
+      {
+        "party_id": "BRW-B",
+        "role": "co_borrower",
+        "display_name_he": "נועה לביא",
+        "national_id": "204376815",
+        "employment_type": "salaried",
+        "employers_declared": [
+          "גלי טכנולוגיות בע״מ"
+        ],
+        "declared_income": {
+          "net_monthly": {
+            "amount": 18500.0,
+            "currency": "ILS"
+          },
+          "basis": "net_regular",
+          "note_he": "ייתכנו רכיבים משתנים",
+          "source": "mock_bank_adapter"
+        }
+      }
+    ],
+    "bank_stage": {
+      "code": "DECISION_RECEIVED",
+      "label_he": "קיבלנו החלטה",
+      "authoritative": false,
+      "source": "MOCK_BANK_ADAPTER"
+    }
+  },
+  "requirements": [
+    {
+      "requirement_code": "INC.PAYSLIP:BRW-A",
+      "party_id": "BRW-A",
+      "doc_types": [
+        "payslip"
+      ],
+      "required_periods": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "min_count": 3,
+      "source": "mock_bank_adapter",
+      "evaluate": true,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "INC.PAYSLIP:BRW-B",
+      "party_id": "BRW-B",
+      "doc_types": [
+        "payslip"
+      ],
+      "required_periods": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "min_count": 3,
+      "source": "mock_bank_adapter",
+      "evaluate": true,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "FIN.BANK_STATEMENT",
+      "party_id": null,
+      "doc_types": [
+        "bank_statement"
+      ],
+      "required_periods": [],
+      "source": "mock_bank_adapter",
+      "evaluate": false,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "FIN.LOAN_BALANCE_REPORT",
+      "party_id": null,
+      "doc_types": [
+        "loan_balance_report"
+      ],
+      "required_periods": [],
+      "source": "mock_bank_adapter",
+      "evaluate": false,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "PRP.APPRAISAL",
+      "party_id": null,
+      "doc_types": [
+        "appraisal_report"
+      ],
+      "required_periods": [],
+      "source": "mock_bank_adapter",
+      "evaluate": false,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "INS.LIFE",
+      "party_id": null,
+      "doc_types": [
+        "life_insurance_policy"
+      ],
+      "required_periods": [],
+      "source": "mock_bank_adapter",
+      "evaluate": false,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "INS.PROPERTY",
+      "party_id": null,
+      "doc_types": [
+        "property_insurance_policy"
+      ],
+      "required_periods": [],
+      "source": "mock_bank_adapter",
+      "evaluate": false,
+      "bank_status": "awaiting_documents"
+    },
+    {
+      "requirement_code": "SEL.UNDERTAKING",
+      "party_id": null,
+      "doc_types": [
+        "seller_undertaking"
+      ],
+      "required_periods": [],
+      "source": "mock_bank_adapter",
+      "evaluate": false,
+      "bank_status": "awaiting_documents"
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "DOC-A1",
+      "version": 1,
+      "replaces": null,
+      "sha256": "7bd0fa9084a98299b70b8292de1897971d7d48f6d61fadc418d2642035bd8082",
+      "filename": "ido_payslip_2026-07.pdf",
+      "mime": "application/pdf",
+      "bytes": 156316,
+      "uploaded_at": "2026-10-12T07:58:11Z",
+      "submitted_to_bank_at": "2026-10-12T07:58:11Z",
+      "uploaded_by": "customer:BRW-A",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-A",
+      "assigned_party_id": "BRW-A",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-A1/1?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    },
+    {
+      "document_id": "DOC-A2",
+      "version": 1,
+      "replaces": null,
+      "sha256": "a1827f86abe7d7f1abf0175e2e258a25972ac118091184f55a46661e9d6861da",
+      "filename": "ido_payslip_2026-08.pdf",
+      "mime": "application/pdf",
+      "bytes": 157866,
+      "uploaded_at": "2026-10-12T07:58:40Z",
+      "submitted_to_bank_at": "2026-10-12T07:58:40Z",
+      "uploaded_by": "customer:BRW-A",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-A",
+      "assigned_party_id": "BRW-A",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-A2/1?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    },
+    {
+      "document_id": "DOC-A3",
+      "version": 1,
+      "replaces": null,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "filename": "ido_payslip_2026-09.pdf",
+      "mime": "application/pdf",
+      "bytes": 169585,
+      "uploaded_at": "2026-10-12T07:59:02Z",
+      "submitted_to_bank_at": "2026-10-12T07:59:02Z",
+      "uploaded_by": "customer:BRW-A",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-A",
+      "assigned_party_id": "BRW-A",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-A3/1?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    },
+    {
+      "document_id": "DOC-B1",
+      "version": 1,
+      "replaces": null,
+      "sha256": "d2d8510c5d2696864e77a44ce0074adef6299d0e7b0a55e93db2501fadc1267b",
+      "filename": "noa_payslip_2026-07_scan.pdf",
+      "mime": "application/pdf",
+      "bytes": 67554,
+      "uploaded_at": "2026-10-12T08:03:15Z",
+      "submitted_to_bank_at": "2026-10-12T08:03:15Z",
+      "uploaded_by": "customer:BRW-B",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-B",
+      "assigned_party_id": "BRW-B",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-B1/1?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    },
+    {
+      "document_id": "DOC-B2",
+      "version": 1,
+      "replaces": null,
+      "sha256": "8ce41cdbd75c3818553d9e11f5351f7352f5a6bd40689b196ca702b7cd69c32a",
+      "filename": "noa_payslip_2026-08.pdf",
+      "mime": "application/pdf",
+      "bytes": 158928,
+      "uploaded_at": "2026-10-12T08:03:31Z",
+      "submitted_to_bank_at": "2026-10-12T08:03:31Z",
+      "uploaded_by": "customer:BRW-B",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-B",
+      "assigned_party_id": "BRW-B",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-B2/1?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    },
+    {
+      "document_id": "DOC-B3",
+      "version": 1,
+      "replaces": null,
+      "sha256": "1fc425b83048b23980eaf105c55e75d769fe21fc133f181c44e7aff1bb6640cf",
+      "filename": "noa_payslip_2026-09.pdf",
+      "mime": "application/pdf",
+      "bytes": 158627,
+      "uploaded_at": "2026-10-12T08:03:48Z",
+      "submitted_to_bank_at": "2026-10-12T08:03:48Z",
+      "uploaded_by": "customer:BRW-B",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-B",
+      "assigned_party_id": "BRW-B",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-B3/1?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    }
+  ],
+  "customer_statements": [],
+  "policy_overrides": [],
+  "callback": {
+    "webhook_connection": "conn_mcs_events",
+    "events": [
+      "review.completed",
+      "review.failed",
+      "finding.opened",
+      "finding.resolved"
+    ]
+  },
+  "idempotency_key": "mcs-DEMO-MTZ-2026-001-r1-7f3a",
+  "consent_ref": "consent-demo-0001",
+  "trace_id": "trc-a3f91c2e7b",
+  "requested_by": "service:mortgage-case-service"
+}

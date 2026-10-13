@@ -1,0 +1,16 @@
+{
+  "supplement_id": "sup_k3j5h7g9f1",
+  "review_case_id": "rc_7k2m9q4x1d",
+  "requested_items": [
+    "payslip:BRW-A:2026-09"
+  ],
+  "finding_keys": [
+    "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+    "DUPLICATE_PERIOD:BRW-A:2026-08"
+  ],
+  "channel": "touch_upload",
+  "message_customer_he": "כדי להשלים את מסמכי השכר של עידו חסר תלוש השכר של ספטמבר 2026. אפשר להעלות אותו באזור המסמכים; אם הקובץ ido_payslip_2026-09.pdf הועלה בטעות, אפשר להחליף אותו.",
+  "state": "issued",
+  "expires_at": "2026-10-26T08:16:00Z",
+  "created_at": "2026-10-12T08:16:00Z"
+}

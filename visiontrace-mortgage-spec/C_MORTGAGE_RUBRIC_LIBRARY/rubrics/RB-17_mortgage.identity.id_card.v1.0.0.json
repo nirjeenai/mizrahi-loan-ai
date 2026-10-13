@@ -1,0 +1,39 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.identity.id_card",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "P1",
+  "name_he": "תעודת זהות, ספח ודרכון",
+  "name_en": "Identity document (ID card, appendix, passport)",
+  "description": "Reviews an identity document image: type, the ID number vs the party, check digit, validity (the bank asks for a VALID ID — MZ-02), and name. The appendix is reviewed when it is needed (sellers' marital status, MZ-05; eligibility certificate, MZ-24). Biometric facial comparison is OUT OF SCOPE (biometric identifiers are special-sensitivity data under Amendment 13); the card's security-code number is never persisted.",
+  "scope": "document",
+  "document_category": "id_document",
+  "applies_to": {"doc_types": ["id_card", "id_appendix", "passport"], "requirement_codes": ["IDN.ID_DOCUMENT", "SEL.ID_DOCUMENT"], "party_roles": ["borrower", "co_borrower", "guarantor", "seller"], "employment_types": ["*"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "RB-00 עבר; מותרים צילומים (JPEG/PNG/HEIC) — שני צדי הכרטיס יכולים להיות שני קבצים.", "on_unmet": "INSUFFICIENT_EVIDENCE."}],
+  "required_fields": ["document_kind", "id_number", "last_name", "first_name", "expiry_date"],
+  "decisive_fields": ["id_number", "expiry_date"],
+  "field_lexicon": {"title": ["מדינת ישראל", "תעודת זהות", "ספח לתעודת זהות", "Passport", "דרכון"], "id_number": ["מספר זהות", "מס׳ זהות", "Identity No"], "expiry": ["תאריך פקיעה", "בתוקף עד", "Date of expiry"], "marital_status": ["מצב אישי", "נשוי", "נשואה", "רווק", "רווקה", "גרוש", "גרושה", "אלמן", "אלמנה"]},
+  "policy_parameters": [{"name": "persist_security_code", "value": false, "status": "ENGINEERING_DEFAULT", "note_he": "מספר קוד אבטחה (תקנה 3ב, LAW-02) — לא נשמר ולא נשלח למודל."}],
+  "evidence_policy": {"verified_witnesses": ["ocr_token_match", "vision_reread_confirmed", "text_layer_exact"], "decisive_fields_must_be_verified": true, "citation_rule_he": "מספר זהות ותאריך תוקף — ציטוט ואזור; תמונת הפנים אינה מצוטטת ואינה נשלחת לשיפוט.", "pages_in_scope": "all"},
+  "allowed_inference_he": ["לזהות סוג מסמך זיהוי.", "לחשב ספרת ביקורת.", "להשוות תאריך תוקף לתאריך הבדיקה."],
+  "prohibited_inference_he": ["השוואת פנים / ביומטריה.", "קביעת אותנטיות הכרטיס.", "שמירת קוד אבטחה."],
+  "missing_data_treatment": {"absent": "אין תאריך תוקף (ת״ז נייר ישנה) → IDC-VAL-01 NEEDS_REVIEW.", "illegible": "→ INSUFFICIENT_EVIDENCE.", "ambiguous": "שני צדדים בקבצים נפרדים → מאוחדים למסמך לוגי אחד.", "unverified": "→ NEEDS_REVIEW."},
+  "criteria": [
+    {"id": "IDC-CLS-01", "title_he": "המסמך הוא תעודת זהות / ספח / דרכון", "dimension": "classification", "method": "hybrid", "severity": "blocking", "deterministic_logic": "lexicon + layout → kind; else JUDGE.", "pass_when": "סוג זוהה.", "fail_when": "מסמך אחר.", "needs_review_when": "רישיון נהיגה וכד׳ (אינו ברשימת הבנק).", "insufficient_evidence_when": "לא קריא.", "reason_code": "UNEXPECTED_DOCUMENT_TYPE", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "MZ-07"]},
+    {"id": "IDC-IDN-01", "title_he": "מספר הזהות הוא של הצד המשויך", "dimension": "identity_binding", "method": "deterministic", "severity": "blocking", "deterministic_logic": "as PSL-IDN-01.", "pass_when": "תואם.", "fail_when": "אחר.", "needs_review_when": "לא מאומת.", "insufficient_evidence_when": "לא קריא.", "reason_code": "BORROWER_MISMATCH", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "PROPOSED_VALIDATION"},
+    {"id": "IDC-CHK-01", "title_he": "ספרת ביקורת תקינה", "dimension": "identity_binding", "method": "deterministic", "severity": "minor", "deterministic_logic": "Luhn per SEC-03 (pad to 9). FAIL → NEEDS_REVIEW (likely OCR misread).", "pass_when": "תקינה.", "fail_when": "לא תקינה.", "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא מאומת.", "reason_code": "ID_NUMBER_INVALID_CHECKSUM", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION", "source_refs": ["SEC-03"]},
+    {"id": "IDC-VAL-01", "title_he": "המסמך בתוקף", "dimension": "recency", "method": "deterministic", "severity": "major", "deterministic_logic": "expiry_date ≥ as_of → PASS; < as_of → FAIL(ID_EXPIRED); no expiry printed (old paper ID) → NEEDS_REVIEW.", "pass_when": "בתוקף.", "fail_when": "פג תוקף.", "needs_review_when": "אין תאריך תוקף.", "insufficient_evidence_when": "לא קריא.", "reason_code": "ID_EXPIRED", "on_fail": "NEEDS_REVIEW", "finding": {"code": "ID_EXPIRED", "key_template": "ID_EXPIRED:{party_id}", "review_state": "CUSTOMER_ACTION_REQUIRED", "customer_message_he": "תוקף תעודת הזהות שהועלתה עבר. הבנק מבקש תעודת זהות בתוקף.", "internal_message_he": "expiry={expiry}.", "requested_item_template": "id_document:{party_id}"}, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "LAW-02"]},
+    {"id": "IDC-APX-01", "title_he": "ספח מציג מצב אישי (כשנדרש)", "dimension": "completeness", "method": "deterministic", "severity": "major", "deterministic_logic": "required for sellers (MZ-05 'כולל הספח המעיד על המצב המשפחתי') and eligibility flows. appendix present and marital_status printed → PASS and publish marital_status to SEL-MAR-01. missing → FAIL(ID_APPENDIX_MISSING).", "pass_when": "ספח עם מצב אישי.", "fail_when": "אין ספח כשנדרש.", "needs_review_when": "ספח דיגיטלי ללא חתימה (סטטוס חתימה לא ידוע — R4 §F.5).", "insufficient_evidence_when": "לא קריא.", "not_applicable_when": "ספח אינו נדרש בהקשר.", "reason_code": "ID_APPENDIX_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05", "MZ-24"]}
+  ],
+  "verdict_policy": {"rules_he": ["CLS/IDN FAIL → INVALID; אחרים → NEEDS_REVIEW."], "precedence": ["UNSUPPORTED", "UNREADABLE", "INVALID", "NEEDS_REVIEW", "VALID"]},
+  "cross_document_dependencies": [{"rubric_or_doc": "mortgage.seller.documents", "relation_he": "מצב אישי של מוכר → הסכמת בן זוג."}, {"rubric_or_doc": "mortgage.identity.consistency", "relation_he": "מזהה בסיס לכל הצד."}],
+  "examples": [
+    {"label": "valid", "situation_he": "צילום ת״ז ביומטרית של עידו, בתוקף עד 2031.", "expected": {"verdict": "VALID"}},
+    {"label": "invalid", "situation_he": "ת״ז שתוקפה פג ב־2025.", "expected": {"IDC-VAL-01": "FAIL", "finding": "ID_EXPIRED:BRW-A"}},
+    {"label": "uncertain", "situation_he": "צילום מטושטש — ספרה אחת לא קריאה.", "expected": {"IDC-IDN-01": "INSUFFICIENT_EVIDENCE", "verdict": "NEEDS_REVIEW"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/DocumentReview"},
+  "source_refs": ["MZ-02", "MZ-05", "MZ-07", "MZ-24", "LAW-02", "SEC-03", "LAW-05"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

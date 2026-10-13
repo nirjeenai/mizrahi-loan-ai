@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(**/.env)",
+      "Edit(/mizrahi-touch-ai-demo/fixtures/presenter/golden_set/**)"
+    ],
+    "ask": [
+      "Edit(/mizrahi-touch-ai-demo/backend/rubrics/**)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git reset *)",
+      "Bash(git clean *)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git restore *)",
+      "Bash(git rebase *)",
+      "Bash(git merge *)",
+      "Bash(git stash *)",
+      "Bash(rm *)",
+      "Bash(sqlite3 *)",
+      "Bash(./run.sh setup*)",
+      "Bash(./run.sh test*)",
+      "Bash(./run.sh reset*)",
+      "Bash(npm install*)",
+      "Bash(npm ci*)",
+      "Bash(npm uninstall *)",
+      "Bash(*pip install *)",
+      "Bash(*pip uninstall *)",
+      "Bash(*generate.py*)",
+      "Bash(*live_journey.py*)",
+      "Bash(*e2e/test_*.py*)",
+      "Bash(curl *reset*)"
+    ]
+  }
+}

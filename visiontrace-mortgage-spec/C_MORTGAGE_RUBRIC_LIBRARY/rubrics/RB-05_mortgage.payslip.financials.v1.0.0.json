@@ -1,0 +1,171 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.payslip.financials",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "תלוש שכר — חילוץ שדות כספיים ועקביות פנימית",
+  "name_en": "Payslip financial-field extraction and internal consistency",
+  "description": "Extracts gross, total deductions and net-to-pay with their table lines, verifies them against the original file, checks the payslip's own arithmetic (structure-aware: mandatory vs voluntary deductions, benefits-in-kind), and classifies income components for downstream comparison. Arithmetic is code; the judge only labels components it cannot match in the lexicon.",
+  "scope": "document",
+  "document_category": "payslip",
+  "applies_to": {"doc_types": ["payslip"], "requirement_codes": ["INC.PAYSLIP"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["salaried", "controlling_shareholder", "salaried_and_self_employed"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "PSL-CLS-01 = PASS.", "on_unmet": "NOT_APPLICABLE."}],
+  "required_fields": ["gross_pay", "net_pay", "total_deductions"],
+  "decisive_fields": ["gross_pay", "net_pay"],
+  "field_lexicon": {
+    "gross_pay": ["שכר ברוטו", "סה״כ ברוטו", "סה\"כ ברוטו", "סה״כ תשלומים", "סך כל התשלומים", "ברוטו", "Gross"],
+    "not_gross_pay": ["ברוטו למס", "ברוטו למס הכנסה", "ברוטו לביטוח לאומי", "שכר לפנסיה", "שכר מבוטח"],
+    "total_deductions": ["סה״כ ניכויים", "סה\"כ ניכויים", "סך הניכויים", "ניכויים"],
+    "mandatory_deductions_total": ["ניכויי חובה", "סה״כ ניכויי חובה"],
+    "voluntary_deductions_total": ["ניכויים שונים", "ניכויי רשות", "ניכויים אחרים"],
+    "net_pay": ["נטו לתשלום", "סכום לתשלום", "נטו בבנק", "נטו להעברה", "Net pay"],
+    "net_after_mandatory": ["שכר נטו", "נטו"],
+    "benefit_in_kind_markers": ["שווי", "שווי רכב", "שווי ארוחות", "שווי טלפון", "זקיפת", "זקיפה"],
+    "variable_markers": ["שעות נוספות", "ש״נ", "בונוס", "מענק", "עמלות", "פרמיה", "תמריץ", "הפרשים", "חד פעמי"],
+    "reimbursement_markers": ["החזר נסיעות", "נסיעות", "החזר הוצאות", "אחזקת רכב", "אחזקת טלפון", "ביגוד"]
+  },
+  "policy_parameters": [
+    {"name": "arithmetic_tolerance_ils", "value": 2.0, "status": "ENGINEERING_DEFAULT", "note_he": "זהה ל־PS-06 בדמו (tolerance_ils 2.0); מכסה עיגולי אגורות בין רכיבים."},
+    {"name": "line_sum_tolerance_ils", "value": 1.0, "status": "ENGINEERING_DEFAULT"}
+  ],
+  "evidence_policy": {
+    "verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"],
+    "decisive_fields_must_be_verified": true,
+    "citation_rule_he": "כל סכום מצטט את המופע שליד התווית שצוטטה. סכום שמודפס פעמיים בעמוד (שורת סה״כ בטבלה + תיבת סיכום — כך ב־fixtures) מעוגן למופע שהציטוט שלו כולל את התווית; בלי תווית בציטוט — occurrences_on_page>1 נרשם וה־precision יורד ל־approximate.",
+    "pages_in_scope": "all pages of the payslip"
+  },
+  "allowed_inference_he": ["לנרמל סכומים מודפסים (13,500.00 ₪, ₪ 13,500, 13500) למספר.", "לזהות שורת ניכוי/תשלום לפי לקסיקון דטרמיניסטי; השופט מתייג רק תוויות שאינן בלקסיקון."],
+  "prohibited_inference_he": ["לחשב 'הכנסה קבועה' או 'הכנסה פנויה' לצורך אשראי.", "להשלים סכום חסר מתוך חישוב (למשל נטו = ברוטו − ניכויים) ולהציג אותו כערך מודפס.", "לקבוע שרכיב 'אינו יציב' כעובדה — רק כסיווג רכיב לבדיקת אדם."],
+  "missing_data_treatment": {
+    "absent": "ברוטו או נטו לא מודפסים → PSL-FIN-01 FAIL (החוק מחייב ברוטו ונטו — תוספת פרט 8(1)-(2), LAW-01).",
+    "illegible": "→ INSUFFICIENT_EVIDENCE, escalation=customer.",
+    "ambiguous": "שני ערכים לנטו (למשל 'שכר נטו' ו'נטו לתשלום') → net_pay = 'נטו לתשלום' (הסכום בפועל לתשלום — פרט 8(2)); 'שכר נטו' נשמר כ־net_after_mandatory; אם אין 'נטו לתשלום' ושני ערכים שונים → ambiguous → NEEDS_REVIEW.",
+    "unverified": "→ PSL-FIN-05 FAIL ואין PASS לקריטריונים שתלויים בערך."
+  },
+  "model_instructions": {
+    "reader_he": "gross_pay = סך התשלומים ברוטו כפי שמודפס (לא 'ברוטו למס' ולא 'שכר לפנסיה'). net_pay = 'נטו לתשלום' — הסכום ששולם בפועל. total_deductions = 'סה״כ ניכויים'. החזר כל שורה בטבלאות התשלומים והניכויים עם הסכום כפי שמודפס.",
+    "judge_system_en": "You label payslip earnings lines that the lexicon did not classify: base_salary, overtime, bonus_or_commission, allowance_reimbursement, benefit_in_kind, retroactive_difference, one_off, severance_or_grant, other. You never compute totals and never judge income adequacy."
+  },
+  "criteria": [
+    {
+      "id": "PSL-FIN-01", "title_he": "שכר ברוטו ונטו לתשלום מודפסים", "title_en": "Gross and net printed",
+      "dimension": "completeness", "method": "deterministic", "severity": "major",
+      "inputs": ["facts.gross_pay", "facts.net_pay"], "required_fields": ["gross_pay", "net_pay"],
+      "deterministic_logic": "both present and parse to money → PASS; any absent → FAIL; any illegible → INSUFFICIENT_EVIDENCE.",
+      "pass_when": "ברוטו ונטו לתשלום מודפסים וניתנים לנרמול.", "fail_when": "אחד מהם אינו מודפס.",
+      "needs_review_when": "הערך ambiguous.", "insufficient_evidence_when": "אחד מהם אינו קריא.",
+      "citations_required": ["gross_pay", "net_pay"],
+      "reason_code": "MANDATORY_FIELD_MISSING", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "MANDATORY_FIELD_MISSING", "key_template": "MANDATORY_FIELD_MISSING:{document_id}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "בתלוש {filename} חסר {missing_he}. אפשר להעלות תלוש מלא כפי שהופק במערכת השכר.",
+                  "internal_message_he": "חסר: {missing}.", "requested_item_template": "reupload:{party_id}:{document_id}"},
+      "escalation": "customer", "requirement_basis": "STATUTORY", "source_refs": ["LAW-01"]
+    },
+    {
+      "id": "PSL-FIN-02", "title_he": "עקביות חשבונית: ברוטו פחות ניכויים שווה לנטו", "title_en": "Gross − deductions = net (structure-aware)",
+      "dimension": "internal_consistency", "method": "deterministic", "severity": "major",
+      "inputs": ["facts.gross_pay", "facts.total_deductions", "facts.net_pay", "facts.net_after_mandatory", "line_items (categorised)"],
+      "deterministic_logic": "if net > gross + tol → FAIL ('net larger than gross'). identities (pass if ANY holds within arithmetic_tolerance_ils): (a) gross − total_deductions = net_pay; (b) gross − total_deductions = net_after_mandatory ∧ net_after_mandatory − Σvoluntary = net_pay; (c) (gross − Σbenefit_in_kind) − total_deductions = net_pay; (d) (gross − Σbenefit_in_kind) − total_deductions = net_after_mandatory ∧ … − Σvoluntary = net_pay. inputs missing for every identity → INSUFFICIENT_EVIDENCE. none holds with all inputs verified → FAIL. computation string records the identity used and the numbers.",
+      "pass_when": "אחת הזהויות מתקיימת בסובלנות.",
+      "fail_when": "נטו גדול מברוטו, או אף זהות אינה מתקיימת כשכל הערכים מאומתים.",
+      "needs_review_when": "זהות מתקיימת רק לאחר שהשופט תייג תווית לא מוכרת (decided_by=code+judge) — PASS מותנה מסומן NEEDS_REVIEW אם התיוג השפיע על התוצאה.",
+      "insufficient_evidence_when": "חסרים ערכים לכל הזהויות.",
+      "citations_required": ["gross_pay", "total_deductions", "net_pay"],
+      "reason_code": "INTERNAL_ARITHMETIC_MISMATCH", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "INTERNAL_ARITHMETIC_MISMATCH", "key_template": "INTERNAL_ARITHMETIC_MISMATCH:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED",
+                  "customer_message_he": "בתלוש {filename} הסכומים אינם מתיישבים זה עם זה. הנושא הועבר לבדיקת מומחה המשכנתאות.",
+                  "internal_message_he": "{computation}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-FIN-03", "title_he": "סכום שורות התשלומים שווה לברוטו", "title_en": "Earnings lines sum to gross",
+      "dimension": "internal_consistency", "method": "deterministic", "severity": "minor",
+      "inputs": ["line_items[earnings]", "facts.gross_pay"],
+      "deterministic_logic": "all earnings amounts parse → |Σ − gross| ≤ line_sum_tolerance → PASS else FAIL. any line unparsed → INSUFFICIENT_EVIDENCE. (demo gemini_provider already does this; keep.)",
+      "pass_when": "סכום השורות שווה לברוטו.", "fail_when": "סכום השורות שונה מהברוטו.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "שורה לא נקראה.",
+      "reason_code": "EARNINGS_SUM_MISMATCH", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "EARNINGS_SUM_MISMATCH", "key_template": "EARNINGS_SUM_MISMATCH:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "Σ שורות התשלומים {sum} ≠ ברוטו {gross}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-FIN-04", "title_he": "סכום שורות הניכויים שווה לסה״כ ניכויים", "title_en": "Deduction lines sum to total deductions",
+      "dimension": "internal_consistency", "method": "deterministic", "severity": "minor",
+      "inputs": ["line_items[deductions]", "facts.total_deductions"],
+      "deterministic_logic": "as PSL-FIN-03 over deductions vs total_deductions (or mandatory/voluntary subtotals when printed separately).",
+      "pass_when": "סכום שורות הניכויים שווה לסה״כ.", "fail_when": "שונה.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "שורה לא נקראה.",
+      "reason_code": "DEDUCTIONS_SUM_MISMATCH", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "DEDUCTIONS_SUM_MISMATCH", "key_template": "DEDUCTIONS_SUM_MISMATCH:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "Σ שורות הניכויים {sum} ≠ סה״כ {total}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-FIN-05", "title_he": "הערכים המכריעים אומתו מול הקובץ המקורי", "title_en": "Decisive values verified against the original",
+      "dimension": "evidence_sufficiency", "method": "deterministic", "severity": "major",
+      "inputs": ["facts[decisive].verified"],
+      "deterministic_logic": "decisive := employee_name, employee_id, salary_period, gross_pay, net_pay (union across RB-01/02/05). unverified := [f for f in decisive if present and not verified]. none present → FAIL. unverified → FAIL listing them. else PASS. (demo PS-09.)",
+      "pass_when": "כל השדות המכריעים מעוגנים (שכבת טקסט/OCR/קריאה חוזרת).", "fail_when": "שדה מכריע לא עוגן.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "EVIDENCE_UNVERIFIED", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "EVIDENCE_UNVERIFIED", "key_template": "EVIDENCE_UNVERIFIED:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "לא אומתו מול הקובץ: {fields}. אין להסתמך עליהם בלי בדיקה חזותית.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-FIN-06", "title_he": "סיווג רכיבי השכר (קבוע / משתנה / החזר / שווי)", "title_en": "Income component classification",
+      "dimension": "semantic", "method": "judge", "severity": "info",
+      "inputs": ["line_items[earnings]", "field_lexicon"],
+      "deterministic_logic": "lexicon first (variable_markers, reimbursement_markers, benefit_in_kind_markers, base). unmatched labels → judge. Output: line_items[].category. Never used to change any arithmetic outcome except through PSL-FIN-02 identity (c)/(d) and then flagged.",
+      "judge_instructions": "Label each unmatched earnings line with one category. Cite the line's evidence id. If unsure, category=other.",
+      "pass_when": "כל השורות סווגו (ללקסיקון או לשופט).", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "שורה שלא ניתן לסווג וסכומה > 10% מהברוטו.", "insufficient_evidence_when": "טבלת התשלומים לא נקראה.",
+      "reason_code": null, "on_fail": "INFO_ONLY", "finding": null,
+      "escalation": "none", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "PSL-FIN-07", "title_he": "רציפות סכומים מצטברים (YTD) בין תלושים", "title_en": "Year-to-date continuity across payslips",
+      "dimension": "internal_consistency", "method": "deterministic", "severity": "minor",
+      "inputs": ["facts.income_tax_liable_total_ytd", "facts.income_tax_liable_total_month", "same party, same employer, consecutive months"],
+      "deterministic_logic": "only when YTD fields are printed (Addendum 5(4)-(5) requires them — LAW-01). for consecutive months m-1, m of the same employer and tax year: |YTD(m) − YTD(m-1) − month_total(m)| ≤ tol → PASS else NEEDS_REVIEW(CROSS_PAYSLIP_YTD_INCONSISTENT). January resets. Not printed → NOT_APPLICABLE.",
+      "pass_when": "המצטבר מתעדכן בדיוק בסכום החודשי.", "fail_when": "לעולם לא FAIL (אות לבדיקה).",
+      "needs_review_when": "פער בין המצטבר לסכום החודשי.", "insufficient_evidence_when": "שדות YTD לא קריאים.",
+      "not_applicable_when": "שדות YTD אינם מודפסים, או אין חודשים עוקבים מאותו מעסיק.",
+      "reason_code": "CROSS_PAYSLIP_YTD_INCONSISTENT", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "CROSS_PAYSLIP_YTD_INCONSISTENT", "key_template": "CROSS_PAYSLIP_YTD_INCONSISTENT:{party_id}:{month}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "מצטבר {month}: {ytd_m} − {ytd_prev} ≠ {month_total}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION", "source_refs": ["LAW-01"]
+    },
+    {
+      "id": "PSL-FIN-08", "title_he": "פרטי חובה סטטוטוריים בתלוש (מידע)", "title_en": "Statutory payslip particulars present (info)",
+      "dimension": "completeness", "method": "deterministic", "severity": "info",
+      "inputs": ["facts.*"],
+      "deterministic_logic": "statutory := employer_id_or_company_number, employer_address, employment_start_date, job_scope_percent, total_deductions, employer_contributions (Addendum items 1(2), 2(א), 3, 6(6), 7 — LAW-01). missing := absent ones. missing → INFO PAYSLIP_STATUTORY_FIELDS_MISSING (unusual layout signal; the bank's acceptance policy for such payslips is UNKNOWN).",
+      "pass_when": "הפרטים הסטטוטוריים העיקריים מודפסים.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "PAYSLIP_STATUTORY_FIELDS_MISSING", "on_fail": "INFO_ONLY", "finding": null,
+      "escalation": "none", "requirement_basis": "STATUTORY", "source_refs": ["LAW-01", "SEC-01"]
+    }
+  ],
+  "verdict_policy": {
+    "rules_he": ["FAIL/NEEDS_REVIEW/INSUFFICIENT_EVIDENCE ב־major או minor → NEEDS_REVIEW.", "info אינו משנה verdict.", "אין כאן קריטריון חוסם: תלוש עם חשבון שגוי אינו 'לא־תלוש'; הוא תלוש שדורש בדיקת בנקאי."],
+    "precedence": ["UNSUPPORTED", "UNREADABLE", "INVALID", "NEEDS_REVIEW", "VALID"]
+  },
+  "cross_document_dependencies": [
+    {"rubric_or_doc": "mortgage.income.declared_vs_documented", "relation_he": "net_pay מאומת + סיווג רכיבים."},
+    {"rubric_or_doc": "mortgage.bank_statement.extraction_coverage", "relation_he": "net_pay מול זיכוי משכורת בדף החשבון (XD-INC-03, P1): תלוש הוא ראיה לנתוניו אך אינו מוכיח שהתשלום בוצע בפועל (SEC-01)."}
+  ],
+  "examples": [
+    {"label": "valid", "situation_he": "ido_payslip_2026-08.pdf: ברוטו 17,500.00, ניכויים 4,000.00, נטו 13,500.00; שורות: 15,500 + 1,400 + 600.", "expected": {"PSL-FIN-01": "PASS", "PSL-FIN-02": "PASS (17,500.00 − 4,000.00 = 13,500.00)", "PSL-FIN-03": "PASS", "PSL-FIN-06": "שעות נוספות=overtime (משתנה), החזר נסיעות=allowance_reimbursement"}},
+    {"label": "invalid", "situation_he": "fixture negative/ido_payslip_2026-09_contradictory.pdf: נטו לתשלום מודפס גבוה ב־2,000 מהברוטו.", "expected": {"PSL-FIN-02": "FAIL (net larger than gross)", "finding": "INTERNAL_ARITHMETIC_MISMATCH", "review_state": "BANKER_REVIEW_REQUIRED", "verdict": "NEEDS_REVIEW"}},
+    {"label": "edge", "situation_he": "תלוש עם 'שווי רכב 2,100' בטבלת התשלומים; ברוטו 20,000 כולל השווי; ניכויים 5,000; נטו לתשלום 12,900.", "expected": {"PSL-FIN-02": "PASS via identity (c): (20,000 − 2,100) − 5,000 = 12,900", "note": "השווי אינו תשלום במזומן"}},
+    {"label": "uncertain", "situation_he": "סריקה שבה 'נטו לתשלום' מטושטש.", "expected": {"PSL-FIN-01": "INSUFFICIENT_EVIDENCE", "verdict": "NEEDS_REVIEW", "escalation": "customer"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/CriterionOutcome",
+                        "judge_output_schema": {"$ref": "../judge_output.schema.json"},
+                        "example": {"criterion_id": "PSL-FIN-02", "rubric": "mortgage.payslip.financials@1.0.0", "method": "deterministic", "outcome": "PASS", "severity": "major", "reason_code": null, "computation": "17,500.00 − 4,000.00 = 13,500.00 (מודפס 13,500.00)", "decided_by": "code", "escalation": "banker"}},
+  "source_refs": ["LAW-01", "SEC-01", "DEMO-CODE:backend/app/review/deterministic.py#arithmetic"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה; מרחיב את PS-05/06/09 בדמו בזהויות מבניות, YTD ופרטים סטטוטוריים."}]
+}

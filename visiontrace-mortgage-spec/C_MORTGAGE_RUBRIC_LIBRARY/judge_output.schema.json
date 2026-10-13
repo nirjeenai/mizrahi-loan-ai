@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jeen.ai/schemas/visiontrace/mortgage-judge-output/v1",
+  "title": "LLM-as-a-Judge structured output (one call, the criteria assigned to it)",
+  "description": "The judge returns ONLY this object (structured output / responseSchema). Code post-validates it: unknown criterion ids are dropped; cited ids not in the offered evidence list are dropped; a PASS/FAIL without at least one surviving citation is downgraded to NEEDS_REVIEW; a PASS on a criterion whose required decisive fields are unverified is downgraded to NEEDS_REVIEW; a judge outcome never overrides a deterministic outcome (conflict → NEEDS_REVIEW with both rationales). self_reported_confidence is stored, never used as a gate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["criteria", "summary_internal_he", "limitations_he"],
+  "properties": {
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterion_id", "outcome", "rationale_he", "cited_evidence_ids", "self_reported_confidence"],
+        "properties": {
+          "criterion_id": {"type": "string", "description": "Must be one of the ids assigned in the prompt (enum injected per call)."},
+          "outcome": {"type": "string", "enum": ["PASS", "FAIL", "NEEDS_REVIEW", "INSUFFICIENT_EVIDENCE"]},
+          "rationale_he": {"type": "string", "maxLength": 800},
+          "cited_evidence_ids": {"type": "array", "items": {"type": "string"}, "description": "Only ids from the EVIDENCE list in the prompt."},
+          "hypotheses_he": {"type": "array", "items": {"type": "string", "maxLength": 200}, "description": "Possible explanations for a person to check — never conclusions."},
+          "self_reported_confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "suspicious_content": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["quote", "kind"],
+        "properties": {"quote": {"type": "string", "maxLength": 300}, "kind": {"type": "string", "enum": ["instruction_to_ai", "visual_editing_sign", "inconsistency", "other"]}, "page": {"type": "integer", "minimum": 1}}
+      }
+    },
+    "summary_internal_he": {"type": "string", "maxLength": 1200},
+    "limitations_he": {"type": "array", "items": {"type": "string", "maxLength": 300}}
+  }
+}

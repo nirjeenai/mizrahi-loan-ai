@@ -1,0 +1,13 @@
+{
+  "escalation_id": "esc_0001",
+  "review_case_id": "rc_7k2m9q4x1d",
+  "review_run_id": "b7d204e9c1",
+  "reason": "open_banker_findings",
+  "finding_keys": [
+    "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"
+  ],
+  "note_he": "מסמכי השכר הושלמו; נותר פער הכנסה פתוח. הלקוחה מסרה הסבר שאינו נתמך במסמכים שהוגשו.",
+  "state": "open",
+  "created_at": "2026-10-12T08:43:12Z",
+  "created_by": "service:mortgage-case-service"
+}

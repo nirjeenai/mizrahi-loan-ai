@@ -1,0 +1,2421 @@
+{
+  "catalog": "mortgage-reason-codes",
+  "version": "1.0.0-draft",
+  "generated": "2026-10-12",
+  "codes": [
+    {
+      "code": "ACCOUNT_HOLDER_MISMATCH",
+      "title_he": "הצד המשויך הוא בעל החשבון",
+      "category": "identity_binding",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "דף החשבון {filename} אינו רשום על שם {first_name}. אפשר לבדוק שהועלה הדף הנכון.",
+      "internal_message_he": "בעלי החשבון: {holders_masked}.",
+      "key_templates": [
+        "ACCOUNT_HOLDER_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-IDN-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ACCOUNT_RESTRICTION_PRINTED",
+      "title_he": "הגבלות, עיקולים או חזרות מודפסים בדף",
+      "category": "semantic",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מודפס בדף: {quotes}.",
+      "key_templates": [
+        "ACCOUNT_RESTRICTION_PRINTED:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-XD-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ACCOUNT_STATEMENTS_MISSING",
+      "title_he": "דפי חשבון לכל חשבון ידוע — כולל חשבון זיכוי המשכורת",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "חסרים דפי תנועות עו״ש של 3 החודשים האחרונים עבור החשבון בבנק {bank_name_he} (מסתיים ב־{last_digits}). הבנק מבקש דפי חשבון עבור כל חשבון בנק.",
+      "internal_message_he": "חשבון {account_ref} ידוע מ־{source} ואין לו דפי חשבון בתיק.",
+      "key_templates": [
+        "ACCOUNT_STATEMENTS_MISSING:{party_id}:{account_ref}"
+      ],
+      "used_by": [
+        "mortgage.financial.completeness@1.0.0#FIN-CMP-02"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "AGREEMENT_CLAUSE_ATTENTION",
+      "title_he": "סעיפי מימון, הערת אזהרה, סילוק משכנתת מוכר ושכירות — זיהוי בלבד",
+      "category": "semantic",
+      "default_severity": "info",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-CLA-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "AGREEMENT_DATES_INCONSISTENT",
+      "title_he": "תאריכים סבירים",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-DAT-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "AGREEMENT_PAGES_MISSING",
+      "title_he": "כל עמודי החוזה והנספחים המוזכרים קיימים",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בחוזה {filename} חסרים עמודים או נספחים ({missing}). אפשר להעלות את החוזה המלא כולל הנספחים.",
+      "internal_message_he": "{detail}.",
+      "key_templates": [
+        "AGREEMENT_PAGES_MISSING:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-CMP-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "AMBIGUOUS_CLASSIFICATION",
+      "title_he": "לא ניתן לקבוע את סוג המסמך",
+      "category": "classification",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "AMBIGUOUS_CLASSIFICATION:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ARREARS_PRINTED",
+      "title_he": "סימון פיגור מודפס",
+      "category": "semantic",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מודפס פיגור: {quote}.",
+      "key_templates": [
+        "ARREARS_PRINTED:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.loan_balance_report@1.0.0#LBR-XD-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "BALANCE_ROLLFORWARD_MISMATCH",
+      "title_he": "יתרת פתיחה + זכות − חובה = יתרת סגירה",
+      "category": "internal_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "{opening} + {credits} − {debits} = {computed} ≠ {closing}.",
+      "key_templates": [
+        "BALANCE_ROLLFORWARD_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-ARI-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "BORROWER_MISMATCH",
+      "title_he": "מספר הזהות המודפס הוא של הלווה שאליו שויך המסמך",
+      "category": "identity_binding",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "הקובץ {filename} הועלה עבור {assigned_first_name}, אבל נראה שהוא שייך ל{matched_first_name_or_other}. אפשר לשייך אותו מחדש או להעלות את התלוש הנכון.",
+      "internal_message_he": "ת״ז מודפסת שונה מזו של {assigned_party_id}; זוהה {matched_party_id}. המסמך אינו נספר לכיסוי של אף צד עד לשיוך מחדש.",
+      "key_templates": [
+        "BORROWER_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-IDN-01",
+        "mortgage.loan_balance_report@1.0.0#LBR-IDN-01",
+        "mortgage.income.self_employed@1.0.0#SEI-IDN-01",
+        "mortgage.security.pledge_and_warning_note@1.0.0#SEC-INS-02",
+        "mortgage.identity.id_card@1.0.0#IDC-IDN-01",
+        "mortgage.income.form_106@1.0.0#FRM-IDN-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "BORROWER_NOT_BUYER",
+      "title_he": "לווה שאינו קונה בחוזה",
+      "category": "cross_document",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "BORROWER_NOT_BUYER:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "BUYER_NOT_IN_CASE",
+      "title_he": "הקונים בחוזה הם צדדים בתיק",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "קונה בחוזה שאינו צד בתיק: {buyer_masked}.",
+      "key_templates": [
+        "BUYER_NOT_IN_CASE:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-PTY-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "CANCELLATION_NOTICE_CLAUSE_MISSING",
+      "title_he": "הודעה מוקדמת של 30 יום לפני ביטול",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.insurance.life_policy@1.0.0#INSL-CAN-01",
+        "mortgage.insurance.property_policy@1.0.0#INSP-CAN-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "CORRECTED_PAYSLIP",
+      "title_he": "תלוש מתוקן / הפרשים",
+      "category": "period",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "CORRECTED_PAYSLIP:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "CPA_CONFIRMATION_INCOMPLETE",
+      "title_he": "אישור הרו״ח מזהה את המאשר, מכסה תקופה ונראה חתום",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.income.self_employed@1.0.0#SEI-CPA-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "CROSS_CASE_DOCUMENT_SUSPECTED",
+      "title_he": "אותו קובץ לא הוגש בתיק אחר (מותנה אישור פרטיות)",
+      "category": "security",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "קובץ זהה הוגש בתיק אחר אצל אותו דייר. פרטי התיק האחר אינם מוצגים.",
+      "key_templates": [
+        "CROSS_CASE_DOCUMENT_SUSPECTED:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.identity.consistency@1.0.0#IDN-CON-05"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "CROSS_PAYSLIP_YTD_INCONSISTENT",
+      "title_he": "רציפות סכומים מצטברים (YTD) בין תלושים",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מצטבר {month}: {ytd_m} − {ytd_prev} ≠ {month_total}.",
+      "key_templates": [
+        "CROSS_PAYSLIP_YTD_INCONSISTENT:{party_id}:{month}"
+      ],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-07"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "CUSTOMER_STATEMENT_PARTIALLY_SUPPORTED",
+      "title_he": "הסבר הלקוח נתמך חלקית במסמכים",
+      "category": "semantic",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "CUSTOMER_STATEMENT_PARTIALLY_SUPPORTED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "CUSTOMER_STATEMENT_UNSUPPORTED",
+      "title_he": "הסבר הלקוח נבחן מול הראיות (אינו סוגר ממצא)",
+      "category": "semantic",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.income.declared_vs_documented@1.0.0#INC-DEC-04"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
+      "title_he": "הפער בין המוצהר למתועד בתוך הסובלנות",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": "נמצא הבדל בין ההכנסה שהוצהרה בבקשה לבין תלושי השכר שהועלו. הנושא הועבר לבדיקה של מומחה המשכנתאות שלך.",
+      "internal_message_he": "מוצהר {declared} ₪ {basis_he}; ממוצע בתלושים המאומתים ({months_he}) {avg} ₪ — פער {diff} ₪ ({pct}%). סובלנות {tol}% ({tol_status}). הממצא אינו קובע דבר על זכאות לאשראי.",
+      "key_templates": [
+        "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.income.declared_vs_documented@1.0.0#INC-DEC-02",
+        "mortgage.income.declared_vs_documented@1.0.0#INC-DEC-03"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED",
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DEDUCTIONS_SUM_MISMATCH",
+      "title_he": "סכום שורות הניכויים שווה לסה״כ ניכויים",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "Σ שורות הניכויים {sum} ≠ סה״כ {total}.",
+      "key_templates": [
+        "DEDUCTIONS_SUM_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-04"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DEMO_DOCUMENT_IN_PRODUCTION",
+      "title_he": "המסמך מסומן כמסמך דמו סינתטי",
+      "category": "classification",
+      "default_severity": "info",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-INT-05"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DIGITAL_ORIGINAL_REQUIRED",
+      "title_he": "נדרש עותק דיגיטלי חתום של המסמך",
+      "category": "authenticity",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "DIGITAL_ORIGINAL_REQUIRED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DIGITAL_SIGNATURE_INVALID",
+      "title_he": "חתימה אלקטרונית מאומתת (נסח מקוון)",
+      "category": "authenticity_signals",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "תוצאת אימות: {result}.",
+      "key_templates": [
+        "DIGITAL_SIGNATURE_INVALID:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.land_registry_extract@1.0.0#TABU-SIG-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DIGITAL_SIGNATURE_VALID",
+      "title_he": "חתימה אלקטרונית אומתה",
+      "category": "authenticity",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "DIGITAL_SIGNATURE_VALID:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DOCUMENT_NOT_VALID",
+      "title_he": "כל התלושים שנספרו תקינים",
+      "category": "evidence_sufficiency",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.income.payslip_coverage@1.0.0#INC-COV-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DOCUMENT_NUMBER_REUSED",
+      "title_he": "אותו מספר מסמך על חודשים שונים",
+      "category": "authenticity_signals",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מספר המסמך {document_number} מודפס על תלושים של {periods}. אות חלש בלבד.",
+      "key_templates": [
+        "DOCUMENT_NUMBER_REUSED:{party_id}:{document_number}"
+      ],
+      "used_by": [
+        "mortgage.payslip.duplicates@1.0.0#PSL-DUP-04"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DOCUMENT_RESUBMISSION_REQUIRED",
+      "title_he": "כלל 45 הימים — מסמכים שהועברו לפני יותר מ־45 יום",
+      "category": "recency",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "חלפו יותר מ־45 יום מאז שהועברו {requirement_title_he}. לפי הנחיות הבנק יש להעביר אותם מחדש (מסמכים עדכניים).",
+      "internal_message_he": "הועבר ב־{submitted}; {age} ימים > 45 (MZ-05).",
+      "key_templates": [
+        "DOCUMENT_RESUBMISSION_REQUIRED:{party_id}:{requirement_code}"
+      ],
+      "used_by": [
+        "mortgage.financial.completeness@1.0.0#FIN-CMP-04"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "DOCUMENT_STALE",
+      "title_he": "הדוח עדכני",
+      "category": "recency",
+      "default_severity": "minor",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.loan_balance_report@1.0.0#LBR-DAT-01",
+        "mortgage.land_registry_extract@1.0.0#TABU-DAT-01"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED"
+      ]
+    },
+    {
+      "code": "DOCUMENT_TYPE_REQUIREMENT_MISMATCH",
+      "title_he": "המסמך הועלה לדרישה הנכונה",
+      "category": "classification",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "הקובץ {filename} הוא תלוש שכר, אבל הועלה תחת '{claimed_title_he}'. אפשר לאשר שנעביר אותו לדרישת תלושי השכר.",
+      "internal_message_he": "הוצהר {claimed_requirement_code}; זוהה payslip; הצעה: {suggested_requirement}. MCS רשאי לשייך מחדש רק באישור הלקוח.",
+      "key_templates": [
+        "DOCUMENT_TYPE_REQUIREMENT_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-CLS-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DOCUMENT_UNREADABLE",
+      "title_he": "יש טקסט קריא — שכבת טקסט אמינה או OCR מוצלח",
+      "category": "readability",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "לא ניתן לקרוא את {filename}. אפשר להעלות עותק ברור יותר — עדיף PDF מקורי שהופק במערכת השכר/בבנק, או צילום חד, ישר ומואר של כל הדף.",
+      "internal_message_he": "קריאוּת: {detail}. אף ערך לא חולץ מהמסמך — לא נוחש דבר.",
+      "key_templates": [
+        "DOCUMENT_UNREADABLE:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-INT-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DUPLICATE_PERIOD",
+      "title_he": "יותר ממסמך אחד לאותו חודש מודפס",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "התקבלו {n} מסמכים של תלוש {month_he} ({filenames}).{named_hint} {action_hint}",
+      "internal_message_he": "{n} מסמכים מדפיסים {month}: {doc_ids}; סיווג: {duplicate_kind}; נספר: {counted_doc}.",
+      "key_templates": [
+        "DUPLICATE_PERIOD:{party_id}:{month}"
+      ],
+      "used_by": [
+        "mortgage.payslip.duplicates@1.0.0#PSL-DUP-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "DUPLICATE_PERIOD_CONFLICTING_CONTENT",
+      "title_he": "סיווג הכפילות: עותק, תיקון או תוכן סותר",
+      "category": "internal_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "לחודש {month} הוגשו תלושים שונים: {comparison}. אף אחד מהם אינו נבחר אוטומטית לחישוב הכנסה.",
+      "key_templates": [
+        "DUPLICATE_PERIOD_CONFLICTING_CONTENT:{party_id}:{month}"
+      ],
+      "used_by": [
+        "mortgage.payslip.duplicates@1.0.0#PSL-DUP-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "EARNINGS_SUM_MISMATCH",
+      "title_he": "סכום שורות התשלומים שווה לברוטו",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "Σ שורות התשלומים {sum} ≠ ברוטו {gross}.",
+      "key_templates": [
+        "EARNINGS_SUM_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "EARTHQUAKE_CLAUSE_MISSING",
+      "title_he": "כיסוי רעידת אדמה",
+      "category": "completeness",
+      "default_severity": "minor",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.insurance.property_policy@1.0.0#INSP-EQK-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "EMPLOYER_CHANGED_WITHIN_WINDOW",
+      "title_he": "המעסיק עקבי בין תלושי אותו צד",
+      "category": "cross_document_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "בתלושי {party_id} בחלון מופיעים מעסיקים: {employers}.",
+      "key_templates": [
+        "EMPLOYER_CHANGED_WITHIN_WINDOW:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.identity.consistency@1.0.0#IDN-CON-04"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "EMPLOYER_MISMATCH",
+      "title_he": "המעסיק בתלוש תואם למעסיק המוצהר",
+      "category": "cross_document_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "המעסיק בתלוש «{printed}» שונה מהמוצהר «{declared}».",
+      "key_templates": [
+        "EMPLOYER_MISMATCH:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-IDN-04",
+        "mortgage.income.form_106@1.0.0#FRM-EMP-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ENCUMBRANCE_PRESENT",
+      "title_he": "שעבודים, עיקולים והערות לטובת צד שלישי",
+      "category": "semantic",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": "בנסח הנכס רשומה {kind_he} לטובת גורם אחר. בהתאם להנחיות הבנק יידרש אישור הסרת שעבוד או מכתב כוונות מהגורם המשעבד.",
+      "internal_message_he": "{kind}: {quote}.",
+      "key_templates": [
+        "ENCUMBRANCE_PRESENT:{document_id}:{kind}"
+      ],
+      "used_by": [
+        "mortgage.land_registry_extract@1.0.0#TABU-ENC-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "EVIDENCE_UNVERIFIED",
+      "title_he": "הערכים המכריעים אומתו מול הקובץ המקורי",
+      "category": "evidence_sufficiency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "לא אומתו מול הקובץ: {fields}. אין להסתמך עליהם בלי בדיקה חזותית.",
+      "key_templates": [
+        "EVIDENCE_UNVERIFIED:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-05"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILENAME_TYPE_MISMATCH",
+      "title_he": "שם הקובץ מרמז על סוג אחר",
+      "category": "classification",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "FILENAME_TYPE_MISMATCH:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_CORRUPT",
+      "title_he": "הקובץ נפתח, אינו מוצפן ואינו פגום",
+      "category": "readability",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "לא הצלחנו לפתוח את הקובץ {filename}. אפשר להעלות אותו שוב כ־PDF רגיל (לא מוגן בסיסמה) או כצילום ברור.",
+      "internal_message_he": "קליטה נכשלה: {detail}. verdict=UNREADABLE (או UNSUPPORTED עבור MIME לא מותר).",
+      "key_templates": [
+        "{reason_code}:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-INT-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_DUPLICATE_EXACT",
+      "title_he": "אותו קובץ לא הועלה כבר לתיק (כפילות מדויקת)",
+      "category": "completeness",
+      "default_severity": "minor",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": "הקובץ {filename} זהה לקובץ שכבר הועלה ({other_filename}). הוא לא נספר פעמיים.",
+      "internal_message_he": "sha256 זהה ל־{other_document_id}; נספר פעם אחת בכל בדיקת כיסוי.",
+      "key_templates": [
+        "FILE_DUPLICATE_EXACT:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-INT-02",
+        "mortgage.payslip.duplicates@1.0.0#PSL-DUP-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_ENCRYPTED",
+      "title_he": "הקובץ מוגן בסיסמה",
+      "category": "intake",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "FILE_ENCRYPTED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_MALWARE_SUSPECTED",
+      "title_he": "הקובץ נחסם בבדיקת אבטחה",
+      "category": "intake",
+      "default_severity": "blocking",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "FILE_MALWARE_SUSPECTED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_NAME_PERIOD_MISMATCH",
+      "title_he": "החודש ששם הקובץ מציין תואם לחודש המודפס",
+      "category": "period_relevance",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": "שם הקובץ {filename} מציין את {named_month_he}, אך במסמך עצמו מודפס {printed_month_he}. הבדיקה מסתמכת על החודש המודפס.",
+      "internal_message_he": "file_name_claims={named}; document_prints={period}.",
+      "key_templates": [
+        "FILE_NAME_PERIOD_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.period@1.0.0#PSL-PER-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_TOO_LARGE",
+      "title_he": "הקובץ גדול מהמותר",
+      "category": "intake",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "FILE_TOO_LARGE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FILE_TYPE_NOT_ALLOWED",
+      "title_he": "קובץ מסוג שאינו נתמך",
+      "category": "intake",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "FILE_TYPE_NOT_ALLOWED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "FOREIGN_SELLER_APPROVAL_MISSING",
+      "title_he": "מוכר תושב חוץ — אישור לרישום בפנקסי המקרקעין",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.seller.documents@1.0.0#SEL-FOR-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "FORM_106_MISSING",
+      "title_he": "טופס 106 לשנה קודמת לשכירים (מותנה מדיניות)",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "נדרש טופס 106 לשנת {tax_year} של {first_name} (אפשר להוריד מהאזור האישי באתר רשות המסים).",
+      "internal_message_he": "MZ-02 דורש 106 לשנה קודמת לשכירים.",
+      "key_templates": [
+        "FORM_106_MISSING:{party_id}:{tax_year}"
+      ],
+      "used_by": [
+        "mortgage.financial.completeness@1.0.0#FIN-CMP-05"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED"
+      ]
+    },
+    {
+      "code": "FORM_106_WRONG_YEAR",
+      "title_he": "שנת המס היא השנה הקודמת",
+      "category": "period_relevance",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "טופס 106 שהועלה הוא לשנת {tax_year}; נדרש טופס לשנת {expected_year}.",
+      "internal_message_he": "tax_year={tax_year}; expected={expected_year}.",
+      "key_templates": [
+        "FORM_106_WRONG_YEAR:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.income.form_106@1.0.0#FRM-YR-01"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED"
+      ]
+    },
+    {
+      "code": "IDENTITY_INCONSISTENT_ACROSS_DOCUMENTS",
+      "title_he": "צד אחד = אדם אחד בכל המסמכים",
+      "category": "identity_binding",
+      "default_severity": "blocking",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מסמכי {party_id} מדפיסים מזהים שונים: {pairs}.",
+      "key_templates": [
+        "IDENTITY_INCONSISTENT_ACROSS_DOCUMENTS:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.identity.consistency@1.0.0#IDN-CON-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "IDENTITY_UNRESOLVED",
+      "title_he": "שם העובד תואם ללווה",
+      "category": "identity_binding",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "ת״ז תואמת ל־{party_id} אך השם המודפס «{printed}» שונה מ«{case_name}».",
+      "key_templates": [
+        "IDENTITY_UNRESOLVED:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-IDN-02",
+        "mortgage.identity.consistency@1.0.0#IDN-CON-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ID_APPENDIX_MISSING",
+      "title_he": "ספח מציג מצב אישי (כשנדרש)",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.identity.id_card@1.0.0#IDC-APX-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "ID_EXPIRED",
+      "title_he": "המסמך בתוקף",
+      "category": "recency",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "תוקף תעודת הזהות שהועלתה עבר. הבנק מבקש תעודת זהות בתוקף.",
+      "internal_message_he": "expiry={expiry}.",
+      "key_templates": [
+        "ID_EXPIRED:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.identity.id_card@1.0.0#IDC-VAL-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "ID_NUMBER_INVALID_CHECKSUM",
+      "title_he": "ספרת הביקורת של מספר הזהות תקינה",
+      "category": "identity_binding",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מספר הזהות המודפס אינו עובר ספרת ביקורת. ייתכן שגיאת קריאה — ראו ראיה.",
+      "key_templates": [
+        "ID_NUMBER_INVALID_CHECKSUM:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-IDN-03",
+        "mortgage.identity.id_card@1.0.0#IDC-CHK-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ID_POSSIBLE_MISREAD",
+      "title_he": "מספר זהות שאינו עובר ספרת ביקורת ושונה בספרה אחת — חשד לשגיאת קריאה",
+      "category": "identity",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "ID_POSSIBLE_MISREAD:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "INCOME_BASIS_UNKNOWN",
+      "title_he": "ההשוואה היא לייק־פור־לייק",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.income.declared_vs_documented@1.0.0#INC-DEC-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "INSURANCE_BENEFICIARY_NOT_BANK",
+      "title_he": "הבנק מוטב בלתי חוזר",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בפוליסה {filename} הבנק אינו רשום כמוטב בלתי חוזר. אפשר לבקש מחברת הביטוח לעדכן את הפוליסה.",
+      "internal_message_he": "סעיף מוטב: {quote}.",
+      "key_templates": [
+        "INSURANCE_BENEFICIARY_NOT_BANK:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.insurance.life_policy@1.0.0#INSL-BEN-01",
+        "mortgage.insurance.property_policy@1.0.0#INSP-BEN-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "INSURANCE_BRANCH_DETAILS_MISSING",
+      "title_he": "בסעיף השעבוד חסרים מספר הסניף או כתובתו, או שהם שונים",
+      "category": "insurance",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "INSURANCE_BRANCH_DETAILS_MISSING:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "INSURANCE_COVERAGE_BELOW_LOAN",
+      "title_he": "סכום הביטוח אינו נמוך מסכום המשכנתא",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "סכום הביטוח בפוליסה ({sum} ₪) נמוך מסכום המשכנתא ({loan} ₪). הבנק מבקש פוליסה בגובה סכום המשכנתא.",
+      "internal_message_he": "{sum} < {loan}.",
+      "key_templates": [
+        "INSURANCE_COVERAGE_BELOW_LOAN:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.insurance.life_policy@1.0.0#INSL-SUM-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "INSURANCE_PERIOD_SHORT",
+      "title_he": "תקופת הביטוח מכסה את כל תקופת ההלוואה",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.insurance.life_policy@1.0.0#INSL-PER-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "INSURANCE_PLEDGE_CLAUSE_MISSING",
+      "title_he": "הפוליסה משועבדת לבנק ונושאת מספר וכתובת סניף",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "הפוליסה צריכה להיות משועבדת לבנק מזרחי־טפחות, כולל מספר הסניף וכתובתו.",
+      "internal_message_he": "{detail}.",
+      "key_templates": [
+        "INSURANCE_PLEDGE_CLAUSE_MISSING:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.insurance.life_policy@1.0.0#INSL-PLG-01",
+        "mortgage.insurance.property_policy@1.0.0#INSP-PLG-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "INSURED_PROPERTY_MISMATCH",
+      "title_he": "הנכס המבוטח הוא הנכס המשועבד",
+      "category": "cross_document_consistency",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.insurance.property_policy@1.0.0#INSP-PRP-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "INTERNAL_ARITHMETIC_MISMATCH",
+      "title_he": "עקביות חשבונית: ברוטו פחות ניכויים שווה לנטו",
+      "category": "internal_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": "בתלוש {filename} הסכומים אינם מתיישבים זה עם זה. הנושא הועבר לבדיקת מומחה המשכנתאות.",
+      "internal_message_he": "{computation}.",
+      "key_templates": [
+        "INTERNAL_ARITHMETIC_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-02",
+        "mortgage.loan_balance_report@1.0.0#LBR-ARI-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ISSUE_DATE_BEFORE_PERIOD",
+      "title_he": "תאריך הפקה לפני תחילת התקופה",
+      "category": "period",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "ISSUE_DATE_BEFORE_PERIOD:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "JUDGE_NO_OUTCOME",
+      "title_he": "השופט לא החזיר תוצאה לקריטריון",
+      "category": "semantic",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "JUDGE_NO_OUTCOME:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "LANGUAGE_UNSUPPORTED",
+      "title_he": "שפת המסמך אינה נתמכת",
+      "category": "intake",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "LANGUAGE_UNSUPPORTED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "LETTER_OF_INTENT_MISSING",
+      "title_he": "מכתב כוונות מבנק המוכר כשקיימת משכנתא",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.seller.documents@1.0.0#SEL-LOI-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "LIABILITY_DOCUMENT_MISSING",
+      "title_he": "התחייבות מוצהרת ללא ראיה",
+      "category": "financial",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "LIABILITY_DOCUMENT_MISSING:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "LIFE_POLICY_MISSING_FOR_BORROWER",
+      "title_he": "כל לווה מבוטח",
+      "category": "identity_binding",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "נדרשת פוליסת ביטוח חיים גם עבור {first_name} (פוליסה עבור כל אחד מהלווים).",
+      "internal_message_he": "{party_id} אינו מבוטח בפוליסות שהוגשו.",
+      "key_templates": [
+        "LIFE_POLICY_MISSING_FOR_BORROWER:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.insurance.life_policy@1.0.0#INSL-IDN-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "LOAN_BALANCE_REPORT_MISSING",
+      "title_he": "דוח ריכוז יתרות הלוואות כשיש הלוואות",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "נדרש דוח ריכוז יתרות הלוואות מכל חשבונות הבנק (אם יש הלוואות קיימות).",
+      "internal_message_he": "סימן להלוואה: {signal}; אין דוח ריכוז יתרות.",
+      "key_templates": [
+        "LOAN_BALANCE_REPORT_MISSING:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.financial.completeness@1.0.0#FIN-CMP-03"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "MANDATORY_FIELD_MISSING",
+      "title_he": "שכר ברוטו ונטו לתשלום מודפסים",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בתלוש {filename} חסר {missing_he}. אפשר להעלות תלוש מלא כפי שהופק במערכת השכר.",
+      "internal_message_he": "חסר: {missing}.",
+      "key_templates": [
+        "MANDATORY_FIELD_MISSING:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-01"
+      ],
+      "requirement_basis": [
+        "STATUTORY"
+      ]
+    },
+    {
+      "code": "MULTI_DOCUMENT_BUNDLE",
+      "title_he": "קובץ אחד = תלוש אחד (זיהוי חבילה)",
+      "category": "classification",
+      "default_severity": "info",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-CLS-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "MUNICIPAL_CONFIRMATION_EXPIRED",
+      "title_he": "אישור העירייה בתוקף",
+      "category": "recency",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.tax_confirmations@1.0.0#TAX-VAL-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "NAME_VARIANT",
+      "title_he": "וריאציית שם מוכרת",
+      "category": "identity",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "NAME_VARIANT:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "ORIGINAL_REQUIRED",
+      "title_he": "הבנק דורש את המסמך המקורי בסניף",
+      "category": "completion",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "ORIGINAL_REQUIRED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PAGE_LIMIT_EXCEEDED",
+      "title_he": "לא כל עמודי הקובץ נקראו",
+      "category": "intake",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PAGE_LIMIT_EXCEEDED:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PARTIALLY_READABLE",
+      "title_he": "חלק מהעמודים אינם קריאים",
+      "category": "intake",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PARTIALLY_READABLE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PARTIAL_PROPERTY_INSURANCE",
+      "title_he": "ביטוח נכס חלקי (מותר; הבנק אינו ממליץ)",
+      "category": "insurance",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PARTIAL_PROPERTY_INSURANCE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PARTY_NOT_IN_CASE",
+      "title_he": "אין מסמך של אדם שאינו בתיק",
+      "category": "identity_binding",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": "המסמך {filename} אינו של אחד הלווים בבקשה. אפשר לבדוק שהקובץ הנכון הועלה.",
+      "internal_message_he": "נושא המסמך אינו צד בתיק (מזהה מוסתר בלוגים: {masked_id}).",
+      "key_templates": [
+        "PARTY_NOT_IN_CASE:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.identity.consistency@1.0.0#IDN-CON-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PAYMENT_SCHEDULE_SUM_MISMATCH",
+      "title_he": "לוח התשלומים מסתכם לתמורה",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-PRC-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PAYSLIP_STATUTORY_FIELDS_MISSING",
+      "title_he": "פרטי חובה סטטוטוריים בתלוש (מידע)",
+      "category": "completeness",
+      "default_severity": "info",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.payslip.financials@1.0.0#PSL-FIN-08"
+      ],
+      "requirement_basis": [
+        "STATUTORY"
+      ]
+    },
+    {
+      "code": "PAY_DATE_INCONSISTENT",
+      "title_he": "תאריך התשלום מתיישב עם תקופת השכר",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "תאריך התשלום {payment_date} אינו מתיישב עם תקופת השכר {period_he}: {detail}.",
+      "key_templates": [
+        "PAY_DATE_INCONSISTENT:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.period@1.0.0#PSL-PER-03"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PERIOD_CONFLICT",
+      "title_he": "שני חודשים שונים מודפסים במסמך",
+      "category": "period",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PERIOD_CONFLICT:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PERIOD_IN_FUTURE",
+      "title_he": "תקופה עתידית ביחס לתאריך הבדיקה",
+      "category": "period",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PERIOD_IN_FUTURE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PERIOD_OUT_OF_SCOPE",
+      "title_he": "התקופה בתוך החלון המבוקש",
+      "category": "recency",
+      "default_severity": "minor",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": "התלוש {filename} הוא של {printed_month_he}, שאינו אחד מהחודשים הנדרשים ({required_he}). הוא לא נספר.",
+      "internal_message_he": "period={period}; required={required}.",
+      "key_templates": [
+        "PERIOD_OUT_OF_SCOPE:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.period@1.0.0#PSL-PER-04"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PERIOD_UNCLEAR",
+      "title_he": "תקופת השכר מודפסת וחד־משמעית",
+      "category": "period_relevance",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בתלוש {filename} לא ניתן לזהות לאיזה חודש הוא שייך. אפשר להעלות עותק שבו תקופת השכר מופיעה בבירור.",
+      "internal_message_he": "תקופה: {detail}.",
+      "key_templates": [
+        "PERIOD_UNCLEAR:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.period@1.0.0#PSL-PER-01",
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-PER-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION",
+        "STATUTORY"
+      ]
+    },
+    {
+      "code": "PLEDGE_INSPECTION_REPORT_MISSING",
+      "title_he": "דו״ח עיון לכל אחד ממבקשי המשכנתא",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "חסר דו״ח עיון מרשם המשכונות על שם {first_name}. אפשר להפיק אותו באתר gov.il ('עיון בשעבודים ומשכונות') ולהעלות כאן.",
+      "internal_message_he": "אין דו״ח עיון ל־{party_id}.",
+      "key_templates": [
+        "PLEDGE_INSPECTION_REPORT_MISSING:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.security.pledge_and_warning_note@1.0.0#SEC-INS-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "PLEDGE_NOT_SHOWN",
+      "title_he": "הדו״ח מציג משכון לטובת מזרחי־טפחות",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בדו״ח העיון שהועלה עדיין לא מופיע המשכון לטובת הבנק. ייתכן שהדו״ח הופק לפני הרישום — אפשר להפיק דו״ח עדכני.",
+      "internal_message_he": "משכונים בדו״ח: {pledges}.",
+      "key_templates": [
+        "PLEDGE_NOT_SHOWN:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.security.pledge_and_warning_note@1.0.0#SEC-INS-03"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "PLEDGOR_NOT_OWNER",
+      "title_he": "משעבד שאינו בעלים רשום",
+      "category": "property",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PLEDGOR_NOT_OWNER:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "POLICY_PARAMETER_PENDING",
+      "title_he": "נדרש ערך מדיניות בנק להכרעה",
+      "category": "lifecycle",
+      "default_severity": "info",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "POLICY_PARAMETER_PENDING:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PREVIOUS_EMPLOYER_PAYSLIP_MISSING",
+      "title_he": "תלוש ממעסיק קודם כשהוותק קצר (מותנה מדיניות)",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "{first_name} עובד/ת במקום העבודה הנוכחי פחות מ־{months} חודשים, ולכן נדרש גם תלוש השכר האחרון ממקום העבודה הקודם.",
+      "internal_message_he": "ותק {seniority} חודשים < {months}.",
+      "key_templates": [
+        "PREVIOUS_EMPLOYER_PAYSLIP_MISSING:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.income.payslip_coverage@1.0.0#INC-COV-04"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED"
+      ]
+    },
+    {
+      "code": "PRICE_MISMATCH",
+      "title_he": "התמורה בחוזה תואמת למחיר שהוצהר בבקשה",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "תמורה בחוזה {price} ₪ מול מחיר מוצהר {declared} ₪ (שיעור המימון מחושב בבנק).",
+      "key_templates": [
+        "PRICE_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-PRC-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PROPERTY_IDENTIFIER_MISMATCH",
+      "title_he": "מזהי הנכס עקביים בין החוזה, הנסח, השמאות והבקשה",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "{concept}: {readings}.",
+      "key_templates": [
+        "PROPERTY_IDENTIFIER_MISMATCH:{concept}"
+      ],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-PRP-01",
+        "mortgage.tax_confirmations@1.0.0#TAX-PRP-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "PROPERTY_INSURANCE_BELOW_REQUIRED",
+      "title_he": "סכום ביטוח המבנה עומד בכלל הבנק",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "סכום ביטוח המבנה ({sum} ₪) נמוך מהנדרש. מומלץ ביטוח בגובה ערך הכינון שקבע השמאי ({reinstatement} ₪).",
+      "internal_message_he": "{computation}.",
+      "key_templates": [
+        "PROPERTY_INSURANCE_BELOW_REQUIRED:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.insurance.property_policy@1.0.0#INSP-SUM-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "PROVIDER_FAILURE",
+      "title_he": "הבדיקה לא הושלמה בשל תקלה",
+      "category": "lifecycle",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "PROVIDER_FAILURE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "REISSUED_COPY",
+      "title_he": "תאריך ההפקה וסימני העתק/תיקון",
+      "category": "internal_consistency",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.payslip.period@1.0.0#PSL-PER-05"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "REPEATED_UNREADABLE",
+      "title_he": "אותו מסמך לא קריא פעמיים ברציפות",
+      "category": "lifecycle",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "REPEATED_UNREADABLE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "REQUIRED_PERIODS_SOURCE_DIFFERS",
+      "title_he": "גזירת החלון מפורסמת ושחזורית",
+      "category": "evidence_sufficiency",
+      "default_severity": "info",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.income.payslip_coverage@1.0.0#INC-COV-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "REQUIRED_PERIOD_MISSING",
+      "title_he": "כל החודשים הנדרשים מכוסים בתלוש משלהם",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "כדי להשלים את מסמכי השכר של {first_name} חסר תלוש השכר של {month_he}. החודשים הנדרשים: {required_he}.",
+      "internal_message_he": "INC.PAYSLIP:{party_id} — נדרשים {required}; כוסו {covered} ({counted_docs}); חסר {month}. חלון: {derivation}.",
+      "key_templates": [
+        "REQUIRED_PERIOD_MISSING:{party_id}:{month}"
+      ],
+      "used_by": [
+        "mortgage.income.payslip_coverage@1.0.0#INC-COV-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "REQUIREMENT_UNSATISFIED",
+      "title_he": "כל דרישה פיננסית שבתחום הבדיקה מסופקת",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.financial.completeness@1.0.0#FIN-CMP-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "RIGHTS_DOCUMENT_KIND_MISMATCH",
+      "title_he": "סוג מסמך הזכויות תואם למקום הרישום",
+      "category": "classification",
+      "default_severity": "minor",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.land_registry_extract@1.0.0#TABU-REG-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "RUNNING_BALANCE_BREAK",
+      "title_he": "רציפות היתרה השוטפת בכל שורה",
+      "category": "internal_consistency",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "שבר ביתרה השוטפת בשורה {row}: {detail}.",
+      "key_templates": [
+        "RUNNING_BALANCE_BREAK:{document_id}:{row}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-ARI-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "SALARY_DEPOSIT_NOT_FOUND",
+      "title_he": "זיכוי המשכורת בעו״ש תואם לנטו בתלוש",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "לא נמצא בעו״ש זיכוי של {net} ₪ (נטו בתלוש {month}) בין {from} ל־{to}. הוראה 329 נספח א מחייבת אסמכתה לתשלום לחשבון לצורך הכרה בהכנסה; תלוש אינו מוכיח שהתשלום בוצע.",
+      "key_templates": [
+        "SALARY_DEPOSIT_NOT_FOUND:{party_id}:{month}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-XD-01"
+      ],
+      "requirement_basis": [
+        "STATUTORY"
+      ]
+    },
+    {
+      "code": "SELF_EMPLOYED_DOCUMENTS_INCOMPLETE",
+      "title_he": "הצירוף הנדרש הוגש (שומה לשנה קודמת + אישור רו״ח לשנה הנוכחית)",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "להשלמת אישורי ההכנסה כעצמאי/ת חסר: {missing_he}.",
+      "internal_message_he": "כלל {rule} ({status}); קיים: {present}.",
+      "key_templates": [
+        "SELF_EMPLOYED_DOCUMENTS_INCOMPLETE:{party_id}"
+      ],
+      "used_by": [
+        "mortgage.income.self_employed@1.0.0#SEI-SET-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "SELLER_ID_MISSING",
+      "title_he": "ת״ז לכל מוכר (כולל ספח) ותואמת לחוזה",
+      "category": "identity_binding",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "חסר צילום תעודת זהות (כולל ספח) של המוכר/ת {seller_name}.",
+      "internal_message_he": "מוכר {seller_ref} ללא ת״ז.",
+      "key_templates": [
+        "SELLER_ID_MISSING:{seller_ref}"
+      ],
+      "used_by": [
+        "mortgage.seller.documents@1.0.0#SEL-IDN-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "SELLER_OWNER_MISMATCH",
+      "title_he": "המוכרים בחוזה הם הבעלים הרשומים",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "מוכרים בחוזה: {sellers}; בעלים רשומים: {owners}.",
+      "key_templates": [
+        "SELLER_OWNER_MISMATCH:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-PTY-02",
+        "mortgage.land_registry_extract@1.0.0#TABU-OWN-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "SIGNATURE_MISSING",
+      "title_he": "נראים סימני חתימה של כל הצדדים בעמוד החתימות",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בחוזה {filename} לא נראית חתימה של {party_role_he}. הבנק מבקש חוזה רכישה חתום.",
+      "internal_message_he": "חתימה חסרה/לא ברורה: {detail}. נבדקה נוכחות סימן בלבד — לא זהות.",
+      "key_templates": [
+        "SIGNATURE_MISSING:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-SIG-01",
+        "mortgage.seller.documents@1.0.0#SEL-UND-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "SPOUSE_CONSENT_MISSING",
+      "title_he": "הסכמת בן/בת זוג של מוכר שאינם מוכרים",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.seller.documents@1.0.0#SEL-MAR-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "STATEMENT_COVERAGE_GAP",
+      "title_he": "כיסוי החלון הנדרש לכל חשבון ללא פערים",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בדפי החשבון של {first_name} בבנק {bank_name_he} חסרה התקופה {gap_from_he}–{gap_to_he}. נדרשים דפי תנועות של 3 החודשים האחרונים.",
+      "internal_message_he": "חלון {window}; מכוסה {union}; פער {gap}.",
+      "key_templates": [
+        "STATEMENT_COVERAGE_GAP:{party_id}:{account_ref}:{gap_from}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-COV-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "STATEMENT_NOT_RECENT",
+      "title_he": "הדף עדכני",
+      "category": "recency",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "דפי החשבון בבנק {bank_name_he} מסתיימים ב־{latest_to_he}. ייתכן שיידרשו דפים עדכניים יותר.",
+      "internal_message_he": "{days} ימים מסוף הדף (סף {recency} — {status}).",
+      "key_templates": [
+        "STATEMENT_NOT_RECENT:{party_id}:{account_ref}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-COV-02"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED"
+      ]
+    },
+    {
+      "code": "STATEMENT_OVERLAP_CONFLICT",
+      "title_he": "אין דפים כפולים לאותו חשבון ותקופה",
+      "category": "completeness",
+      "default_severity": "info",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-DUP-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "STATEMENT_PAGES_MISSING",
+      "title_he": "כל העמודים קיימים ורציפים",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בדף החשבון {filename} חסרים עמודים ({missing_pages}). אפשר להעלות את הדף המלא.",
+      "internal_message_he": "מספור: {detail}.",
+      "key_templates": [
+        "STATEMENT_PAGES_MISSING:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-PAG-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "TAMPER_SIGNAL",
+      "title_he": "אותות חלשים לשינוי מסמך (מטא־דאטה/חזותי)",
+      "category": "authenticity_signals",
+      "default_severity": "minor",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "אותות חלשים לבדיקה: {signals}. אין בכך קביעה שהמסמך שונה.",
+      "key_templates": [
+        "TAMPER_SIGNAL:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-SEC-02"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "TAX_CONFIRMATIONS_INCOMPLETE",
+      "title_he": "שלמות סט האישורים לפני המנה האחרונה",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "להשלמת העסקה חסרים אישורי המיסים: {missing_he}. בדרך כלל עורך הדין מעביר אותם.",
+      "internal_message_he": "חסר: {missing}.",
+      "key_templates": [
+        "TAX_CONFIRMATIONS_INCOMPLETE:{case}"
+      ],
+      "used_by": [
+        "mortgage.tax_confirmations@1.0.0#TAX-SET-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "TEXT_LAYER_UNRELIABLE",
+      "title_he": "שכבת הטקסט אינה משובשת (Unicode/RTL)",
+      "category": "readability",
+      "default_severity": "major",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "שכבת הטקסט משובשת (גופן ללא ToUnicode); המסמך נקרא ב־OCR. {detail}",
+      "key_templates": [
+        "TEXT_LAYER_UNRELIABLE:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-INT-04"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "UNDECLARED_LIABILITY",
+      "title_he": "ההלוואות בדוח תואמות להתחייבויות המוצהרות",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "הלוואה {loan_ref} ביתרה {balance} ₪ אינה בהתחייבויות המוצהרות.",
+      "key_templates": [
+        "UNDECLARED_LIABILITY:{party_id}:{loan_ref}"
+      ],
+      "used_by": [
+        "mortgage.loan_balance_report@1.0.0#LBR-XD-01"
+      ],
+      "requirement_basis": [
+        "STATUTORY"
+      ]
+    },
+    {
+      "code": "UNDECLARED_LIABILITY_SUSPECTED",
+      "title_he": "חיובים קבועים שעשויים להעיד על התחייבות שלא הוצהרה",
+      "category": "cross_document_consistency",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": "חיוב חוזר ל־{payee} ({amounts}) בחודשים {months}; אינו מופיע בהתחייבויות המוצהרות.",
+      "key_templates": [
+        "UNDECLARED_LIABILITY_SUSPECTED:{party_id}:{payee_key}"
+      ],
+      "used_by": [
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-XD-02"
+      ],
+      "requirement_basis": [
+        "STATUTORY"
+      ]
+    },
+    {
+      "code": "UNEXPECTED_DOCUMENT_TYPE",
+      "title_he": "המסמך הוא תלוש שכר",
+      "category": "classification",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "הקובץ {filename} אינו תלוש שכר (נראה כמו {detected_type_he}). לדרישה הזו צריך להעלות תלוש שכר חודשי.",
+      "internal_message_he": "סווג כ־{detected_type}; אותות: {signals}.",
+      "key_templates": [
+        "UNEXPECTED_DOCUMENT_TYPE:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.payslip.classification_identity@1.0.0#PSL-CLS-01",
+        "mortgage.bank_statement.extraction_coverage@1.0.0#BST-CLS-01",
+        "mortgage.purchase_agreement.extraction_consistency@1.0.0#PUR-CLS-01",
+        "mortgage.loan_balance_report@1.0.0#LBR-CLS-01",
+        "mortgage.land_registry_extract@1.0.0#TABU-CLS-01",
+        "mortgage.insurance.life_policy@1.0.0#INSL-CLS-01",
+        "mortgage.insurance.property_policy@1.0.0#INSP-CLS-01",
+        "mortgage.income.self_employed@1.0.0#SEI-CLS-01",
+        "mortgage.identity.id_card@1.0.0#IDC-CLS-01",
+        "mortgage.tax_confirmations@1.0.0#TAX-CLS-01",
+        "mortgage.income.form_106@1.0.0#FRM-CLS-01"
+      ],
+      "requirement_basis": [
+        "BANK_POLICY_REQUIRED",
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "UNSUPPORTED_DOCUMENT_TYPE",
+      "title_he": "סוג מסמך שאינו בקטלוג הבדיקה",
+      "category": "classification",
+      "default_severity": "info",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "UNSUPPORTED_DOCUMENT_TYPE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+      "title_he": "אין במסמך הוראות המופנות למערכת או לבודק",
+      "category": "security",
+      "default_severity": "major",
+      "review_states": [
+        "BANKER_REVIEW_REQUIRED"
+      ],
+      "customer_message_he": "המסמך {filename} הועבר לבדיקה של מומחה המשכנתאות.",
+      "internal_message_he": "נמצא במסמך טקסט המופנה למערכת/לבודק: «{quote}» (עמוד {page}). הטקסט לא בוצע. כל שאר הקריטריונים הוערכו כרגיל; התוצאה אינה יכולה להיות VALID.",
+      "key_templates": [
+        "UNTRUSTED_INSTRUCTION_IN_DOCUMENT:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.document.intake_quality@1.0.0#GEN-SEC-01"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "WAGE_PAID_AFTER_LEGAL_DEADLINE",
+      "title_he": "השכר שולם אחרי ה־9 בחודש העוקב",
+      "category": "period",
+      "default_severity": "info",
+      "review_states": [
+        "INFO"
+      ],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [
+        "WAGE_PAID_AFTER_LEGAL_DEADLINE:{subject}"
+      ],
+      "used_by": [
+        "platform"
+      ],
+      "requirement_basis": [
+        "PROPOSED_VALIDATION"
+      ]
+    },
+    {
+      "code": "WARNING_NOTE_BANK_MISSING",
+      "title_he": "בנסח שאחרי הרישום רשומה הערת אזהרה לטובת הבנק",
+      "category": "completeness",
+      "default_severity": "blocking",
+      "review_states": [
+        "CUSTOMER_ACTION_REQUIRED"
+      ],
+      "customer_message_he": "בנסח שהועלה לא רשומה הערת אזהרה לטובת הבנק. עורך הדין של המוכרים רושם אותה — אפשר לבדוק איתו ולהעלות נסח מעודכן.",
+      "internal_message_he": "הערות בנסח: {notes}.",
+      "key_templates": [
+        "WARNING_NOTE_BANK_MISSING:{document_id}"
+      ],
+      "used_by": [
+        "mortgage.security.pledge_and_warning_note@1.0.0#SEC-WRN-01"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    },
+    {
+      "code": "WARNING_NOTE_BUYERS_MISSING",
+      "title_he": "רשומה גם הערת אזהרה לטובת הקונים",
+      "category": "completeness",
+      "default_severity": "major",
+      "review_states": [],
+      "customer_message_he": null,
+      "internal_message_he": null,
+      "key_templates": [],
+      "used_by": [
+        "mortgage.security.pledge_and_warning_note@1.0.0#SEC-WRN-02"
+      ],
+      "requirement_basis": [
+        "CONFIRMED_PUBLIC_BANK_REQUIREMENT"
+      ]
+    }
+  ]
+}

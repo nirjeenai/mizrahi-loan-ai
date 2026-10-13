@@ -1,0 +1,471 @@
+openapi: 3.1.0
+info:
+  title: VisionTrace Mortgage Review — Service API
+  version: 1.0.0-draft
+  summary: TO BUILD. Service-to-service API between the Mortgage Case Service (MCS) and VisionTrace.
+  description: |
+    STATUS: **TO BUILD** — none of these endpoints exist in VisionTrace main 5a1ca7d. Today every
+    VisionTrace REST route sits behind the browser cookie gate (backend/app/services/auth/middleware.py
+    EXEMPT_PATHS); the only machine surface is POST /mcp (bearer keys, voice-shaped read tools, no boxes).
+
+    All bodies use the canonical schema `../schemas/mortgage-review.v1.schema.json` (JSON Schema 2020-12).
+    A review verdict is a DOCUMENT-REVIEW outcome — never a credit decision, approval or official bank
+    acceptance. `bank_acceptance` is always `NOT_DETERMINED_BY_PROVIDER`.
+
+    Conventions: times are UTC ISO-8601; pages are 1-based; bbox is normalised [x0,y0,x1,y1] in 0..1 in the
+    displayed (post-rotation) page frame; money is {amount, currency:"ILS"}; months are "YYYY-MM".
+    Runs are serialised per review case: a start request while a run is active is accepted (202) and queued;
+    a queued run that has not started is superseded by a newer start request for the same case.
+servers:
+  - url: https://visiontrace.example/api/v1
+    description: Placeholder host — the real host is decided in OTD-04 / Q-50.
+security:
+  - serviceKey: []
+tags:
+  - name: review-cases
+  - name: runs
+  - name: findings
+  - name: customer
+  - name: banker
+  - name: evidence
+paths:
+  /review-cases:
+    post:
+      tags: [review-cases]
+      operationId: createReviewCaseAndStart
+      summary: Create a review case for an MCS case and start its initial run
+      description: |
+        Body is a StartReviewRequest WITHOUT review_case_id (trigger = initial). If a review case already
+        exists for (tenant_id, case_ref, workflow), the existing case is used and a new run is queued.
+        Scope: mortgage.reviews:write.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/TraceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/StartReviewRequest' }
+      responses:
+        '202':
+          description: Accepted — run queued or running.
+          headers:
+            Location: { schema: { type: string }, description: "/runs/{review_run_id}" }
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewStatus' }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '415': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    get:
+      tags: [review-cases]
+      operationId: getReviewCase
+      summary: Current state of a review case (current run, readiness, open finding counts)
+      description: Scope mortgage.reviews:read.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewCaseSummary' }
+        '404': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}/runs:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    post:
+      tags: [runs]
+      operationId: startRun
+      summary: Start a run on an existing review case
+      description: |
+        StartReviewRequest with trigger ∈ {supplement, replacement, rerun_manual, rerun_policy_change,
+        rerun_provider_upgrade}. review_case_id in the body, if present, must equal the path.
+        The run always re-evaluates the WHOLE current evidence set (not only the new files).
+        rerun_policy_change replays stored observations without re-reading unchanged documents.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/TraceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/StartReviewRequest' }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewStatus' }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}/supplement-submissions:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    post:
+      tags: [customer]
+      operationId: submitSupplement
+      summary: Submit new or replacement documents (mode add | replace) and start a re-review
+      description: |
+        mode=replace requires each document to carry `replaces` (document_id@version); the replaced
+        version is retained and listed in superseded_documents. mode=add keeps existing versions.
+        Starts a run with trigger supplement (add) or replacement (replace).
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/SupplementSubmission' }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewStatus' }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}/supplements:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    post:
+      tags: [customer]
+      operationId: createSupplementRequest
+      summary: Record a supplement request (what the customer is asked to provide)
+      description: |
+        Creates a SupplementRequest from open CUSTOMER_ACTION_REQUIRED findings. channel=intake_link: VisionTrace
+        also issues a one-time upload link (reuses services/claim_cases/supplement.py + intakes: 30-minute link,
+        60-minute session). channel=touch_upload (preferred): the customer uploads in Tefahot Touch, MCS forwards
+        the files with submitSupplement, and no link is issued.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateSupplementRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/SupplementRequest' }
+        '404': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}/statements:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    post:
+      tags: [customer]
+      operationId: recordCustomerStatement
+      summary: Attach a customer explanation to a finding (never evidence; never resolves a finding)
+      description: |
+        Stored with evidentiary_status = UNVERIFIED_CLAIM and attached to finding_key (history change
+        statement_attached). It is considered by the next run (INC-DEC-04 style criteria) but cannot by itself
+        change a finding's status. Does not start a run.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/CustomerStatement' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/CustomerStatement' }
+        '404': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}/findings:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    get:
+      tags: [findings]
+      operationId: listFindings
+      summary: Findings of a review case (default OPEN)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: array
+            items: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/FindingStatus' }
+          style: form
+          explode: false
+        - name: review_state
+          in: query
+          schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewState' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/Finding' }
+  /review-cases/{review_case_id}/decisions:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    post:
+      tags: [banker]
+      operationId: recordBankerDecision
+      summary: Record a banker decision bound to the CURRENT review run
+      description: |
+        Scope mortgage.decisions:write. review_run_id must be the case's current run, otherwise 409
+        stale_review (same rule as services/claim_cases/decisions.confirm). acknowledge_document_review_only
+        must be true. Actions: confirm_documentary_readiness, waive_finding, dismiss_finding_false_positive,
+        confirm_resolution (closes a not_reproduced banker finding), reopen_finding, request_additional_document.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/BankerDecision' }
+      responses:
+        '201':
+          description: Recorded
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/BankerDecision' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /review-cases/{review_case_id}/package:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    get:
+      tags: [banker]
+      operationId: getBankerPackage
+      summary: Banker review package for the current (or given) run
+      parameters:
+        - name: review_run_id
+          in: query
+          schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewRunId' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/BankerReviewPackage' }
+  /review-cases/{review_case_id}/history:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    get:
+      tags: [review-cases]
+      operationId: getReviewHistory
+      summary: All runs of the case with findings diffs and provenance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewHistoryEntry' }
+  /review-cases/{review_case_id}/escalations:
+    parameters: [ { $ref: '#/components/parameters/ReviewCaseId' } ]
+    get:
+      tags: [banker]
+      operationId: listEscalations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/Escalation' }
+    post:
+      tags: [customer]
+      operationId: createEscalation
+      summary: Open an escalation (e.g. customer_requested_human)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/Escalation' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/Escalation' }
+  /runs/{review_run_id}:
+    parameters: [ { $ref: '#/components/parameters/ReviewRunId' } ]
+    get:
+      tags: [runs]
+      operationId: getRunStatus
+      summary: Run status (poll every 2–5 s, or wait for the review.completed / review.failed webhook)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewStatus' }
+        '404': { $ref: '#/components/responses/Error' }
+  /runs/{review_run_id}/result:
+    parameters: [ { $ref: '#/components/parameters/ReviewRunId' } ]
+    get:
+      tags: [runs]
+      operationId: getRunResult
+      summary: Full result of a finished run
+      description: 409 run_not_finished while queued/running; a failed run returns 409 with the failure in details.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewResult' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /runs/{review_run_id}/cancel:
+    parameters: [ { $ref: '#/components/parameters/ReviewRunId' } ]
+    post:
+      tags: [runs]
+      operationId: cancelRun
+      summary: Cancel a queued or running run (no findings are published from a cancelled run)
+      responses:
+        '200':
+          description: Cancelled (or already finished — returns the final status)
+          content:
+            application/json:
+              schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewStatus' }
+  /evidence/{evidence_id}/snippet:
+    parameters:
+      - name: evidence_id
+        in: path
+        required: true
+        schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/EvidenceId' }
+    get:
+      tags: [evidence]
+      operationId: getEvidenceSnippet
+      summary: Cropped image of the evidence region (short-lived; banker audience only)
+      description: |
+        Scope mortgage.case:read with banker audience. Reuses field_locator snips (precision exact).
+        The URL in EvidenceItem.snippet_url is pre-signed and expires (snippet_expires_at).
+      responses:
+        '200':
+          description: PNG
+          content:
+            image/png:
+              schema: { type: string, contentEncoding: binary }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+webhooks:
+  lifecycleEvent:
+    post:
+      summary: Lifecycle event delivered to the MCS (at-least-once)
+      description: |
+        Delivered through the existing connections outbox + dispatcher (db_access/connection_events.py,
+        services/connections/dispatcher.py) by a NEW adapter kind `event_webhook` that reuses the signing of
+        adapters/notify.py: X-VisionTrace-Signature = "sha256=" + HMAC_SHA256(secret, timestamp + "." + body).
+        Receivers must verify the signature, reject timestamps older than 5 minutes, and de-duplicate by
+        X-VisionTrace-Event-Id. Events of one review case are emitted in order; delivery order is not guaranteed —
+        use occurred_at and the run id. A 2xx is a delivery; anything else is retried with backoff.
+      parameters:
+        - { name: X-VisionTrace-Event-Id, in: header, required: true, schema: { type: string } }
+        - { name: X-VisionTrace-Timestamp, in: header, required: true, schema: { type: string } }
+        - { name: X-VisionTrace-Signature, in: header, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/LifecycleEvent' }
+      responses:
+        '2XX': { description: Delivered }
+components:
+  securitySchemes:
+    serviceKey:
+      type: http
+      scheme: bearer
+      description: |
+        MVP. Service keys issued like the MCP keys (services/connections/server_auth.py: HMAC digest under the
+        vault pepper, key shape ^[A-Za-z0-9_-]{32,128}$), with NEW scopes:
+        mortgage.reviews:write · mortgage.reviews:read · mortgage.decisions:write · mortgage.case:read.
+        A key is bound to one workspace = one tenant; tenant_id in a body must match the key's tenant (else 403).
+    oauthClientCredentials:
+      type: oauth2
+      description: Production option (Q-50) — the bank's IdP issues short-lived tokens.
+      flows:
+        clientCredentials:
+          tokenUrl: https://idp.bank.example/oauth2/token
+          scopes:
+            mortgage.reviews:write: Start runs, submit supplements, record statements
+            mortgage.reviews:read: Read cases, runs, results, findings, history
+            mortgage.decisions:write: Record banker decisions
+            mortgage.case:read: Evidence snippets (banker audience)
+    mutualTLS:
+      type: mutualTLS
+      description: Production option (Q-50) — combined with oauthClientCredentials.
+  parameters:
+    ReviewCaseId:
+      name: review_case_id
+      in: path
+      required: true
+      schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewCaseId' }
+    ReviewRunId:
+      name: review_run_id
+      in: path
+      required: true
+      schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewRunId' }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        Required on every POST. Same key + same body within 24 h → the original response is replayed.
+        Same key + different body → 409 idempotency_conflict. Must equal the body's idempotency_key when the
+        body has one.
+      schema: { type: string, minLength: 8, maxLength: 128 }
+    TraceId:
+      name: X-Trace-Id
+      in: header
+      required: false
+      schema: { type: string, maxLength: 128 }
+  responses:
+    Error:
+      description: Error envelope
+      content:
+        application/json:
+          schema: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ErrorEnvelope' }
+  schemas:
+    ReviewCaseSummary:
+      type: object
+      additionalProperties: false
+      required: [review_case_id, review_case_reference, case_ref, workflow, current_run_id, readiness]
+      properties:
+        review_case_id: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewCaseId' }
+        review_case_reference: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewCaseReference' }
+        case_ref: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/CaseRef' }
+        workflow: { type: string, const: mortgage-documents }
+        current_run_id: { type: [string, 'null'] }
+        active_run: { oneOf: [ { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/ReviewStatus' }, { type: 'null' } ] }
+        readiness: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/Readiness' }
+        documents_current: { type: integer, minimum: 0 }
+        documents_superseded: { type: integer, minimum: 0 }
+        open_escalations: { type: integer, minimum: 0 }
+    CreateSupplementRequest:
+      type: object
+      additionalProperties: false
+      required: [finding_keys, channel]
+      properties:
+        finding_keys:
+          type: array
+          minItems: 1
+          items: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/FindingKey' }
+        channel: { $ref: '../schemas/mortgage-review.v1.schema.json#/$defs/SupplementRequest/properties/channel' }
+        message_customer_he: { type: string, maxLength: 1000 }
+        recipient_ref:
+          type: string
+          description: Opaque MCS recipient id — never a phone number or e-mail in this API.

@@ -1,0 +1,3458 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jeen.ai/schemas/visiontrace/mortgage-review/v1",
+  "title": "VisionTrace Mortgage Document Review — canonical, provider-neutral contracts (v1)",
+  "description": "Contracts exchanged between the Mortgage Case Service (MCS) and a document-review provider (GeminiReviewProvider today, VisionTraceReviewProvider later). A verdict here is a DOCUMENT-REVIEW outcome. It is never a credit decision, never an authenticity certificate and never bank acceptance. Status: PROPOSED (TO BUILD) — none of these REST/MCP payloads exist in VisionTrace today except where the D document marks a field as mapped from an existing VisionTrace envelope.",
+  "$defs": {
+    "SchemaVersion": {
+      "type": "string",
+      "const": "mortgage-review/1"
+    },
+    "TenantId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9\\-]{2,40}$",
+      "description": "Workspace / bank tenant. Example: mizrahi-tefahot-demo."
+    },
+    "CaseRef": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "description": "The Mortgage Case Service case id (system of record for the case). VisionTrace never invents it."
+    },
+    "ReviewCaseId": {
+      "type": "string",
+      "pattern": "^rc_[a-z0-9]{8,32}$",
+      "description": "VisionTrace review-case id (generalisation of claim_cases.id)."
+    },
+    "ReviewCaseReference": {
+      "type": "string",
+      "pattern": "^C-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$",
+      "description": "Human/voice label (Crockford) — identifies, never authorises. Same shape as VisionTrace claim-case references."
+    },
+    "ReviewRunId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_\\-]{6,40}$",
+      "description": "Same pattern as VisionTrace claim_cases.contracts.RUN_ID."
+    },
+    "ReviewRunReference": {
+      "type": "string",
+      "pattern": "^R-[0-9A-Z]{5}$",
+      "description": "VisionTrace speakable reference: 'R-' + first five characters of the run id (server_tools.reference)."
+    },
+    "DocumentId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_\\-]{3,64}$",
+      "description": "MCS logical document id. Versions of the same logical document share it."
+    },
+    "PartyId": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-[A-Z0-9]{1,12}$",
+      "description": "Party within the case, e.g. BRW-A (borrower), GRT-1 (guarantor), SLR-1 (seller)."
+    },
+    "EvidenceId": {
+      "type": "string",
+      "pattern": "^ev_[A-Za-z0-9_\\-]{6,96}$"
+    },
+    "FactId": {
+      "type": "string",
+      "pattern": "^fact_[A-Za-z0-9_\\-]{6,96}$"
+    },
+    "FindingId": {
+      "type": "string",
+      "pattern": "^fnd_[A-Za-z0-9]{6,32}$"
+    },
+    "FindingKey": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{2,63}(:[A-Za-z0-9_.\\-]{1,64}){0,4}$",
+      "description": "Stable identity across re-reviews: CODE:subject[:period]. A re-review re-derives keys; equal key = same finding."
+    },
+    "RequirementCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,5}\\.[A-Z0-9_]{2,40}(:[A-Z0-9\\-]{1,16})?$",
+      "description": "Requirement-catalog code from the B matrix, optionally bound to a party, e.g. INC.PAYSLIP:BRW-A."
+    },
+    "RubricRef": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.\\-]+@[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "rubric_id@semver."
+    },
+    "Month": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+    },
+    "Date": {
+      "type": "string",
+      "format": "date"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "Money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "ILS",
+            "USD",
+            "EUR",
+            "GBP",
+            "OTHER"
+          ]
+        }
+      }
+    },
+    "LocalizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "he"
+      ],
+      "properties": {
+        "he": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "en": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "ReviewVerdict": {
+      "type": "string",
+      "enum": [
+        "VALID",
+        "INVALID",
+        "NEEDS_REVIEW",
+        "UNREADABLE",
+        "UNSUPPORTED"
+      ],
+      "description": "Document-review verdict. Precedence when several apply: UNSUPPORTED > UNREADABLE > INVALID > NEEDS_REVIEW > VALID. VALID = conforms to every applicable rubric criterion WITH VERIFIED EVIDENCE; it is not authenticity and not bank acceptance."
+    },
+    "CriterionOutcomeValue": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NEEDS_REVIEW",
+        "INSUFFICIENT_EVIDENCE",
+        "NOT_APPLICABLE"
+      ],
+      "description": "Maps to the VisionTrace ledger: PASS→pass, FAIL→review (+severity), NEEDS_REVIEW→review, INSUFFICIENT_EVIDENCE→insufficient, NOT_APPLICABLE→not_applicable."
+    },
+    "Severity": {
+      "type": "string",
+      "enum": [
+        "blocking",
+        "major",
+        "minor",
+        "info"
+      ]
+    },
+    "ReviewState": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER_ACTION_REQUIRED",
+        "BANKER_REVIEW_REQUIRED",
+        "INFO"
+      ],
+      "description": "Who must act next. Same semantics as the demo's ReviewState (NEEDS_BANKER_REVIEW renamed BANKER_REVIEW_REQUIRED; adapter maps both)."
+    },
+    "FindingStatus": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "RESOLVED",
+        "SUPERSEDED",
+        "WAIVED",
+        "DISMISSED"
+      ]
+    },
+    "ResolutionBasis": {
+      "type": "string",
+      "enum": [
+        "NEW_EVIDENCE",
+        "DOCUMENT_WITHDRAWN",
+        "REQUIREMENT_CHANGED",
+        "POLICY_CHANGED",
+        "SUPERSEDED_BY_FINDING",
+        "HUMAN_WAIVER",
+        "HUMAN_DISMISSAL",
+        "HUMAN_CONFIRMED_NOT_REPRODUCED"
+      ]
+    },
+    "Witness": {
+      "type": "string",
+      "enum": [
+        "text_layer_exact",
+        "ocr_token_match",
+        "vision_reread_confirmed",
+        "vision_unverified",
+        "not_found",
+        "unavailable"
+      ],
+      "description": "How the value was proven to be printed at the cited location. Only text_layer_exact, ocr_token_match and vision_reread_confirmed count as VERIFIED."
+    },
+    "Precision": {
+      "type": "string",
+      "enum": [
+        "exact",
+        "approximate",
+        "page"
+      ],
+      "description": "VisionTrace field_locator precision: exact = word geometry; approximate = model box; page = whole page only."
+    },
+    "FactStatus": {
+      "type": "string",
+      "enum": [
+        "present",
+        "absent",
+        "illegible",
+        "ambiguous",
+        "not_applicable"
+      ],
+      "description": "absent = the document does not print it; illegible = printed but unreadable; ambiguous = several printed candidates; not_applicable = field does not apply to this document variant."
+    },
+    "ValueType": {
+      "type": "string",
+      "enum": [
+        "money",
+        "month",
+        "date",
+        "national_id",
+        "company_id",
+        "person_name",
+        "organization_name",
+        "text",
+        "integer",
+        "decimal",
+        "percent",
+        "bank_account",
+        "property_identifier",
+        "enum",
+        "boolean"
+      ]
+    },
+    "ExtractionMethod": {
+      "type": "string",
+      "enum": [
+        "text_layer_llm",
+        "text_layer_parser",
+        "ocr_llm",
+        "ocr_parser",
+        "vision_llm",
+        "table_parser",
+        "deterministic_rule",
+        "human"
+      ]
+    },
+    "DecidedBy": {
+      "type": "string",
+      "enum": [
+        "code",
+        "judge",
+        "code+judge",
+        "human"
+      ]
+    },
+    "RunState": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "RunStage": {
+      "type": "string",
+      "enum": [
+        "intake",
+        "classify",
+        "read",
+        "extract",
+        "deterministic_checks",
+        "cross_document",
+        "semantic_review",
+        "judge",
+        "verdict",
+        "persist",
+        "done"
+      ]
+    },
+    "Trigger": {
+      "type": "string",
+      "enum": [
+        "initial",
+        "supplement",
+        "replacement",
+        "rerun_manual",
+        "rerun_policy_change",
+        "rerun_provider_upgrade"
+      ]
+    },
+    "PartyRole": {
+      "type": "string",
+      "enum": [
+        "borrower",
+        "co_borrower",
+        "guarantor",
+        "seller",
+        "seller_spouse",
+        "developer",
+        "other"
+      ]
+    },
+    "EmploymentType": {
+      "type": "string",
+      "enum": [
+        "salaried",
+        "self_employed",
+        "salaried_and_self_employed",
+        "controlling_shareholder",
+        "pensioner",
+        "allowance_recipient",
+        "not_employed",
+        "unknown"
+      ]
+    },
+    "ReadinessStatus": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "IN_PROGRESS",
+        "ACTION_REQUIRED",
+        "HUMAN_REVIEW_REQUIRED",
+        "READY_FOR_HUMAN_REVIEW"
+      ],
+      "description": "DOCUMENTARY readiness for the reviewed scope only. Never 'approved'."
+    },
+    "PolicyParameterStatus": {
+      "type": "string",
+      "enum": [
+        "CONFIRMED_PUBLIC_SOURCE",
+        "CONFIRMED_BANK_POLICY",
+        "PENDING_BANK_POLICY",
+        "ENGINEERING_DEFAULT"
+      ],
+      "description": "Where a threshold/window comes from. PENDING_BANK_POLICY values must not drive a FAIL on their own; see rubric verdict policies."
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "provider_version",
+        "workflow",
+        "workflow_version",
+        "generated_at"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "visiontrace",
+            "gemini",
+            "local_deterministic"
+          ]
+        },
+        "provider_version": {
+          "type": "string",
+          "description": "VisionTrace git SHA / image tag, or demo prompt version."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "LIVE",
+            "STUB",
+            "REPLAY"
+          ]
+        },
+        "workflow": {
+          "type": "string",
+          "const": "mortgage-documents"
+        },
+        "workflow_version": {
+          "type": "string"
+        },
+        "rubrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RubricRef"
+          }
+        },
+        "rule_set_version": {
+          "type": "string"
+        },
+        "policy_store_version": {
+          "type": "string",
+          "description": "Revision of the bank policy-parameter store used."
+        },
+        "models": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "purpose → model id (e.g. read, ocr, judge, semantic)."
+        },
+        "prompt_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "input_hash": {
+          "$ref": "#/$defs/Sha256",
+          "description": "sha256 over canonical request (document hashes + context + policy) — equal input_hash + equal versions ⇒ deterministic stages must reproduce."
+        },
+        "generated_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      }
+    },
+    "PolicyParameterUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value",
+        "status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {},
+        "status": {
+          "$ref": "#/$defs/PolicyParameterStatus"
+        },
+        "source_ref": {
+          "type": "string",
+          "description": "G ledger source id, e.g. S05."
+        }
+      }
+    },
+    "EvidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "document_id",
+        "document_version",
+        "sha256",
+        "page",
+        "witness",
+        "precision"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/EvidenceId"
+        },
+        "document_id": {
+          "$ref": "#/$defs/DocumentId"
+        },
+        "document_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based page in the ORIGINAL file (VisionTrace stores 0-based page_index; adapter adds 1)."
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Exact printed characters the value was read from (label included when the reader quoted it)."
+        },
+        "bbox": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "[x0,y0,x1,y1] normalised 0..1, origin top-left, in the page's DISPLAYED frame (rotation applied) — the VisionTrace field_locator convention."
+        },
+        "bbox_pdf_points": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "Optional: same box in unrotated PDF points (demo convention)."
+        },
+        "page_size_points": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "rotation": {
+          "type": "integer",
+          "enum": [
+            0,
+            90,
+            180,
+            270
+          ]
+        },
+        "precision": {
+          "$ref": "#/$defs/Precision"
+        },
+        "witness": {
+          "$ref": "#/$defs/Witness"
+        },
+        "witness_detail": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 400
+        },
+        "occurrences_on_page": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many times the same characters are printed on the page (locality: a value printed twice must be anchored to the occurrence its quote names)."
+        },
+        "snippet_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "description": "Short-lived signed URL of the evidence snip (TO BUILD: service endpoint over artifacts.read_artifact)."
+        },
+        "snippet_expires_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "created_by_run": {
+          "$ref": "#/$defs/ReviewRunId"
+        }
+      }
+    },
+    "ExtractedFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fact_id",
+        "field",
+        "value_type",
+        "status",
+        "verified"
+      ],
+      "properties": {
+        "fact_id": {
+          "$ref": "#/$defs/FactId"
+        },
+        "field": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{1,63}$"
+        },
+        "label_he": {
+          "type": "string"
+        },
+        "value_type": {
+          "$ref": "#/$defs/ValueType"
+        },
+        "status": {
+          "$ref": "#/$defs/FactStatus"
+        },
+        "raw": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500,
+          "description": "As printed, unmodified."
+        },
+        "normalized": {
+          "description": "Typed value after deterministic normalisation (money → {amount,currency}; month → YYYY-MM; date → YYYY-MM-DD; national_id → 9 digits)."
+        },
+        "normalizer": {
+          "type": "string",
+          "description": "parser@version, e.g. money_ils@1, month@1."
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "raw"
+            ],
+            "properties": {
+              "raw": {
+                "type": "string"
+              },
+              "normalized": {},
+              "evidence_id": {
+                "$ref": "#/$defs/EvidenceId"
+              },
+              "note_he": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Only when status=ambiguous: every printed candidate, none chosen."
+        },
+        "extraction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ],
+          "properties": {
+            "method": {
+              "$ref": "#/$defs/ExtractionMethod"
+            },
+            "model": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "type": "string"
+            },
+            "parser_version": {
+              "type": "string"
+            }
+          }
+        },
+        "self_reported_confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Model's own number. INFORMATIONAL ONLY — never a gate."
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "true iff at least one evidence item has witness ∈ {text_layer_exact, ocr_token_match, vision_reread_confirmed}."
+        }
+      }
+    },
+    "CriterionOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criterion_id",
+        "rubric",
+        "method",
+        "outcome",
+        "severity",
+        "decided_by"
+      ],
+      "properties": {
+        "criterion_id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2,6}-[A-Z0-9]{1,6}-[0-9]{2}$"
+        },
+        "rubric": {
+          "$ref": "#/$defs/RubricRef"
+        },
+        "title_he": {
+          "type": "string"
+        },
+        "dimension": {
+          "type": "string",
+          "enum": [
+            "classification",
+            "readability",
+            "completeness",
+            "internal_consistency",
+            "identity_binding",
+            "period_relevance",
+            "recency",
+            "cross_document_consistency",
+            "evidence_sufficiency",
+            "authenticity_signals",
+            "security",
+            "semantic"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "deterministic",
+            "judge",
+            "hybrid"
+          ]
+        },
+        "outcome": {
+          "$ref": "#/$defs/CriterionOutcomeValue"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "reason_code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+        },
+        "rationale_internal_he": {
+          "type": "string",
+          "maxLength": 1200
+        },
+        "computation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 600,
+          "description": "Deterministic trace with numbers, e.g. '17,500.00 − 4,000.00 = 13,500.00 (printed 13,500.00)'."
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          }
+        },
+        "policy_parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicyParameterUse"
+          }
+        },
+        "decided_by": {
+          "$ref": "#/$defs/DecidedBy"
+        },
+        "judge": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "type": "string"
+            },
+            "samples": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "agreement": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "raw_outcome": {
+              "$ref": "#/$defs/CriterionOutcomeValue"
+            },
+            "downgraded_reason": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Why code changed the judge's outcome (missing citation, unverified field, conflict with code)."
+            }
+          }
+        },
+        "escalation": {
+          "type": "string",
+          "enum": [
+            "customer",
+            "banker",
+            "none"
+          ]
+        }
+      }
+    },
+    "DocumentIntake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mime_sniffed",
+        "bytes",
+        "pages",
+        "encrypted",
+        "text_layer"
+      ],
+      "properties": {
+        "mime_declared": {
+          "type": "string"
+        },
+        "mime_sniffed": {
+          "type": "string"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pages_read": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "encrypted": {
+          "type": "boolean"
+        },
+        "text_layer": {
+          "type": "string",
+          "enum": [
+            "full",
+            "partial",
+            "none",
+            "unreliable"
+          ],
+          "description": "unreliable = text layer exists but does not decode to readable Hebrew (no ToUnicode / garbled) — treated as none."
+        },
+        "text_layer_chars": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page_rotations": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "enum": [
+              0,
+              90,
+              180,
+              270
+            ]
+          }
+        },
+        "duplicate_of": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "document_id@version with the SAME sha256 already in this case."
+        },
+        "malware_scan": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "suspicious",
+            "not_scanned"
+          ]
+        },
+        "demo_marked": {
+          "type": "boolean",
+          "description": "The page prints the synthetic-corpus marker (VisionTrace DEMO_MARK 'מסמך דמו')."
+        },
+        "digital_signature": {
+          "type": "string",
+          "enum": [
+            "none",
+            "present_valid",
+            "present_invalid",
+            "present_unverified"
+          ]
+        },
+        "pdf_metadata_signals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Weak tamper signals, e.g. incremental_update_after_signature, producer_image_editor. Never decisive."
+        }
+      }
+    },
+    "Classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "doc_type",
+        "method",
+        "claimed_requirement_code",
+        "matches_claim"
+      ],
+      "properties": {
+        "doc_type": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{2,63}$",
+          "description": "B-matrix doc_type code, or 'unsupported' / 'unreadable' / 'other'."
+        },
+        "doc_type_he": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "deterministic_signals",
+            "llm_text",
+            "llm_vision",
+            "hybrid"
+          ]
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": "Printed title/keywords that support the type (quotes)."
+        },
+        "claimed_requirement_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "claimed_by_filename": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Type/month the FILE NAME claims (display only, never decisive)."
+        },
+        "matches_claim": {
+          "type": "string",
+          "enum": [
+            "match",
+            "mismatch",
+            "ambiguous",
+            "no_claim"
+          ]
+        },
+        "bundle": {
+          "type": "boolean",
+          "description": "One file carries several documents (e.g. three payslips in one PDF)."
+        },
+        "bundle_parts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "doc_type",
+              "pages"
+            ],
+            "properties": {
+              "doc_type": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "PartyBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assigned_party_id",
+        "relation"
+      ],
+      "properties": {
+        "assigned_party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matched_party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "relation": {
+          "type": "string",
+          "enum": [
+            "match",
+            "match_name_variant",
+            "mismatch_other_party",
+            "mismatch_unknown_person",
+            "unresolved",
+            "not_applicable"
+          ]
+        },
+        "id_relation": {
+          "type": "string",
+          "enum": [
+            "same",
+            "different",
+            "unknown"
+          ]
+        },
+        "name_relation": {
+          "type": "string",
+          "enum": [
+            "same",
+            "variant",
+            "different",
+            "unknown"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          }
+        }
+      }
+    },
+    "DocumentDimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readability",
+        "classification",
+        "completeness",
+        "internal_consistency",
+        "identity_binding",
+        "period_relevance",
+        "evidence_sufficiency",
+        "authenticity",
+        "bank_acceptance"
+      ],
+      "properties": {
+        "readability": {
+          "type": "string",
+          "enum": [
+            "READABLE",
+            "PARTIALLY_READABLE",
+            "UNREADABLE"
+          ]
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "MATCHES_REQUIREMENT",
+            "MISMATCH",
+            "AMBIGUOUS",
+            "UNSUPPORTED_TYPE"
+          ]
+        },
+        "completeness": {
+          "type": "string",
+          "enum": [
+            "COMPLETE",
+            "INCOMPLETE",
+            "UNKNOWN"
+          ]
+        },
+        "internal_consistency": {
+          "type": "string",
+          "enum": [
+            "CONSISTENT",
+            "INCONSISTENT",
+            "NOT_EVALUATED"
+          ]
+        },
+        "identity_binding": {
+          "type": "string",
+          "enum": [
+            "MATCH",
+            "MISMATCH",
+            "UNRESOLVED",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "period_relevance": {
+          "type": "string",
+          "enum": [
+            "IN_SCOPE",
+            "OUT_OF_SCOPE",
+            "STALE",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "evidence_sufficiency": {
+          "type": "string",
+          "enum": [
+            "SUFFICIENT",
+            "INSUFFICIENT"
+          ]
+        },
+        "authenticity": {
+          "type": "string",
+          "enum": [
+            "NOT_ASSESSED",
+            "DIGITAL_SIGNATURE_VALID",
+            "WEAK_TAMPER_SIGNALS_PRESENT"
+          ],
+          "description": "VisionTrace does not certify authenticity. DIGITAL_SIGNATURE_VALID only when a cryptographic signature was validated against a trusted chain."
+        },
+        "bank_acceptance": {
+          "type": "string",
+          "const": "NOT_DETERMINED_BY_PROVIDER",
+          "description": "Owned by the bank; mirrored in MCS from bank systems, never set by a provider."
+        }
+      }
+    },
+    "DocumentReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "document_version",
+        "sha256",
+        "filename",
+        "intake",
+        "classification",
+        "party_binding",
+        "facts",
+        "criteria",
+        "dimensions",
+        "verdict",
+        "verdict_reason_codes"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/DocumentId"
+        },
+        "document_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "filename": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "intake": {
+          "$ref": "#/$defs/DocumentIntake"
+        },
+        "classification": {
+          "$ref": "#/$defs/Classification"
+        },
+        "party_binding": {
+          "$ref": "#/$defs/PartyBinding"
+        },
+        "period": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "month",
+                "date_range",
+                "as_of_date",
+                "year"
+              ]
+            },
+            "month": {
+              "$ref": "#/$defs/Month"
+            },
+            "from": {
+              "$ref": "#/$defs/Date"
+            },
+            "to": {
+              "$ref": "#/$defs/Date"
+            },
+            "as_of": {
+              "$ref": "#/$defs/Date"
+            },
+            "year": {
+              "type": "integer"
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/EvidenceId"
+              }
+            }
+          }
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExtractedFact"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceItem"
+          }
+        },
+        "line_items": {
+          "type": "array",
+          "description": "Tables as read (payslip earnings/deductions, statement transactions) — every row with its evidence.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "table",
+              "label_raw"
+            ],
+            "properties": {
+              "table": {
+                "type": "string",
+                "enum": [
+                  "earnings",
+                  "deductions",
+                  "employer_contributions",
+                  "transactions",
+                  "loans",
+                  "other"
+                ]
+              },
+              "label_raw": {
+                "type": "string"
+              },
+              "category": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Semantic category (e.g. base_salary, overtime, bonus, benefit_in_kind, income_tax, salary_deposit, loan_repayment) — judge/semantic output, never used for arithmetic."
+              },
+              "amount": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/Money"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "date": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence_id": {
+                "$ref": "#/$defs/EvidenceId"
+              }
+            }
+          }
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CriterionOutcome"
+          }
+        },
+        "dimensions": {
+          "$ref": "#/$defs/DocumentDimensions"
+        },
+        "verdict": {
+          "$ref": "#/$defs/ReviewVerdict"
+        },
+        "verdict_reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "summary_internal_he": {
+          "type": "string",
+          "maxLength": 1500
+        },
+        "limitations_he": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "security_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "description": "Untrusted instruction text found in the document (quoted, never followed)."
+        }
+      }
+    },
+    "SetReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_code",
+        "party_id",
+        "status"
+      ],
+      "properties": {
+        "requirement_code": {
+          "$ref": "#/$defs/RequirementCode"
+        },
+        "party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rubric": {
+          "$ref": "#/$defs/RubricRef"
+        },
+        "required_periods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Month"
+          }
+        },
+        "supplied": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "period",
+              "document_ids"
+            ],
+            "properties": {
+              "period": {
+                "$ref": "#/$defs/Month"
+              },
+              "document_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/DocumentId"
+                }
+              },
+              "counted_document_id": {
+                "$ref": "#/$defs/DocumentId"
+              },
+              "named_period_disagrees": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/DocumentId"
+                }
+              }
+            }
+          }
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Month"
+          }
+        },
+        "duplicates": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/DocumentId"
+            }
+          }
+        },
+        "extra": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Month"
+          }
+        },
+        "coverage_ranges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to"
+            ],
+            "properties": {
+              "account_ref": {
+                "type": "string"
+              },
+              "from": {
+                "$ref": "#/$defs/Date"
+              },
+              "to": {
+                "$ref": "#/$defs/Date"
+              },
+              "gaps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "from",
+                    "to"
+                  ],
+                  "properties": {
+                    "from": {
+                      "$ref": "#/$defs/Date"
+                    },
+                    "to": {
+                      "$ref": "#/$defs/Date"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "For date-range documents (bank statements)."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "COMPLETE",
+            "INCOMPLETE",
+            "NEEDS_REVIEW",
+            "NOT_EVALUATED",
+            "NOT_REQUIRED"
+          ]
+        },
+        "policy_parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicyParameterUse"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          }
+        }
+      }
+    },
+    "CrossDocumentComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparison_id",
+        "rule_id",
+        "kind",
+        "items",
+        "outcome"
+      ],
+      "description": "Mirrors VisionTrace crop_flow/comparison.py: every compared value shown on its own document with its evidence, plus the method and the arithmetic.",
+      "properties": {
+        "comparison_id": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "values",
+            "aggregate",
+            "semantic"
+          ]
+        },
+        "method_he": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "concept",
+              "readings",
+              "outcome"
+            ],
+            "properties": {
+              "concept": {
+                "type": "string"
+              },
+              "label_he": {
+                "type": "string"
+              },
+              "readings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "source",
+                    "value"
+                  ],
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "description": "document_id, or 'mcs:declared' for application data supplied by MCS (declared ≠ evidence)."
+                    },
+                    "value": {
+                      "type": [
+                        "string",
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "normalized": {},
+                    "evidence_id": {
+                      "$ref": "#/$defs/EvidenceId"
+                    },
+                    "counted": {
+                      "type": "boolean"
+                    },
+                    "note_he": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "agree",
+                  "conflict",
+                  "single",
+                  "withheld",
+                  "unresolved"
+                ]
+              },
+              "explanation_he": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "tolerance": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/PolicyParameterUse"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "CONSISTENT",
+            "INCONSISTENT",
+            "INSUFFICIENT_EVIDENCE",
+            "NOT_COMPARABLE"
+          ]
+        }
+      }
+    },
+    "CustomerStatement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statement_id",
+        "text",
+        "channel",
+        "created_at",
+        "evidentiary_status"
+      ],
+      "properties": {
+        "statement_id": {
+          "type": "string"
+        },
+        "party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "finding_key": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/FindingKey"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "chat",
+            "voice",
+            "touch_form",
+            "banker_note"
+          ]
+        },
+        "transcript_provenance": {
+          "type": "string",
+          "enum": [
+            "typed",
+            "speech_recognized",
+            "speech_confirmed_by_user"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "evidentiary_status": {
+          "type": "string",
+          "const": "UNVERIFIED_CLAIM",
+          "description": "A customer explanation is context. It never closes a finding by itself."
+        },
+        "assessment_he": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Semantic stage note: whether submitted evidence supports, contradicts or is silent on the statement."
+        }
+      }
+    },
+    "FindingHistoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "run_id",
+        "change"
+      ],
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "run_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "change": {
+          "type": "string",
+          "enum": [
+            "opened",
+            "evidence_updated",
+            "severity_changed",
+            "review_state_changed",
+            "message_changed",
+            "statement_attached",
+            "not_reproduced",
+            "resolved",
+            "superseded",
+            "waived",
+            "dismissed",
+            "reopened"
+          ]
+        },
+        "from": {},
+        "to": {},
+        "actor": {
+          "type": "string",
+          "description": "system | banker:<id> | customer:<party_id>"
+        },
+        "note_he": {
+          "type": "string"
+        }
+      }
+    },
+    "Finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "key",
+        "code",
+        "severity",
+        "review_state",
+        "status",
+        "title_he",
+        "message_internal_he",
+        "created_run_id",
+        "updated_run_id"
+      ],
+      "properties": {
+        "finding_id": {
+          "$ref": "#/$defs/FindingId"
+        },
+        "key": {
+          "$ref": "#/$defs/FindingKey"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "review_state": {
+          "$ref": "#/$defs/ReviewState"
+        },
+        "status": {
+          "$ref": "#/$defs/FindingStatus"
+        },
+        "party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requirement_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "document_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DocumentId"
+          }
+        },
+        "period": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Month"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title_he": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "message_customer_he": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 600,
+          "description": "Customer-safe: no ID numbers, no other party's data, no credit wording, no 'approved/accepted'. Null for banker-only findings."
+        },
+        "message_internal_he": {
+          "type": "string",
+          "maxLength": 1500
+        },
+        "requested_items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+:[A-Z]{3}-[A-Z0-9]{1,12}(:[0-9]{4}-[0-9]{2})?$"
+          },
+          "description": "Machine codes a supplement link may ask for, e.g. payslip:BRW-A:2026-09 (VisionTrace missing_items convention extended with the party)."
+        },
+        "detail": {
+          "type": "object"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          }
+        },
+        "criterion_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customer_statements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomerStatement"
+          }
+        },
+        "created_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "updated_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "resolved_run_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewRunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolution": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "basis": {
+              "$ref": "#/$defs/ResolutionBasis"
+            },
+            "note_he": {
+              "type": "string"
+            },
+            "actor": {
+              "type": "string"
+            },
+            "superseded_by": {
+              "$ref": "#/$defs/FindingKey"
+            }
+          }
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingHistoryEntry"
+          }
+        },
+        "not_reproduced_by_run": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Set when a BANKER_REVIEW_REQUIRED finding raised by a judge/hybrid criterion (or resolvable only by NEW_EVIDENCE) is absent from a later run. The finding stays OPEN until a banker records confirm_resolution — the system never closes a banker finding on model output alone."
+        }
+      }
+    },
+    "Readiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "status",
+        "open_counts",
+        "disclaimer_he"
+      ],
+      "properties": {
+        "scope": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RequirementCode"
+          },
+          "description": "Only the requirement codes this provider reviewed. Everything else is NOT_EVALUATED, never implied complete."
+        },
+        "status": {
+          "$ref": "#/$defs/ReadinessStatus"
+        },
+        "by_requirement": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "requirement_code",
+              "status"
+            ],
+            "properties": {
+              "requirement_code": {
+                "$ref": "#/$defs/RequirementCode"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "COMPLETE",
+                  "INCOMPLETE",
+                  "NEEDS_REVIEW",
+                  "NOT_EVALUATED",
+                  "NOT_REQUIRED"
+                ]
+              },
+              "open_finding_keys": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/FindingKey"
+                }
+              }
+            }
+          }
+        },
+        "open_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "customer",
+            "banker",
+            "info"
+          ],
+          "properties": {
+            "customer": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "banker": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "info": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "not_evaluated": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disclaimer_he": {
+          "type": "string"
+        }
+      }
+    },
+    "DeclaredIncome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "net_monthly": {
+          "$ref": "#/$defs/Money"
+        },
+        "gross_monthly": {
+          "$ref": "#/$defs/Money"
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "net_regular",
+            "gross_regular",
+            "unspecified"
+          ],
+          "description": "What the application field actually asked. Comparison only like-for-like."
+        },
+        "note_he": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "declared_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "mcs_application",
+            "bank_system",
+            "mock_bank_adapter"
+          ]
+        }
+      }
+    },
+    "CaseParty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "party_id",
+        "role",
+        "display_name_he"
+      ],
+      "properties": {
+        "party_id": {
+          "$ref": "#/$defs/PartyId"
+        },
+        "role": {
+          "$ref": "#/$defs/PartyRole"
+        },
+        "display_name_he": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "name_variants_he": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "national_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]{5,9}$",
+          "description": "Sent only over the service channel; never echoed in customer-facing text."
+        },
+        "passport": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "employment_type": {
+          "$ref": "#/$defs/EmploymentType"
+        },
+        "employers_declared": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 160
+          }
+        },
+        "declared_income": {
+          "$ref": "#/$defs/DeclaredIncome"
+        },
+        "declared_liabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lender": {
+                "type": "string"
+              },
+              "monthly_payment": {
+                "$ref": "#/$defs/Money"
+              },
+              "outstanding_balance": {
+                "$ref": "#/$defs/Money"
+              }
+            }
+          }
+        },
+        "declared_accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bank_code"
+            ],
+            "properties": {
+              "bank_code": {
+                "type": "string",
+                "pattern": "^[0-9]{2}$"
+              },
+              "branch": {
+                "type": "string"
+              },
+              "account_masked": {
+                "type": "string"
+              },
+              "joint_with": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/PartyId"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "CaseRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_code",
+        "doc_types",
+        "evaluate"
+      ],
+      "properties": {
+        "requirement_code": {
+          "$ref": "#/$defs/RequirementCode"
+        },
+        "party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "doc_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required_periods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Month"
+          },
+          "description": "MCS/bank supplies them when known; otherwise the provider derives them from policy and states the derivation."
+        },
+        "min_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "bank_case_system",
+            "mcs_rules_engine",
+            "mock_bank_adapter"
+          ]
+        },
+        "evaluate": {
+          "type": "boolean",
+          "description": "false = listed for context only (e.g. appraisal sent directly by the appraiser); provider must report it NOT_EVALUATED."
+        },
+        "bank_status": {
+          "type": "string",
+          "description": "Opaque mirror of the bank's own status for the item (awaiting_documents, accepted_by_bank …). Read-only context."
+        }
+      }
+    },
+    "DocumentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "version",
+        "sha256",
+        "filename",
+        "mime",
+        "bytes",
+        "uploaded_at",
+        "download"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/DocumentId"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "replaces": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "document_id": {
+              "$ref": "#/$defs/DocumentId"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "filename": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "mime": {
+          "type": "string"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "uploaded_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "submitted_to_bank_at": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Anchor of the public 45-day re-send rule (S05)."
+        },
+        "uploaded_by": {
+          "type": "string",
+          "description": "customer:<party_id> | banker:<id> | advisor:<id>"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "touch_app",
+            "touch_advisor",
+            "email_to_banker",
+            "branch_scan",
+            "intake_link",
+            "demo_upload"
+          ]
+        },
+        "claimed_requirement_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assigned_party_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "download": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url",
+            "expires_at"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "expires_at": {
+              "$ref": "#/$defs/DateTime"
+            }
+          }
+        }
+      }
+    },
+    "CaseContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "as_of",
+        "transaction",
+        "parties"
+      ],
+      "properties": {
+        "as_of": {
+          "$ref": "#/$defs/Date",
+          "description": "Review date (the demo's SIMULATION_DATE). Every period/recency rule computes from it."
+        },
+        "product": {
+          "type": "string",
+          "enum": [
+            "purchase",
+            "refinance",
+            "any_purpose",
+            "construction",
+            "renovation",
+            "unknown"
+          ]
+        },
+        "transaction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "second_hand_purchase",
+                "new_construction_purchase",
+                "self_build",
+                "refinance",
+                "any_purpose",
+                "unknown"
+              ]
+            },
+            "property_city_he": {
+              "type": "string"
+            },
+            "declared_price": {
+              "$ref": "#/$defs/Money"
+            },
+            "requested_loan": {
+              "$ref": "#/$defs/Money"
+            },
+            "dwelling_status": {
+              "type": "string",
+              "enum": [
+                "single",
+                "replacement",
+                "investment",
+                "unknown"
+              ],
+              "description": "Mirrors Directive 329 categories (S09). Context only."
+            },
+            "preliminary_approval": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "issued_on": {
+                  "$ref": "#/$defs/Date"
+                },
+                "valid_until": {
+                  "$ref": "#/$defs/Date"
+                },
+                "source": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/CaseParty"
+          }
+        },
+        "bank_stage": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "label_he": {
+              "type": "string"
+            },
+            "authoritative": {
+              "type": "boolean"
+            },
+            "source": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "StartReviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "tenant_id",
+        "case_ref",
+        "workflow",
+        "trigger",
+        "case_context",
+        "requirements",
+        "documents",
+        "idempotency_key"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "tenant_id": {
+          "$ref": "#/$defs/TenantId"
+        },
+        "case_ref": {
+          "$ref": "#/$defs/CaseRef"
+        },
+        "review_case_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewCaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workflow": {
+          "type": "string",
+          "const": "mortgage-documents"
+        },
+        "workflow_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Pin a published version; null = current published."
+        },
+        "trigger": {
+          "$ref": "#/$defs/Trigger"
+        },
+        "parent_run_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewRunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "case_context": {
+          "$ref": "#/$defs/CaseContext"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CaseRequirement"
+          }
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DocumentRef"
+          }
+        },
+        "customer_statements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomerStatement"
+          }
+        },
+        "policy_overrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicyParameterUse"
+          },
+          "description": "Only values the bank has confirmed (status CONFIRMED_BANK_POLICY)."
+        },
+        "callback": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "webhook_connection": {
+              "type": "string"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_\\-]+$"
+        },
+        "consent_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "trace_id": {
+          "type": "string"
+        },
+        "requested_by": {
+          "type": "string"
+        }
+      }
+    },
+    "ReviewStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_case_id",
+        "review_run_id",
+        "state"
+      ],
+      "properties": {
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "review_case_reference": {
+          "$ref": "#/$defs/ReviewCaseReference"
+        },
+        "review_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "review_run_reference": {
+          "$ref": "#/$defs/ReviewRunReference"
+        },
+        "state": {
+          "$ref": "#/$defs/RunState"
+        },
+        "stage": {
+          "$ref": "#/$defs/RunStage"
+        },
+        "progress": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "documents_total": {
+              "type": "integer"
+            },
+            "documents_read": {
+              "type": "integer"
+            },
+            "pages_total": {
+              "type": "integer"
+            },
+            "pages_read": {
+              "type": "integer"
+            }
+          }
+        },
+        "queued_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "started_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "finished_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "error": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ErrorEnvelope"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "FindingsDiff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "opened",
+        "resolved",
+        "changed",
+        "unchanged"
+      ],
+      "properties": {
+        "opened": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "resolved": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "unchanged": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "reopened": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        }
+      }
+    },
+    "ReviewResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "tenant_id",
+        "case_ref",
+        "review_case_id",
+        "review_run_id",
+        "trigger",
+        "state",
+        "started_at",
+        "finished_at",
+        "provenance",
+        "documents",
+        "set_reviews",
+        "cross_document",
+        "findings",
+        "readiness",
+        "limitations_he"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "tenant_id": {
+          "$ref": "#/$defs/TenantId"
+        },
+        "case_ref": {
+          "$ref": "#/$defs/CaseRef"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "review_case_reference": {
+          "$ref": "#/$defs/ReviewCaseReference"
+        },
+        "review_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "review_run_reference": {
+          "$ref": "#/$defs/ReviewRunReference"
+        },
+        "parent_run_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewRunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "trigger": {
+          "$ref": "#/$defs/Trigger"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "failed"
+          ]
+        },
+        "started_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "finished_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DocumentReview"
+          }
+        },
+        "superseded_documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document_id",
+              "version"
+            ],
+            "properties": {
+              "document_id": {
+                "$ref": "#/$defs/DocumentId"
+              },
+              "version": {
+                "type": "integer"
+              },
+              "superseded_by_version": {
+                "type": "integer"
+              },
+              "retained": {
+                "type": "boolean"
+              }
+            }
+          },
+          "description": "Earlier versions kept for audit, excluded from computation."
+        },
+        "set_reviews": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetReview"
+          }
+        },
+        "cross_document": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CrossDocumentComparison"
+          }
+        },
+        "case_criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CriterionOutcome"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Finding"
+          }
+        },
+        "findings_diff": {
+          "$ref": "#/$defs/FindingsDiff"
+        },
+        "readiness": {
+          "$ref": "#/$defs/Readiness"
+        },
+        "limitations_he": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "usage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "llm_calls": {
+              "type": "integer"
+            },
+            "prompt_tokens": {
+              "type": "integer"
+            },
+            "output_tokens": {
+              "type": "integer"
+            },
+            "ocr_pages": {
+              "type": "integer"
+            },
+            "estimate_usd": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "basis": {
+              "type": "string",
+              "const": "list_price_estimate"
+            },
+            "duration_ms": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "SupplementRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supplement_id",
+        "review_case_id",
+        "requested_items",
+        "finding_keys",
+        "channel",
+        "state",
+        "created_at"
+      ],
+      "properties": {
+        "supplement_id": {
+          "type": "string",
+          "pattern": "^sup_[a-z0-9]{8,32}$"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "requested_items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "finding_keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "touch_upload",
+            "intake_link"
+          ],
+          "description": "touch_upload = the customer uploads in Tefahot Touch and MCS forwards (preferred); intake_link = VisionTrace one-time link (existing supplement mechanism)."
+        },
+        "message_customer_he": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "issued",
+            "fulfilled",
+            "superseded",
+            "expired",
+            "cancelled"
+          ]
+        },
+        "expires_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "created_at": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "SupplementSubmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "review_case_id",
+        "documents",
+        "mode",
+        "idempotency_key"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "supplement_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "add",
+            "replace"
+          ],
+          "description": "add = new logical documents; replace = new version of an existing logical document (each DocumentRef.replaces set). The re-review always runs over the WHOLE current evidence set."
+        },
+        "documents": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/DocumentRef"
+          }
+        },
+        "customer_statements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomerStatement"
+          }
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 64
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      }
+    },
+    "BankerDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "review_case_id",
+        "review_run_id",
+        "action",
+        "actor",
+        "request_id",
+        "acknowledge_document_review_only",
+        "created_at"
+      ],
+      "description": "Generalises VisionTrace ClaimDecision. Bound to the review the banker SAW; a newer run makes it stale (409).",
+      "properties": {
+        "decision_id": {
+          "type": "string"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "review_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "confirm_documentary_readiness",
+            "waive_finding",
+            "dismiss_finding_false_positive",
+            "confirm_resolution",
+            "reopen_finding",
+            "request_additional_document"
+          ]
+        },
+        "finding_keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "note_he": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "actor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "role"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "banker",
+                "back_office",
+                "supervisor"
+              ]
+            }
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 64
+        },
+        "acknowledge_document_review_only": {
+          "type": "boolean",
+          "const": true
+        },
+        "created_at": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "Escalation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "escalation_id",
+        "review_case_id",
+        "reason",
+        "finding_keys",
+        "created_at",
+        "state"
+      ],
+      "properties": {
+        "escalation_id": {
+          "type": "string"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "review_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "open_banker_findings",
+            "customer_requested_human",
+            "provider_failure",
+            "policy_unknown",
+            "suspected_tampering",
+            "untrusted_instruction",
+            "repeated_unreadable"
+          ]
+        },
+        "finding_keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingKey"
+          }
+        },
+        "note_he": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "open",
+            "acknowledged",
+            "closed"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "created_by": {
+          "type": "string"
+        }
+      }
+    },
+    "ReviewHistoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_run_id",
+        "trigger",
+        "state",
+        "started_at"
+      ],
+      "properties": {
+        "review_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "review_run_reference": {
+          "$ref": "#/$defs/ReviewRunReference"
+        },
+        "parent_run_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewRunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "trigger": {
+          "$ref": "#/$defs/Trigger"
+        },
+        "state": {
+          "$ref": "#/$defs/RunState"
+        },
+        "started_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "finished_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "document_id@version reviewed in this run."
+        },
+        "readiness_status": {
+          "$ref": "#/$defs/ReadinessStatus"
+        },
+        "findings_diff": {
+          "$ref": "#/$defs/FindingsDiff"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "is_current": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BankerReviewPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "schema_version",
+        "case_ref",
+        "review_case_id",
+        "review_run_id",
+        "generated_at",
+        "case_summary",
+        "document_inventory",
+        "coverage",
+        "key_values",
+        "open_findings",
+        "resolved_findings",
+        "limitations_he",
+        "disclaimer_he",
+        "audit_trail"
+      ],
+      "properties": {
+        "package_id": {
+          "type": "string"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "case_ref": {
+          "$ref": "#/$defs/CaseRef"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "review_run_id": {
+          "$ref": "#/$defs/ReviewRunId"
+        },
+        "generated_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "case_summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "headline_he",
+            "readiness"
+          ],
+          "properties": {
+            "headline_he": {
+              "type": "string"
+            },
+            "transaction_he": {
+              "type": "string"
+            },
+            "parties_he": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "readiness": {
+              "$ref": "#/$defs/Readiness"
+            },
+            "bank_stage_he": {
+              "type": "string"
+            }
+          }
+        },
+        "document_inventory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document_id",
+              "version",
+              "filename",
+              "doc_type",
+              "verdict"
+            ],
+            "properties": {
+              "document_id": {
+                "$ref": "#/$defs/DocumentId"
+              },
+              "version": {
+                "type": "integer"
+              },
+              "filename": {
+                "type": "string"
+              },
+              "doc_type": {
+                "type": "string"
+              },
+              "party_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "period": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "verdict": {
+                "$ref": "#/$defs/ReviewVerdict"
+              },
+              "superseded": {
+                "type": "boolean"
+              },
+              "viewer_url": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "coverage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetReview"
+          }
+        },
+        "key_values": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "party_id",
+              "field",
+              "value",
+              "evidence_id"
+            ],
+            "properties": {
+              "party_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "field": {
+                "type": "string"
+              },
+              "label_he": {
+                "type": "string"
+              },
+              "period": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "value": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "evidence_id": {
+                "$ref": "#/$defs/EvidenceId"
+              },
+              "witness": {
+                "$ref": "#/$defs/Witness"
+              }
+            }
+          }
+        },
+        "comparisons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CrossDocumentComparison"
+          }
+        },
+        "open_findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Finding"
+          }
+        },
+        "resolved_findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Finding"
+          }
+        },
+        "customer_statements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomerStatement"
+          }
+        },
+        "outstanding_questions_he": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "suggested_next_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "action_he",
+              "owner"
+            ],
+            "properties": {
+              "action_he": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string",
+                "enum": [
+                  "banker",
+                  "customer",
+                  "lawyer",
+                  "appraiser",
+                  "insurer",
+                  "system"
+                ]
+              },
+              "finding_keys": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/FindingKey"
+                }
+              },
+              "non_binding": {
+                "type": "boolean",
+                "const": true
+              }
+            }
+          }
+        },
+        "not_evaluated_he": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations_he": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disclaimer_he": {
+          "type": "string"
+        },
+        "audit_trail": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LifecycleEvent"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "LifecycleEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "type",
+        "occurred_at",
+        "tenant_id",
+        "case_ref",
+        "review_case_id",
+        "payload"
+      ],
+      "description": "Webhook + audit event. Bounded: never document bytes, extracted text, ID numbers, salaries or model output. Signed like the existing VisionTrace webhook: X-VisionTrace-Timestamp + X-VisionTrace-Signature: sha256=HMAC(secret, ts + '.' + body).",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "pattern": "^evt_[a-z0-9]{8,32}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "review.queued",
+            "review.started",
+            "review.completed",
+            "review.failed",
+            "finding.opened",
+            "finding.changed",
+            "finding.resolved",
+            "finding.reopened",
+            "supplement.requested",
+            "supplement.received",
+            "decision.recorded",
+            "escalation.opened",
+            "package.generated",
+            "document.retention_purged"
+          ]
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "tenant_id": {
+          "$ref": "#/$defs/TenantId"
+        },
+        "case_ref": {
+          "$ref": "#/$defs/CaseRef"
+        },
+        "review_case_id": {
+          "$ref": "#/$defs/ReviewCaseId"
+        },
+        "review_run_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewRunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actor": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      }
+    },
+    "ErrorEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "invalid_request",
+            "unauthenticated",
+            "forbidden",
+            "case_scope_violation",
+            "not_found",
+            "idempotency_conflict",
+            "stale_review",
+            "run_not_finished",
+            "rate_limited",
+            "payload_too_large",
+            "unsupported_media_type",
+            "document_unavailable",
+            "provider_unavailable",
+            "model_budget_exceeded",
+            "timeout",
+            "internal_error"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "retry_after_seconds": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "trace_id": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

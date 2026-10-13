@@ -1,0 +1,38 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.income.form_106",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "P1",
+  "name_he": "טופס 106 — שנה קודמת (שכירים)",
+  "name_en": "Form 106 (previous tax year)",
+  "description": "Reviews an employer's annual Form 106. Mizrahi-Tefahot's current borrowers' checklist asks salaried borrowers for 'Form 106 for the previous year' (MZ-02, 2026-06-11) while its guides do not — the requirement is policy-gated in FIN-CMP-05 until the bank confirms; this rubric still reviews a 106 when one is uploaded.",
+  "scope": "document",
+  "document_category": "form_106",
+  "applies_to": {"doc_types": ["form_106"], "requirement_codes": ["INC.FORM_106"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["salaried", "controlling_shareholder"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "RB-00 עבר.", "on_unmet": "INSUFFICIENT_EVIDENCE."}],
+  "required_fields": ["tax_year", "employer_name", "employer_deductions_file_number", "employee_full_name", "employee_id_number", "months_worked", "annual_salary_total"],
+  "decisive_fields": ["tax_year", "employee_id_number", "annual_salary_total"],
+  "field_lexicon": {"title": ["טופס 106", "אישור על פי תקנות מס הכנסה", "ניכוי ממשכורת"], "tax_year": ["שנת מס"], "annual_salary": ["משכורת", "158", "172"], "months": ["אני מאשר כי העובד הנ\"ל עבד אצלנו בחודשים הבאים"]},
+  "policy_parameters": [{"name": "issue_deadline", "value": "03-31", "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "SEC-04", "note_he": "המעסיק מוסר 106 עד 31.03 לשנה הקודמת; בסיום העסקה — ביום הסיום."}],
+  "evidence_policy": {"verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"], "decisive_fields_must_be_verified": true, "citation_rule_he": "שנת המס, ת״ז, משכורת שנתית — כל אחד עם ציטוט.", "pages_in_scope": "all"},
+  "allowed_inference_he": ["לזהות שדות 106 לפי קודי השדות המודפסים (158/172) — המספרים ליד כל סוג תשלום מציינים את השדה בדוח השנתי (GOV-ITA-106)."],
+  "prohibited_inference_he": ["להסיק הכנסה חודשית לצורך אשראי מ־106.", "להשוות סכומים שנתיים לתלושי השנה הנוכחית כקריטריון כשל."],
+  "missing_data_treatment": {"absent": "שנת מס חסרה → FRM-YR-01 FAIL.", "illegible": "→ INSUFFICIENT_EVIDENCE.", "ambiguous": "כמה 106 ממעסיקים שונים → כל אחד מסמך נפרד.", "unverified": "→ NEEDS_REVIEW."},
+  "criteria": [
+    {"id": "FRM-CLS-01", "title_he": "המסמך הוא טופס 106", "dimension": "classification", "method": "hybrid", "severity": "blocking", "deterministic_logic": "title lexicon + tax year + annual fields → PASS; payslip/1301 → FAIL.", "pass_when": "טופס 106.", "fail_when": "סוג אחר.", "needs_review_when": "פלט מערכת שכר ללא כותרת 106.", "insufficient_evidence_when": "לא נקרא.", "reason_code": "UNEXPECTED_DOCUMENT_TYPE", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "BANK_POLICY_REQUIRED", "source_refs": ["MZ-02"]},
+    {"id": "FRM-IDN-01", "title_he": "העובד הוא הלווה", "dimension": "identity_binding", "method": "deterministic", "severity": "blocking", "deterministic_logic": "as PSL-IDN-01 on employee_id_number.", "pass_when": "ת״ז תואמת.", "fail_when": "ת״ז אחרת.", "needs_review_when": "לא מאומת.", "insufficient_evidence_when": "חסר/לא קריא.", "reason_code": "BORROWER_MISMATCH", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "PROPOSED_VALIDATION"},
+    {"id": "FRM-YR-01", "title_he": "שנת המס היא השנה הקודמת", "dimension": "period_relevance", "method": "deterministic", "severity": "major", "deterministic_logic": "tax_year == year(as_of) − 1 → PASS. tax_year == year(as_of) − 2 and as_of ≤ 03-31 → PASS + INFO (current 106 may not exist yet). else FAIL(FORM_106_WRONG_YEAR).", "pass_when": "שנה קודמת (או שנתיים קודם לפני 31.03).", "fail_when": "שנה אחרת.", "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "שנה לא קריאה.", "reason_code": "FORM_106_WRONG_YEAR", "on_fail": "NEEDS_REVIEW", "finding": {"code": "FORM_106_WRONG_YEAR", "key_template": "FORM_106_WRONG_YEAR:{document_id}", "review_state": "CUSTOMER_ACTION_REQUIRED", "customer_message_he": "טופס 106 שהועלה הוא לשנת {tax_year}; נדרש טופס לשנת {expected_year}.", "internal_message_he": "tax_year={tax_year}; expected={expected_year}.", "requested_item_template": "form_106:{party_id}:{expected_year}"}, "escalation": "customer", "requirement_basis": "BANK_POLICY_REQUIRED", "source_refs": ["MZ-02", "SEC-04"]},
+    {"id": "FRM-EMP-01", "title_he": "המעסיק תואם למעסיק בתלושים או מוסבר", "dimension": "cross_document_consistency", "method": "hybrid", "severity": "minor", "deterministic_logic": "employer (deductions file / name) == payslip employer → PASS; different → NEEDS_REVIEW (job change; or several 106s expected — one per employer, SEC-04).", "pass_when": "אותו מעסיק.", "fail_when": "לעולם לא FAIL.", "needs_review_when": "מעסיק שונה.", "insufficient_evidence_when": "לא רלוונטי.", "reason_code": "EMPLOYER_MISMATCH", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"}
+  ],
+  "verdict_policy": {"rules_he": ["CLS/IDN FAIL → INVALID; אחרים → NEEDS_REVIEW."], "precedence": ["UNSUPPORTED", "UNREADABLE", "INVALID", "NEEDS_REVIEW", "VALID"]},
+  "cross_document_dependencies": [{"rubric_or_doc": "mortgage.financial.completeness", "relation_he": "FIN-CMP-05 (דרישה מותנית מדיניות)."}],
+  "examples": [
+    {"label": "valid", "situation_he": "106 לשנת 2025 של עידו מאופק לוגיסטיקה, 12 חודשי עבודה.", "expected": {"FRM-YR-01": "PASS", "verdict": "VALID"}},
+    {"label": "invalid", "situation_he": "106 לשנת 2023 הועלה ב־2026-10-12.", "expected": {"FRM-YR-01": "FAIL", "finding": "FORM_106_WRONG_YEAR"}},
+    {"label": "edge", "situation_he": "as_of=2026-02-15; הועלה 106 לשנת 2024.", "expected": {"FRM-YR-01": "PASS + INFO"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/DocumentReview"},
+  "source_refs": ["MZ-02", "SEC-04", "GOV-ITA-106"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

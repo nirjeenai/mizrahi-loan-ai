@@ -1,0 +1,629 @@
+{
+  "library": "mortgage-rubrics",
+  "version": "1.0.0-draft",
+  "generated": "2026-10-12",
+  "rubrics": [
+    {
+      "rubric_id": "mortgage.document.intake_quality",
+      "version": "1.0.0",
+      "ref": "mortgage.document.intake_quality@1.0.0",
+      "priority": "MVP",
+      "scope": "document",
+      "document_category": "any",
+      "name_he": "קליטה, קריאוּת ואבטחת מסמך — לכל מסמך",
+      "name_en": "Universal intake, readability and content-security checks",
+      "file": "rubrics/RB-00_mortgage.document.intake_quality.v1.0.0.json",
+      "criteria": [
+        "GEN-INT-01",
+        "GEN-INT-02",
+        "GEN-INT-03",
+        "GEN-INT-04",
+        "GEN-SEC-01",
+        "GEN-SEC-02",
+        "GEN-INT-05"
+      ],
+      "methods": {
+        "deterministic": 5,
+        "hybrid": 2
+      },
+      "source_refs": [
+        "BOI-369",
+        "VT-CODE:backend/app/services/unemployment/reader.py",
+        "DEMO-CODE:backend/app/review/deterministic.py#injection_hits"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.payslip.classification_identity",
+      "version": "1.0.0",
+      "ref": "mortgage.payslip.classification_identity@1.0.0",
+      "priority": "MVP",
+      "scope": "document",
+      "document_category": "payslip",
+      "name_he": "תלוש שכר — סיווג וזהות",
+      "name_en": "Payslip classification and identity",
+      "file": "rubrics/RB-01_mortgage.payslip.classification_identity.v1.0.0.json",
+      "criteria": [
+        "PSL-CLS-01",
+        "PSL-CLS-02",
+        "PSL-CLS-03",
+        "PSL-IDN-01",
+        "PSL-IDN-02",
+        "PSL-IDN-03",
+        "PSL-IDN-04"
+      ],
+      "methods": {
+        "hybrid": 3,
+        "deterministic": 4
+      },
+      "source_refs": [
+        "MZ-05",
+        "LAW-01",
+        "SEC-03",
+        "VT-CODE:backend/app/services/unemployment/checks.py#one_employee",
+        "DEMO-CODE:backend/app/review/deterministic.py#name_relation"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.payslip.period",
+      "version": "1.0.0",
+      "ref": "mortgage.payslip.period@1.0.0",
+      "priority": "MVP",
+      "scope": "document",
+      "document_category": "payslip",
+      "name_he": "תלוש שכר — חילוץ חודש ושנה",
+      "name_en": "Payslip month and year extraction",
+      "file": "rubrics/RB-02_mortgage.payslip.period.v1.0.0.json",
+      "criteria": [
+        "PSL-PER-01",
+        "PSL-PER-02",
+        "PSL-PER-03",
+        "PSL-PER-04",
+        "PSL-PER-05"
+      ],
+      "methods": {
+        "deterministic": 4,
+        "hybrid": 1
+      },
+      "source_refs": [
+        "LAW-01",
+        "SEC-02",
+        "VT-CODE:backend/app/services/unemployment/months.py"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.income.payslip_coverage",
+      "version": "1.0.0",
+      "ref": "mortgage.income.payslip_coverage@1.0.0",
+      "priority": "MVP",
+      "scope": "document_set",
+      "document_category": "payslip",
+      "name_he": "כיסוי חודשי השכר הנדרשים — לכל לווה שכיר",
+      "name_en": "Multi-month salary coverage",
+      "file": "rubrics/RB-03_mortgage.income.payslip_coverage.v1.0.0.json",
+      "criteria": [
+        "INC-COV-01",
+        "INC-COV-02",
+        "INC-COV-03",
+        "INC-COV-04"
+      ],
+      "methods": {
+        "deterministic": 4
+      },
+      "source_refs": [
+        "MZ-05",
+        "SEC-02",
+        "PEER-02",
+        "PEER-03",
+        "PEER-05",
+        "VT-CODE:backend/app/services/unemployment/checks.py#requested_payslips",
+        "DEMO-CODE:backend/app/review/deterministic.py#requested_months"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.payslip.duplicates",
+      "version": "1.0.0",
+      "ref": "mortgage.payslip.duplicates@1.0.0",
+      "priority": "MVP",
+      "scope": "document_set",
+      "document_category": "payslip",
+      "name_he": "תלושים כפולים או לא תואמים",
+      "name_en": "Duplicate or mismatched payslip detection",
+      "file": "rubrics/RB-04_mortgage.payslip.duplicates.v1.0.0.json",
+      "criteria": [
+        "PSL-DUP-01",
+        "PSL-DUP-02",
+        "PSL-DUP-03",
+        "PSL-DUP-04"
+      ],
+      "methods": {
+        "deterministic": 4
+      },
+      "source_refs": [
+        "VT-CODE:backend/app/services/unemployment/months.py#coverage",
+        "DEMO-CODE:backend/app/review/case_review.py"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.payslip.financials",
+      "version": "1.0.0",
+      "ref": "mortgage.payslip.financials@1.0.0",
+      "priority": "MVP",
+      "scope": "document",
+      "document_category": "payslip",
+      "name_he": "תלוש שכר — חילוץ שדות כספיים ועקביות פנימית",
+      "name_en": "Payslip financial-field extraction and internal consistency",
+      "file": "rubrics/RB-05_mortgage.payslip.financials.v1.0.0.json",
+      "criteria": [
+        "PSL-FIN-01",
+        "PSL-FIN-02",
+        "PSL-FIN-03",
+        "PSL-FIN-04",
+        "PSL-FIN-05",
+        "PSL-FIN-06",
+        "PSL-FIN-07",
+        "PSL-FIN-08"
+      ],
+      "methods": {
+        "deterministic": 7,
+        "judge": 1
+      },
+      "source_refs": [
+        "LAW-01",
+        "SEC-01",
+        "DEMO-CODE:backend/app/review/deterministic.py#arithmetic"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.income.declared_vs_documented",
+      "version": "1.0.0",
+      "ref": "mortgage.income.declared_vs_documented@1.0.0",
+      "priority": "MVP",
+      "scope": "case",
+      "document_category": "income_set",
+      "name_he": "הכנסה מוצהרת מול המסמכים התומכים",
+      "name_en": "Declared income versus supporting documentation",
+      "file": "rubrics/RB-06_mortgage.income.declared_vs_documented.v1.0.0.json",
+      "criteria": [
+        "INC-DEC-01",
+        "INC-DEC-02",
+        "INC-DEC-03",
+        "INC-DEC-04"
+      ],
+      "methods": {
+        "deterministic": 2,
+        "judge": 2
+      },
+      "source_refs": [
+        "DEMO-CODE:backend/app/review/case_review.py#_semantic",
+        "DEMO-CODE:backend/rubrics/income-set.salaried.v1.0.0.json#IS-04"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.identity.consistency",
+      "version": "1.0.0",
+      "ref": "mortgage.identity.consistency@1.0.0",
+      "priority": "MVP",
+      "scope": "case",
+      "document_category": "all",
+      "name_he": "עקביות זהות הלווים בכל מסמכי התיק",
+      "name_en": "Borrower identity consistency across the case",
+      "file": "rubrics/RB-07_mortgage.identity.consistency.v1.0.0.json",
+      "criteria": [
+        "IDN-CON-01",
+        "IDN-CON-02",
+        "IDN-CON-03",
+        "IDN-CON-04",
+        "IDN-CON-05"
+      ],
+      "methods": {
+        "deterministic": 4,
+        "hybrid": 1
+      },
+      "source_refs": [
+        "VT-CODE:backend/app/services/unemployment/checks.py#one_employee"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.financial.completeness",
+      "version": "1.0.0",
+      "ref": "mortgage.financial.completeness@1.0.0",
+      "priority": "MVP",
+      "scope": "case",
+      "document_category": "financial_set",
+      "name_he": "שלמות מסמכי המצב הפיננסי — לכל לווה",
+      "name_en": "Financial document completeness",
+      "file": "rubrics/RB-08_mortgage.financial.completeness.v1.0.0.json",
+      "criteria": [
+        "FIN-CMP-01",
+        "FIN-CMP-02",
+        "FIN-CMP-03",
+        "FIN-CMP-04",
+        "FIN-CMP-05"
+      ],
+      "methods": {
+        "deterministic": 5
+      },
+      "source_refs": [
+        "MZ-02",
+        "MZ-05",
+        "MZ-07",
+        "LAW-01",
+        "BOI-329",
+        "SEC-04"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.bank_statement.extraction_coverage",
+      "version": "1.0.0",
+      "ref": "mortgage.bank_statement.extraction_coverage@1.0.0",
+      "priority": "MVP",
+      "scope": "document_set",
+      "document_category": "bank_statement",
+      "name_he": "דפי חשבון עו״ש — חילוץ, עקביות וכיסוי",
+      "name_en": "Bank statement extraction and coverage",
+      "file": "rubrics/RB-09_mortgage.bank_statement.extraction_coverage.v1.0.0.json",
+      "criteria": [
+        "BST-CLS-01",
+        "BST-IDN-01",
+        "BST-PER-01",
+        "BST-ARI-01",
+        "BST-ARI-02",
+        "BST-PAG-01",
+        "BST-COV-01",
+        "BST-COV-02",
+        "BST-DUP-01",
+        "BST-SEM-01",
+        "BST-XD-01",
+        "BST-XD-02",
+        "BST-XD-03"
+      ],
+      "methods": {
+        "hybrid": 2,
+        "deterministic": 10,
+        "judge": 1
+      },
+      "source_refs": [
+        "MZ-02",
+        "MZ-05",
+        "MZ-07",
+        "BOI-329",
+        "LAW-03",
+        "SEC-01",
+        "PEER-01",
+        "PEER-02",
+        "TECH-R5-C1"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.purchase_agreement.extraction_consistency",
+      "version": "1.0.0",
+      "ref": "mortgage.purchase_agreement.extraction_consistency@1.0.0",
+      "priority": "P1",
+      "scope": "document",
+      "document_category": "purchase_agreement",
+      "name_he": "חוזה רכישה — חילוץ נתונים ועקביות",
+      "name_en": "Purchase agreement data extraction and consistency",
+      "file": "rubrics/RB-10_mortgage.purchase_agreement.extraction_consistency.v1.0.0.json",
+      "criteria": [
+        "PUR-CLS-01",
+        "PUR-CMP-01",
+        "PUR-SIG-01",
+        "PUR-PTY-01",
+        "PUR-PTY-02",
+        "PUR-PRP-01",
+        "PUR-PRC-01",
+        "PUR-PRC-02",
+        "PUR-DAT-01",
+        "PUR-CLA-01"
+      ],
+      "methods": {
+        "hybrid": 1,
+        "deterministic": 7,
+        "judge": 2
+      },
+      "source_refs": [
+        "MZ-03",
+        "MZ-05",
+        "MZ-06",
+        "MZ-07",
+        "PEER-01",
+        "PEER-02",
+        "BOI-CONSUMER",
+        "VT-LOCAL-WIP:execution/registry.py"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.loan_balance_report",
+      "version": "1.0.0",
+      "ref": "mortgage.loan_balance_report@1.0.0",
+      "priority": "MVP",
+      "scope": "document",
+      "document_category": "loan_balance_report",
+      "name_he": "דוח ריכוז יתרות הלוואות",
+      "name_en": "Loan-balance summary report",
+      "file": "rubrics/RB-11_mortgage.loan_balance_report.v1.0.0.json",
+      "criteria": [
+        "LBR-CLS-01",
+        "LBR-IDN-01",
+        "LBR-DAT-01",
+        "LBR-ARI-01",
+        "LBR-XD-01",
+        "LBR-XD-02"
+      ],
+      "methods": {
+        "hybrid": 1,
+        "deterministic": 5
+      },
+      "source_refs": [
+        "MZ-02",
+        "MZ-05",
+        "MZ-07",
+        "BOI-329",
+        "BOI-425",
+        "LAW-03"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.land_registry_extract",
+      "version": "1.0.0",
+      "ref": "mortgage.land_registry_extract@1.0.0",
+      "priority": "P1",
+      "scope": "document",
+      "document_category": "land_registry_extract",
+      "name_he": "נסח רישום מקרקעין (טאבו) / אישור זכויות",
+      "name_en": "Land Registry extract / rights confirmation",
+      "file": "rubrics/RB-12_mortgage.land_registry_extract.v1.0.0.json",
+      "criteria": [
+        "TABU-CLS-01",
+        "TABU-SIG-01",
+        "TABU-DAT-01",
+        "TABU-OWN-01",
+        "TABU-ENC-01",
+        "TABU-REG-01"
+      ],
+      "methods": {
+        "hybrid": 1,
+        "deterministic": 5
+      },
+      "source_refs": [
+        "MZ-01",
+        "MZ-04",
+        "MZ-05",
+        "MZ-06",
+        "MZ-07",
+        "PEER-01",
+        "TECH-IL1",
+        "TECH-H2"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.insurance.life_policy",
+      "version": "1.0.0",
+      "ref": "mortgage.insurance.life_policy@1.0.0",
+      "priority": "P1",
+      "scope": "document",
+      "document_category": "life_insurance_policy",
+      "name_he": "פוליסת ביטוח חיים למשכנתא — עמידה בדרישות הבנק",
+      "name_en": "Mortgage life-insurance policy conformity",
+      "file": "rubrics/RB-13_mortgage.insurance.life_policy.v1.0.0.json",
+      "criteria": [
+        "INSL-CLS-01",
+        "INSL-IDN-01",
+        "INSL-SUM-01",
+        "INSL-PER-01",
+        "INSL-BEN-01",
+        "INSL-PLG-01",
+        "INSL-CAN-01"
+      ],
+      "methods": {
+        "hybrid": 4,
+        "deterministic": 3
+      },
+      "source_refs": [
+        "MZ-05",
+        "MZ-07",
+        "MZ-20",
+        "BOI-451",
+        "LAW-04"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.insurance.property_policy",
+      "version": "1.0.0",
+      "ref": "mortgage.insurance.property_policy@1.0.0",
+      "priority": "P1",
+      "scope": "document",
+      "document_category": "property_insurance_policy",
+      "name_he": "פוליסת ביטוח נכס (מבנה) — עמידה בדרישות הבנק",
+      "name_en": "Property (structure) insurance policy conformity",
+      "file": "rubrics/RB-14_mortgage.insurance.property_policy.v1.0.0.json",
+      "criteria": [
+        "INSP-CLS-01",
+        "INSP-PRP-01",
+        "INSP-SUM-01",
+        "INSP-BEN-01",
+        "INSP-PLG-01",
+        "INSP-CAN-01",
+        "INSP-EQK-01"
+      ],
+      "methods": {
+        "hybrid": 5,
+        "deterministic": 2
+      },
+      "source_refs": [
+        "MZ-05",
+        "MZ-06",
+        "MZ-07",
+        "BOI-451"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.income.self_employed",
+      "version": "1.0.0",
+      "ref": "mortgage.income.self_employed@1.0.0",
+      "priority": "P1",
+      "scope": "document_set",
+      "document_category": "self_employed_income",
+      "name_he": "הכנסה מעצמאות — שומת מס ואישור רו״ח",
+      "name_en": "Self-employed income evidence",
+      "file": "rubrics/RB-15_mortgage.income.self_employed.v1.0.0.json",
+      "criteria": [
+        "SEI-CLS-01",
+        "SEI-IDN-01",
+        "SEI-SET-01",
+        "SEI-CPA-01",
+        "SEI-XD-01"
+      ],
+      "methods": {
+        "hybrid": 2,
+        "deterministic": 2,
+        "judge": 1
+      },
+      "source_refs": [
+        "MZ-02",
+        "MZ-03",
+        "MZ-05",
+        "MZ-07",
+        "BOI-329",
+        "GOV-ITA-106"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.security.pledge_and_warning_note",
+      "version": "1.0.0",
+      "ref": "mortgage.security.pledge_and_warning_note@1.0.0",
+      "priority": "P1",
+      "scope": "document_set",
+      "document_category": "collateral_registration",
+      "name_he": "רישום משכון, דו״חות עיון והערת אזהרה לטובת הבנק",
+      "name_en": "Pledge registration, Pledges-Registrar inspection reports and warning note",
+      "file": "rubrics/RB-16_mortgage.security.pledge_and_warning_note.v1.0.0.json",
+      "criteria": [
+        "SEC-INS-01",
+        "SEC-INS-02",
+        "SEC-INS-03",
+        "SEC-WRN-01",
+        "SEC-WRN-02"
+      ],
+      "methods": {
+        "deterministic": 2,
+        "hybrid": 3
+      },
+      "source_refs": [
+        "MZ-04",
+        "MZ-05",
+        "MZ-06"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.identity.id_card",
+      "version": "1.0.0",
+      "ref": "mortgage.identity.id_card@1.0.0",
+      "priority": "P1",
+      "scope": "document",
+      "document_category": "id_document",
+      "name_he": "תעודת זהות, ספח ודרכון",
+      "name_en": "Identity document (ID card, appendix, passport)",
+      "file": "rubrics/RB-17_mortgage.identity.id_card.v1.0.0.json",
+      "criteria": [
+        "IDC-CLS-01",
+        "IDC-IDN-01",
+        "IDC-CHK-01",
+        "IDC-VAL-01",
+        "IDC-APX-01"
+      ],
+      "methods": {
+        "hybrid": 1,
+        "deterministic": 4
+      },
+      "source_refs": [
+        "MZ-02",
+        "MZ-05",
+        "MZ-07",
+        "MZ-24",
+        "LAW-02",
+        "SEC-03",
+        "LAW-05"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.seller.documents",
+      "version": "1.0.0",
+      "ref": "mortgage.seller.documents@1.0.0",
+      "priority": "P2",
+      "scope": "document_set",
+      "document_category": "seller_documents",
+      "name_he": "מסמכי המוכרים (יד שנייה)",
+      "name_en": "Seller-side documents (second-hand purchase)",
+      "file": "rubrics/RB-18_mortgage.seller.documents.v1.0.0.json",
+      "criteria": [
+        "SEL-IDN-01",
+        "SEL-MAR-01",
+        "SEL-UND-01",
+        "SEL-LOI-01",
+        "SEL-FOR-01"
+      ],
+      "methods": {
+        "deterministic": 4,
+        "judge": 1
+      },
+      "source_refs": [
+        "MZ-03",
+        "MZ-05",
+        "MZ-07",
+        "MZ-08",
+        "MZ-31"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.tax_confirmations",
+      "version": "1.0.0",
+      "ref": "mortgage.tax_confirmations@1.0.0",
+      "priority": "P2",
+      "scope": "document_set",
+      "document_category": "tax_confirmations",
+      "name_he": "אישורי מיסים ועירייה בעסקה",
+      "name_en": "Transaction tax and municipal confirmations",
+      "file": "rubrics/RB-19_mortgage.tax_confirmations.v1.0.0.json",
+      "criteria": [
+        "TAX-CLS-01",
+        "TAX-PRP-01",
+        "TAX-VAL-01",
+        "TAX-SET-01"
+      ],
+      "methods": {
+        "hybrid": 1,
+        "deterministic": 3
+      },
+      "source_refs": [
+        "MZ-05"
+      ]
+    },
+    {
+      "rubric_id": "mortgage.income.form_106",
+      "version": "1.0.0",
+      "ref": "mortgage.income.form_106@1.0.0",
+      "priority": "P1",
+      "scope": "document",
+      "document_category": "form_106",
+      "name_he": "טופס 106 — שנה קודמת (שכירים)",
+      "name_en": "Form 106 (previous tax year)",
+      "file": "rubrics/RB-20_mortgage.income.form_106.v1.0.0.json",
+      "criteria": [
+        "FRM-CLS-01",
+        "FRM-IDN-01",
+        "FRM-YR-01",
+        "FRM-EMP-01"
+      ],
+      "methods": {
+        "hybrid": 2,
+        "deterministic": 2
+      },
+      "source_refs": [
+        "MZ-02",
+        "SEC-04",
+        "GOV-ITA-106"
+      ]
+    }
+  ]
+}

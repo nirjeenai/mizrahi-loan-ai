@@ -1,0 +1,216 @@
+{
+  "_notice": "VisionTrace MCP surface for the mortgage workflow. 'existing_tools' are copied from VisionTrace main 5a1ca7d (backend/app/services/connections/server_tools.py and server_intakes.py) and marked EXISTS. 'proposed_tools' are TO BUILD — they do not exist. No write tool was called while preparing this file.",
+  "version": "1.0.0-draft",
+  "server": {
+    "endpoint": "POST /mcp",
+    "transport": "Stateless Streamable HTTP, JSON-RPC 2.0 (initialize, tools/list, tools/call)",
+    "auth": "Authorization: Bearer <key>; key verified as HMAC-SHA256 digest under the vault pepper (services/connections/server_auth.py); scopes bound per key",
+    "protocol_version_used_by_demo_probe": "2025-06-18",
+    "answer_budget_chars": 3500,
+    "standing_notice": "VisionTrace screens and cites; it never approves or rejects — a person decides."
+  },
+  "existing_tools": [
+    {
+      "name": "visiontrace_list_workflows",
+      "status": "EXISTS @5a1ca7d",
+      "scope": "workflows:read",
+      "inputSchema": {"type": "object", "properties": {}, "additionalProperties": false},
+      "mortgage_use": "Discovery only. Listing workflows is not document-review integration."
+    },
+    {
+      "name": "visiontrace_list_reviews",
+      "status": "EXISTS @5a1ca7d",
+      "scope": "reviews:read",
+      "inputSchema": {"type": "object", "additionalProperties": false, "properties": {
+        "query": {"type": "string", "maxLength": 80},
+        "latest": {"type": "boolean"},
+        "kind": {"type": "string", "enum": "RUN_KINDS (services/intakes/contracts.py)"},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 10}}},
+      "mortgage_use": "Banker/internal agents only.",
+      "risk": "WORKSPACE-WIDE: returns reviews of every case in the workspace. Must never be exposed to a customer-facing agent (F R-03)."
+    },
+    {
+      "name": "visiontrace_get_review",
+      "status": "EXISTS @5a1ca7d",
+      "scope": "reviews:read",
+      "inputSchema": {"type": "object", "additionalProperties": false, "properties": {
+        "reference": {"type": "string", "maxLength": 20},
+        "id": {"type": "string", "maxLength": 64},
+        "kind": {"type": "string"}}},
+      "limitation": "Voice-shaped summary (outcome, counts, recommendation, limitations). No evidence boxes, no per-document facts."
+    },
+    {
+      "name": "visiontrace_list_findings",
+      "status": "EXISTS @5a1ca7d",
+      "scope": "reviews:read",
+      "inputSchema": {"type": "object", "additionalProperties": false, "properties": {
+        "reference": {"type": "string", "maxLength": 20},
+        "id": {"type": "string", "maxLength": 64},
+        "kind": {"type": "string"},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 20}}},
+      "limitation": "Open ledger items of one run (review/insufficient), voice-shaped; no stable finding keys, no lifecycle status, no bbox."
+    },
+    {
+      "name": "visiontrace_open_intake",
+      "status": "EXISTS @5a1ca7d",
+      "scope": "intake:write",
+      "write": true,
+      "inputSchema": {"type": "object", "additionalProperties": false,
+        "required": ["request_id", "workflow", "applicant_phone", "consent_to_contact"],
+        "properties": {
+          "request_id": {"type": "string", "minLength": 8, "maxLength": 64},
+          "workflow": {"type": "string", "enum": ["fire", "protected_spaces"]},
+          "applicant_phone": {"type": "string", "maxLength": 20},
+          "consent_to_contact": {"type": "boolean"},
+          "applicant_name": {"type": "string", "maxLength": 80},
+          "project_label": {"type": "string", "maxLength": 120}}},
+      "known_issue": "ENUM DRIFT: the tool schema allows only fire | protected_spaces while services/intakes/contracts.py WORKFLOWS also has unemployment_documents (and the CONTRACT documents it). Fix: build the enum from contracts.WORKFLOWS (F T-23).",
+      "mortgage_use": "Not recommended for mortgage: it carries the applicant's phone number in tool arguments and is worded for drawings. Mortgage supplements use touch_upload via MCS, or the proposed case-bound visiontrace_request_supplement_link."
+    },
+    {
+      "name": "visiontrace_intake_status",
+      "status": "EXISTS @5a1ca7d",
+      "scope": "intake:read",
+      "inputSchema": {"type": "object", "additionalProperties": false, "required": ["intake_id"],
+        "properties": {"intake_id": {"type": "string", "maxLength": 40}}},
+      "mortgage_use": "Only for intakes opened by the same key."
+    }
+  ],
+  "case_binding": {
+    "status": "TO BUILD",
+    "why": "Customer-facing agents (Tefahot Touch chat / voice) must only ever see ONE case. The existing read tools are workspace-wide.",
+    "mechanism": "The MCS mints a short-lived case token per conversation and presents it as the bearer credential. VisionTrace verifies it and ignores any case identifier in tool arguments that does not match the token (error case_scope_violation).",
+    "token": {
+      "format": "JWS (ES256) signed by the MCS; VisionTrace holds the MCS public key",
+      "claims": {
+        "iss": "mcs",
+        "aud": "visiontrace-mcp",
+        "sub": "party id (e.g. BRW-B) or banker:<id>",
+        "rc": "review_case_id",
+        "ten": "tenant_id",
+        "audience": "customer | banker",
+        "scp": "space-separated tool scopes",
+        "exp": "≤ 60 minutes after iat",
+        "jti": "unique; replay-checked"
+      }
+    },
+    "customer_audience_rules": [
+      "Only findings whose party_id is the token's sub, or case-level findings with review_state CUSTOMER_ACTION_REQUIRED.",
+      "message_customer_he only — never message_internal_he, never evidence boxes, never full ID numbers, never another party's values.",
+      "Banker findings appear only as a count with the fixed sentence 'הנושא הועבר לבדיקה של מומחה המשכנתאות'."
+    ]
+  },
+  "proposed_tools": [
+    {
+      "name": "visiontrace_get_case_readiness",
+      "status": "TO BUILD",
+      "scope": "mortgage.case:read",
+      "audience": ["customer", "banker"],
+      "write": false,
+      "description": "Use when the customer or banker asks where the document check stands: the readiness status of this case, how many items need the customer, how many are with the banker, and the next customer actions. Documentary readiness only — never an approval.",
+      "inputSchema": {"type": "object", "additionalProperties": false, "properties": {}},
+      "outputSchema": {"type": "object", "additionalProperties": false,
+        "required": ["readiness_status", "open_counts", "spoken", "notice"],
+        "properties": {
+          "readiness_status": {"type": "string", "enum": ["NOT_STARTED", "IN_PROGRESS", "ACTION_REQUIRED", "HUMAN_REVIEW_REQUIRED", "READY_FOR_HUMAN_REVIEW"]},
+          "open_counts": {"type": "object", "properties": {"customer": {"type": "integer"}, "banker": {"type": "integer"}, "info": {"type": "integer"}}},
+          "next_customer_actions_he": {"type": "array", "maxItems": 5, "items": {"type": "string", "maxLength": 200}},
+          "last_checked_at": {"type": "string", "format": "date-time"},
+          "spoken": {"type": "string", "maxLength": 400},
+          "notice": {"type": "string"}}},
+      "example_output": {"readiness_status": "ACTION_REQUIRED", "open_counts": {"customer": 2, "banker": 1, "info": 1},
+        "next_customer_actions_he": ["להעלות את תלוש השכר של עידו לספטמבר 2026"],
+        "last_checked_at": "2026-10-12T09:41:07Z",
+        "spoken": "חסר עוד מסמך אחד: תלוש השכר של עידו לספטמבר 2026. נושא נוסף הועבר לבדיקה של מומחה המשכנתאות.",
+        "notice": "VisionTrace screens and cites; it never approves or rejects — a person decides."}
+    },
+    {
+      "name": "visiontrace_list_case_findings",
+      "status": "TO BUILD",
+      "scope": "mortgage.case:read",
+      "audience": ["customer", "banker"],
+      "write": false,
+      "description": "Use when asked what is missing or what needs attention in this case. Returns stable finding keys with their lifecycle status. The customer audience gets only customer-safe messages.",
+      "inputSchema": {"type": "object", "additionalProperties": false, "properties": {
+        "status": {"type": "string", "enum": ["OPEN", "RESOLVED", "ALL"], "default": "OPEN"},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 20, "default": 10}}},
+      "outputSchema": {"type": "object", "additionalProperties": false, "required": ["items", "spoken", "notice"],
+        "properties": {
+          "items": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+            "required": ["key", "status", "review_state", "title_he"],
+            "properties": {
+              "key": {"type": "string"},
+              "status": {"type": "string"},
+              "review_state": {"type": "string"},
+              "severity": {"type": "string"},
+              "title_he": {"type": "string", "maxLength": 120},
+              "message_he": {"type": "string", "maxLength": 400, "description": "customer audience: message_customer_he; banker audience: message_internal_he"},
+              "requested_items": {"type": "array", "items": {"type": "string"}},
+              "evidence_ids": {"type": "array", "items": {"type": "string"}, "description": "banker audience only"}}}},
+          "truncated": {"type": "boolean"},
+          "spoken": {"type": "string", "maxLength": 600},
+          "notice": {"type": "string"}}}
+    },
+    {
+      "name": "visiontrace_get_finding_evidence",
+      "status": "TO BUILD",
+      "scope": "mortgage.case:read",
+      "audience": ["banker"],
+      "write": false,
+      "description": "Use when a banker asks to see where a finding comes from: the cited evidence items with page, box and a short-lived snippet link. Never available to the customer audience.",
+      "inputSchema": {"type": "object", "additionalProperties": false, "required": ["finding_key"],
+        "properties": {"finding_key": {"type": "string", "maxLength": 120}}},
+      "outputSchema": {"type": "object", "required": ["finding_key", "evidence"],
+        "properties": {
+          "finding_key": {"type": "string"},
+          "evidence": {"type": "array", "maxItems": 10, "items": {"$ref": "../schemas/mortgage-review.v1.schema.json#/$defs/EvidenceItem"}}}}
+    },
+    {
+      "name": "visiontrace_record_customer_statement",
+      "status": "TO BUILD",
+      "scope": "mortgage.statements:write",
+      "audience": ["customer"],
+      "write": true,
+      "description": "Use when the customer explains an open finding in their own words. Saves the explanation as an unverified claim attached to the finding; it is shown to the banker and considered in the next check, but it never resolves the finding by itself. Read the text back to the customer and get confirmation before calling.",
+      "inputSchema": {"type": "object", "additionalProperties": false,
+        "required": ["request_id", "finding_key", "text", "transcript_provenance"],
+        "properties": {
+          "request_id": {"type": "string", "minLength": 8, "maxLength": 64},
+          "finding_key": {"type": "string", "maxLength": 120},
+          "text": {"type": "string", "minLength": 3, "maxLength": 1000},
+          "transcript_provenance": {"type": "string", "enum": ["typed", "speech_recognized", "speech_confirmed_by_user"]}}},
+      "outputSchema": {"type": "object", "required": ["statement_id", "evidentiary_status", "spoken"],
+        "properties": {
+          "statement_id": {"type": "string"},
+          "evidentiary_status": {"type": "string", "const": "UNVERIFIED_CLAIM"},
+          "spoken": {"type": "string", "maxLength": 300}}},
+      "example_spoken": "רשמתי את ההסבר שלך והוא יוצג למומחה המשכנתאות. כדי לבדוק את הבונוס נצטרך מסמך שמראה אותו — למשל תלוש שבו מופיע הרכיב."
+    },
+    {
+      "name": "visiontrace_request_supplement_link",
+      "status": "TO BUILD",
+      "scope": "intake:write",
+      "audience": ["customer", "banker"],
+      "write": true,
+      "description": "Use only when the customer cannot upload in Tefahot Touch and asks for a secure upload link for the items this case is missing. Issues one one-time link (30 minutes) bound to this case and to the requested items. Starts no review and contacts no one. Confirm with the person before calling.",
+      "inputSchema": {"type": "object", "additionalProperties": false, "required": ["request_id", "finding_keys", "recipient_ref", "consent_to_upload"],
+        "properties": {
+          "request_id": {"type": "string", "minLength": 8, "maxLength": 64},
+          "finding_keys": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"type": "string", "maxLength": 120}},
+          "recipient_ref": {"type": "string", "maxLength": 64, "description": "Opaque MCS recipient id; VisionTrace resolves the destination through the approved-contact mechanism (services/intakes/contact.py). Never a phone number in tool arguments."},
+          "consent_to_upload": {"type": "boolean", "description": "The customer agreed to the mortgage-document upload consent text (Q-34)."}}},
+      "outputSchema": {"type": "object", "required": ["supplement_id", "link", "expires_at", "spoken"],
+        "properties": {
+          "supplement_id": {"type": "string"},
+          "link": {"type": "string", "format": "uri"},
+          "expires_at": {"type": "string", "format": "date-time"},
+          "requested_items": {"type": "array", "items": {"type": "string"}},
+          "spoken": {"type": "string", "maxLength": 300}}}
+    }
+  ],
+  "not_exposed_over_mcp": [
+    "Banker decisions (confirm_documentary_readiness, waive_finding, dismiss_finding_false_positive, confirm_resolution, reopen_finding) — REST only, from the bank's banker UI, bound to the current run.",
+    "Starting runs and submitting documents — REST only (MCS).",
+    "Raw extracted facts with ID numbers — REST result only, banker audience."
+  ]
+}

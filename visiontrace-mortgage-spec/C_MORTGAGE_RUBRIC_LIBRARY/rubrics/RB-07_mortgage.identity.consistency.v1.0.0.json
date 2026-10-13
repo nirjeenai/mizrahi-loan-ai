@@ -1,0 +1,101 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.identity.consistency",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "עקביות זהות הלווים בכל מסמכי התיק",
+  "name_en": "Borrower identity consistency across the case",
+  "description": "Case-level. Builds an identity matrix (party × document × printed id/name) over every reviewed document and checks: one person per party; no document of a person outside the case; consistent names; account holders and parties to the purchase agreement map to case parties. Cross-case reuse of the same file is flagged without exposing the other case.",
+  "scope": "case",
+  "document_category": "all",
+  "applies_to": {"doc_types": ["payslip", "bank_statement", "loan_balance_report", "id_card", "purchase_agreement", "land_registry_extract", "life_insurance_policy", "*"], "requirement_codes": ["*"], "party_roles": ["borrower", "co_borrower", "guarantor", "seller"], "employment_types": ["*"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "רובריקות המסמך הסתיימו; לכל מסמך party_binding.", "on_unmet": "המתנה."}],
+  "required_fields": ["employee_id", "employee_name", "account_holders", "buyers", "sellers", "insured_persons"],
+  "decisive_fields": ["employee_id"],
+  "policy_parameters": [
+    {"name": "cross_case_hash_index", "value": "tenant_scoped", "status": "ENGINEERING_DEFAULT", "note_he": "אינדקס sha256 ברמת הדייר בלבד; התשובה היא 'נראה בתיק אחר' בלי מזהה התיק. נדרש אישור פרטיות של הבנק לפני הפעלה."}
+  ],
+  "evidence_policy": {
+    "verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"],
+    "decisive_fields_must_be_verified": true,
+    "citation_rule_he": "כל שורה במטריצה מצטטת את מזהה/שם האדם במסמך. ממצא חוצה־תיק אינו מצטט דבר מהתיק האחר.",
+    "pages_in_scope": "n/a"
+  },
+  "allowed_inference_he": ["לקבוע ששני מסמכים מדפיסים אותו מספר זהות.", "לקבוע שאדם במסמך אינו אף אחד מצדדי התיק (לפי מספר זהות מאומת)."],
+  "prohibited_inference_he": ["לחשוף ללקוח או לסוכן שיחה פרטי צד אחר או תיק אחר.", "להסיק קשר משפחתי או מצב משפחתי ממסמכים שאינם מסמכי זיהוי.", "לקבוע הונאה."],
+  "missing_data_treatment": {"absent": "מסמך ללא מזהה אדם → לא משתתף במטריצה (מופיע כ'לא ניתן לשייך').", "illegible": "כנ״ל, עם escalation לפי רובריקת המסמך.", "ambiguous": "מסמך עם כמה מזהים (חשבון משותף, חוזה עם כמה קונים) → כל המזהים נבדקים מול רשימת הצדדים.", "unverified": "מזהה לא מאומת אינו מוכיח עקביות ואינו מוכיח סתירה."},
+  "criteria": [
+    {
+      "id": "IDN-CON-01", "title_he": "צד אחד = אדם אחד בכל המסמכים", "title_en": "One person per party",
+      "dimension": "identity_binding", "method": "deterministic", "severity": "blocking",
+      "inputs": ["identity matrix"],
+      "deterministic_logic": "for each party: ids := {digits(id).zfill(9) of verified ids on documents bound to the party}. |ids| ≤ 1 and (ids == ∅ or ids == {party.national_id}) → PASS. |ids| > 1 → FAIL(IDENTITY_INCONSISTENT_ACROSS_DOCUMENTS) listing each (document, id) — VisionTrace unemployment one_employee semantics.",
+      "pass_when": "כל המסמכים של הצד מדפיסים את אותו מספר זהות — של הצד.", "fail_when": "מסמכים של אותו צד מדפיסים מספרי זהות שונים.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "אף מסמך לא מדפיס מזהה מאומת.",
+      "reason_code": "IDENTITY_INCONSISTENT_ACROSS_DOCUMENTS", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "IDENTITY_INCONSISTENT_ACROSS_DOCUMENTS", "key_template": "IDENTITY_INCONSISTENT_ACROSS_DOCUMENTS:{party_id}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "מסמכי {party_id} מדפיסים מזהים שונים: {pairs}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION", "source_refs": ["VT-CODE:backend/app/services/unemployment/checks.py#one_employee"]
+    },
+    {
+      "id": "IDN-CON-02", "title_he": "אין מסמך של אדם שאינו בתיק", "title_en": "No document of a person outside the case",
+      "dimension": "identity_binding", "method": "deterministic", "severity": "major",
+      "inputs": ["identity matrix", "case.parties"],
+      "deterministic_logic": "for every verified person id printed as the SUBJECT of a document (employee, account holder, insured, buyer, borrower on a loan report): id ∉ {party ids} → FAIL(PARTY_NOT_IN_CASE). Sellers/owners on property documents are compared to seller parties, not borrowers.",
+      "pass_when": "כל נושאי המסמכים הם צדדים בתיק.", "fail_when": "מסמך שנושאו אדם שאינו בתיק.",
+      "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "PARTY_NOT_IN_CASE", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "PARTY_NOT_IN_CASE", "key_template": "PARTY_NOT_IN_CASE:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED",
+                  "customer_message_he": "המסמך {filename} אינו של אחד הלווים בבקשה. אפשר לבדוק שהקובץ הנכון הועלה.",
+                  "internal_message_he": "נושא המסמך אינו צד בתיק (מזהה מוסתר בלוגים: {masked_id}).", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "IDN-CON-03", "title_he": "שמות עקביים (וריאציות מוכרות בלבד)", "title_en": "Names consistent across documents",
+      "dimension": "identity_binding", "method": "hybrid", "severity": "minor",
+      "inputs": ["identity matrix names"],
+      "deterministic_logic": "for each party: pairwise name_relation over printed names on bound documents. all same/variant → PASS. any different with equal ids → JUDGE (transliteration, maiden name) → PASS or NEEDS_REVIEW.",
+      "judge_instructions": "PASS only for recognisable variants of one person's name; otherwise NEEDS_REVIEW.",
+      "pass_when": "כל השמות זהים או וריאציות.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "שם שונה עם אותו מזהה ואין וריאציה מוכרת.", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "IDENTITY_UNRESOLVED", "on_fail": "NEEDS_REVIEW", "finding": null,
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "IDN-CON-04", "title_he": "המעסיק עקבי בין תלושי אותו צד", "title_en": "Employer consistent across a party's payslips",
+      "dimension": "cross_document_consistency", "method": "deterministic", "severity": "minor",
+      "inputs": ["payslips.employer_name", "payslips.employer_id"],
+      "deterministic_logic": "distinct normalized employer ids (or names when no id) across the party's counted payslips: 1 → PASS; >1 → NEEDS_REVIEW(EMPLOYER_CHANGED_WITHIN_WINDOW) — a job change inside the window is a banker question.",
+      "pass_when": "מעסיק אחד לאורך החלון.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "יותר ממעסיק אחד בחלון.", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "EMPLOYER_CHANGED_WITHIN_WINDOW", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "EMPLOYER_CHANGED_WITHIN_WINDOW", "key_template": "EMPLOYER_CHANGED_WITHIN_WINDOW:{party_id}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "בתלושי {party_id} בחלון מופיעים מעסיקים: {employers}.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "IDN-CON-05", "title_he": "אותו קובץ לא הוגש בתיק אחר (מותנה אישור פרטיות)", "title_en": "Same file not seen in another case (privacy-gated)",
+      "dimension": "security", "method": "deterministic", "severity": "major",
+      "inputs": ["document.sha256", "tenant hash index"],
+      "deterministic_logic": "policy off → NOT_APPLICABLE. sha256 present in another case of the same tenant → NEEDS_REVIEW(CROSS_CASE_DOCUMENT_SUSPECTED) — the finding carries no reference to the other case; the banker queries through bank tools.",
+      "pass_when": "הקובץ אינו קיים בתיק אחר.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "אותו hash נמצא בתיק אחר.", "insufficient_evidence_when": "לא רלוונטי.",
+      "not_applicable_when": "האינדקס כבוי (ברירת מחדל עד אישור פרטיות).",
+      "reason_code": "CROSS_CASE_DOCUMENT_SUSPECTED", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "CROSS_CASE_DOCUMENT_SUSPECTED", "key_template": "CROSS_CASE_DOCUMENT_SUSPECTED:{document_id}", "review_state": "BANKER_REVIEW_REQUIRED", "customer_message_he": null,
+                  "internal_message_he": "קובץ זהה הוגש בתיק אחר אצל אותו דייר. פרטי התיק האחר אינם מוצגים.", "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    }
+  ],
+  "verdict_policy": {"rules_he": ["רובריקת תיק; ממצאיה BANKER_REVIEW_REQUIRED."], "set_status_rules_he": ["IDN-CON-01 FAIL → readiness לכל היותר HUMAN_REVIEW_REQUIRED."]},
+  "cross_document_dependencies": [{"rubric_or_doc": "all document rubrics", "relation_he": "party_binding ומזהים מאומתים."}],
+  "examples": [
+    {"label": "valid", "situation_he": "כל תלושי עידו מדפיסים 039812457; כל תלושי נועה 204376815.", "expected": {"IDN-CON-01": "PASS", "IDN-CON-02": "PASS"}},
+    {"label": "invalid", "situation_he": "דף חשבון שהועלה לעידו רשום על שם אדם שלישי (מזהה שאינו בתיק).", "expected": {"IDN-CON-02": "FAIL", "finding": "PARTY_NOT_IN_CASE:{doc}", "review_state": "BANKER_REVIEW_REQUIRED"}},
+    {"label": "uncertain", "situation_he": "אוגוסט: מעסיק 'גלי טכנולוגיות בע״מ'; ספטמבר: מעסיק אחר.", "expected": {"IDN-CON-04": "NEEDS_REVIEW (EMPLOYER_CHANGED_WITHIN_WINDOW)"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/CriterionOutcome"},
+  "source_refs": ["VT-CODE:backend/app/services/unemployment/checks.py#one_employee"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

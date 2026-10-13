@@ -1,0 +1,49 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.insurance.property_policy",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "P1",
+  "name_he": "פוליסת ביטוח נכס (מבנה) — עמידה בדרישות הבנק",
+  "name_en": "Property (structure) insurance policy conformity",
+  "description": "Checks a property policy against Mizrahi-Tefahot's published clauses (lien clause with branch number and address, bank as irrevocable beneficiary, 30-day cancellation notice, earthquake clause) and the sum rule: reinstatement value is recommended, but partial 'insurance by balance' is allowed with a floor, and Directive 451 limits what the bank may require. External policies are acceptable by law.",
+  "scope": "document",
+  "document_category": "property_insurance_policy",
+  "applies_to": {"doc_types": ["property_insurance_policy"], "requirement_codes": ["INS.PROPERTY"], "party_roles": ["borrower", "co_borrower"], "employment_types": ["*"], "transaction_types": ["second_hand_purchase", "refinance", "any_purpose", "new_construction_purchase"]},
+  "preconditions": [
+    {"id": "PRE-01", "text_he": "פטור (MZ-07 §9): יתרת כל ההלוואות בשעבוד הנכס ≤ 30,000 ₪; שווי הקרקע ≥ היתרה; הלוואות מענק/עומדות בלבד; סיוע מוגדל לעולי אתיופיה בלבד. רכישה מקבלן — החובה רק ממועד המסירה; עד אז התחייבות להמציא פוליסה (MZ-06, MZ-07).", "on_unmet": "הרובריקה רצה."},
+    {"id": "PRE-02", "text_he": "לבדיקת הסכום נדרשים: ערך הכינון מהשמאות, שווי הקרקע מהשמאות, ויתרת ההלוואות המובטחות (MCS).", "on_unmet": "INSP-SUM-01 INSUFFICIENT_EVIDENCE."}
+  ],
+  "required_fields": ["insurer", "policy_number", "insured_property", "sum_insured_structure", "policy_period", "beneficiary", "pledge_clause"],
+  "decisive_fields": ["insured_property", "sum_insured_structure", "beneficiary", "pledge_clause"],
+  "field_lexicon": {"title": ["ביטוח מבנה", "ביטוח דירה", "ביטוח נכס", "פוליסת ביטוח מבנה"], "earthquake": ["רעידת אדמה", "רעש אדמה"], "reinstatement": ["ערך כינון", "סכום ביטוח המבנה"]},
+  "policy_parameters": [
+    {"name": "recommended_sum", "value": "reinstatement_value_from_appraisal", "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "MZ-05"},
+    {"name": "partial_floor_formula", "value": "balance_secured - land_value + up_to_20pct", "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "MZ-07", "note_he": "'בסכום שלא יפחת מהיתרה המשוערכת של כל ההלוואות המובטחות בשעבוד אותו הנכס, בניכוי ערך הקרקע… בתוספת עד 20%'. האם '20%' הוא תוספת חובה או תקרה — לא חד־משמעי → NEEDS_REVIEW בתחום."},
+    {"name": "bank_may_not_require_above_balance", "value": true, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "BOI-451", "note_he": "R2 C17 — פרשנות משפטית נדרשת לאינטראקציה עם ערך כינון."},
+    {"name": "cancellation_notice_days", "value": 30, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "MZ-05"}
+  ],
+  "evidence_policy": {"verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"], "decisive_fields_must_be_verified": true, "citation_rule_he": "כל תנאי מצטט את סעיפו; הנכס המבוטח מצוטט עם כתובת/גוש/חלקה.", "pages_in_scope": "all"},
+  "allowed_inference_he": ["לזהות סעיפי שעבוד/מוטב/ביטול/רעידת אדמה.", "לחשב את רצפת 'ביטוח לפי יתרה' מנתונים מאומתים (שמאות + MCS) ולהציג את החישוב."],
+  "prohibited_inference_he": ["להעריך ערך כינון או שווי קרקע בעצמו.", "להמליץ על מבטח.", "לפסול פוליסה חיצונית."],
+  "missing_data_treatment": {"absent": "אין סעיף רעידת אדמה → INSP-EQK-01 FAIL (MZ-07 מציין שהבנק רשאי לדרוש).", "illegible": "→ INSUFFICIENT_EVIDENCE.", "ambiguous": "סכום מבנה מול סכום תכולה — רק מבנה נספר.", "unverified": "→ NEEDS_REVIEW."},
+  "criteria": [
+    {"id": "INSP-CLS-01", "title_he": "המסמך הוא פוליסת ביטוח מבנה", "dimension": "classification", "method": "hybrid", "severity": "blocking", "deterministic_logic": "title + structure sum + property → PASS; contents-only policy → FAIL; life policy → FAIL.", "pass_when": "פוליסת מבנה.", "fail_when": "תכולה בלבד / חיים / אחר.", "needs_review_when": "פוליסה משולבת שלא ברור בה סכום המבנה.", "insufficient_evidence_when": "לא נקרא.", "reason_code": "UNEXPECTED_DOCUMENT_TYPE", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "INSP-PRP-01", "title_he": "הנכס המבוטח הוא הנכס המשועבד", "dimension": "cross_document_consistency", "method": "deterministic", "severity": "blocking", "deterministic_logic": "address and/or gush/helka/tat_helka vs agreement/registry/MCS (normalised). equal → PASS; different → FAIL; only partial address → NEEDS_REVIEW.", "pass_when": "זיהוי הנכס זהה.", "fail_when": "נכס אחר.", "needs_review_when": "זיהוי חלקי.", "insufficient_evidence_when": "אין מקור נוסף לזיהוי הנכס.", "reason_code": "INSURED_PROPERTY_MISMATCH", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "PROPOSED_VALIDATION"},
+    {"id": "INSP-SUM-01", "title_he": "סכום ביטוח המבנה עומד בכלל הבנק", "dimension": "completeness", "method": "deterministic", "severity": "major", "deterministic_logic": "R := reinstatement value (appraisal); F := balance_secured − land_value (appraisal). sum ≥ R → PASS. F ≤ sum < R → PASS + INFO PARTIAL_PROPERTY_INSURANCE ('הבנק אינו ממליץ על ביטוח חלקי', MZ-07). F < sum ≤ F×1.2 boundary ambiguity → NEEDS_REVIEW. sum < F → FAIL. inputs missing → INSUFFICIENT_EVIDENCE.", "pass_when": "≥ ערך כינון, או ≥ רצפת ביטוח לפי יתרה.", "fail_when": "נמוך מרצפת ביטוח לפי יתרה.", "needs_review_when": "בתחום העמימות של תוספת 20%.", "insufficient_evidence_when": "אין שמאות/יתרה.", "reason_code": "PROPERTY_INSURANCE_BELOW_REQUIRED", "on_fail": "NEEDS_REVIEW", "finding": {"code": "PROPERTY_INSURANCE_BELOW_REQUIRED", "key_template": "PROPERTY_INSURANCE_BELOW_REQUIRED:{document_id}", "review_state": "CUSTOMER_ACTION_REQUIRED", "customer_message_he": "סכום ביטוח המבנה ({sum} ₪) נמוך מהנדרש. מומלץ ביטוח בגובה ערך הכינון שקבע השמאי ({reinstatement} ₪).", "internal_message_he": "{computation}.", "requested_item_template": "property_insurance_policy"}, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05", "MZ-07", "BOI-451"]},
+    {"id": "INSP-BEN-01", "title_he": "הבנק מוטב בלתי חוזר", "dimension": "completeness", "method": "hybrid", "severity": "blocking", "deterministic_logic": "as INSL-BEN-01.", "pass_when": "כן.", "fail_when": "לא.", "needs_review_when": "עמום.", "insufficient_evidence_when": "לא קריא.", "citations_required": ["beneficiary"], "reason_code": "INSURANCE_BENEFICIARY_NOT_BANK", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "INSP-PLG-01", "title_he": "סעיף שעבוד לטובת מזרחי־טפחות עם מספר וכתובת סניף", "dimension": "completeness", "method": "hybrid", "severity": "major", "deterministic_logic": "as INSL-PLG-01.", "pass_when": "כן.", "fail_when": "אין סעיף.", "needs_review_when": "פרטי סניף חסרים.", "insufficient_evidence_when": "סניף לא סופק.", "reason_code": "INSURANCE_PLEDGE_CLAUSE_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "INSP-CAN-01", "title_he": "הודעה מוקדמת של 30 יום לפני ביטול", "dimension": "completeness", "method": "hybrid", "severity": "major", "deterministic_logic": "as INSL-CAN-01.", "pass_when": "≥ 30 יום.", "fail_when": "אין/פחות.", "needs_review_when": "עמום.", "insufficient_evidence_when": "לא קריא.", "reason_code": "CANCELLATION_NOTICE_CLAUSE_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "INSP-EQK-01", "title_he": "כיסוי רעידת אדמה", "dimension": "completeness", "method": "hybrid", "severity": "minor", "deterministic_logic": "earthquake lexicon in coverage section → PASS; explicit exclusion → FAIL; absent → JUDGE → NEEDS_REVIEW.", "pass_when": "כיסוי רעידת אדמה קיים.", "fail_when": "החרגת רעידת אדמה.", "needs_review_when": "לא מוזכר.", "insufficient_evidence_when": "לא קריא.", "reason_code": "EARTHQUAKE_CLAUSE_MISSING", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-07"]}
+  ],
+  "verdict_policy": {"rules_he": ["INSP-CLS-01/INSP-PRP-01 FAIL → INVALID.", "אחרים → NEEDS_REVIEW.", "ההודעה הרשמית (14 יום) — פעולת בנק."], "precedence": ["UNSUPPORTED", "UNREADABLE", "INVALID", "NEEDS_REVIEW", "VALID"]},
+  "cross_document_dependencies": [{"rubric_or_doc": "appraisal_report", "relation_he": "ערך כינון ושווי קרקע."}, {"rubric_or_doc": "mortgage.purchase_agreement.extraction_consistency", "relation_he": "זיהוי הנכס."}],
+  "examples": [
+    {"label": "valid", "situation_he": "פוליסה למבנה בחיפה בסכום ערך הכינון מהשמאות (780,000 ₪) עם כל הסעיפים.", "expected": {"verdict": "VALID"}},
+    {"label": "edge", "situation_he": "סכום 600,000; ערך כינון 780,000; יתרה 1,400,000; שווי קרקע 900,000 → רצפה 500,000.", "expected": {"INSP-SUM-01": "PASS + INFO PARTIAL_PROPERTY_INSURANCE"}},
+    {"label": "invalid", "situation_he": "פוליסת תכולה בלבד.", "expected": {"INSP-CLS-01": "FAIL", "verdict": "INVALID"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/DocumentReview"},
+  "source_refs": ["MZ-05", "MZ-06", "MZ-07", "BOI-451"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

@@ -1,0 +1,1048 @@
+{
+  "package_id": "pkg_2026_10_12_001",
+  "schema_version": "mortgage-review/1",
+  "case_ref": "DEMO-MTZ-2026-001",
+  "review_case_id": "rc_7k2m9q4x1d",
+  "review_run_id": "b7d204e9c1",
+  "generated_at": "2026-10-12T08:43:10Z",
+  "case_summary": {
+    "headline_he": "מסמכי השכר של שני הלווים הושלמו; ממצא אחד פתוח לבדיקת בנקאי (פער הכנסה — נועה).",
+    "transaction_he": "רכישת דירה יד שנייה, חיפה; מחיר מוצהר 2,000,000 ₪; הלוואה מבוקשת 1,400,000 ₪; אחרי אישור עקרוני (נתוני mock).",
+    "parties_he": [
+      "עידו לביא — לווה, שכיר",
+      "נועה לביא — לווה, שכירה"
+    ],
+    "readiness": {
+      "scope": [
+        "INC.PAYSLIP:BRW-A",
+        "INC.PAYSLIP:BRW-B"
+      ],
+      "status": "HUMAN_REVIEW_REQUIRED",
+      "by_requirement": [
+        {
+          "requirement_code": "INC.PAYSLIP:BRW-A",
+          "status": "COMPLETE",
+          "open_finding_keys": []
+        },
+        {
+          "requirement_code": "INC.PAYSLIP:BRW-B",
+          "status": "COMPLETE",
+          "open_finding_keys": [
+            "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"
+          ]
+        }
+      ],
+      "open_counts": {
+        "customer": 0,
+        "banker": 1,
+        "info": 0
+      },
+      "not_evaluated": [
+        "FIN.BANK_STATEMENT",
+        "FIN.LOAN_BALANCE_REPORT",
+        "PRP.APPRAISAL",
+        "INS.LIFE",
+        "INS.PROPERTY",
+        "SEL.UNDERTAKING"
+      ],
+      "disclaimer_he": "מוכנות תיעודית בלבד בהיקף שנבדק (מסמכי שכר). אין זו קבלת מסמך על ידי הבנק, אין זו החלטת אשראי, ואין זו בדיקת אותנטיות. שמאות, ביטוחים, מסמכי מוכר ובטוחות, דפי חשבון ויתרות הלוואות לא נבדקו בהרצה זו."
+    },
+    "bank_stage_he": "קיבלנו החלטה (mock, לא סמכותי)"
+  },
+  "document_inventory": [
+    {
+      "document_id": "DOC-A1",
+      "version": 1,
+      "filename": "ido_payslip_2026-07.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-A",
+      "period": "2026-07",
+      "verdict": "VALID",
+      "superseded": false,
+      "viewer_url": "https://visiontrace.example.invalid/#/mortgage?run=b7d204e9c1&doc=DOC-A1"
+    },
+    {
+      "document_id": "DOC-A2",
+      "version": 1,
+      "filename": "ido_payslip_2026-08.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-A",
+      "period": "2026-08",
+      "verdict": "VALID",
+      "superseded": false,
+      "viewer_url": "https://visiontrace.example.invalid/#/mortgage?run=b7d204e9c1&doc=DOC-A2"
+    },
+    {
+      "document_id": "DOC-A3",
+      "version": 2,
+      "filename": "ido_payslip_2026-09_corrected.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-A",
+      "period": "2026-09",
+      "verdict": "VALID",
+      "superseded": false,
+      "viewer_url": "https://visiontrace.example.invalid/#/mortgage?run=b7d204e9c1&doc=DOC-A3"
+    },
+    {
+      "document_id": "DOC-B1",
+      "version": 1,
+      "filename": "noa_payslip_2026-07_scan.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-B",
+      "period": "2026-07",
+      "verdict": "VALID",
+      "superseded": false,
+      "viewer_url": "https://visiontrace.example.invalid/#/mortgage?run=b7d204e9c1&doc=DOC-B1"
+    },
+    {
+      "document_id": "DOC-B2",
+      "version": 1,
+      "filename": "noa_payslip_2026-08.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-B",
+      "period": "2026-08",
+      "verdict": "VALID",
+      "superseded": false,
+      "viewer_url": "https://visiontrace.example.invalid/#/mortgage?run=b7d204e9c1&doc=DOC-B2"
+    },
+    {
+      "document_id": "DOC-B3",
+      "version": 1,
+      "filename": "noa_payslip_2026-09.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-B",
+      "period": "2026-09",
+      "verdict": "VALID",
+      "superseded": false,
+      "viewer_url": "https://visiontrace.example.invalid/#/mortgage?run=b7d204e9c1&doc=DOC-B3"
+    },
+    {
+      "document_id": "DOC-A3",
+      "version": 1,
+      "filename": "ido_payslip_2026-09.pdf",
+      "doc_type": "payslip",
+      "party_id": "BRW-A",
+      "period": "2026-08",
+      "verdict": "VALID",
+      "superseded": true,
+      "viewer_url": null
+    }
+  ],
+  "coverage": [
+    {
+      "requirement_code": "INC.PAYSLIP:BRW-A",
+      "party_id": "BRW-A",
+      "rubric": "mortgage.income.payslip_coverage@1.0.0",
+      "required_periods": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "supplied": [
+        {
+          "period": "2026-07",
+          "document_ids": [
+            "DOC-A1"
+          ],
+          "counted_document_id": "DOC-A1"
+        },
+        {
+          "period": "2026-08",
+          "document_ids": [
+            "DOC-A2"
+          ],
+          "counted_document_id": "DOC-A2"
+        },
+        {
+          "period": "2026-09",
+          "document_ids": [
+            "DOC-A3"
+          ],
+          "counted_document_id": "DOC-A3"
+        }
+      ],
+      "missing": [],
+      "duplicates": {},
+      "extra": [],
+      "status": "COMPLETE",
+      "policy_parameters": [
+        {
+          "name": "requested_payslip_count",
+          "value": 3,
+          "status": "CONFIRMED_PUBLIC_SOURCE",
+          "source_ref": "MZ-05"
+        },
+        {
+          "name": "payday_day_of_next_month",
+          "value": 9,
+          "status": "CONFIRMED_PUBLIC_SOURCE",
+          "source_ref": "SEC-02"
+        },
+        {
+          "name": "window_anchor",
+          "value": "as_of",
+          "status": "PENDING_BANK_POLICY"
+        }
+      ],
+      "evidence_ids": [
+        "ev_b7d204e9c1_DOC-A1_v1_salary_period",
+        "ev_b7d204e9c1_DOC-A2_v1_salary_period",
+        "ev_b7d204e9c1_DOC-A3_v2_salary_period"
+      ]
+    },
+    {
+      "requirement_code": "INC.PAYSLIP:BRW-B",
+      "party_id": "BRW-B",
+      "rubric": "mortgage.income.payslip_coverage@1.0.0",
+      "required_periods": [
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "supplied": [
+        {
+          "period": "2026-07",
+          "document_ids": [
+            "DOC-B1"
+          ],
+          "counted_document_id": "DOC-B1"
+        },
+        {
+          "period": "2026-08",
+          "document_ids": [
+            "DOC-B2"
+          ],
+          "counted_document_id": "DOC-B2"
+        },
+        {
+          "period": "2026-09",
+          "document_ids": [
+            "DOC-B3"
+          ],
+          "counted_document_id": "DOC-B3"
+        }
+      ],
+      "missing": [],
+      "duplicates": {},
+      "extra": [],
+      "status": "COMPLETE",
+      "policy_parameters": [
+        {
+          "name": "requested_payslip_count",
+          "value": 3,
+          "status": "CONFIRMED_PUBLIC_SOURCE",
+          "source_ref": "MZ-05"
+        },
+        {
+          "name": "payday_day_of_next_month",
+          "value": 9,
+          "status": "CONFIRMED_PUBLIC_SOURCE",
+          "source_ref": "SEC-02"
+        },
+        {
+          "name": "window_anchor",
+          "value": "as_of",
+          "status": "PENDING_BANK_POLICY"
+        }
+      ],
+      "evidence_ids": [
+        "ev_b7d204e9c1_DOC-B1_v1_salary_period",
+        "ev_b7d204e9c1_DOC-B2_v1_salary_period",
+        "ev_b7d204e9c1_DOC-B3_v1_salary_period"
+      ]
+    }
+  ],
+  "key_values": [
+    {
+      "party_id": "BRW-A",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "period": "2026-07",
+      "value": 17000,
+      "evidence_id": "ev_b7d204e9c1_DOC-A1_v1_gross_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-A",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "period": "2026-07",
+      "value": 13200,
+      "evidence_id": "ev_b7d204e9c1_DOC-A1_v1_net_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-A",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "period": "2026-08",
+      "value": 17500,
+      "evidence_id": "ev_b7d204e9c1_DOC-A2_v1_gross_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-A",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "period": "2026-08",
+      "value": 13500,
+      "evidence_id": "ev_b7d204e9c1_DOC-A2_v1_net_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-A",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "period": "2026-09",
+      "value": 17300,
+      "evidence_id": "ev_b7d204e9c1_DOC-A3_v2_gross_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-A",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "period": "2026-09",
+      "value": 13400,
+      "evidence_id": "ev_b7d204e9c1_DOC-A3_v2_net_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-B",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "period": "2026-07",
+      "value": 22600,
+      "evidence_id": "ev_b7d204e9c1_DOC-B1_v1_gross_pay",
+      "witness": "ocr_token_match"
+    },
+    {
+      "party_id": "BRW-B",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "period": "2026-07",
+      "value": 16900,
+      "evidence_id": "ev_b7d204e9c1_DOC-B1_v1_net_pay",
+      "witness": "ocr_token_match"
+    },
+    {
+      "party_id": "BRW-B",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "period": "2026-08",
+      "value": 22600,
+      "evidence_id": "ev_b7d204e9c1_DOC-B2_v1_gross_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-B",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "period": "2026-08",
+      "value": 16900,
+      "evidence_id": "ev_b7d204e9c1_DOC-B2_v1_net_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-B",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "period": "2026-09",
+      "value": 22600,
+      "evidence_id": "ev_b7d204e9c1_DOC-B3_v1_gross_pay",
+      "witness": "text_layer_exact"
+    },
+    {
+      "party_id": "BRW-B",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "period": "2026-09",
+      "value": 16900,
+      "evidence_id": "ev_b7d204e9c1_DOC-B3_v1_net_pay",
+      "witness": "text_layer_exact"
+    }
+  ],
+  "comparisons": [
+    {
+      "comparison_id": "XD-INC-DEC:BRW-A",
+      "rule_id": "INC-DEC-02",
+      "kind": "aggregate",
+      "method_he": "ממוצע 'נטו לתשלום' בתלושים המאומתים (חודש מודפס, מסמך אחד לחודש) מול הנטו החודשי שהוצהר; השוואת נטו לנטו בלבד.",
+      "items": [
+        {
+          "concept": "net_monthly_income",
+          "label_he": "הכנסה נטו חודשית",
+          "readings": [
+            {
+              "source": "mcs:declared",
+              "value": 13500,
+              "normalized": {
+                "amount": 13500.0,
+                "currency": "ILS"
+              },
+              "counted": true,
+              "note_he": "הצהרה בבקשה (נטו חודשי) — אינה ראיה"
+            },
+            {
+              "source": "DOC-A1",
+              "value": "13,200.00",
+              "normalized": {
+                "amount": 13200.0,
+                "currency": "ILS"
+              },
+              "evidence_id": "ev_b7d204e9c1_DOC-A1_v1_net_pay",
+              "counted": true,
+              "note_he": "נטו לתשלום — יולי 2026"
+            },
+            {
+              "source": "DOC-A2",
+              "value": "13,500.00",
+              "normalized": {
+                "amount": 13500.0,
+                "currency": "ILS"
+              },
+              "evidence_id": "ev_b7d204e9c1_DOC-A2_v1_net_pay",
+              "counted": true,
+              "note_he": "נטו לתשלום — אוגוסט 2026"
+            },
+            {
+              "source": "DOC-A3",
+              "value": "13,400.00",
+              "normalized": {
+                "amount": 13400.0,
+                "currency": "ILS"
+              },
+              "evidence_id": "ev_b7d204e9c1_DOC-A3_v2_net_pay",
+              "counted": true,
+              "note_he": "נטו לתשלום — ספטמבר 2026"
+            }
+          ],
+          "outcome": "agree",
+          "explanation_he": "ממוצע מתועד 13,366.67 ₪ מול מוצהר 13,500.00 ₪ — פער -133.33 ₪ (-0.99%); סובלנות 5.0% (ברירת מחדל הנדסית, ממתינה למדיניות הבנק)."
+        }
+      ],
+      "tolerance": {
+        "name": "income_variance_tolerance_pct",
+        "value": 5.0,
+        "status": "ENGINEERING_DEFAULT"
+      },
+      "outcome": "CONSISTENT"
+    },
+    {
+      "comparison_id": "XD-INC-DEC:BRW-B",
+      "rule_id": "INC-DEC-02",
+      "kind": "aggregate",
+      "method_he": "ממוצע 'נטו לתשלום' בתלושים המאומתים (חודש מודפס, מסמך אחד לחודש) מול הנטו החודשי שהוצהר; השוואת נטו לנטו בלבד.",
+      "items": [
+        {
+          "concept": "net_monthly_income",
+          "label_he": "הכנסה נטו חודשית",
+          "readings": [
+            {
+              "source": "mcs:declared",
+              "value": 18500,
+              "normalized": {
+                "amount": 18500.0,
+                "currency": "ILS"
+              },
+              "counted": true,
+              "note_he": "הצהרה בבקשה (נטו חודשי) — אינה ראיה"
+            },
+            {
+              "source": "DOC-B1",
+              "value": "16,900.00",
+              "normalized": {
+                "amount": 16900.0,
+                "currency": "ILS"
+              },
+              "evidence_id": "ev_b7d204e9c1_DOC-B1_v1_net_pay",
+              "counted": true,
+              "note_he": "נטו לתשלום — יולי 2026"
+            },
+            {
+              "source": "DOC-B2",
+              "value": "16,900.00",
+              "normalized": {
+                "amount": 16900.0,
+                "currency": "ILS"
+              },
+              "evidence_id": "ev_b7d204e9c1_DOC-B2_v1_net_pay",
+              "counted": true,
+              "note_he": "נטו לתשלום — אוגוסט 2026"
+            },
+            {
+              "source": "DOC-B3",
+              "value": "16,900.00",
+              "normalized": {
+                "amount": 16900.0,
+                "currency": "ILS"
+              },
+              "evidence_id": "ev_b7d204e9c1_DOC-B3_v1_net_pay",
+              "counted": true,
+              "note_he": "נטו לתשלום — ספטמבר 2026"
+            }
+          ],
+          "outcome": "conflict",
+          "explanation_he": "ממוצע מתועד 16,900.00 ₪ מול מוצהר 18,500.00 ₪ — פער -1,600.00 ₪ (-8.65%); סובלנות 5.0% (ברירת מחדל הנדסית, ממתינה למדיניות הבנק)."
+        }
+      ],
+      "tolerance": {
+        "name": "income_variance_tolerance_pct",
+        "value": 5.0,
+        "status": "ENGINEERING_DEFAULT"
+      },
+      "outcome": "INCONSISTENT"
+    },
+    {
+      "comparison_id": "XD-EMP:BRW-A",
+      "rule_id": "IDN-CON-04",
+      "kind": "values",
+      "method_he": "שם המעסיק בכל תלוש מול המעסיק המוצהר (השוואת טקסט מנורמלת; בע״מ/בע\"מ שקולים).",
+      "items": [
+        {
+          "concept": "employer_name",
+          "label_he": "שם המעסיק",
+          "readings": [
+            {
+              "source": "mcs:declared",
+              "value": "אופק לוגיסטיקה בע״מ",
+              "counted": true,
+              "note_he": "מעסיק מוצהר"
+            },
+            {
+              "source": "DOC-A1",
+              "value": "אופק לוגיסטיקה בע״מ",
+              "evidence_id": "ev_b7d204e9c1_DOC-A1_v1_employer_name",
+              "counted": true
+            },
+            {
+              "source": "DOC-A2",
+              "value": "אופק לוגיסטיקה בע״מ",
+              "evidence_id": "ev_b7d204e9c1_DOC-A2_v1_employer_name",
+              "counted": true
+            },
+            {
+              "source": "DOC-A3",
+              "value": "אופק לוגיסטיקה בע״מ",
+              "evidence_id": "ev_b7d204e9c1_DOC-A3_v2_employer_name",
+              "counted": true
+            }
+          ],
+          "outcome": "agree",
+          "explanation_he": "זהה בכל המסמכים"
+        }
+      ],
+      "tolerance": null,
+      "outcome": "CONSISTENT"
+    },
+    {
+      "comparison_id": "XD-EMP:BRW-B",
+      "rule_id": "IDN-CON-04",
+      "kind": "values",
+      "method_he": "שם המעסיק בכל תלוש מול המעסיק המוצהר (השוואת טקסט מנורמלת; בע״מ/בע\"מ שקולים).",
+      "items": [
+        {
+          "concept": "employer_name",
+          "label_he": "שם המעסיק",
+          "readings": [
+            {
+              "source": "mcs:declared",
+              "value": "גלי טכנולוגיות בע״מ",
+              "counted": true,
+              "note_he": "מעסיק מוצהר"
+            },
+            {
+              "source": "DOC-B1",
+              "value": "גלי טכנולוגיות בע״מ",
+              "evidence_id": "ev_b7d204e9c1_DOC-B1_v1_employer_name",
+              "counted": true
+            },
+            {
+              "source": "DOC-B2",
+              "value": "גלי טכנולוגיות בע״מ",
+              "evidence_id": "ev_b7d204e9c1_DOC-B2_v1_employer_name",
+              "counted": true
+            },
+            {
+              "source": "DOC-B3",
+              "value": "גלי טכנולוגיות בע״מ",
+              "evidence_id": "ev_b7d204e9c1_DOC-B3_v1_employer_name",
+              "counted": true
+            }
+          ],
+          "outcome": "agree",
+          "explanation_he": "זהה בכל המסמכים"
+        }
+      ],
+      "tolerance": null,
+      "outcome": "CONSISTENT"
+    }
+  ],
+  "open_findings": [
+    {
+      "finding_id": "fnd_7u9i1o3p5a",
+      "key": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B",
+      "code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
+      "severity": "major",
+      "review_state": "BANKER_REVIEW_REQUIRED",
+      "status": "OPEN",
+      "party_id": "BRW-B",
+      "requirement_code": null,
+      "document_ids": [
+        "DOC-B1",
+        "DOC-B2",
+        "DOC-B3"
+      ],
+      "period": null,
+      "title_he": "פער בין ההכנסה המוצהרת לתלושים — נועה",
+      "message_customer_he": "נמצא הבדל בין ההכנסה שהוצהרה בבקשה לבין תלושי השכר שהועלו. הנושא הועבר לבדיקה של מומחה המשכנתאות שלך.",
+      "message_internal_he": "מוצהר נטו 18,500.00 ₪; ממוצע נטו בתלושים המאומתים (יולי–ספטמבר 2026) 16,900.00 ₪ — פער −1,600.00 ₪ (−8.65%). שלושת התלושים זהים ברכיביהם (שכר בסיס 21,500, החזר נסיעות 600, אחזקת טלפון 500); אין רכיב משתנה מודפס. הסובלנות (5%) היא ברירת מחדל הנדסית הממתינה למדיניות הבנק. הממצא אינו קובע דבר על זכאות לאשראי.",
+      "requested_items": [],
+      "detail": {
+        "declared_net": 18500,
+        "documented_avg_net": 16900.0,
+        "difference_ils": -1600.0,
+        "difference_pct": -8.65,
+        "months": [
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ],
+        "tolerance": {
+          "name": "income_variance_tolerance_pct",
+          "value": 5.0,
+          "status": "ENGINEERING_DEFAULT"
+        },
+        "semantic_assessment": "INCONSISTENT"
+      },
+      "evidence_ids": [
+        "ev_b7d204e9c1_DOC-B1_v1_net_pay",
+        "ev_b7d204e9c1_DOC-B2_v1_net_pay",
+        "ev_b7d204e9c1_DOC-B3_v1_net_pay"
+      ],
+      "criterion_refs": [
+        "INC-DEC-02",
+        "INC-DEC-03"
+      ],
+      "customer_statements": [
+        {
+          "statement_id": "stm_noa_0001",
+          "party_id": "BRW-B",
+          "finding_key": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B",
+          "text": "חלק מההכנסה שלי הוא תשלום משתנה — בונוס רבעוני שלא מופיע בתלושים האלה.",
+          "channel": "chat",
+          "transcript_provenance": "typed",
+          "created_at": "2026-10-12T08:20:07Z",
+          "evidentiary_status": "UNVERIFIED_CLAIM",
+          "assessment_he": "שלושת התלושים שהוגשו (יולי–ספטמבר 2026) מדפיסים אותם רכיבים ואין בהם רכיב בונוס או תשלום משתנה. ההסבר אינו נתמך במסמכים שהוגשו ואינו סותר אותם — נדרשת בדיקת בנקאי."
+        }
+      ],
+      "created_run_id": "a3f91c2e7b",
+      "updated_run_id": "b7d204e9c1",
+      "resolved_run_id": null,
+      "resolution": null,
+      "history": [
+        {
+          "at": "2026-10-12T08:11:31Z",
+          "run_id": "a3f91c2e7b",
+          "change": "opened",
+          "actor": "system"
+        },
+        {
+          "at": "2026-10-12T08:20:07Z",
+          "run_id": null,
+          "change": "statement_attached",
+          "actor": "customer:BRW-B",
+          "note_he": "הסבר הלקוחה צורף כטענה לא מאומתת"
+        },
+        {
+          "at": "2026-10-12T08:42:58Z",
+          "run_id": "b7d204e9c1",
+          "change": "evidence_updated",
+          "actor": "system",
+          "note_he": "נבדק מחדש; הפער נותר (−8.65%); ההסבר אינו נתמך בראיות שהוגשו"
+        }
+      ]
+    }
+  ],
+  "resolved_findings": [
+    {
+      "finding_id": "fnd_9q2w4e6r1t",
+      "key": "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+      "code": "REQUIRED_PERIOD_MISSING",
+      "severity": "blocking",
+      "review_state": "CUSTOMER_ACTION_REQUIRED",
+      "status": "RESOLVED",
+      "party_id": "BRW-A",
+      "requirement_code": "INC.PAYSLIP:BRW-A",
+      "document_ids": [],
+      "period": "2026-09",
+      "title_he": "חסר תלוש שכר לספטמבר 2026 — עידו",
+      "message_customer_he": "כדי להשלים את מסמכי השכר של עידו חסר תלוש השכר של ספטמבר 2026. אפשר להעלות אותו באזור המסמכים.",
+      "message_internal_he": "INC.PAYSLIP:BRW-A — נדרשים יולי, אוגוסט, ספטמבר 2026 (3 תלושים אחרונים לפי מדיניות פומבית S05; ספטמבר שולם עד 09.10.2026). כוסו: יולי (DOC-A1), אוגוסט (DOC-A2, DOC-A3). ספטמבר לא כוסה.",
+      "requested_items": [
+        "payslip:BRW-A:2026-09"
+      ],
+      "detail": {
+        "required": [
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ],
+        "covered": [
+          "2026-07",
+          "2026-08"
+        ]
+      },
+      "evidence_ids": [],
+      "criterion_refs": [
+        "INC-COV-01"
+      ],
+      "customer_statements": [],
+      "created_run_id": "a3f91c2e7b",
+      "updated_run_id": "b7d204e9c1",
+      "resolved_run_id": "b7d204e9c1",
+      "resolution": {
+        "basis": "NEW_EVIDENCE",
+        "note_he": "התקבל תלוש ספטמבר 2026 (DOC-A3 גרסה 2) — חודש מודפס 09/2026, אומת.",
+        "actor": "system"
+      },
+      "history": [
+        {
+          "at": "2026-10-12T08:11:31Z",
+          "run_id": "a3f91c2e7b",
+          "change": "opened",
+          "actor": "system"
+        },
+        {
+          "at": "2026-10-12T08:42:58Z",
+          "run_id": "b7d204e9c1",
+          "change": "resolved",
+          "actor": "system",
+          "note_he": "החודש החסר כוסה בבדיקה מחדש של כל סט המסמכים"
+        }
+      ]
+    },
+    {
+      "finding_id": "fnd_3e5r7t9y2u",
+      "key": "DUPLICATE_PERIOD:BRW-A:2026-08",
+      "code": "DUPLICATE_PERIOD",
+      "severity": "major",
+      "review_state": "CUSTOMER_ACTION_REQUIRED",
+      "status": "RESOLVED",
+      "party_id": "BRW-A",
+      "requirement_code": "INC.PAYSLIP:BRW-A",
+      "document_ids": [
+        "DOC-A2",
+        "DOC-A3"
+      ],
+      "period": "2026-08",
+      "title_he": "התקבלו שני תלושים לאוגוסט 2026 — עידו",
+      "message_customer_he": "התקבלו שני מסמכים של תלוש אוגוסט 2026 (אחד מהם בשם קובץ של ספטמבר). התלוש של ספטמבר עדיין חסר.",
+      "message_internal_he": "DOC-A2 ו־DOC-A3 מדפיסים תקופת שכר 08/2026, מספר מסמך זהה SAL-ido-2026-08 וסכומים זהים (ברוטו 17,500.00, נטו 13,500.00). DOC-A3 מסומן 'העתק — הופק מחדש' (תאריך הפקה 15.09.2026) ושמו מציין ספטמבר. סיווג: עותק שהופק מחדש של אותו תלוש — לא תוכן סותר. נספר פעם אחת.",
+      "requested_items": [],
+      "detail": {
+        "duplicate_kind": "reissued_copy_same_content",
+        "same_document_number": true,
+        "same_amounts": true,
+        "copies": 2
+      },
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A2_v1_salary_period",
+        "ev_a3f91c2e7b_DOC-A3_v1_salary_period",
+        "ev_a3f91c2e7b_DOC-A2_v1_document_number",
+        "ev_a3f91c2e7b_DOC-A3_v1_document_number"
+      ],
+      "criterion_refs": [
+        "PSL-DUP-02",
+        "PSL-DUP-03"
+      ],
+      "customer_statements": [],
+      "created_run_id": "a3f91c2e7b",
+      "updated_run_id": "b7d204e9c1",
+      "resolved_run_id": "b7d204e9c1",
+      "resolution": {
+        "basis": "DOCUMENT_WITHDRAWN",
+        "note_he": "העותק הכפול (DOC-A3 גרסה 1) הוחלף בגרסה חדשה; הגרסה הקודמת נשמרת לתיעוד בלבד.",
+        "actor": "system"
+      },
+      "history": [
+        {
+          "at": "2026-10-12T08:11:31Z",
+          "run_id": "a3f91c2e7b",
+          "change": "opened",
+          "actor": "system"
+        },
+        {
+          "at": "2026-10-12T08:42:58Z",
+          "run_id": "b7d204e9c1",
+          "change": "resolved",
+          "actor": "system"
+        }
+      ]
+    },
+    {
+      "finding_id": "fnd_5t7y9u1i3o",
+      "key": "FILE_NAME_PERIOD_MISMATCH:DOC-A3",
+      "code": "FILE_NAME_PERIOD_MISMATCH",
+      "severity": "info",
+      "review_state": "INFO",
+      "status": "RESOLVED",
+      "party_id": "BRW-A",
+      "requirement_code": null,
+      "document_ids": [
+        "DOC-A3"
+      ],
+      "period": "2026-08",
+      "title_he": "שם הקובץ אינו תואם את החודש המודפס",
+      "message_customer_he": "שם הקובץ ido_payslip_2026-09.pdf מציין את ספטמבר 2026, אך במסמך עצמו מודפס אוגוסט 2026.",
+      "message_internal_he": "ido_payslip_2026-09.pdf — שם הקובץ מציין 2026-09; המסמך מדפיס 08/2026. הבדיקה מסתמכת על החודש המודפס.",
+      "requested_items": [],
+      "detail": {
+        "file_name_claims": "2026-09",
+        "document_prints": "2026-08"
+      },
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_salary_period"
+      ],
+      "criterion_refs": [
+        "PSL-PER-02"
+      ],
+      "customer_statements": [],
+      "created_run_id": "a3f91c2e7b",
+      "updated_run_id": "b7d204e9c1",
+      "resolved_run_id": "b7d204e9c1",
+      "resolution": {
+        "basis": "DOCUMENT_WITHDRAWN",
+        "note_he": "גרסה 2 של DOC-A3: שם הקובץ והחודש המודפס תואמים (09/2026).",
+        "actor": "system"
+      },
+      "history": [
+        {
+          "at": "2026-10-12T08:11:31Z",
+          "run_id": "a3f91c2e7b",
+          "change": "opened",
+          "actor": "system"
+        },
+        {
+          "at": "2026-10-12T08:42:58Z",
+          "run_id": "b7d204e9c1",
+          "change": "resolved",
+          "actor": "system"
+        }
+      ]
+    }
+  ],
+  "customer_statements": [
+    {
+      "statement_id": "stm_noa_0001",
+      "party_id": "BRW-B",
+      "finding_key": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B",
+      "text": "חלק מההכנסה שלי הוא תשלום משתנה — בונוס רבעוני שלא מופיע בתלושים האלה.",
+      "channel": "chat",
+      "transcript_provenance": "typed",
+      "created_at": "2026-10-12T08:20:07Z",
+      "evidentiary_status": "UNVERIFIED_CLAIM",
+      "assessment_he": "שלושת התלושים שהוגשו (יולי–ספטמבר 2026) מדפיסים אותם רכיבים ואין בהם רכיב בונוס או תשלום משתנה. ההסבר אינו נתמך במסמכים שהוגשו ואינו סותר אותם — נדרשת בדיקת בנקאי."
+    }
+  ],
+  "outstanding_questions_he": [
+    "האם ההכנסה המוצהרת של נועה כוללת רכיב משתנה שאינו מופיע בשלושת התלושים האחרונים? (החלטת בנקאי לגבי ראיה נוספת)",
+    "מהי סובלנות הפער המקובלת בבנק בין הכנסה מוצהרת למתועדת? (מדיניות בנק)"
+  ],
+  "suggested_next_actions": [
+    {
+      "action_he": "לבחון את פער ההכנסה של נועה ולהחליט אם לעדכן את ההכנסה בבקשה או לבקש ראיה נוספת לפי נוהלי הבנק",
+      "owner": "banker",
+      "finding_keys": [
+        "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B"
+      ],
+      "non_binding": true
+    },
+    {
+      "action_he": "להמשיך באיסוף דפי חשבון ודוח ריכוז יתרות — לא נבדקו בהרצה זו",
+      "owner": "banker",
+      "finding_keys": [],
+      "non_binding": true
+    }
+  ],
+  "not_evaluated_he": [
+    "דפי תנועות עו״ש (3 חודשים, כל החשבונות)",
+    "דוח ריכוז יתרות הלוואות",
+    "שמאות (מועברת ישירות מהשמאי לבנק)",
+    "ביטוח חיים וביטוח נכס",
+    "מסמכי מוכר ובטוחות"
+  ],
+  "limitations_he": [
+    "נבדקו מסמכי שכר בלבד.",
+    "הבדיקה החוזרת רצה על כל סט המסמכים הנוכחי, לא רק על הקובץ החדש.",
+    "סובלנות הפער בהכנסה (5%) היא ברירת מחדל הנדסית — ממתינה למדיניות הבנק."
+  ],
+  "disclaimer_he": "מוכנות תיעודית בלבד בהיקף שנבדק (מסמכי שכר). אין זו קבלת מסמך על ידי הבנק, אין זו החלטת אשראי, ואין זו בדיקת אותנטיות. שמאות, ביטוחים, מסמכי מוכר ובטוחות, דפי חשבון ויתרות הלוואות לא נבדקו בהרצה זו.",
+  "audit_trail": [
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0001aa11bb",
+      "type": "review.queued",
+      "occurred_at": "2026-10-12T08:10:00Z",
+      "review_run_id": "a3f91c2e7b",
+      "actor": "service:mortgage-case-service",
+      "payload": {
+        "trigger": "initial",
+        "documents": 6
+      },
+      "trace_id": "trc-a3f91c2e7b"
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0002aa11bb",
+      "type": "review.completed",
+      "occurred_at": "2026-10-12T08:11:31Z",
+      "review_run_id": "a3f91c2e7b",
+      "actor": "system",
+      "payload": {
+        "readiness": "ACTION_REQUIRED",
+        "open_counts": {
+          "customer": 2,
+          "banker": 1,
+          "info": 1
+        },
+        "verdicts": {
+          "VALID": 6
+        },
+        "decision": "human decision required"
+      },
+      "trace_id": "trc-a3f91c2e7b"
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0003aa11bb",
+      "type": "finding.opened",
+      "occurred_at": "2026-10-12T08:11:31Z",
+      "review_run_id": "a3f91c2e7b",
+      "actor": "system",
+      "payload": {
+        "key": "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+        "severity": "blocking",
+        "review_state": "CUSTOMER_ACTION_REQUIRED"
+      }
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0004aa11bb",
+      "type": "supplement.requested",
+      "occurred_at": "2026-10-12T08:16:00Z",
+      "review_run_id": "a3f91c2e7b",
+      "actor": "service:mortgage-case-service",
+      "payload": {
+        "supplement_id": "sup_k3j5h7g9f1",
+        "requested_items": [
+          "payslip:BRW-A:2026-09"
+        ]
+      }
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0005aa11bb",
+      "type": "supplement.received",
+      "occurred_at": "2026-10-12T08:41:30Z",
+      "review_run_id": null,
+      "actor": "customer:BRW-A",
+      "payload": {
+        "supplement_id": "sup_k3j5h7g9f1",
+        "mode": "replace",
+        "documents": 1
+      }
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0006aa11bb",
+      "type": "review.completed",
+      "occurred_at": "2026-10-12T08:42:58Z",
+      "review_run_id": "b7d204e9c1",
+      "actor": "system",
+      "payload": {
+        "readiness": "HUMAN_REVIEW_REQUIRED",
+        "open_counts": {
+          "customer": 0,
+          "banker": 1,
+          "info": 0
+        },
+        "resolved": 3,
+        "decision": "human decision required"
+      }
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0007aa11bb",
+      "type": "finding.resolved",
+      "occurred_at": "2026-10-12T08:42:58Z",
+      "review_run_id": "b7d204e9c1",
+      "actor": "system",
+      "payload": {
+        "key": "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+        "basis": "NEW_EVIDENCE"
+      }
+    },
+    {
+      "tenant_id": "mizrahi-tefahot-demo",
+      "case_ref": "DEMO-MTZ-2026-001",
+      "review_case_id": "rc_7k2m9q4x1d",
+      "event_id": "evt_0008aa11bb",
+      "type": "package.generated",
+      "occurred_at": "2026-10-12T08:43:10Z",
+      "review_run_id": "b7d204e9c1",
+      "actor": "system",
+      "payload": {
+        "package_id": "pkg_2026_10_12_001"
+      }
+    }
+  ],
+  "provenance": {
+    "provider": "visiontrace",
+    "provider_version": "visiontrace@5a1ca7d+mortgage-documents(TO-BUILD)",
+    "mode": "LIVE",
+    "workflow": "mortgage-documents",
+    "workflow_version": "1.0.0",
+    "rubrics": [
+      "mortgage.document.intake_quality@1.0.0",
+      "mortgage.payslip.classification_identity@1.0.0",
+      "mortgage.payslip.period@1.0.0",
+      "mortgage.payslip.financials@1.0.0",
+      "mortgage.income.payslip_coverage@1.0.0",
+      "mortgage.payslip.duplicates@1.0.0",
+      "mortgage.income.declared_vs_documented@1.0.0",
+      "mortgage.identity.consistency@1.0.0"
+    ],
+    "rule_set_version": "mortgage-documents-rules/1",
+    "policy_store_version": "pol-demo-3",
+    "models": {
+      "read": "gemini-3.8-flash",
+      "ocr": "unselected (OTD-03 — Azure Read / Document AI / Tesseract heb)",
+      "judge": "gemini-3.8-flash",
+      "semantic": "gemini-3.8-flash"
+    },
+    "prompt_versions": {
+      "read": "vt-mortgage-read/1.0.0",
+      "judge": "vt-mortgage-judge/1.0.0",
+      "semantic": "vt-mortgage-semantic/1.0.0"
+    },
+    "input_hash": "8377d1a16fa11fa19df390f6cd7022da0dba43fb4f8ed6eac6e65226c37a74bb",
+    "generated_at": "2026-10-12T08:42:58Z",
+    "trace_id": "trc-b7d204e9c1"
+  }
+}

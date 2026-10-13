@@ -1,0 +1,538 @@
+{
+  "review_run_id": "a3f91c2e7b",
+  "document_id": "DOC-A3",
+  "document_version": 1,
+  "facts": [
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_employee_name",
+      "field": "employee_name",
+      "label_he": "שם העובד/ת",
+      "value_type": "person_name",
+      "status": "present",
+      "raw": "עידו לביא",
+      "normalized": "עידו לביא",
+      "normalizer": "person_name@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_employee_name"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_employee_id",
+      "field": "employee_id",
+      "label_he": "מספר זהות",
+      "value_type": "national_id",
+      "status": "present",
+      "raw": "039812457",
+      "normalized": "039812457",
+      "normalizer": "national_id@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_employee_id"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_employer_name",
+      "field": "employer_name",
+      "label_he": "שם המעסיק",
+      "value_type": "organization_name",
+      "status": "present",
+      "raw": "אופק לוגיסטיקה בע״מ",
+      "normalized": "אופק לוגיסטיקה בע״מ",
+      "normalizer": "text@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_employer_name"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_salary_period",
+      "field": "salary_period",
+      "label_he": "תקופת שכר",
+      "value_type": "month",
+      "status": "present",
+      "raw": "08/2026",
+      "normalized": "2026-08",
+      "normalizer": "month@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_salary_period"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_payment_date",
+      "field": "payment_date",
+      "label_he": "תאריך תשלום",
+      "value_type": "date",
+      "status": "present",
+      "raw": "09.09.2026",
+      "normalized": "2026-09-09",
+      "normalizer": "date_il@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_payment_date"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_gross_pay",
+      "field": "gross_pay",
+      "label_he": "שכר ברוטו",
+      "value_type": "money",
+      "status": "present",
+      "raw": "17,500.00",
+      "normalized": {
+        "amount": 17500.0,
+        "currency": "ILS"
+      },
+      "normalizer": "money_ils@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_gross_pay"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_total_deductions",
+      "field": "total_deductions",
+      "label_he": "סה״כ ניכויים",
+      "value_type": "money",
+      "status": "present",
+      "raw": "4,000.00",
+      "normalized": {
+        "amount": 4000.0,
+        "currency": "ILS"
+      },
+      "normalizer": "money_ils@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_total_deductions"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_net_pay",
+      "field": "net_pay",
+      "label_he": "נטו לתשלום",
+      "value_type": "money",
+      "status": "present",
+      "raw": "13,500.00",
+      "normalized": {
+        "amount": 13500.0,
+        "currency": "ILS"
+      },
+      "normalizer": "money_ils@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_net_pay"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_document_number",
+      "field": "document_number",
+      "label_he": "מספר מסמך",
+      "value_type": "text",
+      "status": "present",
+      "raw": "SAL-ido-2026-08",
+      "normalized": "SAL-ido-2026-08",
+      "normalizer": "text@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_document_number"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    },
+    {
+      "fact_id": "fact_a3f91c2e7b_DOC-A3_v1_issue_date",
+      "field": "issue_date",
+      "label_he": "תאריך הפקה",
+      "value_type": "date",
+      "status": "present",
+      "raw": "15.09.2026",
+      "normalized": "2026-09-15",
+      "normalizer": "date_il@1",
+      "evidence_ids": [
+        "ev_a3f91c2e7b_DOC-A3_v1_issue_date"
+      ],
+      "extraction": {
+        "method": "text_layer_llm",
+        "model": "gemini-3.8-flash",
+        "prompt_version": "vt-mortgage-read/1.0.0"
+      },
+      "self_reported_confidence": 0.98,
+      "verified": true
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_employee_name",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "עידו לביא",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.8506,
+        0.1809,
+        0.9183,
+        0.1948
+      ],
+      "bbox_pdf_points": [
+        506.88,
+        152.49,
+        547.26,
+        164.23
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_employee_name/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_employee_id",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "039812457",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.6168,
+        0.1809,
+        0.705,
+        0.1948
+      ],
+      "bbox_pdf_points": [
+        367.57,
+        152.49,
+        420.11,
+        164.23
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_employee_id/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_employer_name",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "אופק לוגיסטיקה בע״מ",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.6761,
+        0.0485,
+        0.9334,
+        0.071
+      ],
+      "bbox_pdf_points": [
+        402.91,
+        40.86,
+        556.26,
+        59.85
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_employer_name/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_salary_period",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "08/2026",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.8546,
+        0.2147,
+        0.9183,
+        0.2287
+      ],
+      "bbox_pdf_points": [
+        509.3,
+        180.99,
+        547.24,
+        192.73
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_salary_period/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_payment_date",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "09.09.2026",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.6168,
+        0.2147,
+        0.705,
+        0.2287
+      ],
+      "bbox_pdf_points": [
+        367.57,
+        180.99,
+        420.11,
+        192.73
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_payment_date/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_gross_pay",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "שכר ברוטו 17,500.00 ₪",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 2,
+      "bbox": [
+        0.7986,
+        0.4247,
+        0.8957,
+        0.4419
+      ],
+      "bbox_pdf_points": [
+        475.92,
+        357.98,
+        533.74,
+        372.5
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד; העוגן הוא המופע שבצמוד לתווית שצוטטה)",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_gross_pay/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_total_deductions",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "סה״כ ניכויים 4,000.00 ₪",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 2,
+      "bbox": [
+        0.518,
+        0.4247,
+        0.6028,
+        0.4419
+      ],
+      "bbox_pdf_points": [
+        308.66,
+        357.98,
+        359.25,
+        372.5
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד; העוגן הוא המופע שבצמוד לתווית שצוטטה)",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_total_deductions/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_net_pay",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "נטו לתשלום 13,500.00 ₪",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.213,
+        0.4247,
+        0.31,
+        0.4419
+      ],
+      "bbox_pdf_points": [
+        126.93,
+        357.98,
+        184.75,
+        372.5
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_net_pay/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_document_number",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "SAL-ido-2026-08",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.0675,
+        0.0656,
+        0.1754,
+        0.0769
+      ],
+      "bbox_pdf_points": [
+        40.25,
+        55.31,
+        104.5,
+        64.8
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_document_number/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    },
+    {
+      "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_issue_date",
+      "document_id": "DOC-A3",
+      "document_version": 1,
+      "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+      "page": 1,
+      "quote": "15.09.2026",
+      "rotation": 0,
+      "created_by_run": "a3f91c2e7b",
+      "occurrences_on_page": 1,
+      "bbox": [
+        0.0675,
+        0.0763,
+        0.1389,
+        0.0876
+      ],
+      "bbox_pdf_points": [
+        40.25,
+        64.31,
+        82.78,
+        73.8
+      ],
+      "page_size_points": [
+        595.92,
+        842.88
+      ],
+      "precision": "exact",
+      "witness": "text_layer_exact",
+      "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+      "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_issue_date/snippet?exp=1760259000&sig=EXAMPLE",
+      "snippet_expires_at": "2026-10-12T09:30:00Z"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+[
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0001aa11bb",
+    "type": "review.queued",
+    "occurred_at": "2026-10-12T08:10:00Z",
+    "review_run_id": "a3f91c2e7b",
+    "actor": "service:mortgage-case-service",
+    "payload": {
+      "trigger": "initial",
+      "documents": 6
+    },
+    "trace_id": "trc-a3f91c2e7b"
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0002aa11bb",
+    "type": "review.completed",
+    "occurred_at": "2026-10-12T08:11:31Z",
+    "review_run_id": "a3f91c2e7b",
+    "actor": "system",
+    "payload": {
+      "readiness": "ACTION_REQUIRED",
+      "open_counts": {
+        "customer": 2,
+        "banker": 1,
+        "info": 1
+      },
+      "verdicts": {
+        "VALID": 6
+      },
+      "decision": "human decision required"
+    },
+    "trace_id": "trc-a3f91c2e7b"
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0003aa11bb",
+    "type": "finding.opened",
+    "occurred_at": "2026-10-12T08:11:31Z",
+    "review_run_id": "a3f91c2e7b",
+    "actor": "system",
+    "payload": {
+      "key": "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+      "severity": "blocking",
+      "review_state": "CUSTOMER_ACTION_REQUIRED"
+    }
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0004aa11bb",
+    "type": "supplement.requested",
+    "occurred_at": "2026-10-12T08:16:00Z",
+    "review_run_id": "a3f91c2e7b",
+    "actor": "service:mortgage-case-service",
+    "payload": {
+      "supplement_id": "sup_k3j5h7g9f1",
+      "requested_items": [
+        "payslip:BRW-A:2026-09"
+      ]
+    }
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0005aa11bb",
+    "type": "supplement.received",
+    "occurred_at": "2026-10-12T08:41:30Z",
+    "review_run_id": null,
+    "actor": "customer:BRW-A",
+    "payload": {
+      "supplement_id": "sup_k3j5h7g9f1",
+      "mode": "replace",
+      "documents": 1
+    }
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0006aa11bb",
+    "type": "review.completed",
+    "occurred_at": "2026-10-12T08:42:58Z",
+    "review_run_id": "b7d204e9c1",
+    "actor": "system",
+    "payload": {
+      "readiness": "HUMAN_REVIEW_REQUIRED",
+      "open_counts": {
+        "customer": 0,
+        "banker": 1,
+        "info": 0
+      },
+      "resolved": 3,
+      "decision": "human decision required"
+    }
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0007aa11bb",
+    "type": "finding.resolved",
+    "occurred_at": "2026-10-12T08:42:58Z",
+    "review_run_id": "b7d204e9c1",
+    "actor": "system",
+    "payload": {
+      "key": "REQUIRED_PERIOD_MISSING:BRW-A:2026-09",
+      "basis": "NEW_EVIDENCE"
+    }
+  },
+  {
+    "tenant_id": "mizrahi-tefahot-demo",
+    "case_ref": "DEMO-MTZ-2026-001",
+    "review_case_id": "rc_7k2m9q4x1d",
+    "event_id": "evt_0008aa11bb",
+    "type": "package.generated",
+    "occurred_at": "2026-10-12T08:43:10Z",
+    "review_run_id": "b7d204e9c1",
+    "actor": "system",
+    "payload": {
+      "package_id": "pkg_2026_10_12_001"
+    }
+  }
+]

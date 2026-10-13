@@ -1,0 +1,107 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.financial.completeness",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "שלמות מסמכי המצב הפיננסי — לכל לווה",
+  "name_en": "Financial document completeness",
+  "description": "Case-level, per party. Aggregates the financial requirement family (income documents, current-account statements for EVERY account, loan-balance report when there are loans) into one completeness view, adds cross-document 'every account is covered' logic, and applies the public 45-day resubmission rule. It does not re-run document rubrics; it consumes their set statuses.",
+  "scope": "case",
+  "document_category": "financial_set",
+  "applies_to": {"doc_types": ["payslip", "form_106", "bank_statement", "loan_balance_report", "tax_assessment", "cpa_income_confirmation"], "requirement_codes": ["INC.*", "FIN.*"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["*"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "MCS סיפק את רשימת הדרישות של התיק (CaseRequirement[]) ואת החשבונות וההתחייבויות המוצהרים של כל צד.", "on_unmet": "FIN-CMP-01 INSUFFICIENT_EVIDENCE ('אין רשימת דרישות'); שאר הקריטריונים רצים על מה שידוע."}],
+  "required_fields": [],
+  "decisive_fields": [],
+  "policy_parameters": [
+    {"name": "resubmission_days", "value": 45, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "MZ-05", "note_he": "'אם חלפו יותר מ־45 יום מאז שהעברתם את המסמכים בפעם הקודמת … יש להעביר את המסמכים מחדש' — מופיע רק בדף דירה יד שנייה, תחת מסמכי הכנסות ועו״ש (R1 §E.3). העוגן: מועד ההעברה לבנק (submitted_to_bank_at), לא תאריך המסמך."},
+    {"name": "resubmission_scope", "value": ["INC.*", "FIN.BANK_STATEMENT", "FIN.LOAN_BALANCE_REPORT"], "status": "PENDING_BANK_POLICY", "note_he": "האם הכלל חל גם על מסמכי נכס/ביטוח — לא פורסם."},
+    {"name": "form_106_required_for_salaried", "value": null, "status": "PENDING_BANK_POLICY", "source_ref": "MZ-02", "note_he": "נדרש ברשימת המסמכים העדכנית (MZ-02, 2026-06-11) אך חסר במדריך (MZ-05, MZ-07) — סתירה R1 §F.5. כבוי עד אישור."},
+    {"name": "require_salary_account_statement", "value": true, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "MZ-02", "note_he": "'דפי חשבון עובר ושב מ־3 החודשים האחרונים, עבור כל חשבון בנק' — חשבון הזיכוי המודפס בתלוש (תוספת פרט 8(3)) הוא חשבון של הלווה."}
+  ],
+  "evidence_policy": {"verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"], "decisive_fields_must_be_verified": true, "citation_rule_he": "חשבון שזוהה מתוך תלוש מצטט את payee_account_number בתלוש; חשבון מוצהר מצוטט כ־mcs:declared.", "pages_in_scope": "n/a"},
+  "allowed_inference_he": ["לזהות חשבון בנק לפי קוד בנק + סניף + מספר חשבון מודפסים (גם כשהמספר ממוסך חלקית — התאמה לפי הספרות הגלויות בלבד ומסומנת).", "לחשב ימים מאז ההעברה לבנק."],
+  "prohibited_inference_he": ["לקבוע שאין ללווה חשבונות נוספים.", "לחשב יחס החזר או 'הוצאות קבועות' לצורך אשראי.", "לבקש מסמכים שאינם ברשימת הבנק — אלא לסמן לבנקאי."],
+  "missing_data_treatment": {"absent": "דרישה ללא מסמך → REQUIREMENT_UNSATISFIED.", "illegible": "מסמך לא קריא אינו מספק דרישה.", "ambiguous": "מספר חשבון ממוסך שתואם לשני חשבונות מוצהרים → NEEDS_REVIEW.", "unverified": "לא מספק דרישה."},
+  "criteria": [
+    {
+      "id": "FIN-CMP-01", "title_he": "כל דרישה פיננסית שבתחום הבדיקה מסופקת", "title_en": "Every in-scope financial requirement satisfied",
+      "dimension": "completeness", "method": "deterministic", "severity": "blocking",
+      "inputs": ["CaseRequirement[] with evaluate=true", "SetReview[] statuses"],
+      "deterministic_logic": "for r in requirements where family(r) ∈ {INC, FIN} and evaluate: status := set_review(r).status. COMPLETE → ok. INCOMPLETE → FAIL listing r (the set rubric already emitted month/period findings — no duplicate finding here, only a requirement-level line). NEEDS_REVIEW → NEEDS_REVIEW. NOT_EVALUATED → listed in readiness.not_evaluated (never implied complete).",
+      "pass_when": "כל הדרישות הפיננסיות בהיקף הבדיקה COMPLETE.", "fail_when": "דרישה אחת לפחות INCOMPLETE.",
+      "needs_review_when": "דרישה במצב NEEDS_REVIEW.", "insufficient_evidence_when": "MCS לא סיפק רשימת דרישות.",
+      "reason_code": "REQUIREMENT_UNSATISFIED", "on_fail": "NEEDS_REVIEW", "finding": null,
+      "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "MZ-05", "MZ-07"]
+    },
+    {
+      "id": "FIN-CMP-02", "title_he": "דפי חשבון לכל חשבון ידוע — כולל חשבון זיכוי המשכורת", "title_en": "Statements for every known account, incl. the salary account",
+      "dimension": "completeness", "method": "deterministic", "severity": "major",
+      "inputs": ["party.declared_accounts", "payslips.payee_account (bank, branch, account — Addendum 8(3))", "bank_statements.account identity"],
+      "deterministic_logic": "known := declared_accounts ∪ {payee accounts printed on the party's counted payslips}. covered := accounts with ≥1 bank_statement of the party (match on bank_code + visible account digits; masked digits compared only where visible). missing := known − covered. missing == ∅ → PASS. else FAIL per account (requested item bank_statement:{party}:{bank_code}-{masked}).",
+      "pass_when": "לכל חשבון מוצהר ולכל חשבון זיכוי שמודפס בתלוש יש דפי חשבון.", "fail_when": "חשבון ידוע ללא דפי חשבון.",
+      "needs_review_when": "התאמה עמומה בגלל מיסוך.", "insufficient_evidence_when": "אין מידע על חשבונות (לא הוצהרו ואין חשבון בתלוש).",
+      "reason_code": "ACCOUNT_STATEMENTS_MISSING", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "ACCOUNT_STATEMENTS_MISSING", "key_template": "ACCOUNT_STATEMENTS_MISSING:{party_id}:{account_ref}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "חסרים דפי תנועות עו״ש של 3 החודשים האחרונים עבור החשבון בבנק {bank_name_he} (מסתיים ב־{last_digits}). הבנק מבקש דפי חשבון עבור כל חשבון בנק.",
+                  "internal_message_he": "חשבון {account_ref} ידוע מ־{source} ואין לו דפי חשבון בתיק.", "requested_item_template": "bank_statement:{party_id}"},
+      "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "MZ-05", "LAW-01"]
+    },
+    {
+      "id": "FIN-CMP-03", "title_he": "דוח ריכוז יתרות הלוואות כשיש הלוואות", "title_en": "Loan-balance report when loans exist",
+      "dimension": "completeness", "method": "deterministic", "severity": "major",
+      "inputs": ["party.declared_liabilities", "payslips.other_deductions (loan repayment lines)", "bank_statements.transactions categorised loan_repayment (P1)", "loan_balance_report documents"],
+      "deterministic_logic": "has_loans := declared_liabilities ≠ ∅ OR payslip deduction line matching 'הלוואה|החזר הלוואה' OR (P1) recurring statement debit categorised loan_repayment. has_loans and no loan_balance_report for the party → FAIL. no signal → NOT_APPLICABLE.",
+      "pass_when": "יש הלוואות ודוח ריכוז יתרות הוגש.", "fail_when": "יש סימן להלוואה ואין דוח ריכוז יתרות.",
+      "needs_review_when": "הסימן היחיד הוא סיווג שופט של תנועה בעו״ש (P1).", "insufficient_evidence_when": "לא רלוונטי.",
+      "not_applicable_when": "אין הלוואות מוצהרות ואין סימן להלוואה במסמכים.",
+      "reason_code": "LOAN_BALANCE_REPORT_MISSING", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "LOAN_BALANCE_REPORT_MISSING", "key_template": "LOAN_BALANCE_REPORT_MISSING:{party_id}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "נדרש דוח ריכוז יתרות הלוואות מכל חשבונות הבנק (אם יש הלוואות קיימות).",
+                  "internal_message_he": "סימן להלוואה: {signal}; אין דוח ריכוז יתרות.", "requested_item_template": "loan_balance_report:{party_id}"},
+      "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "MZ-05", "BOI-329"]
+    },
+    {
+      "id": "FIN-CMP-04", "title_he": "כלל 45 הימים — מסמכים שהועברו לפני יותר מ־45 יום", "title_en": "45-day resubmission rule",
+      "dimension": "recency", "method": "deterministic", "severity": "major",
+      "inputs": ["DocumentRef.submitted_to_bank_at", "case_context.as_of", "policy.resubmission_days", "policy.resubmission_scope"],
+      "deterministic_logic": "for each counted document whose requirement family ∈ resubmission_scope: age := as_of − date(submitted_to_bank_at). age > resubmission_days → FAIL(DOCUMENT_RESUBMISSION_REQUIRED) for that requirement (all of its documents, because the public rule says 'להעביר את המסמכים מחדש'). submitted_to_bank_at missing → use uploaded_at and say so.",
+      "pass_when": "כל המסמכים בהיקף הועברו לפני 45 יום לכל היותר.", "fail_when": "חלפו יותר מ־45 יום מאז ההעברה.",
+      "needs_review_when": "אין מועד העברה ידוע (נעשה שימוש במועד העלאה).", "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "DOCUMENT_RESUBMISSION_REQUIRED", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "DOCUMENT_RESUBMISSION_REQUIRED", "key_template": "DOCUMENT_RESUBMISSION_REQUIRED:{party_id}:{requirement_code}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "חלפו יותר מ־45 יום מאז שהועברו {requirement_title_he}. לפי הנחיות הבנק יש להעביר אותם מחדש (מסמכים עדכניים).",
+                  "internal_message_he": "הועבר ב־{submitted}; {age} ימים > 45 (MZ-05).", "requested_item_template": "resubmit:{party_id}:{requirement_code}"},
+      "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]
+    },
+    {
+      "id": "FIN-CMP-05", "title_he": "טופס 106 לשנה קודמת לשכירים (מותנה מדיניות)", "title_en": "Form 106 for salaried borrowers (policy-gated)",
+      "dimension": "completeness", "method": "deterministic", "severity": "major",
+      "inputs": ["policy.form_106_required_for_salaried", "form_106 documents"],
+      "deterministic_logic": "policy null → NOT_APPLICABLE (conflict MZ-02 vs MZ-05/MZ-07 pending bank). policy true and party salaried and no VALID form_106 for tax_year = year(as_of) − 1 → FAIL. (Before 31 March the previous year's form may not exist yet — Form 106 is due by 31.03 (SEC-04) → NEEDS_REVIEW instead of FAIL.)",
+      "pass_when": "המדיניות פעילה וטופס 106 לשנה הקודמת הוגש ותקין.", "fail_when": "המדיניות פעילה והטופס חסר (אחרי 31.03).",
+      "needs_review_when": "לפני 31.03 — הטופס לשנה הקודמת עשוי שטרם הונפק.", "insufficient_evidence_when": "לא רלוונטי.",
+      "not_applicable_when": "המדיניות לא אושרה (ברירת מחדל).",
+      "reason_code": "FORM_106_MISSING", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "FORM_106_MISSING", "key_template": "FORM_106_MISSING:{party_id}:{tax_year}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "נדרש טופס 106 לשנת {tax_year} של {first_name} (אפשר להוריד מהאזור האישי באתר רשות המסים).",
+                  "internal_message_he": "MZ-02 דורש 106 לשנה קודמת לשכירים.", "requested_item_template": "form_106:{party_id}:{tax_year}"},
+      "escalation": "customer", "requirement_basis": "BANK_POLICY_REQUIRED", "source_refs": ["MZ-02", "SEC-04"]
+    }
+  ],
+  "verdict_policy": {"rules_he": ["רובריקת תיק — קובעת readiness של משפחת הדרישות הפיננסית."], "set_status_rules_he": ["FIN-CMP-01/02/03/04/05 FAIL → ACTION_REQUIRED (לקוח).", "NEEDS_REVIEW בלבד → HUMAN_REVIEW_REQUIRED.", "הכל PASS/NOT_APPLICABLE → READY_FOR_HUMAN_REVIEW לגבי המשפחה הפיננסית בלבד."]},
+  "cross_document_dependencies": [
+    {"rubric_or_doc": "mortgage.income.payslip_coverage", "relation_he": "סטטוס INC.PAYSLIP."},
+    {"rubric_or_doc": "mortgage.bank_statement.extraction_coverage", "relation_he": "סטטוס FIN.BANK_STATEMENT לכל חשבון."},
+    {"rubric_or_doc": "mortgage.loan_balance_report", "relation_he": "סטטוס FIN.LOAN_BALANCE_REPORT."}
+  ],
+  "examples": [
+    {"label": "invalid", "situation_he": "בתלושי נועה מודפס 'חשבון לזיכוי: בנק 20 · ****6815' (חשבון אישי ACC-2); הוגשו דפי חשבון רק לחשבון המשותף ****2457 (ACC-1).", "expected": {"FIN-CMP-02": "FAIL", "finding": "ACCOUNT_STATEMENTS_MISSING:BRW-B:20-****6815", "review_state": "CUSTOMER_ACTION_REQUIRED"}},
+    {"label": "invalid", "situation_he": "as_of=2026-11-30; תלושי עידו הועברו לבנק ב־2026-10-12 (49 ימים).", "expected": {"FIN-CMP-04": "FAIL", "finding": "DOCUMENT_RESUBMISSION_REQUIRED:BRW-A:INC.PAYSLIP:BRW-A"}},
+    {"label": "valid", "situation_he": "לעידו הלוואת רכב מוצהרת ודוח ריכוז יתרות מבנק 20 הוגש; כל הדרישות COMPLETE.", "expected": {"FIN-CMP-01": "PASS", "FIN-CMP-03": "PASS"}},
+    {"label": "not_applicable", "situation_he": "מדיניות טופס 106 לא אושרה.", "expected": {"FIN-CMP-05": "NOT_APPLICABLE"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/Readiness"},
+  "source_refs": ["MZ-02", "MZ-05", "MZ-07", "LAW-01", "BOI-329", "SEC-04"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

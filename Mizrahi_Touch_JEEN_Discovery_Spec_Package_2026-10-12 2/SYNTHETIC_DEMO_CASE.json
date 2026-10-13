@@ -1,0 +1,43 @@
+{
+  "_notice": "SYNTHETIC FIXTURE — invented data, illustrative bank_status and tool payload. NOT a Mizrahi API response.",
+  "case_id": "DEMO-MTZ-2026-001",
+  "snapshot_date": "2026-10-12",
+  "bank_case_stage": {
+    "source": "MOCK_BANK_ADAPTER",
+    "code": "PRELIMINARY_APPROVAL_ISSUED",
+    "label_he": "התקבל אישור עקרוני",
+    "authoritative": false
+  },
+  "property": {
+    "transaction_type": "used_apartment_purchase",
+    "purchase_purpose": "first_home",
+    "property_review_status": "NOT_EVALUATED_IN_DEMO"
+  },
+  "borrowers": [
+    {"id": "BRW-A", "name_he": "עידו", "employment": "salaried"},
+    {"id": "BRW-B", "name_he": "נועה", "employment": "salaried"}
+  ],
+  "required_income_months": ["2026-07", "2026-08", "2026-09"],
+  "uploads": [
+    {"document_id": "DOC-A1", "borrower_id": "BRW-A", "kind": "payslip", "extracted_period": "2026-07", "filename": "ido_2026_07.pdf"},
+    {"document_id": "DOC-A2", "borrower_id": "BRW-A", "kind": "payslip", "extracted_period": "2026-08", "filename": "ido_2026_08.pdf"},
+    {"document_id": "DOC-A3", "borrower_id": "BRW-A", "kind": "payslip", "extracted_period": "2026-08", "filename": "ido_2026_08_copy.pdf"},
+    {"document_id": "DOC-B1", "borrower_id": "BRW-B", "kind": "payslip_bundle", "extracted_periods": ["2026-07", "2026-08", "2026-09"], "filename": "noa_three_slips.pdf"}
+  ],
+  "expected_findings_before_reupload": [
+    {"reason_code": "DUPLICATE_PERIOD", "borrower_id": "BRW-A", "period": "2026-08", "document_ids": ["DOC-A2", "DOC-A3"], "review_state": "CUSTOMER_ACTION_REQUIRED"},
+    {"reason_code": "REQUIRED_PERIOD_MISSING", "borrower_id": "BRW-A", "period": "2026-09", "document_ids": [], "review_state": "CUSTOMER_ACTION_REQUIRED"}
+  ],
+  "subsequent_upload": {"document_id": "DOC-A4", "borrower_id": "BRW-A", "kind": "payslip", "extracted_period": "2026-09", "filename": "ido_2026_09.pdf"},
+  "optional_manual_review": {
+    "reason_code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
+    "borrower_id": "BRW-B",
+    "declared_net_monthly_ils": 18500,
+    "extracted_net_ils": 16900,
+    "customer_explanation": "חלק מההכנסה הוא תשלום משתנה",
+    "review_state": "NEEDS_BANKER_REVIEW",
+    "note": "Customer explanation is not proof or approval; preserve source evidence."
+  },
+  "ai_readiness_after_reupload": "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDING",
+  "never_infer": ["final_bank_approval", "property_appraisal_complete", "insurance_complete", "funds_disbursed"]
+}

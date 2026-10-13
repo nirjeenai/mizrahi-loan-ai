@@ -1,0 +1,32 @@
+{
+  "evidence_id": "ev_a3f91c2e7b_DOC-A3_v1_salary_period",
+  "document_id": "DOC-A3",
+  "document_version": 1,
+  "sha256": "376ac993be17b3287f7b136506516095952d5d599bdc133ae4665af029223b7f",
+  "page": 1,
+  "quote": "08/2026",
+  "rotation": 0,
+  "created_by_run": "a3f91c2e7b",
+  "occurrences_on_page": 1,
+  "bbox": [
+    0.8546,
+    0.2147,
+    0.9183,
+    0.2287
+  ],
+  "bbox_pdf_points": [
+    509.3,
+    180.99,
+    547.24,
+    192.73
+  ],
+  "page_size_points": [
+    595.92,
+    842.88
+  ],
+  "precision": "exact",
+  "witness": "text_layer_exact",
+  "witness_detail": "מודפס בשכבת הטקסט של ה־PDF",
+  "snippet_url": "https://visiontrace.example.invalid/api/v1/evidence/ev_a3f91c2e7b_DOC-A3_v1_salary_period/snippet?exp=1760259000&sig=EXAMPLE",
+  "snippet_expires_at": "2026-10-12T09:30:00Z"
+}

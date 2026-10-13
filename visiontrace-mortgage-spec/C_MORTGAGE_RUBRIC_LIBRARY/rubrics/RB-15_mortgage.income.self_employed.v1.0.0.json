@@ -1,0 +1,41 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.income.self_employed",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "P1",
+  "name_he": "הכנסה מעצמאות — שומת מס ואישור רו״ח",
+  "name_en": "Self-employed income evidence",
+  "description": "Set-level per self-employed party. Mizrahi-Tefahot asks for the tax assessment for the previous tax year AND a CPA certificate for the current tax year (MZ-02), while other pages say 'and/or' or allow a tax advisor (MZ-03, MZ-05, MZ-07) — the combination rule is policy-gated. Controlling shareholders use CPA Form 3806 plus audited statements and a trial balance (MZ-02). Directive 329 Q&A accepts signed annual assessments or a signed CPA/tax-adviser confirmation for the latest year.",
+  "scope": "document_set",
+  "document_category": "self_employed_income",
+  "applies_to": {"doc_types": ["tax_assessment", "cpa_income_confirmation", "annual_tax_report_1301", "profit_and_loss_1320", "cpa_form_3806", "audited_financial_statements", "trial_balance"], "requirement_codes": ["INC.SELF_EMPLOYED"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["self_employed", "salaried_and_self_employed", "controlling_shareholder"], "transaction_types": ["*"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "MCS סימן את הצד כעצמאי / שכיר ועצמאי / בעל שליטה.", "on_unmet": "NOT_APPLICABLE."}],
+  "required_fields": ["tax_year", "taxpayer_id", "assessed_income", "cpa_name", "cpa_license_number", "period_from", "period_to", "income_amount", "issue_date"],
+  "decisive_fields": ["taxpayer_id", "tax_year", "income_amount"],
+  "policy_parameters": [
+    {"name": "combination_rule", "value": null, "engineering_default": "assessment_prev_year AND cpa_current_year", "status": "PENDING_BANK_POLICY", "source_ref": "MZ-02", "note_he": "סתירה R1 §F.4 (ו / ו/או / רו״ח או יועץ מס)."},
+    {"name": "accept_tax_advisor", "value": null, "status": "PENDING_BANK_POLICY", "source_ref": "MZ-05"}
+  ],
+  "evidence_policy": {"verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"], "decisive_fields_must_be_verified": true, "citation_rule_he": "שנת מס, מזהה נישום, סכום הכנסה, שם ומספר רישיון רו״ח — כל אחד עם ציטוט; חתימה/חותמת — אזור עמוד (נוכחות בלבד).", "pages_in_scope": "all"},
+  "allowed_inference_he": ["לזהות סוג מסמך (שומה, 1301, 1320, אישור רו״ח, 3806).", "לקבוע אם אישור רו״ח מכסה את תקופת שנת המס הנוכחית."],
+  "prohibited_inference_he": ["לחשב 'הכנסה חודשית מוכרת' לצורך אשראי (329 Q&A: מתודולוגיה של הבנק).", "לקבוע שחתימת רו״ח אותנטית או שהרישיון בתוקף (אין מקור מאומת בתהליך)."],
+  "missing_data_treatment": {"absent": "אין שומה לשנה הקודמת → לפני מועד ההגשה (29.5/30.6) תיתכן שומה של שנה קודמת יותר → NEEDS_REVIEW.", "illegible": "→ INSUFFICIENT_EVIDENCE.", "ambiguous": "אישור רו״ח בנוסח חופשי ללא תקופה → NEEDS_REVIEW.", "unverified": "→ NEEDS_REVIEW."},
+  "criteria": [
+    {"id": "SEI-CLS-01", "title_he": "סיווג מסמכי ההכנסה מעצמאות", "dimension": "classification", "method": "hybrid", "severity": "blocking", "deterministic_logic": "classify each document into the doc_types above; unrelated → FAIL for that document.", "pass_when": "כל מסמך סווג לסוג רלוונטי.", "fail_when": "מסמך שאינו מסמך הכנסה מעצמאות.", "needs_review_when": "מסמך מכתב חופשי.", "insufficient_evidence_when": "לא נקרא.", "reason_code": "UNEXPECTED_DOCUMENT_TYPE", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "MZ-05"]},
+    {"id": "SEI-IDN-01", "title_he": "הנישום הוא הלווה", "dimension": "identity_binding", "method": "deterministic", "severity": "blocking", "deterministic_logic": "taxpayer id/name vs party (for 3806/audited statements: the company and the shareholder's name).", "pass_when": "תואם.", "fail_when": "אדם אחר.", "needs_review_when": "חברה — קשר הבעלות אינו מודפס.", "insufficient_evidence_when": "לא מודפס.", "reason_code": "BORROWER_MISMATCH", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "PROPOSED_VALIDATION"},
+    {"id": "SEI-SET-01", "title_he": "הצירוף הנדרש הוגש (שומה לשנה קודמת + אישור רו״ח לשנה הנוכחית)", "dimension": "completeness", "method": "deterministic", "severity": "blocking", "deterministic_logic": "rule := combination_rule ?? engineering_default. evaluate presence of a VALID assessment with tax_year = year(as_of) − 1 and a VALID CPA confirmation whose period lies in year(as_of). AND → both required; OR → either. missing → FAIL listing items. before 30.06 with only year−2 assessment → NEEDS_REVIEW.", "pass_when": "הצירוף לפי הכלל קיים.", "fail_when": "חסר מרכיב.", "needs_review_when": "שומה של שנה קודמת יותר לפני מועד ההגשה.", "insufficient_evidence_when": "לא רלוונטי.", "policy_parameters": ["combination_rule"], "reason_code": "SELF_EMPLOYED_DOCUMENTS_INCOMPLETE", "on_fail": "NEEDS_REVIEW", "finding": {"code": "SELF_EMPLOYED_DOCUMENTS_INCOMPLETE", "key_template": "SELF_EMPLOYED_DOCUMENTS_INCOMPLETE:{party_id}", "review_state": "CUSTOMER_ACTION_REQUIRED", "customer_message_he": "להשלמת אישורי ההכנסה כעצמאי/ת חסר: {missing_he}.", "internal_message_he": "כלל {rule} ({status}); קיים: {present}.", "requested_item_template": "{missing_item}:{party_id}"}, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-02", "MZ-03", "MZ-05", "MZ-07", "BOI-329"]},
+    {"id": "SEI-CPA-01", "title_he": "אישור הרו״ח מזהה את המאשר, מכסה תקופה ונראה חתום", "dimension": "completeness", "method": "hybrid", "severity": "major", "deterministic_logic": "cpa_name and cpa_license_number printed; period_from/to printed and within current tax year; issue_date ≤ as_of; judge: visible signature/stamp mark (presence only).", "pass_when": "כל הפרטים מודפסים וסימן חתימה/חותמת נראה.", "fail_when": "אין שם/מספר רישיון או אין תקופה.", "needs_review_when": "חתימה/חותמת לא ברורה.", "insufficient_evidence_when": "לא קריא.", "reason_code": "CPA_CONFIRMATION_INCOMPLETE", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "PROPOSED_VALIDATION", "source_refs": ["BOI-329"]},
+    {"id": "SEI-XD-01", "title_he": "עקביות בין אישור רו״ח לשומה (מידע)", "dimension": "semantic", "method": "judge", "severity": "info", "deterministic_logic": "judge compares the nature of income (same business, same taxpayer) and describes order-of-magnitude differences; never a pass/fail on amounts (different years).", "judge_instructions": "Describe; do not compute recognised income.", "pass_when": "תואם במהות.", "fail_when": "לעולם לא FAIL.", "needs_review_when": "עסק אחר / נישום אחר.", "insufficient_evidence_when": "אחד המסמכים חסר.", "reason_code": null, "on_fail": "INFO_ONLY", "finding": null, "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"}
+  ],
+  "verdict_policy": {"rules_he": ["רובריקת סט; verdict למסמכים בודדים לפי CLS/IDN/CPA."], "set_status_rules_he": ["SEI-SET-01 FAIL → INCOMPLETE; NEEDS_REVIEW → NEEDS_REVIEW; אחרת COMPLETE."]},
+  "cross_document_dependencies": [{"rubric_or_doc": "mortgage.income.declared_vs_documented", "relation_he": "השוואה מוצהר/מתועד (ברוטו/נטו לפי ההצהרה)."}],
+  "examples": [
+    {"label": "valid", "situation_he": "שומה 2025 + אישור רו״ח ינואר–ספטמבר 2026 עם שם ומספר רישיון וחותמת.", "expected": {"SEI-SET-01": "PASS"}},
+    {"label": "invalid", "situation_he": "אישור רו״ח בלבד, ללא שומה (כלל AND).", "expected": {"SEI-SET-01": "FAIL"}},
+    {"label": "uncertain", "situation_he": "as_of=2026-05-10; הוגשה שומה 2024 בלבד.", "expected": {"SEI-SET-01": "NEEDS_REVIEW"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/SetReview"},
+  "source_refs": ["MZ-02", "MZ-03", "MZ-05", "MZ-07", "BOI-329", "GOV-ITA-106"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

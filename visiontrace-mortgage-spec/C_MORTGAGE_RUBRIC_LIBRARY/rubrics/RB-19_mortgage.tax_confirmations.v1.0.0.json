@@ -1,0 +1,37 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.tax_confirmations",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "P2",
+  "name_he": "אישורי מיסים ועירייה בעסקה",
+  "name_en": "Transaction tax and municipal confirmations",
+  "description": "Second-hand purchase: the bank must receive the transaction report to the tax authorities (מש״ח) with the digital-report confirmation, purchase-tax payment confirmation, betterment-tax payment confirmation (or proof of deposit in a lawyer's trust), and an up-to-date municipal no-debt confirmation; the last mortgage tranche is transferred only after these (or a trust deposit) (MZ-05). VisionTrace classifies, binds to the property and parties, and checks printed validity — it never computes tax.",
+  "scope": "document_set",
+  "document_category": "tax_confirmations",
+  "applies_to": {"doc_types": ["tax_transaction_report", "tax_digital_report_confirmation", "purchase_tax_payment_confirmation", "betterment_tax_payment_confirmation", "trust_deposit_confirmation", "municipal_no_debt_confirmation"], "requirement_codes": ["TAX.*"], "party_roles": ["borrower", "co_borrower", "seller"], "employment_types": ["*"], "transaction_types": ["second_hand_purchase"]},
+  "preconditions": [{"id": "PRE-01", "text_he": "מזהי הנכס והצדדים ידועים (RB-10/RB-12).", "on_unmet": "TAX-PRP-01 INSUFFICIENT_EVIDENCE."}],
+  "required_fields": ["document_kind", "property_identifiers", "parties", "amount", "issue_date", "valid_until"],
+  "decisive_fields": ["document_kind", "property_identifiers"],
+  "policy_parameters": [{"name": "municipal_confirmation_recency", "value": null, "status": "PENDING_BANK_POLICY", "note_he": "'אישור עירייה עדכני' (MZ-05) ללא מספר ימים; אם מודפס 'בתוקף עד' — נבדק מולו."}],
+  "evidence_policy": {"verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"], "decisive_fields_must_be_verified": true, "citation_rule_he": "סוג האישור, מזהי הנכס, סכום ותוקף — מצוטטים.", "pages_in_scope": "all"},
+  "allowed_inference_he": ["לסווג אישור לפי כותרת הרשות המנפיקה.", "להשוות תאריך 'בתוקף עד' לתאריך הבדיקה."],
+  "prohibited_inference_he": ["לחשב מס רכישה/שבח או לקבוע שסכום 'נכון'.", "לקבוע פטור ממס."],
+  "missing_data_treatment": {"absent": "→ FAIL לדרישה.", "illegible": "→ INSUFFICIENT_EVIDENCE.", "ambiguous": "→ NEEDS_REVIEW.", "unverified": "→ NEEDS_REVIEW."},
+  "criteria": [
+    {"id": "TAX-CLS-01", "title_he": "סיווג כל אישור", "dimension": "classification", "method": "hybrid", "severity": "blocking", "deterministic_logic": "classify into the doc_types above by issuer header and title.", "pass_when": "סווג.", "fail_when": "מסמך שאינו אישור מס/עירייה.", "needs_review_when": "לא ניתן להכריע.", "insufficient_evidence_when": "לא נקרא.", "reason_code": "UNEXPECTED_DOCUMENT_TYPE", "on_fail": "INVALID", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "TAX-PRP-01", "title_he": "האישור מתייחס לנכס ולצדדים בעסקה", "dimension": "cross_document_consistency", "method": "deterministic", "severity": "major", "deterministic_logic": "property identifiers (gush/helka/tat_helka or address) and party ids vs agreement → PASS; mismatch → NEEDS_REVIEW.", "pass_when": "תואם.", "fail_when": "לעולם לא FAIL.", "needs_review_when": "אי־התאמה.", "insufficient_evidence_when": "אין מזהים.", "reason_code": "PROPERTY_IDENTIFIER_MISMATCH", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"},
+    {"id": "TAX-VAL-01", "title_he": "אישור העירייה בתוקף", "dimension": "recency", "method": "deterministic", "severity": "major", "deterministic_logic": "valid_until printed and < as_of → FAIL(MUNICIPAL_CONFIRMATION_EXPIRED); not printed → NEEDS_REVIEW (recency policy pending).", "pass_when": "בתוקף.", "fail_when": "פג תוקף.", "needs_review_when": "אין תאריך תוקף.", "insufficient_evidence_when": "לא קריא.", "reason_code": "MUNICIPAL_CONFIRMATION_EXPIRED", "on_fail": "NEEDS_REVIEW", "finding": null, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]},
+    {"id": "TAX-SET-01", "title_he": "שלמות סט האישורים לפני המנה האחרונה", "dimension": "completeness", "method": "deterministic", "severity": "major", "deterministic_logic": "required := {tax_transaction_report + digital confirmation, purchase_tax_payment, betterment_tax_payment OR trust_deposit, municipal_no_debt}. missing → FAIL listing items. MCS uses this only to gate the LAST tranche (MZ-05).", "pass_when": "כל האישורים קיימים.", "fail_when": "חסר אישור.", "needs_review_when": "לא רלוונטי.", "insufficient_evidence_when": "לא רלוונטי.", "reason_code": "TAX_CONFIRMATIONS_INCOMPLETE", "on_fail": "NEEDS_REVIEW", "finding": {"code": "TAX_CONFIRMATIONS_INCOMPLETE", "key_template": "TAX_CONFIRMATIONS_INCOMPLETE:{case}", "review_state": "CUSTOMER_ACTION_REQUIRED", "customer_message_he": "להשלמת העסקה חסרים אישורי המיסים: {missing_he}. בדרך כלל עורך הדין מעביר אותם.", "internal_message_he": "חסר: {missing}.", "requested_item_template": "{missing_item}"}, "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05"]}
+  ],
+  "verdict_policy": {"rules_he": ["רובריקת סט."], "set_status_rules_he": ["FAIL → INCOMPLETE; NEEDS_REVIEW → NEEDS_REVIEW; אחרת COMPLETE."]},
+  "cross_document_dependencies": [{"rubric_or_doc": "mortgage.purchase_agreement.extraction_consistency", "relation_he": "נכס וצדדים."}],
+  "examples": [
+    {"label": "valid", "situation_he": "כל ארבעת האישורים, אישור עירייה בתוקף עד 2026-11-30.", "expected": {"TAX-SET-01": "PASS"}},
+    {"label": "invalid", "situation_he": "חסר אישור תשלום מס שבח ואין הפקדה בנאמנות.", "expected": {"TAX-SET-01": "FAIL"}},
+    {"label": "uncertain", "situation_he": "אישור עירייה ללא תאריך תוקף.", "expected": {"TAX-VAL-01": "NEEDS_REVIEW"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/SetReview"},
+  "source_refs": ["MZ-05"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה."}]
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.income.payslip_coverage",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "כיסוי חודשי השכר הנדרשים — לכל לווה שכיר",
+  "name_en": "Multi-month salary coverage",
+  "description": "Set-level, per party. Derives (or receives from MCS) the requested salary months, counts each requested month at most once from eligible payslips, names every missing month as a machine code a supplement may ask for, and states how the window was derived. Deterministic only.",
+  "scope": "document_set",
+  "document_category": "payslip",
+  "applies_to": {"doc_types": ["payslip"], "requirement_codes": ["INC.PAYSLIP"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["salaried", "controlling_shareholder", "salaried_and_self_employed"], "transaction_types": ["*"]},
+  "preconditions": [
+    {"id": "PRE-01", "text_he": "לצד יש דרישה INC.PAYSLIP:{party_id} עם evaluate=true (מ־MCS).", "on_unmet": "NOT_REQUIRED."},
+    {"id": "PRE-02", "text_he": "כל תלושי הצד עברו את רובריקות המסמך (RB-00/01/02/05).", "on_unmet": "המתנה — set status IN_PROGRESS."}
+  ],
+  "required_fields": ["salary_period"],
+  "decisive_fields": ["salary_period"],
+  "policy_parameters": [
+    {"name": "requested_payslip_count", "value": 3, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "MZ-05", "note_he": "'אם אתם שכירים - 3 תלושי שכר אחרונים' (מזרחי־טפחות, מדריך דירה יד שנייה). גם לבעלי שליטה: 3 תלושים + מסמכים נוספים (MZ-05). אצל בנקים אחרים: הפועלים — 4 לשכיר בעל חברה (PEER-02)."},
+    {"name": "payday_day_of_next_month", "value": 9, "status": "CONFIRMED_PUBLIC_SOURCE", "source_ref": "SEC-02"},
+    {"name": "window_anchor", "value": "as_of", "status": "PENDING_BANK_POLICY", "note_he": "האם '3 אחרונים' נמדד מתאריך הבדיקה, מתאריך ההגשה לבנק, או ממועד האישור העקרוני — לא פורסם."},
+    {"name": "slide_window_on_early_payslip", "value": true, "status": "ENGINEERING_DEFAULT", "note_he": "לפני ה־9 בחודש: אם הוגש תלוש תקין לחודש הקודם (שולם מוקדם) — החלון זז קדימה ולא נדרש חודש ישן יותר."},
+    {"name": "require_previous_employer_payslip_if_seniority_lt_months", "value": null, "status": "PENDING_BANK_POLICY", "note_he": "כלל של דיסקונט ומרכנתיל (ותק < 12 חודשים → תלוש אחרון ממעסיק קודם, PEER-03/PEER-05). לא אותר במזרחי — כבוי עד אישור."}
+  ],
+  "evidence_policy": {
+    "verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"],
+    "decisive_fields_must_be_verified": true,
+    "citation_rule_he": "כל חודש מכוסה מצטט את salary_period של המסמך שנספר; כל חודש חסר מצוטט כרשימה (אין ראיה להיעדר — ההיעדר עצמו הוא הממצא, עם רשימת המסמכים שנבדקו).",
+    "pages_in_scope": "n/a (set-level)"
+  },
+  "allowed_inference_he": ["לחשב את החודשים הנדרשים מתאריך הבדיקה, מכמות התלושים ומיום התשלום החוקי — ולפרסם את החישוב.", "לספור חודש פעם אחת גם כשהוגשו לו כמה מסמכים."],
+  "prohibited_inference_he": ["להחליף חודש חסר בחודש אחר ('יש יוני במקום ספטמבר').", "לספור מסמך שה־verdict שלו INVALID/UNREADABLE/UNSUPPORTED או ששויך לצד אחר.", "לקבוע שהלקוח 'זכאי' או 'עומד בדרישות הבנק' — רק שהמסמכים המבוקשים כוסו."],
+  "missing_data_treatment": {
+    "absent": "חודש ללא מסמך נספר → חסר (REQUIRED_PERIOD_MISSING).",
+    "illegible": "מסמך שהתקופה בו לא קריאה אינו נספר; הוא מופיע ב־detail כ'הוגש אך לא נקרא'.",
+    "ambiguous": "מסמך עם PERIOD_CONFLICT אינו נספר עד הכרעת אדם; החודש מסומן NEEDS_REVIEW ולא 'חסר' אם אחד המועמדים הוא החודש החסר.",
+    "unverified": "מסמך שהתקופה בו לא אומתה אינו נספר."
+  },
+  "criteria": [
+    {
+      "id": "INC-COV-01", "title_he": "כל החודשים הנדרשים מכוסים בתלוש משלהם", "title_en": "Every requested month covered",
+      "dimension": "completeness", "method": "deterministic", "severity": "blocking",
+      "inputs": ["set.required_periods", "eligible payslips (party, period)"],
+      "deterministic_logic": "required := MCS.required_periods if provided else derive(as_of, requested_payslip_count, payday_day_of_next_month): M := month(as_of); latest := M-1 if as_of.day >= payday_day else M-2; if slide_window_on_early_payslip and as_of.day < payday_day and an eligible payslip for M-1 exists → latest := M-1; required := [latest-(n-1) … latest] (demo deterministic.requested_months / VisionTrace months.last_months). eligible(d) := d.doc_type=='payslip' ∧ d.party_binding.relation ∈ {match, match_name_variant} ∧ PSL-PER-01=PASS ∧ d.verdict ∉ {INVALID, UNREADABLE, UNSUPPORTED} ∧ d not duplicate_of another. cov := coverage([d.period for eligible], required) (VisionTrace months.coverage). missing == [] → PASS else FAIL per missing month.",
+      "pass_when": "לכל חודש נדרש יש לפחות תלוש כשיר אחד.",
+      "fail_when": "חסר לפחות חודש נדרש אחד.",
+      "needs_review_when": "החודש החסר הוא מועמד של מסמך עם PERIOD_CONFLICT (ייתכן שקיים אך לא הוכרע).",
+      "insufficient_evidence_when": "אף תלוש של הצד לא נקרא.",
+      "reason_code": "REQUIRED_PERIOD_MISSING", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "REQUIRED_PERIOD_MISSING", "key_template": "REQUIRED_PERIOD_MISSING:{party_id}:{month}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "כדי להשלים את מסמכי השכר של {first_name} חסר תלוש השכר של {month_he}. החודשים הנדרשים: {required_he}.",
+                  "internal_message_he": "INC.PAYSLIP:{party_id} — נדרשים {required}; כוסו {covered} ({counted_docs}); חסר {month}. חלון: {derivation}.",
+                  "requested_item_template": "payslip:{party_id}:{month}"},
+      "escalation": "customer", "requirement_basis": "CONFIRMED_PUBLIC_BANK_REQUIREMENT", "source_refs": ["MZ-05", "SEC-02"]
+    },
+    {
+      "id": "INC-COV-02", "title_he": "גזירת החלון מפורסמת ושחזורית", "title_en": "Window derivation stated",
+      "dimension": "evidence_sufficiency", "method": "deterministic", "severity": "info",
+      "inputs": ["policy_parameters", "MCS.required_periods"],
+      "deterministic_logic": "always record {as_of, count, payday_day, slid, anchor, source: mcs|derived}. if MCS supplied required_periods and derive() ≠ MCS list → INFO REQUIRED_PERIODS_SOURCE_DIFFERS (the MCS/bank list wins).",
+      "pass_when": "החלון תועד; אם MCS סיפק רשימה — היא שנבחרה.",
+      "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "רשימת MCS שונה מהגזירה (מידע לבנקאי).",
+      "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "REQUIRED_PERIODS_SOURCE_DIFFERS", "on_fail": "INFO_ONLY", "finding": null,
+      "escalation": "none", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "INC-COV-03", "title_he": "כל התלושים שנספרו תקינים", "title_en": "All counted payslips are VALID",
+      "dimension": "evidence_sufficiency", "method": "deterministic", "severity": "major",
+      "inputs": ["counted documents' verdicts"],
+      "deterministic_logic": "bad := [d for d in counted if d.verdict == 'NEEDS_REVIEW']. bad == [] → PASS else NEEDS_REVIEW listing each document and its own open reason codes (no new finding — the document findings already exist).",
+      "pass_when": "כל התלושים שנספרו קיבלו VALID.",
+      "fail_when": "לעולם לא FAIL (מסמכים פסולים כלל אינם נספרים).",
+      "needs_review_when": "תלוש שנספר נמצא NEEDS_REVIEW.",
+      "insufficient_evidence_when": "לא רלוונטי.",
+      "reason_code": "DOCUMENT_NOT_VALID", "on_fail": "NEEDS_REVIEW", "finding": null,
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "INC-COV-04", "title_he": "תלוש ממעסיק קודם כשהוותק קצר (מותנה מדיניות)", "title_en": "Previous-employer payslip when seniority is short (policy-gated)",
+      "dimension": "completeness", "method": "deterministic", "severity": "major",
+      "inputs": ["facts.employment_start_date (Addendum 2(א))", "policy.require_previous_employer_payslip_if_seniority_lt_months"],
+      "deterministic_logic": "policy null → NOT_APPLICABLE. seniority_months := months_between(employment_start_date, as_of). seniority < policy and no eligible payslip from a different employer within the 3 months before employment_start → FAIL(PREVIOUS_EMPLOYER_PAYSLIP_MISSING).",
+      "pass_when": "המדיניות פעילה והתלוש הקודם הוגש, או הוותק מעל הסף.",
+      "fail_when": "המדיניות פעילה, הוותק קצר מהסף ואין תלוש ממעסיק קודם.",
+      "needs_review_when": "תאריך תחילת העסקה אינו מודפס.",
+      "insufficient_evidence_when": "לא רלוונטי.",
+      "not_applicable_when": "המדיניות לא הוגדרה (ברירת מחדל — מזרחי לא פרסם כלל כזה).",
+      "reason_code": "PREVIOUS_EMPLOYER_PAYSLIP_MISSING", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "PREVIOUS_EMPLOYER_PAYSLIP_MISSING", "key_template": "PREVIOUS_EMPLOYER_PAYSLIP_MISSING:{party_id}", "review_state": "CUSTOMER_ACTION_REQUIRED",
+                  "customer_message_he": "{first_name} עובד/ת במקום העבודה הנוכחי פחות מ־{months} חודשים, ולכן נדרש גם תלוש השכר האחרון ממקום העבודה הקודם.",
+                  "internal_message_he": "ותק {seniority} חודשים < {months}.", "requested_item_template": "payslip_previous_employer:{party_id}"},
+      "escalation": "customer", "requirement_basis": "BANK_POLICY_REQUIRED", "source_refs": ["PEER-03", "PEER-05"]
+    }
+  ],
+  "verdict_policy": {
+    "rules_he": ["רובריקת סט אינה נותנת verdict למסמך; היא קובעת set status."],
+    "set_status_rules_he": [
+      "INC-COV-01 FAIL → INCOMPLETE.",
+      "INC-COV-01 PASS ו־INC-COV-03 NEEDS_REVIEW → NEEDS_REVIEW.",
+      "INC-COV-01 PASS ו־INC-COV-03 PASS ו־INC-COV-04 ∈ {PASS, NOT_APPLICABLE} → COMPLETE.",
+      "INC-COV-04 FAIL → INCOMPLETE."
+    ]
+  },
+  "cross_document_dependencies": [
+    {"rubric_or_doc": "mortgage.payslip.period", "relation_he": "החודש המודפס."},
+    {"rubric_or_doc": "mortgage.payslip.classification_identity", "relation_he": "שיוך המסמך לצד (מסמך של צד אחר אינו נספר)."},
+    {"rubric_or_doc": "mortgage.payslip.duplicates", "relation_he": "כפילויות נספרות פעם אחת; מצב 'חודש חסר + כפילות' מגביר את ממצא הכפילות ל־major."}
+  ],
+  "examples": [
+    {"label": "invalid", "situation_he": "as_of=2026-10-12; עידו הגיש יולי, אוגוסט, ואוגוסט נוסף (קובץ בשם ספטמבר).", "expected": {"required": ["2026-07", "2026-08", "2026-09"], "INC-COV-01": "FAIL", "missing": ["2026-09"], "finding": "REQUIRED_PERIOD_MISSING:BRW-A:2026-09", "requested_items": ["payslip:BRW-A:2026-09"], "set_status": "INCOMPLETE"}},
+    {"label": "valid", "situation_he": "נועה הגישה יולי (סרוק, אומת ב־OCR), אוגוסט, ספטמבר 2026.", "expected": {"INC-COV-01": "PASS", "set_status": "COMPLETE"}},
+    {"label": "edge", "situation_he": "as_of=2026-10-05 (לפני ה־9); עידו הגיש יולי, אוגוסט וספטמבר (ספטמבר שולם 01.10).", "expected": {"derived_before_slide": ["2026-06", "2026-07", "2026-08"], "slid": true, "required": ["2026-07", "2026-08", "2026-09"], "INC-COV-01": "PASS"}},
+    {"label": "uncertain", "situation_he": "התלוש היחיד שעשוי לכסות את ספטמבר מדפיס כותרת 'ספטמבר 2026' ושדה '08/2026'.", "expected": {"INC-COV-01": "NEEDS_REVIEW", "note": "חודש ספטמבר אינו 'חסר' אלא 'לא הוכרע'"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/SetReview",
+                        "example": {"requirement_code": "INC.PAYSLIP:BRW-A", "party_id": "BRW-A", "rubric": "mortgage.income.payslip_coverage@1.0.0", "required_periods": ["2026-07", "2026-08", "2026-09"], "supplied": [{"period": "2026-07", "document_ids": ["DOC-A1"], "counted_document_id": "DOC-A1"}, {"period": "2026-08", "document_ids": ["DOC-A2", "DOC-A3"], "counted_document_id": "DOC-A2", "named_period_disagrees": ["DOC-A3"]}], "missing": ["2026-09"], "duplicates": {"2026-08": ["DOC-A2", "DOC-A3"]}, "extra": [], "status": "INCOMPLETE"}},
+  "source_refs": ["MZ-05", "SEC-02", "PEER-02", "PEER-03", "PEER-05", "VT-CODE:backend/app/services/unemployment/checks.py#requested_payslips", "DEMO-CODE:backend/app/review/deterministic.py#requested_months"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה; מחליף IS-01 בדמו; מוסיף החלקת חלון ותלוי־מדיניות למעסיק קודם."}]
+}

@@ -1,0 +1,18 @@
+{
+  "review_case_id": "rc_7k2m9q4x1d",
+  "review_case_reference": "C-7K2M-9Q4X",
+  "review_run_id": "a3f91c2e7b",
+  "review_run_reference": "R-A3F91",
+  "state": "running",
+  "stage": "extract",
+  "progress": {
+    "documents_total": 6,
+    "documents_read": 3,
+    "pages_total": 6,
+    "pages_read": 3
+  },
+  "queued_at": "2026-10-12T08:10:00Z",
+  "started_at": "2026-10-12T08:10:02Z",
+  "error": null,
+  "result_url": null
+}

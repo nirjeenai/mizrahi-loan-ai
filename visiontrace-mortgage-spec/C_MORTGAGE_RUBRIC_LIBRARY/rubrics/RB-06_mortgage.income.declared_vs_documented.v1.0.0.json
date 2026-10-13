@@ -1,0 +1,123 @@
+{
+  "$schema": "../rubric.schema.json",
+  "rubric_id": "mortgage.income.declared_vs_documented",
+  "version": "1.0.0",
+  "status": "DRAFT_FOR_IMPLEMENTATION",
+  "priority": "MVP",
+  "name_he": "הכנסה מוצהרת מול המסמכים התומכים",
+  "name_en": "Declared income versus supporting documentation",
+  "description": "Case-level, per party. Compares like-for-like (net with net, gross with gross, same months, one document per month) between what the application declares (MCS data — not evidence) and what verified payslips print. Arithmetic is code; the semantic judge only assesses comparability and grounds/describes a difference. A customer explanation is attached as an UNVERIFIED claim and never resolves the finding. Thresholds are pending bank policy, so beyond-tolerance differences are NEEDS_REVIEW, never FAIL.",
+  "scope": "case",
+  "document_category": "income_set",
+  "applies_to": {"doc_types": ["payslip"], "requirement_codes": ["INC.PAYSLIP"], "party_roles": ["borrower", "co_borrower", "guarantor"], "employment_types": ["salaried", "controlling_shareholder", "salaried_and_self_employed"], "transaction_types": ["*"]},
+  "preconditions": [
+    {"id": "PRE-01", "text_he": "MCS סיפק declared_income לצד, כולל basis (net_regular / gross_regular / unspecified).", "on_unmet": "כל הקריטריונים NOT_APPLICABLE ('אין הצהרה להשוואה')."},
+    {"id": "PRE-02", "text_he": "לפחות תלוש כשיר אחד עם net_pay (או gross_pay) מאומת.", "on_unmet": "INSUFFICIENT_EVIDENCE."}
+  ],
+  "required_fields": ["net_pay", "gross_pay", "salary_period"],
+  "decisive_fields": ["net_pay"],
+  "policy_parameters": [
+    {"name": "income_variance_tolerance_pct", "value": null, "engineering_default": 5.0, "status": "PENDING_BANK_POLICY", "note_he": "ערך הדמו (income-set.salaried@1.0.0) הוא 5%. לא נמצא מקור ציבורי. כל עוד PENDING — חריגה → NEEDS_REVIEW, לא FAIL."},
+    {"name": "aggregation", "value": "mean_of_counted_months", "status": "ENGINEERING_DEFAULT", "note_he": "ממוצע חשבוני של החודשים הנדרשים שנספרו (מסמך אחד לחודש, הראשון שהועלה מבין עותקים זהים). שיטת הבנק (ממוצע/מינימום/חציון; הכנסה קבועה בלבד) — לא פורסמה."},
+    {"name": "exclude_months_with_conflicting_duplicates", "value": true, "status": "ENGINEERING_DEFAULT"}
+  ],
+  "evidence_policy": {
+    "verified_witnesses": ["text_layer_exact", "ocr_token_match", "vision_reread_confirmed"],
+    "decisive_fields_must_be_verified": true,
+    "citation_rule_he": "כל חודש שנכנס לחישוב מצטט את net_pay שלו; ההצהרה מצוטטת כ'mcs:declared' (אינה ראיה). הסבר הלקוח מצורף כ־CustomerStatement עם evidentiary_status=UNVERIFIED_CLAIM.",
+    "pages_in_scope": "n/a"
+  },
+  "allowed_inference_he": [
+    "לקבוע שהגדרות שוות־ערך (נטו מוצהר ↔ 'נטו לתשלום').",
+    "לתאר פער מבוסס במספרים שהקוד חישב.",
+    "להציע השערות לבדיקת אדם (רכיב משתנה שאינו מופיע בחודשים האחרונים, הצהרה ברוטו במקום נטו, טעות הקלדה) — מסומנות כהשערות."
+  ],
+  "prohibited_inference_he": [
+    "לחשב או לרמוז על כושר החזר, יחס החזר־הכנסה (PTI) או זכאות לאשראי.",
+    "לסגור ממצא על סמך הסבר הלקוח.",
+    "לבחור 'ההכנסה הנכונה' בין ההצהרה למסמכים.",
+    "לבקש מהלקוח מסמכים שאינם ברשימת הבנק — רק לציין לבנקאי איזו ראיה יכולה להבהיר."
+  ],
+  "missing_data_treatment": {
+    "absent": "אין הצהרה → NOT_APPLICABLE. אין חודשים מאומתים → INSUFFICIENT_EVIDENCE.",
+    "illegible": "חודש שה־net_pay בו לא קריא אינו נכנס לחישוב; months_compared מפורט.",
+    "ambiguous": "basis=unspecified → INC-DEC-01 NEEDS_REVIEW ('לא ידוע אם ההצהרה ברוטו או נטו'); ההשוואה מוצגת לשני הכיוונים ללא הכרעה.",
+    "unverified": "חודש שה־net_pay בו לא אומת אינו נכנס לחישוב."
+  },
+  "model_instructions": {
+    "judge_system_en": "You are the semantic cross-document stage. Compare like with like (net with net, gross with gross, the same months). All arithmetic is provided — do not recompute or invent numbers; quote the provided ones. A customer explanation is an UNVERIFIED claim: mention whether the submitted documents support it, contradict it or are silent; it can never make a discrepancy consistent. income_assessment: CONSISTENT only when the documents support the declaration; INCONSISTENT for a grounded difference; INSUFFICIENT_EVIDENCE when months or definitions cannot be compared. possible_reasons are hypotheses for a person. Never recommend approving or rejecting credit. Write in concise Hebrew.",
+    "judge_task_en": "INC-DEC-03 and INC-DEC-04 for each party provided."
+  },
+  "criteria": [
+    {
+      "id": "INC-DEC-01", "title_he": "ההשוואה היא לייק־פור־לייק", "title_en": "Like-for-like comparison basis",
+      "dimension": "cross_document_consistency", "method": "deterministic", "severity": "major",
+      "inputs": ["declared_income.basis", "facts.net_pay", "facts.gross_pay"],
+      "deterministic_logic": "basis=net_regular → compare to net_pay. basis=gross_regular → compare to gross_pay (and record that gross may include benefits-in-kind / variable lines). basis=unspecified → NEEDS_REVIEW and compute both views without verdict.",
+      "pass_when": "בסיס ההצהרה ידוע ומושווה לשדה המקביל.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "בסיס ההצהרה לא ידוע.", "insufficient_evidence_when": "אין שדה מקביל מאומת.",
+      "not_applicable_when": "אין הצהרה.",
+      "reason_code": "INCOME_BASIS_UNKNOWN", "on_fail": "NEEDS_REVIEW", "finding": null,
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "INC-DEC-02", "title_he": "הפער בין המוצהר למתועד בתוך הסובלנות", "title_en": "Variance within tolerance",
+      "dimension": "cross_document_consistency", "method": "deterministic", "severity": "major",
+      "inputs": ["declared value", "counted months' verified values"],
+      "deterministic_logic": "months := required months that were counted, excluding conflicting duplicates; per month one document (first uploaded among same-content copies). avg := mean(values). diff := avg − declared; pct := diff / declared × 100. tol := policy.value ?? engineering_default. |pct| ≤ tol → PASS (if tol is ENGINEERING_DEFAULT the PASS is recorded with the parameter status). |pct| > tol → NEEDS_REVIEW (never FAIL while PENDING_BANK_POLICY; FAIL only once status=CONFIRMED_BANK_POLICY and the bank defines FAIL semantics). Record months_compared, values, avg, diff, pct.",
+      "pass_when": "|פער%| ≤ סובלנות.", "fail_when": "רק לאחר שהבנק אישר סף וסמנטיקת כשל — עד אז לעולם לא FAIL.",
+      "needs_review_when": "|פער%| > סובלנות.", "insufficient_evidence_when": "אין חודש מאומת להשוואה.",
+      "not_applicable_when": "אין הצהרה.",
+      "citations_required": ["net_pay"],
+      "policy_parameters": ["income_variance_tolerance_pct", "aggregation"],
+      "reason_code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE", "on_fail": "NEEDS_REVIEW",
+      "finding": {"code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE", "key_template": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:{party_id}", "review_state": "BANKER_REVIEW_REQUIRED",
+                  "customer_message_he": "נמצא הבדל בין ההכנסה שהוצהרה בבקשה לבין תלושי השכר שהועלו. הנושא הועבר לבדיקה של מומחה המשכנתאות שלך.",
+                  "internal_message_he": "מוצהר {declared} ₪ {basis_he}; ממוצע בתלושים המאומתים ({months_he}) {avg} ₪ — פער {diff} ₪ ({pct}%). סובלנות {tol}% ({tol_status}). הממצא אינו קובע דבר על זכאות לאשראי.",
+                  "requested_item_template": null},
+      "escalation": "banker", "requirement_basis": "BANK_POLICY_REQUIRED"
+    },
+    {
+      "id": "INC-DEC-03", "title_he": "הערכה סמנטית של הפער", "title_en": "Semantic assessment of the difference",
+      "dimension": "semantic", "method": "judge", "severity": "major",
+      "inputs": ["computed stats", "line_items categories per month", "declared note", "names printed"],
+      "deterministic_logic": "Only runs when INC-DEC-02 ≠ PASS. Judge output income_assessment ∈ {CONSISTENT, INCONSISTENT, INSUFFICIENT_EVIDENCE}. Mapping in code: CONSISTENT → NEEDS_REVIEW (a judge may not overrule code's beyond-tolerance number; it can only add context) ; INCONSISTENT → NEEDS_REVIEW ; INSUFFICIENT_EVIDENCE → INSUFFICIENT_EVIDENCE. The judge never changes INC-DEC-02.",
+      "judge_instructions": "Explain in Hebrew whether the definitions are equivalent and whether the difference is grounded in the payslips (quote the provided numbers). Give possible_reasons as hypotheses and evidence_needed for a banker. No credit language.",
+      "pass_when": "לא רץ כאשר INC-DEC-02=PASS.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "תמיד כאשר רץ (הפער קיים; השופט מוסיף הקשר).", "insufficient_evidence_when": "השופט קבע שלא ניתן להשוות (חודשים/הגדרות).",
+      "reason_code": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE", "on_fail": "NEEDS_REVIEW", "finding": null,
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    },
+    {
+      "id": "INC-DEC-04", "title_he": "הסבר הלקוח נבחן מול הראיות (אינו סוגר ממצא)", "title_en": "Customer explanation assessed, never closes",
+      "dimension": "semantic", "method": "judge", "severity": "major",
+      "inputs": ["customer_statements for this finding/party", "line_items categories", "all submitted documents of the party"],
+      "deterministic_logic": "Runs when a CustomerStatement is attached to the party's variance finding. Judge returns supports / contradicts / silent with citations. Code: outcome is ALWAYS NEEDS_REVIEW (reason CUSTOMER_STATEMENT_UNSUPPORTED when silent/contradicts; CUSTOMER_STATEMENT_PARTIALLY_SUPPORTED when supports) and the statement's assessment_he is written. The finding stays OPEN regardless.",
+      "judge_instructions": "Assess only against submitted documents. 'Supports' requires a cited line (e.g., a bonus line in a payslip). The statement itself is not evidence.",
+      "pass_when": "לעולם לא PASS — הסבר אינו ראיה.", "fail_when": "לעולם לא FAIL.",
+      "needs_review_when": "תמיד כאשר צורף הסבר.", "insufficient_evidence_when": "לא רלוונטי.",
+      "not_applicable_when": "לא צורף הסבר.",
+      "reason_code": "CUSTOMER_STATEMENT_UNSUPPORTED", "on_fail": "NEEDS_REVIEW", "finding": null,
+      "escalation": "banker", "requirement_basis": "PROPOSED_VALIDATION"
+    }
+  ],
+  "verdict_policy": {
+    "rules_he": ["רובריקת תיק: אינה נותנת verdict למסמך. מייצרת ממצא BANKER_REVIEW_REQUIRED בלבד; לעולם לא CUSTOMER_ACTION_REQUIRED (הלקוח אינו נדרש 'לתקן' הכנסה)."],
+    "set_status_rules_he": ["ממצא פתוח מכאן → readiness של התיק לכל היותר HUMAN_REVIEW_REQUIRED."]
+  },
+  "cross_document_dependencies": [
+    {"rubric_or_doc": "mortgage.payslip.financials", "relation_he": "net_pay/gross_pay מאומתים וסיווג רכיבים."},
+    {"rubric_or_doc": "mortgage.payslip.duplicates", "relation_he": "חודשים עם תוכן סותר מוחרגים מהממוצע."},
+    {"rubric_or_doc": "mortgage.bank_statement.extraction_coverage", "relation_he": "P1: זיכויי משכורת בעו״ש כחיזוק/סתירה (XD-INC-03)."}
+  ],
+  "examples": [
+    {"label": "valid", "situation_he": "עידו: מוצהר 13,500 נטו; תלושים יולי 13,200, אוגוסט 13,500, ספטמבר 13,400 → ממוצע 13,366.67.", "expected": {"INC-DEC-02": "PASS (−0.99%, סובלנות 5% ENGINEERING_DEFAULT)", "finding": null}},
+    {"label": "uncertain", "situation_he": "נועה: מוצהר 18,500 נטו ('ייתכנו רכיבים משתנים'); תלושים יולי–ספטמבר 16,900 כל אחד; אין שורת בונוס.", "expected": {"INC-DEC-02": "NEEDS_REVIEW (−8.65%)", "INC-DEC-03": "NEEDS_REVIEW (INCONSISTENT — פער מבוסס)", "finding": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B", "review_state": "BANKER_REVIEW_REQUIRED"}},
+    {"label": "edge", "situation_he": "נועה מוסרת בצ׳אט: 'חלק מההכנסה הוא בונוס רבעוני שלא מופיע בתלושים האלה'.", "expected": {"INC-DEC-04": "NEEDS_REVIEW (CUSTOMER_STATEMENT_UNSUPPORTED — אף תלוש לא מדפיס בונוס)", "finding_status": "OPEN", "statement_evidentiary_status": "UNVERIFIED_CLAIM"}},
+    {"label": "not_applicable", "situation_he": "MCS לא סיפק הכנסה מוצהרת לערב.", "expected": {"all": "NOT_APPLICABLE"}}
+  ],
+  "expected_response": {"schema_ref": "../../D_VISIONTRACE_REVIEW_DATA_CONTRACTS/schemas/mortgage-review.v1.schema.json#/$defs/CrossDocumentComparison",
+                        "judge_output_schema": {"$ref": "../judge_output.schema.json"}},
+  "source_refs": ["DEMO-CODE:backend/app/review/case_review.py#_semantic", "DEMO-CODE:backend/rubrics/income-set.salaried.v1.0.0.json#IS-04"],
+  "changelog": [{"version": "1.0.0", "date": "2026-10-12", "change_he": "טיוטה ראשונה; מחליף IS-04 בדמו; שופט אינו יכול להפוך חריגה ל־PASS."}]
+}

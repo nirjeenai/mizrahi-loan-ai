@@ -1,0 +1,45 @@
+{
+  "schema_version": "mortgage-review/1",
+  "review_case_id": "rc_7k2m9q4x1d",
+  "supplement_id": "sup_k3j5h7g9f1",
+  "mode": "replace",
+  "documents": [
+    {
+      "document_id": "DOC-A3",
+      "version": 2,
+      "replaces": {
+        "document_id": "DOC-A3",
+        "version": 1
+      },
+      "sha256": "64a07c9f4f7e92f96a17d6e1e9ea40152f9779bf32afd2c6f7214dadad6d4b11",
+      "filename": "ido_payslip_2026-09_corrected.pdf",
+      "mime": "application/pdf",
+      "bytes": 157591,
+      "uploaded_at": "2026-10-12T08:41:22Z",
+      "submitted_to_bank_at": "2026-10-12T08:41:22Z",
+      "uploaded_by": "customer:BRW-A",
+      "channel": "demo_upload",
+      "claimed_requirement_code": "INC.PAYSLIP:BRW-A",
+      "assigned_party_id": "BRW-A",
+      "download": {
+        "url": "https://mcs.example.invalid/api/v1/files/DOC-A3/2?exp=1760257200&sig=EXAMPLE",
+        "expires_at": "2026-10-12T09:00:00Z"
+      }
+    }
+  ],
+  "customer_statements": [
+    {
+      "statement_id": "stm_noa_0001",
+      "party_id": "BRW-B",
+      "finding_key": "DECLARED_VS_DOCUMENT_INCOME_VARIANCE:BRW-B",
+      "text": "חלק מההכנסה שלי הוא תשלום משתנה — בונוס רבעוני שלא מופיע בתלושים האלה.",
+      "channel": "chat",
+      "transcript_provenance": "typed",
+      "created_at": "2026-10-12T08:20:07Z",
+      "evidentiary_status": "UNVERIFIED_CLAIM",
+      "assessment_he": null
+    }
+  ],
+  "idempotency_key": "mcs-DEMO-MTZ-2026-001-sup1-a9c2",
+  "trace_id": "trc-b7d204e9c1"
+}
