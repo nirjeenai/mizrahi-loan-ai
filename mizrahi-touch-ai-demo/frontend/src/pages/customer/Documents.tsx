@@ -106,7 +106,8 @@ export function Documents() {
   const loaded = !!snap;
   useEffect(() => {
     if (!snap) return;
-    const want = params.get("upload"), section = params.get("focus"), forCase = params.get("case"), reqId = params.get("request");
+    // req=<requirement>: the follow-up's secure link lands here and opens that requirement's upload, like upload=
+    const want = params.get("upload") || params.get("req"), section = params.get("focus"), forCase = params.get("case"), reqId = params.get("request");
     const replace = params.get("replace");
     if (!want && !section && !reqId && !replace) return;
     setParams({}, { replace: true });

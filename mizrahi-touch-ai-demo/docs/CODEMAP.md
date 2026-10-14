@@ -23,6 +23,9 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 | Loan requirements | `workflow/requirements.py` (`pin`/`repin` → `case_profile`, `for_case` instances, `family_of`, `payslip_months`) | `bank.requirements()` and `bank.case_context()` delegate here |
 | Non-payslip families | `review/family_checks.py` (ID, statement, proof of purpose, tax form) | rubrics `backend/rubrics/{id_document,bank_statement,purpose_proof,tax_form}.il.v1.0.0.json`; dispatch `rubrics.for_family`; reason texts `review/reason_codes.py` |
 | Case coverage per family | `case_review._document_findings`, `_requirement_coverage` | coverage codes also in `engine.COVERAGE_CODES` / `review_desk.COVERAGE_CODES` |
+| Follow-up engine (Round 3) | `followup/{policy,windows,tasks,presence,links,orchestrator}.py`, `clock.py`, `flags.py` | scenarios `backend/policy/scenarios/`; tables `completion_tasks, contact_plans, contact_attempts, policy_decisions, customer_presence, contact_preferences, case_overrides, upload_links`; routes `api/followup.py`; wired at G5 in `workflow/engine.py` (`followup_event`, `_tick_followups`) |
+| Outbound contact | `comms/{contract,mock_talk,jeen_talk,registry,webhook}.py` | `provider_events`; handoff `docs/plans/07-jeen-talk-handoff.md` |
+| Admin Settings (Round 4) | `api/admin.py` (drafts, validate, publish, simulate, `as-configured`, versions, rollback, kill switch, audit) | `policy/validate.py` (envelope, locked fields, publish gate), `policy/simulator.py` (changes together with `followup/contract.py` and the scenario fixtures), `policy/prompts.py` (lint, preview) |
 | Demo intake | `workflow/intake.py` ↔ `GET/POST /api/demo/applications` (`api/routes.py`) | stored in `demo_applications`, read by `MockBankAdapter._applications` |
 | App wiring | `main.py` (routers, SPA fallback, lifespan starts workers) | `config.py` (reads `backend/.env`, `DATA_DIR`, `SIMULATION_DATE`, MCP key→case map, `SESSION_*`, `DEMO_IDENTITY`, `DEMO_RESET`) |
 | Sessions and access | `auth.py` (signed sessions, `require_customer_case` / `require_reader` / `require_staff` / `require_assigned_staff`, `/api/session` + demo-session routes) | every route in `api/*.py` calls one of these; demo identity on/off: `DEMO_IDENTITY` |
@@ -69,6 +72,7 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 | Banker console | `pages/banker/BankerConsole.tsx` (case bar; `?view=` review · conversation · technical), `ReviewWorkspace.tsx` (queue + evidence + confirmation), `DecisionPanel.tsx` (all decision forms), `deskUi.tsx` (`newRequestId`, shared UI); the console obtains its staff session itself (`BankerConsole.tsx`) |
 | System page | `pages/system/SystemPage.tsx` (integrations, MCP self-test, rubrics) |
 | Styles | `styles.css` (single stylesheet, `--mz-*` tokens, `.ltr` for IDs/numbers in RTL) |
+| Follow-up UI (G5) | `presence.ts` (`usePresence` in `TouchShell`, `reportPresence` from `UploadSheet`) · `followupApi.ts` · `components/FollowupNotice.tsx` (home) · `pages/customer/Link.tsx` (`/customer/link#t=`) · `pages/banker/FollowupView.tsx` (console tab "מעקב השלמה") · `components/FollowupSimControls.tsx` (presenter) · `pages/admin/*` + `adminApi.ts` + `admin.css` (`/admin`, Agent C) |
 | Loan screens | `pages/customer/Documents.tsx::LoanDocRow` (one-document requirements), `pages/customer/Apply.tsx` (intake, `/customer/apply`), `UploadSheet.tsx` (`initialRequirement`, type chips), `ReviewWorkspace.tsx::RequirementMatrix`, `EvidenceViewer.MAIN` (all families' fields) |
 
 ## Change together

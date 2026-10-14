@@ -164,8 +164,7 @@ def test_journey_from_self_service_to_ready_for_banker(wall):
 
     # the corrected upload passes review: task resolved, plan completed, ready for the banker (S08, AC 10–11)
     add_doc("BRW-A", "2026-09", 14700, "ido_2026-09.pdf", case=JOURNEY)
-    run_case()
-    orchestrator.on_event(JOURNEY, "review_finished")
+    run_case()                                  # since G5 the case review itself tells the follow-up engine
     [task] = tasks.all_for(JOURNEY)
     assert task["status"] == "RESOLVED" and task["document_id"]
     assert plan_state() == "COMPLETED" and orchestrator.case_status(JOURNEY) == "READY_FOR_BANKER"

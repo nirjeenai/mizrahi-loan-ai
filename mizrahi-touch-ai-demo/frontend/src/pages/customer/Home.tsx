@@ -4,6 +4,7 @@ import { ils } from "../../api";
 import { useCase } from "../../caseContext";
 import { DocumentCheckCard } from "../../components/DocumentCheckCard";
 import { DocumentSummary } from "../../components/DocumentSummary";
+import { FollowupNotice } from "../../components/FollowupNotice";
 import { IBag, ICalendar, IChat, IChevron } from "../../components/Icons";
 import { RecentUpdates } from "../../components/RecentUpdates";
 import { StageRing } from "../../components/StageRing";
@@ -80,6 +81,7 @@ export function Home() {
       </button>
 
       <DocumentCheckCard />
+      <FollowupNotice />
 
       <section className="card banker-box" aria-label={`${c.banker.role_he}: ${c.banker.name_he}`} data-testid="banker-card">
         <div className="banker-top">

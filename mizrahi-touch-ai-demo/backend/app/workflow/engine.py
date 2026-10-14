@@ -87,7 +87,17 @@ def submit_document(case_id: str, filename: str, mime: str, data: bytes, borrowe
                {"filename": row["filename"], "borrower_id": borrower_id, "sha256": sha, "pages": info["pages"],
                 "text_layer": info["text_layer_chars"] > 0})
     enqueue("review_document", case_id, document_id, f"review_document:{document_id}:1")
+    followup_event(case_id, "document_uploaded")
     return repo.document(document_id), True
+
+
+def followup_event(case_id: str, trigger: str) -> None:
+    """Tell the follow-up engine the case changed. Its failure must never fail an upload or a review."""
+    try:
+        from ..followup import orchestrator
+        orchestrator.on_event(case_id, trigger)
+    except Exception:
+        log.exception("follow-up evaluation after %s failed for %s", trigger, case_id)
 
 
 def retry_document(document_id: str, actor: str) -> None:
@@ -222,6 +232,7 @@ def _run_document(job: dict) -> None:
                 "rubric": f"{rubric['rubric_id']}@{rubric['version']}", "doc_type": result.doc_type,
                 "period": result.period, "usage": result.usage})
     request_case_review(doc["case_id"], f"document {doc['document_id']} reviewed")
+    followup_event(doc["case_id"], "review_finished")
 
 
 def _run_case(job: dict) -> None:
@@ -266,6 +277,7 @@ def _run_case(job: dict) -> None:
     repo.audit(case_id, f"provider:{ident.provider}", "case_reviewed", case_id,
                {"run_id": run_id, "rubric": f"{rubric['rubric_id']}@{rubric['version']}", "findings": changes,
                 "readiness": state["state"]})
+    followup_event(case_id, "review_finished")
 
 
 COVERAGE_CODES = ("REQUIRED_PERIOD_MISSING", "DUPLICATE_PERIOD", "REQUIRED_DOCUMENT_MISSING", "STATEMENT_PERIOD_GAP")
@@ -352,10 +364,26 @@ _stop = threading.Event()
 _threads: list[threading.Thread] = []
 
 
+TICK_SECONDS = 5.0
+
+
+def _tick_followups() -> None:
+    try:
+        from ..followup import orchestrator
+        orchestrator.tick()
+    except Exception:
+        log.exception("follow-up tick failed")
+
+
 def _loop(n: int) -> None:
+    last_tick = 0.0
     while not _stop.is_set():
         job = None
         try:
+            # one worker runs the follow-up engine's due work between review jobs (no job kinds of its own)
+            if n == 0 and time.monotonic() - last_tick >= TICK_SECONDS:
+                last_tick = time.monotonic()
+                _tick_followups()
             job = _claim()
             if job is None:
                 _stop.wait(0.6)

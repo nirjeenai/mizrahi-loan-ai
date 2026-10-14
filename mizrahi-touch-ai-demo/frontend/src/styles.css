@@ -1073,6 +1073,17 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .fx-dl:hover { background: #f06c00; }
 .fx-dl:focus-visible { outline: 3px solid var(--mz-orange-ring); outline-offset: 2px; }
 .scn-file.wrong { border-color: #f0c6c0; }
+/* follow-up (Round 3): customer notice, banker view, presenter simulation */
+.fu-note { display: flex; flex-direction: column; gap: 6px; }
+.fu-head { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; }
+.fu-ic { color: var(--mz-navy); margin-top: 2px; }
+.fu-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.fu-decision { margin-top: 8px; font-size: 13px; line-height: 1.6; background: var(--mz-bg); border-radius: 8px; padding: 7px 10px; }
+.fu-rules { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.fu-event { padding: 3px 0; border-bottom: 1px solid var(--mz-line-soft); }
+.fu-sim { margin-top: 12px; }
+.fu-sim-body { padding: 8px 2px 4px; display: flex; flex-direction: column; }
+.fu-sim-line { margin-top: 6px; background: var(--mz-bg); border-radius: 8px; padding: 5px 9px; line-height: 1.5; }
 .feat-expected { display: flex; flex-direction: column; gap: 1px; border-radius: 10px; padding: 7px 11px; font-weight: 800; font-size: 14px; }
 .feat-k { font-size: 11px; font-weight: 700; opacity: 0.85; }
 .feat-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }

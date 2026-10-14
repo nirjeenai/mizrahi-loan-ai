@@ -235,6 +235,16 @@ def explain_finding(case_id: str, args: dict, ctx: dict) -> dict:
             "customer_statements_unverified": st, "notice": NOTICE}
 
 
+def get_followup_context(case_id: str, args: dict, ctx: dict) -> dict:
+    """The follow-up state the customer may see (no rule ids, attempts or banker text) and the open completion tasks."""
+    from ..followup import orchestrator, tasks
+    view = orchestrator.customer_view(case_id)
+    return {**view, "open_tasks": [{"requirement_code": t["requirement_code"], "reason_code": t["reason_code"],
+                                    "title_he": t["title_he"], "customer_text_he": t["customer_text_he"]}
+                                   for t in tasks.open_for(case_id)],
+            "notice": "מעקב השלמה מדומה (JEEN Talk בסימולציה): אין שיחה אמיתית. ההחלטות נקבעות בקוד, לא במודל."}
+
+
 def offer_app_actions(case_id: str, args: dict, ctx: dict) -> dict:
     chosen, rejected = actions.choose(actions.available(case_id), list(args.get("action_ids") or [])[:8])
     if not chosen:
@@ -273,6 +283,11 @@ TOOLS: dict[str, dict[str, Any]] = {
     "get_review_history": {"handler": get_review_history, "write": False,
                            "description": "Review run history (provider, rubric version, timestamps) for the case or one document.",
                            "parameters": {"type": "object", "properties": {"document_id": {"type": "string"}}}},
+    "get_followup_context": {"handler": get_followup_context, "write": False,
+                             "description": "The completion follow-up for this case as the customer may see it: whether the bank is "
+                                            "waiting for the customer, a reminder in the app, a scheduled simulated JEEN Talk call or "
+                                            "nothing; the open completion tasks; snooze and contact preferences. Read-only.",
+                             "parameters": {"type": "object", "properties": {}}},
     "record_customer_statement": {"handler": record_customer_statement, "write": True,
                                   "description": "Attach the customer's own explanation to a finding for the banker. Only after the "
                                                  "customer explicitly agreed it should be recorded. It never resolves a finding.",

@@ -121,7 +121,7 @@ export class AccessError extends Error {
 /** Fired on every 401 so the app can show its sign-in screen; the session cookie is HttpOnly, so this is the only signal. */
 export const AUTH_EVENT = "mz-auth-required";
 
-async function http<T>(path: string, init?: RequestInit): Promise<T> {
+export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, { credentials: "same-origin", ...init });
   if (!res.ok) {
     let detail = `${res.status}`;

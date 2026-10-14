@@ -63,6 +63,72 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   E2E_MCP_KEY_2=replay-mcp-key-002`). Sections below this one describe the
   shared architecture and still use mortgage examples where they were written for #1.
 
+## Follow-up engine and Admin Settings (Rounds 3–4, integrated at G3–G5)
+When a customer leaves a correction unfinished, the server decides whether to wait, nudge in the app, schedule a call
+or block. It decides in code, with rule ids and a Hebrew reason (`followup/policy.py`, 39 scenario fixtures in
+`backend/policy/scenarios/`).
+
+**When the engine never contacts the customer**
+- while they are active on the screen that fixes the task;
+- while an upload or a review is running;
+- outside the call window or on holidays;
+- without consent, or after an opt-out;
+- while a banker has paused the follow-up, or the kill switch is on;
+- after the task is resolved.
+
+**How a contact happens**
+- Calls go through `OutboundProvider`. In this demo that is a simulated JEEN Talk (`mock-talk`) that never dials. It
+  posts the status events a live provider would and sends a secure completion link: `/customer/link#t=…`, reusable
+  until expiry or resolution.
+- The link redeems into a session for that case only and opens that requirement's upload (`?req=`).
+- A corrected upload that passes review resolves the task and cancels further contact.
+
+**Wiring (G5)**
+- **Worker:** `review-worker-0` runs `orchestrator.tick()` every 5 s between review jobs.
+- **Triggers:** `engine.followup_event` fires after an accepted upload, after a document review and after a case
+  review. A follow-up error never fails an upload or a review.
+- **Presence:** the customer app reports presence (`presence.ts`). The events are session start, heartbeat, activity,
+  file picker, upload, and end by beacon. The presenter pane is not counted as customer activity, and activity after
+  the server ended the session resumes it.
+- **Customer:** the home screen shows a short notice only when there is something to say, with two controls: snooze
+  for an hour, and no phone calls.
+- **Banker:** the console has a "מעקב השלמה" tab with:
+  - the plan state, the decision and its reason, the next allowed contact time;
+  - the completion tasks, the simulated attempts and their outcome;
+  - the timeline;
+  - pause, resume and call now.
+- **Presenter:** "סימולציית מעקב השלמה" in the left pane: the customer leaves, clock +20 min / next window, run the
+  engine, the call's outcome, open the sent link, reset the clock.
+- **Assistant and MCP:** `get_followup_context`, read-only, so the MCP catalog has 11 tools.
+- **`/system`:** a "Follow-up engine" row and a "JEEN Talk (outbound follow-up calls)" row: DEMO, SIMULATION.
+
+**Admin Settings (`/admin`, "הגדרות" in the console bar)**
+- Four tabs:
+  - documents and process;
+  - follow-up and completion (with the envelope bounds and the kill switch);
+  - prompt and templates;
+  - simulation and versions.
+- Drafts stay inactive until "שמירה והפעלה". The publish gate checks, in order:
+  1. schema and envelope (call window 08:00–20:00, no Saturday, at most 3 attempts, at least 4 h between calls);
+  2. locked fields;
+  3. the draft's base;
+  4. that there is a change;
+  5. that every mandatory scenario passes in a recorded simulation.
+- Timing scenarios pin the seed values they depend on, so the gate stays a deterministic regression check. The
+  simulator panel also shows what the draft's own values do there ("בהגדרות הטיוטה", `POST /policy/as-configured`).
+- Publishing moves the version the running engine reads. Rollback publishes a new version with the old configuration.
+- No login, roles or approval step: the demo staff session of `/banker`.
+
+**Tests**
+- `backend/tests/test_followup_*.py`, `test_talk_webhook.py`, `test_upload_links.py`, `test_clock.py`,
+  `test_admin_*.py`, `test_g5_wiring.py`.
+- Browser:
+  - `e2e/test_followup_journey.py`: journeys A–F, 27 checks;
+  - `e2e/test_admin_ui.py`: 19 checks;
+  - `e2e/check_policy_acceptance.py`: grace 20→30 simulated, published and used by the engine; window edit; refusals;
+    hard guards; rollback.
+- Mock JEEN Talk boundary and what a live provider needs: `docs/plans/07-jeen-talk-handoff.md`.
+
 The demo extends the existing Tefahot Touch mortgage journey with an AI document-review layer. Customers upload salary slips in the app. Each document is classified, read (including scans), verified value by value against the original file, judged against a versioned rubric, and checked across documents. Customers fix what's missing, and the whole set is re-checked. A Hebrew assistant answers by chat and voice from the same persisted case state, and the banker receives an evidence package and makes the only human decision.
 
 | Customer home (demo start) | Missing September, duplicate August | Verdict, criteria and evidence boxes |

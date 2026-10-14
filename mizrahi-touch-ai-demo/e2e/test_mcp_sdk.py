@@ -85,7 +85,8 @@ def main() -> int:
     by_name = {t.name: t for t in r["tools"]}
     writes = {"record_customer_statement", "request_banker_handoff", "request_revalidation"}
     annotated = all((by_name[n].annotations.read_only_hint is False) == (n in writes) for n in by_name)
-    check("tool catalog: 10 tools, writes annotated as non-read-only", len(by_name) == 10 and annotated, ", ".join(sorted(by_name)))
+    check("tool catalog: 11 tools (incl. get_followup_context since G5), writes annotated as non-read-only",
+          len(by_name) == 11 and "get_followup_context" in by_name and annotated, ", ".join(sorted(by_name)))
 
     overview = r["overview"].structured_content
     same_state = overview["ai_document_readiness"]["state"] == snap["readiness"]["state"]

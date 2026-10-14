@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, customerVerdict, FAMILY_HE, monthHe, type AppAction, type DocView, type Requirement, type UploadOutcome } from "../api";
 import { useCase } from "../caseContext";
 import { OUTCOME_TONE } from "../pages/customer/DocumentReview";
+import { reportPresence } from "../presence";
 import { ActionList } from "./AssistantActions";
 import { ICheck, IClose, IUpload } from "./Icons";
 
@@ -116,13 +117,14 @@ export function UploadSheet() {
   const submit = async () => {
     if (!file || !requirement) return;
     setBusy(true); setError(null);
+    reportPresence("upload_started", requirement.code);
     try {
       const forRequest = asked && (!asked.borrower_id || asked.borrower_id === borrower) ? asked : undefined;
       const r = await api.upload(caseId, file, borrower || null, { requirementCode: requirement.code, expectedPeriod: period ?? forRequest?.period,
         actionId: assistantOrigin?.actionId, originTurnId: assistantOrigin?.turnId, customerRequestId: forRequest?.customer_request_id,
         replacesDocumentId: !forRequest && replaceTarget && replaceOn ? replaceTarget.document_id : undefined });
       setDoc(r.document); setNote(r.note || null); setAnswered(!!r.answered_request); reload();
-    } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { setError((e as Error).message); } finally { setBusy(false); reportPresence("upload_completed", requirement.code); }
   };
   const backToChat = () => { closeUpload(); openAssistant(); };
   const another = () => { setDoc(null); setFile(null); setNote(null); setOutcome(null); setOutcomeLost(false); choose(code); };
@@ -216,7 +218,8 @@ export function UploadSheet() {
               <div style={{ color: "var(--mz-orange)" }}><IUpload size={26} /></div>
               <div className="bold" style={{ marginTop: 6 }}>{file ? file.name : "בחרו קובץ PDF או צילום"}</div>
               <div className="tiny muted" style={{ marginTop: 4 }}>עדיף PDF מקורי · עד 15MB · הבדיקה רצה מיד אחרי ההעלאה</div>
-              <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => input.current?.click()}>בחירת קובץ</button>
+              <button className="btn btn-ghost" style={{ marginTop: 10 }}
+                onClick={() => { reportPresence("file_picker_opened", requirement?.code); input.current?.click(); }}>בחירת קובץ</button>
             </div>
             {error && <div className="notice">{error}</div>}
             <button className="btn btn-orange" disabled={!file || busy} onClick={submit} data-testid="upload-submit">

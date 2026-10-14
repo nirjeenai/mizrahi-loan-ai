@@ -2,6 +2,7 @@ import { useState, type ReactNode, type UIEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useCase } from "../caseContext";
+import { usePresence } from "../presence";
 import { AssistantSheet } from "./AssistantSheet";
 import { IBulb, ICalendar, IChevronDown, IDocs, IHome, IMenu, ISpark, IStages } from "./Icons";
 import { UploadSheet } from "./UploadSheet";
@@ -20,6 +21,7 @@ export function TouchShell({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  usePresence(caseId, auth.status === "signed-in" && !!snap && snap.case.case_id === caseId);
   const onScroll = (e: UIEvent<HTMLElement>) => setScrolled(e.currentTarget.scrollTop > 24);
   const active = (to: string) => (to === "/customer" ? loc.pathname === "/customer" || loc.pathname === "/customer/" : loc.pathname.startsWith(to));
   return (

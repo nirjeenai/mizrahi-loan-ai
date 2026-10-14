@@ -1,11 +1,13 @@
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { CaseProvider, useCase } from "./caseContext";
 import { FeaturedScenarios, NewDemoButton } from "./components/FeaturedScenarios";
+import { FollowupSimControls } from "./components/FollowupSimControls";
 import { ScenarioPresenter } from "./components/ScenarioPresenter";
 import { TouchShell } from "./components/TouchShell";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { BankerConsole } from "./pages/banker/BankerConsole";
 import { Apply } from "./pages/customer/Apply";
+import { LinkLanding } from "./pages/customer/Link";
 import { DocumentReview } from "./pages/customer/DocumentReview";
 import { Documents } from "./pages/customer/Documents";
 import { Home } from "./pages/customer/Home";
@@ -29,6 +31,7 @@ function HubSide() {
         </div>
       </div>
       <FeaturedScenarios />
+      <FollowupSimControls />
       <details className="all-scn" data-testid="all-scenarios">
         <summary data-testid="all-scenarios-toggle">
           <span className="all-scn-title">כל תרחישי הבדיקה</span>
@@ -53,6 +56,7 @@ function CustomerApp() {
           <Route path="meetings" element={<Meetings />} />
           <Route path="tools" element={<Tools />} />
           <Route path="apply" element={<Apply />} />
+          <Route path="link" element={<LinkLanding />} />
         </Routes>
       </TouchShell>
       <HubSide />

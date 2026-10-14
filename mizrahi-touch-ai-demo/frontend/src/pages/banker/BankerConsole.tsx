@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, AUTH_EVENT, OUTCOME_HE, timeHe, usePolling, type BankerCaseRow, type Finding, type Session, type Workspace } from "../../api";
 import { Chip, useOutsideClose, When } from "./deskUi";
+import { FollowupView } from "./FollowupView";
 import { ReviewWorkspace } from "./ReviewWorkspace";
 
-type View = "review" | "conversation" | "technical";
+type View = "review" | "followup" | "conversation" | "technical";
 
 export function ConsoleTop({ active, identity }: { active: "customer" | "banker" | "system"; identity?: string }) {
   return (
@@ -17,6 +18,7 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
           <Link to="/customer" className={active === "customer" ? "on" : ""}>אפליקציית לקוח</Link>
           <Link to="/banker" className={active === "banker" ? "on" : ""}>בנקאי</Link>
           <Link to="/system" className={active === "system" ? "on" : ""}>מערכת ואינטגרציות</Link>
+          <Link to="/admin" data-testid="nav-admin">הגדרות</Link>
         </nav>
       </div>
       <div className="console-ribbon">הדגמת קונספט של JEEN · נתונים סינתטיים · אינה מערכת של מזרחי־טפחות · אין החלטת אשראי אוטומטית</div>
@@ -73,6 +75,7 @@ export function BankerConsole() {
       {!w ? <div className="desk-loading">{ws.error ? <>לא הצלחנו לטעון את התיק. <button className="link" onClick={ws.reload}>ניסיון חוזר</button></> : <><span className="spinner" /> טוען את התיק…</>}</div>
         : view === "review" ? <ReviewWorkspace ws={w} selected={params.get("item")} onSelect={(id) => patch({ item: id })} reload={reload}
             staff={staff} readOnly={readOnly} stale={!!ws.error} />
+          : view === "followup" ? <FollowupView caseId={caseId} readOnly={readOnly} />
           : view === "conversation" ? <ConversationView caseId={caseId} ws={w} />
             : <TechnicalView caseId={caseId} onRecheck={async () => { await api.bankerRecheck(caseId).catch(() => null); reload(); }} readOnly={readOnly} />}
     </div>
@@ -117,7 +120,7 @@ function CaseBar({ caseId, cases, ws, view, staff, onCase, onView }: {
         )}
       </div>
       <nav className="view-tabs" aria-label="תצוגות">
-        {([["review", "סקירת מסמכים"], ["conversation", "שיחה עם הלקוח"], ["technical", "יומן ופרטים טכניים"]] as [View, string][]).map(([k, label]) => (
+        {([["review", "סקירת מסמכים"], ["followup", "מעקב השלמה"], ["conversation", "שיחה עם הלקוח"], ["technical", "יומן ופרטים טכניים"]] as [View, string][]).map(([k, label]) => (
           <button key={k} className={view === k ? "on" : ""} onClick={() => onView(k)} aria-current={view === k ? "page" : undefined}>{label}</button>
         ))}
       </nav>

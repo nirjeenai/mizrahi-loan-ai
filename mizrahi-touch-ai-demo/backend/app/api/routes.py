@@ -533,6 +533,23 @@ def system_llm():
     return g.ledger_summary()
 
 
+def _followup_rows() -> list[dict]:
+    from .. import db, flags
+    from ..comms import registry as talk
+    from ..followup import orchestrator
+    pol, version = orchestrator.published_policy()
+    provider = talk.active(pol)
+    attempts = db.one("SELECT COUNT(*) n, SUM(simulated) s FROM contact_attempts") or {}
+    return [
+        {"component": "Follow-up engine (completion tasks, presence, policy, scheduler)", "state": "LOCAL",
+         "detail": f"tick every {engine.TICK_SECONDS:g} s in review-worker-0 · policy {version} · kill switch "
+                   f"{'ON' if flags.get(flags.KILL_SWITCH) else 'off'}"},
+        {"component": "JEEN Talk (outbound follow-up calls)", "state": "DEMO",
+         "detail": f"SIMULATION — {getattr(provider, 'name', 'none')} never dials; live slot not configured · talk.mode="
+                   f"{pol.talk.mode if pol else 'off'} · {attempts.get('n') or 0} attempts ({attempts.get('s') or 0} simulated)"},
+    ]
+
+
 @router.get("/system/integrations")
 def integrations():
     gem = registry.gemini().readiness()
@@ -558,7 +575,7 @@ def integrations():
          "detail": "POST /mcp · Streamable HTTP · case-bound bearer keys"},
         {"component": "Voice — browser speech (STT/TTS) on the same agent", "state": "LOCAL",
          "detail": "Web Speech he-IL when available; Gemini transcription fallback; system Hebrew voice for answers"},
-        {"component": "JEEN Talk", "state": "BLOCKED", "detail": "no JEEN Talk credentials; adapter boundary ready (VoiceChannel)"},
+        *_followup_rows(),
         {"component": "VisionTrace review provider", "state": "BLOCKED", "detail": "; ".join(vt.readiness()["missing"])},
         {"component": "VisionTrace MCP (read-only probe)", "state": probe["state"], "detail": probe["detail"]},
         {"component": "Bank systems (case stage, requirements, acceptance)", "state": "DEMO",
