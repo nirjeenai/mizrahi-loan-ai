@@ -20,6 +20,7 @@ FOLLOWUP_EVENTS = (
 SETTINGS_EVENTS = (
     "settings.draft_saved.v1", "settings.policy_published.v1", "settings.prompt_published.v1",
     "settings.rollback_applied.v1", "policy.simulation_completed.v1", "settings.kill_switch_changed.v1",
+    "settings.draft_discarded.v1",
 )
 EVENT_TYPES = DOCUMENT_EVENTS + FOLLOWUP_EVENTS + SETTINGS_EVENTS
 
