@@ -2,8 +2,7 @@
 
     python3 docs/plans/parallel/check_scope.py B      # or C; run inside the agent's worktree
 
-Compares the working tree (committed and uncommitted, including untracked files) with `parallel/scope-v2` (or
-`parallel/base` while that ref does not exist). Prints OK or
+Compares the working tree (committed and uncommitted, including untracked files) with `parallel/base`. Prints OK or
 the offending paths and exits 1. App.tsx is allowed for C but its diff is printed for review."""
 from __future__ import annotations
 
@@ -40,15 +39,14 @@ def main() -> int:
     if agent not in SCOPE:
         print(__doc__)
         return 2
-    base = "parallel/scope-v2" if git("branch", "--list", "parallel/scope-v2") else "parallel/base"
-    changed = set(git("diff", "--name-only", base)) | set(git("ls-files", "--others", "--exclude-standard"))
+    changed = set(git("diff", "--name-only", "parallel/base")) | set(git("ls-files", "--others", "--exclude-standard"))
     allowed = SCOPE[agent] + SHARED
     if agent == "C":
-        g1 = set(git("diff", "--name-only", base, "parallel/g1-evaluator")) if git("branch", "--list", "parallel/g1-evaluator") else set()
+        g1 = set(git("diff", "--name-only", "parallel/base", "parallel/g1-evaluator")) if git("branch", "--list", "parallel/g1-evaluator") else set()
         changed -= {f for f in g1 if any(fnmatch.fnmatch(f, pat) for pat in FROM_G1)}
     outside = sorted(f for f in changed if not any(fnmatch.fnmatch(f, pat) for pat in allowed))
     if agent == "C" and P + "frontend/src/App.tsx" in changed:
-        print("\n".join(git("diff", base, "--", P + "frontend/src/App.tsx")))
+        print("\n".join(git("diff", "parallel/base", "--", P + "frontend/src/App.tsx")))
     if outside:
         print("OUTSIDE SCOPE:\n  " + "\n  ".join(outside))
         return 1

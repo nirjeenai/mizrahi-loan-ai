@@ -5,20 +5,13 @@ listed below.
 
 - **Your worktree:** `/Users/nakash/Desktop/mizrahi2-agentB`
 - **Your branch:** `agent-b/round3-followup`
-- **Base:** `parallel/base`, plus `parallel/scope-v2` (the demo-first revision, already on your branch)
-
-> **Scope v2 (demo-first, 2026-10-14).** This is a working sales demo. Read CONTRACTS §0 first.
-> - **Build:** a real, configurable follow-up engine; presence, grace, scheduling and cancellation; a mock JEEN Talk
->   behind `OutboundProvider`; upload links.
-> - **Not built:** new RBAC or capability checks; HMAC/timestamp webhook security; the HTTP webhook route; the
->   `talk_reconcile` job; single-use links; identity screens; new tables.
-> - Use the existing `auth.require_*` checks.
+- **Base:** `parallel/base`
 
 ## Before anything
 1. Open the worktree as your workspace. In every shell, run `. /Users/nakash/Desktop/mizrahi2-agentB/AGENT_ENV.sh`.
 2. Read these, in order:
    - `mizrahi-touch-ai-demo/docs/plans/parallel/README.md` (ownership, gates)
-   - `docs/plans/parallel/CONTRACTS.md` (frozen; §0 first, then you implement §5, §8, §9 and §10; §4 needs no code)
+   - `docs/plans/parallel/CONTRACTS.md` (frozen; you implement §4, §5, §8, §9 and §10)
    - `docs/plans/03-prd-gap-analysis.md` §5 (scenarios S01–S42)
    - `docs/plans/04-target-architecture-contracts.md` §4–§7, §10–§11
    - `CLAUDE.md` (boundaries that must hold)
@@ -62,18 +55,16 @@ self-service in the app → grace period → simulated call → secure link → 
    - Picker and upload flags. Upload and evaluation in flight are derived from `jobs` and `documents`.
 6. **`backend/app/comms/`:**
    - `contract.py` (CONTRACTS §10 dataclasses + `OutboundProvider` protocol)
-   - `mock_talk.py` (never dials; scripted steps build the 04 §6 event payloads and pass them to `apply_event`)
+   - `mock_talk.py` (never dials; scripted steps produce signed events)
    - `jeen_talk.py` stub (not configured)
    - `registry.py`
-   - `webhook.py::apply_event(payload)`, the single in-process receiver: dedupe on `provider_events.event_id`,
-     forward-only ranks, a final status is never overwritten, orphan → stored + `integration.reconciliation_required.v1`.
-     No HTTP route, signature, timestamp or secret: those come with the live connection (CONTRACTS §8).
+   - `webhook.py`: HMAC v1 signature, ±300 s timestamp, dedupe on `provider_events.event_id`, forward-only ranks,
+     orphan → 202 + `integration.reconciliation_required.v1`
 7. **`followup/links.py`:**
-   - A random 32-byte token; only the SHA-256 is stored; scoped to case + tasks; expiry from
-     `talk.link_ttl_minutes`.
-   - The link stays usable until it expires or its tasks are resolved; `used_at` records the first use.
+   - A 32-byte token; only the SHA-256 is stored; scoped to case + tasks; expiry from `talk.link_ttl_minutes`;
+     single use.
    - `demo_token` is written only in the demo environment.
-   - Redeem returns `ok|resolved|expired|invalid` and issues a case-bound customer session (`auth.issue` +
+   - Redeem returns `ok|resolved|expired|used|invalid` and issues a case-bound customer session (`auth.issue` +
      `auth._set`; a public helper comes at G5).
 8. **`followup/orchestrator.py`:**
    - `context(case_id, now)` builds `FollowupContext` from the database.
@@ -84,11 +75,8 @@ self-service in the app → grace period → simulated call → secure link → 
    - Write a `policy_decisions` row per evaluation and `case_events` per transition (`events.emit(..., conn=c)`).
    - Kill switch: the next evaluation and the gate both block; queued plans are cancelled.
    - The derived case status (`FOLLOWUP_IN_PROGRESS` / `AWAITING_CUSTOMER`).
-9. **`backend/app/api/followup.py`:** every route in CONTRACTS §8 (customer, banker, demo; no webhook route).
-   Use the existing session checks from §4:
-   - `require_customer_case` for customer routes;
-   - `require_staff` for banker reads and the demo routes (plus `settings.demo_identity`);
-   - `require_assigned_staff` for banker writes.
+9. **`backend/app/api/followup.py`:** every route in CONTRACTS §8 (customer, banker, webhook, demo), with
+   permissions from §4.
    - The customer projection contains no rule ids, attempts, policy versions or banker text.
    - The demo routes return a "סימולציה" label.
 
@@ -98,8 +86,7 @@ self-service in the app → grace period → simulated call → secure link → 
   but not rename anything
 - `backend/app/comms/**`
 - `backend/app/api/followup.py` (already mounted in `main.py`)
-- `backend/app/capabilities.py` (no change needed in v2), `flags.py`, `events.py` (append to
-  `DOCUMENT_EVENTS`/`FOLLOWUP_EVENTS` only)
+- `backend/app/capabilities.py`, `flags.py`, `events.py` (append to `DOCUMENT_EVENTS`/`FOLLOWUP_EVENTS` only)
 - `backend/policy/scenarios/**`
 - New tests: `backend/tests/test_followup_policy.py`, `test_followup_flow.py`, `test_talk_webhook.py`,
   `test_upload_links.py`, `test_clock.py` (and other `test_followup_*.py`)
@@ -123,8 +110,6 @@ self-service in the app → grace period → simulated call → secure link → 
 - Any Gemini call, creating `backend/.env`, `pip`/`npm` installs, `git push/rebase/reset --hard/stash/checkout`,
   merging anything, and touching `main`.
 - Real JEEN Talk: the mock provider only. `jeen_talk.py` stays a stub.
-- Deferred in v2 (don't build): the HTTP webhook route and its HMAC/timestamp/secret, the `talk_reconcile` job,
-  capability checks, single-use links, identity-verification flows.
 
 If you need something outside your files, write it in `NOTES-agent-B.md` as a G5 item and work around it with a
 seam (a function argument, a fixture). Don't edit the file.
@@ -136,11 +121,11 @@ seam (a function argument, a fixture). Don't edit the file.
   - envelope clamps hold;
   - `explanation_he` is never empty;
   - covers P01–P29.
-- **`test_talk_webhook.py`** (`apply_event`, no HTTP): applied; duplicate `event_id` → `duplicate`; lower rank →
-  `ignored`; a final status is never overwritten; orphan → stored + event (W01–W03, W05–W06; W04 reconcile is
-  deferred).
-- **`test_upload_links.py`:** the token is never stored in clear; it can be reopened before expiry; expired; resolved
-  (L01); expired (L02); the session is bound to one case; another case is 403.
+- **`test_talk_webhook.py`:** valid signature; bad or missing signature → 401; stale timestamp; duplicate
+  `event_id` → `duplicate`; lower rank → `ignored`; a final status is never overwritten; orphan → 202 + event
+  (W01–W06).
+- **`test_upload_links.py`:** the token is never stored in clear; single use; expired; resolved (L01); used and
+  expired (L02); the session is bound to one case; another case is 403.
 - **`test_followup_flow.py`** (through `TestClient` and `tests/loan_helpers.py`, case `DEMO-MTZ-2026-009`):
   - one task per issue (AC 6) and consolidation;
   - customer leaves → grace → tick → scheduled → gate → mock call → `LINK_SENT` → link redeem → corrected upload
@@ -150,7 +135,7 @@ seam (a function argument, a fixture). Don't edit the file.
   - case 010 (no consent) is blocked with a reason;
   - a manual call under opt-out → 409;
   - the customer projection has no internals;
-  - sessions: no session 401; a customer session on a banker route 401; an unassigned banker's write 403;
+  - RBAC: no session 401, wrong capability 403, unassigned banker 403;
   - Talk failure does not block uploads (AC 13).
 - **`test_clock.py`:** offset, call window, Shabbat, holiday, DST.
 

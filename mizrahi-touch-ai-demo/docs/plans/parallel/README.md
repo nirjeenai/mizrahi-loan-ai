@@ -14,12 +14,7 @@ the parallel branches; Agent A's tree (`main`, uncommitted) never received it.
 - Shared refs:
   - `parallel/r12-snapshot` is Agent A's work at 10:00, verified blob-for-blob.
   - `parallel/base` is the snapshot plus the frozen contracts. Both agent branches start from it.
-  - `parallel/scope-v2` is `parallel/base` plus the demo-first scope revision (CONTRACTS §0). Both agent branches
-    contain it, and `check_scope.py` compares against it.
   - `parallel/g1-evaluator` is set by Agent B at gate G1.
-
-**Demo-first scope (v2):** Mizrahi #2 is a working sales demo. There is no new RBAC, no approval step, no audit view,
-no HTTP webhook security before live JEEN Talk, and no new tables. Details are in CONTRACTS §0; the briefs are updated.
 
 ## Snapshot
 - Built with a private index (`.git/parallel-snapshot.index`, since deleted) after 60 s without writes in Agent A's
@@ -51,8 +46,7 @@ no HTTP webhook security before live JEEN Talk, and no new tables. Details are i
 
 ## Ownership
 Paths are relative to `mizrahi-touch-ai-demo/`. `python3 docs/plans/parallel/check_scope.py B|C` lists any changed
-file outside the agent's scope, compared with `parallel/scope-v2` (or `parallel/base` while that ref is missing). It
-must print `OK` before a merge.
+file outside the agent's scope. It must print `OK` before a merge.
 
 - **Agent B owns:**
   - `backend/app/clock.py`
@@ -112,8 +106,8 @@ must print `OK` before a merge.
   - B: job kinds in `engine._claim`; triggers after reviews and uploads; `get_followup_context` in
     `agent/tools.py` (MCP tool count 10 → 11 in `e2e/test_mcp_sdk.py`); `/system` row.
   - A: presence hook in `caseContext.tsx`; customer snooze / preference / handoff controls; banker Talk card,
-    timeline and overrides; presenter simulation controls (the demo routes need only the demo staff session that
-    `api.demoStaff()` already obtains).
+    timeline and overrides; presenter simulation controls; `demo.simulate` for the demo banker or presenter; a
+    separate demo staff session per console (the `/admin` personas and `/banker` share the `mzl_staff` cookie today).
   - C: `POST /prompts/test` through the agent loop.
   - README and CODEMAP sections from each agent's NOTES file.
 - **G6 — Round 5.**
