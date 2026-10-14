@@ -257,6 +257,8 @@ class MockBankAdapter:
         for b in case["borrowers"]:
             b["declared_income_provenance"] = "CUSTOMER_DECLARED"
         from ..workflow import requirements
+        if overlay:                                   # the prepared label described the profile before the change
+            case["profile_label_he"] = " · ".join(requirements.applicant_profile_he(b) for b in case["borrowers"])
         case["document_profile"] = requirements.profile(case)
         return case
 

@@ -380,6 +380,7 @@ def test_a_profile_change_recomposes_keeps_history_and_cancels_obsolete_follow_u
     assert not any(f["code"] == "REQUIRED_PERIOD_MISSING" for f in repo.findings(case_id, status="open"))
     case = bank.get_case(case_id)
     assert case["borrowers"][0]["borrower_id"] == "BRW-C" and case["borrowers"][0]["income_sources"] == ["self_employed"]
+    assert case["document_profile"]["profile_label_he"] == "עצמאי/ת (עוסק פטור)"
     assert requirements.income_sources(bank.get_case("DEMO-MTZ-2026-002")["borrowers"][0]) == ["salaried"]   # 002 untouched
     staff = client_for(case_id)
     matrix = staff.get(f"/api/banker/cases/{case_id}/workspace").json()["requirement_matrix"]
