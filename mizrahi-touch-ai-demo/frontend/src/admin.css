@@ -1,0 +1,82 @@
+/* Admin Settings (/admin). Builds on the console classes in styles.css; every class here is adm-* or scoped to .admin. */
+.admin .adm-env { flex: none; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--info-soft); color: #263446;
+  font-size: 12.5px; padding: 6px 18px; border-bottom: 1px solid var(--mz-line); }
+.admin .adm-bar { gap: 8px 20px; }
+.adm-title { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.adm-title h2 { margin: 0; font-size: 18px; color: var(--mz-ink); }
+.adm-page { max-width: 1280px; width: 100%; margin: 0 auto; }
+.adm-section-gap { height: 10px; }
+
+.adm-actions { position: sticky; top: -24px; z-index: 5; background: #fff; border-radius: 14px; box-shadow: var(--shadow-strong);
+  padding: 10px 14px; margin-bottom: 14px; border-inline-start: 4px solid var(--mz-navy); }
+.adm-actions-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.adm-actions-state { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.adm-actions-btns { display: flex; align-items: center; gap: 6px; }
+.adm-confirm { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px;
+  background: var(--mz-orange-soft); border-radius: 10px; padding: 8px 10px; }
+.adm-err { color: var(--bad); font-size: 12px; margin-top: 4px; line-height: 1.5; }
+.adm-reasons { background: var(--bad-soft); border-radius: 10px; padding: 8px 10px; margin-top: 8px; }
+
+.adm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.adm-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px 14px; }
+.adm-field { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; min-width: 0; }
+.adm-field.wide { grid-column: 1 / -1; }
+.adm-field.bad input, .adm-field.bad select { border-color: var(--bad); background: var(--bad-soft); }
+.adm-label { font-size: 12.5px; font-weight: 700; color: var(--mz-ink); }
+.adm-block { display: block; }
+.adm-input-row { display: flex; align-items: center; gap: 6px; }
+.admin input[type="number"], .admin input[type="time"], .admin input[type="date"], .admin select, .admin textarea, .adm-cell,
+.adm-field input { font: inherit; font-size: 13px; border: 1px solid var(--mz-line); border-radius: 8px; padding: 6px 8px; background: #fff; color: var(--mz-text); }
+.admin input[type="number"] { width: 96px; }
+.admin textarea { width: 100%; resize: vertical; line-height: 1.6; box-sizing: border-box; }
+.adm-cell { width: 100%; box-sizing: border-box; }
+.adm-cell.grow { flex: 1; width: auto; }
+.admin input:focus, .admin select:focus, .admin textarea:focus { outline: 2px solid var(--mz-orange-ring); outline-offset: 0; }
+
+.adm-toggle { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 10px; cursor: pointer; }
+.adm-toggle input { margin-top: 3px; accent-color: var(--mz-navy); }
+.adm-toggle.disabled { opacity: 0.6; cursor: not-allowed; }
+.adm-lock { font-size: 12px; margin-inline-end: 2px; }
+.adm-locked-row { display: flex; align-items: center; gap: 6px; background: var(--mz-bg); border-radius: 8px; padding: 6px 10px; margin-top: 6px; }
+.adm-locked-text { background: var(--mz-bg); border: 1px dashed var(--mz-line); border-radius: 10px; padding: 10px; font-size: 13px; line-height: 1.6; color: var(--mz-muted); margin-top: 4px; }
+.adm-rules { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 18px; font-size: 12.5px; }
+.adm-rules li { break-inside: avoid; padding: 3px 0; border-bottom: 1px solid var(--mz-line-soft); }
+.adm-rules .ltr { display: block; font-size: 10.5px; }
+
+.adm-reqs { display: flex; flex-direction: column; gap: 8px; }
+.adm-req { border: 1px solid var(--mz-line); border-radius: 12px; padding: 8px 12px; }
+.adm-req.off { background: var(--mz-bg); opacity: 0.75; }
+.adm-req-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.adm-req-head .adm-toggle { margin: 4px 0; }
+.adm-req-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 14px; padding: 6px 0 2px; }
+
+.adm-day { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--mz-line); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.adm-day.on { background: var(--mz-navy); color: #fff; border-color: var(--mz-navy); }
+.adm-day input { display: none; }
+.adm-day.locked { background: var(--mz-bg); color: var(--mz-muted); cursor: not-allowed; }
+.adm-x { border: none; background: none; color: var(--mz-muted); font-size: 13px; padding: 0 0 0 2px; cursor: pointer; }
+
+.adm-kill.on { border: 2px solid var(--bad); background: var(--bad-soft); }
+
+.adm-vartext { display: flex; flex-direction: column; gap: 4px; }
+.adm-var { border: 1px solid var(--jeen-soft); background: var(--jeen-soft); color: var(--jeen); border-radius: 6px; font-size: 11.5px; font-weight: 700; padding: 2px 6px; cursor: pointer; }
+.adm-lint { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+.adm-lint li { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.adm-lint mark { background: var(--warn-soft); color: var(--warn); border-radius: 4px; padding: 0 3px; font-weight: 700; }
+.adm-lint li.error mark { background: var(--bad-soft); color: var(--bad); }
+.adm-preview { background: var(--ok-soft); border-radius: 10px; padding: 8px 10px; margin-top: 6px; }
+.adm-preview-text { font-size: 13px; line-height: 1.65; color: var(--mz-ink); white-space: pre-wrap; }
+.adm-templates { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; }
+.adm-template { margin-bottom: 10px; }
+
+.adm-diff td { font-size: 12.5px; word-break: break-word; }
+.adm-before { color: var(--bad); text-decoration: line-through; text-decoration-color: rgba(192, 57, 43, 0.4); }
+.adm-after { color: var(--ok); font-weight: 700; }
+.adm-row-actions { display: flex; gap: 10px; }
+table.t tr.adm-why td { border-bottom: none; padding-top: 0; }
+.adm-waiting { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 980px) {
+  .adm-grid { grid-template-columns: 1fr; }
+  .adm-rules { columns: 1; }
+}

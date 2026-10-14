@@ -256,6 +256,7 @@ def test_prompt_lint_warns_but_never_changes_policy():
     codes = [f["code"] for f in prompts.lint(text)]
     assert codes == ["PROMPT_URGENCY", "PROMPT_PROMISE", "PROMPT_THREAT", "PROMPT_SENSITIVE_DATA", "PROMPT_UNKNOWN_VARIABLE"]
     assert all(text[f["span"][0]:f["span"][1]] == f["match"] for f in prompts.lint(text))
+    assert [f["match"] for f in prompts.lint(text)][:2] == ["התקשרי מיד", "ההלוואה אושרה"]   # whole words highlighted
     assert prompts.lint("אל תבטיחי שההלוואה אושרה ואל תבקשי סיסמאות.") == []          # negated instructions are fine
     p = draft("talk_prompt")
     saved = save(p, {**p["config"], "instructions": "התקשרי מיד, זה דחוף. הסבירי מה חסר: {{missing_documents}}."}).json()

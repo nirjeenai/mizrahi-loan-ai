@@ -4,6 +4,7 @@ import { CaseProvider, useCase } from "./caseContext";
 import { FeaturedScenarios, NewDemoButton } from "./components/FeaturedScenarios";
 import { ScenarioPresenter } from "./components/ScenarioPresenter";
 import { TouchShell } from "./components/TouchShell";
+import { AdminPage } from "./pages/admin/AdminPage";
 import { BankerConsole } from "./pages/banker/BankerConsole";
 import { DocumentReview } from "./pages/customer/DocumentReview";
 import { Documents } from "./pages/customer/Documents";
@@ -82,6 +83,7 @@ export function App() {
         <Route path="/customer/*" element={<CaseProvider><CustomerApp /></CaseProvider>} />
         <Route path="/banker" element={<BankerConsole />} />
         <Route path="/system" element={<SystemPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<Navigate to="/customer" replace />} />
       </Routes>
     </BrowserRouter>
