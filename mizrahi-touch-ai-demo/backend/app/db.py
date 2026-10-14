@@ -155,7 +155,8 @@ CREATE TABLE IF NOT EXISTS system_flags (
 """
 # columns added after a table first shipped; CREATE TABLE IF NOT EXISTS does not add them to an existing file
 ADDED_COLUMNS = {"banker_decisions": ["reason_code"], "customer_requests": ["responded_statement_id", "closed_reason"],
-                 "upload_intents": ["replaces_document_id"]}
+                 "upload_intents": ["replaces_document_id"],
+                 "customer_presence": ["screen"]}
 
 _lock = threading.RLock()
 _conn: sqlite3.Connection | None = None
