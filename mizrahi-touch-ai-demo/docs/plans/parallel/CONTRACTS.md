@@ -10,6 +10,15 @@ Change rules:
 - A breaking change needs the user's approval and a line in §11 (change log) on the owner's branch.
 - Where `04-target-architecture-contracts.md` and the code disagree, **the code and this file win**.
 
+**Demo-first scope (user decision, 2026-10-14 10:45).** Mizrahi #2 is a working sales demo, not a production banking
+platform. Build for today's demo and keep tomorrow's integration path (the `OutboundProvider` boundary, versioned
+configuration, the pure evaluator). Where this file and docs 04/05/06 describe a production control, the simplified
+rule here wins. What was cut is listed in §12; nothing in §12 is built in Rounds 3–4.
+- No new login, identity, role or approval flows. Routes use the session checks `auth.py` already has (§4).
+- No new tables or columns beyond the 14 that already exist. Columns a simplified feature no longer needs stay NULL.
+- No production webhook security before the live JEEN Talk connection exists (§8).
+- No real customer call is possible until a live provider is implemented and configured (§10).
+
 ## 1. Database (`backend/app/db.py`, owner: Agent A) [tested]
 - The 14 Round 3/4 tables already exist, with the columns asserted in `test_parallel_contracts.TABLES`:
   `config_versions`, `case_profile`, `demo_applications`, `completion_tasks`, `contact_plans`, `contact_attempts`,
@@ -39,14 +48,13 @@ Change rules:
   `demo:personal_loan.all_purpose`.
 - The store API is `published, get, versions, parsed, policy, validate, create_draft, update_draft, discard_draft,
   publish, rollback, diff`, with the exceptions `Conflict, NotDraft, InvalidConfig`.
-  - A version row carries `label` (`"loan_policy@v3"`) and `revision`, which is the ETag.
+  - A version row carries `label` (`"loan_policy@v3"`) and `revision`, which an edit sends back (stale → 409).
   - Rollback publishes a NEW version.
 - A case pins its policy version on first use (`workflow/requirements.pin`). Publishing never changes an open
   case's requirements. Agent B's evaluator reads **follow-up** settings from the **currently published** policy
   (doc 03 S27: a publish re-evaluates pending plans under the new rules, with no catch-up blast).
-- Settings with no schema field are code constants:
-  - `require_distinct_approver` is in `policy/validate.py` (Agent C).
-  - The bank envelope is `followup.contract.ENVELOPE`.
+- Settings with no schema field are code constants. The bank envelope is `followup.contract.ENVELOPE`.
+  (`require_distinct_approver` is deferred: one demo admin edits and publishes, §12.)
 
 ## 3. Requirements and readiness (owner: Agent A, read-only for B and C) [tested]
 - `requirements.for_case(case_id)` returns a list of instances with at least `code` (`PAYSLIPS:BRW-A`,
@@ -70,22 +78,22 @@ Change rules:
   - `case["contact"]` = `{consent_voice, consent_message, phone_ref, phone_masked}`. `contact_preferences` is
     seeded from it on first use.
 
-## 4. Permissions (`backend/app/capabilities.py`, new and shared; owner: Agent B; C imports) [tested]
-`capabilities.require(request, *caps, any_of=False)` returns the staff member, or raises 401 (no staff session) or
-403 (missing capability). The staff directory is in `bank/mock_bank.py`:
+## 4. Access — the existing sessions only
+No new login screens, roles, persona switchers or permission flows. Every Round 3–4 route uses a check `auth.py`
+already has; the demo obtains its sessions without a login (`DEMO_IDENTITY=1`), as the customer app and the banker
+console do today.
 
-| Staff | Capabilities |
+| Routes | Check |
 |---|---|
-| STAFF-DANA, STAFF-ORI (bankers) | `case.read, case.write, followup.override, followup.manual_call` |
-| STAFF-MAYA (policy admin) | `case.read, policy.read, policy.edit, prompt.edit, demo.simulate, audit.read` |
-| STAFF-AVI (compliance approver) | `case.read, policy.read, policy.publish, prompt.publish, audit.read, demo.simulate` |
+| Customer follow-up routes (§8) | `auth.require_customer_case` |
+| Banker reads (follow-up view, timeline) | `auth.require_staff` |
+| Banker writes on a case (override, manual call) | `auth.require_assigned_staff` (the existing rule) |
+| Admin Settings, every route (§7) | `auth.require_staff`: the demo staff session the console already uses; one admin edits, tests and publishes |
+| Demo controls (§8) | `settings.demo_identity` on (else 404), plus a staff session or the case's customer session (the presenter pane drives them from the customer app) |
+| Talk webhook (§8) | no session; a shared secret, and only once one is configured |
 
-Route requirements:
-- Customer routes use `auth.require_customer_case`.
-- Banker writes need the capability **and** `auth.require_assigned_staff`.
-- Demo routes need `settings.demo_identity` and `demo.simulate`.
-- Admin routes are mapped in §7.
-- The webhook is the only route without a session; it is authenticated by its HMAC signature.
+`capabilities.py` and the capability lists in `mock_bank.STAFF` stay as they are (the contract test covers them).
+Round 3–4 routes don't depend on them, and nothing is added to them.
 
 ## 5. Evaluator (`backend/app/followup/contract.py` frozen; `followup/policy.py`, owner: Agent B) [tested]
 - Signature: `evaluate(ctx: FollowupContext, policy: LoanPolicy | None, now: datetime) -> Decision`.
@@ -126,28 +134,31 @@ Route requirements:
   mandatory_passed, results[]}`.
 - **Side effects:** exactly one `simulation_runs` row and one `policy.simulation_completed.v1` event. No other table
   changes. This is doc 03 S40, and the tests count rows in every table.
-- **Publish gate (`loan_policy`):** the schema is valid, the envelope holds, `mandatory_passed` is true, and the
-  distinct-approver rule holds.
+- **Publish gate (`loan_policy`):** the schema is valid, the envelope holds, and `mandatory_passed` is true. The
+  same admin who edited may publish.
 
 ## 7. Admin API (`backend/app/api/admin.py`, owner: Agent C; prefix `/api/admin/loan-completion`)
-| Route | Capability | Notes |
-|---|---|---|
-| `GET /settings` | `policy.read` | published rows for both kinds, open drafts, `kill_switch` (`flags.row`), `locked_rules` + labels, `envelope`, environment, caller capabilities |
-| `POST /drafts` `{kind, based_on?, reason}` | `policy.edit` (loan_policy) / `prompt.edit` (talk_prompt) | returns the row; `ETag: <revision>` header |
-| `PUT /drafts/{id}` `{config, reason}` + `If-Match` | same | 428 without If-Match, 409 on a stale revision, 404/409 when not a draft |
-| `POST /drafts/{id}/validate` | `policy.read` | `{errors[{path,message}], warnings[], diff[]}`; warnings include the prompt lint |
-| `POST /drafts/{id}/discard` + `If-Match` | edit capability | |
-| `POST /drafts/{id}/publish` + `If-Match` | `policy.publish` / `prompt.publish` | the gate in §6; 422 with reasons when it fails |
-| `GET /versions?kind=` · `GET /versions/{id}/diff?against=` | `policy.read` | |
-| `POST /rollback` `{kind, to_version_id, reason}` | publish capability | |
-| `POST /policy/simulate` `{version_id? , config?}` | `demo.simulate` | returns `SimulationRun` (gate G1) |
-| `POST /policy/interpret-proposal` `{text_he, version_id}` | `policy.edit` | `{patch[{path,value}], diff, rationale_he, applied:false}`; never saves or publishes; 503 when Gemini is unavailable |
-| `POST /prompts/test` `{version_id, message}` | `prompt.edit` | read-only agent loop on a synthetic case; deferred to gate G5 |
-| `POST /followups/pause` `{paused, reason}` | `policy.edit` or `policy.publish` (any_of) | the kill switch: `flags.put(KILL_SWITCH, …)` |
-| `GET /audit?kind=&limit=` | `audit.read` | settings events + version history |
+Every route needs a staff session (`auth.require_staff`, §4). The flow is edit → test → save and publish → history
+→ rollback, by one admin, with no approval step.
+
+| Route | Notes |
+|---|---|
+| `GET /settings` | published rows for both kinds, the open draft per kind (if any), `kill_switch` (`flags.row`), `locked_rules` + labels, `envelope`, environment |
+| `POST /drafts` `{kind, based_on?, reason?}` | returns the open draft for that kind if one exists, otherwise a new one (one working draft per kind) |
+| `PUT /drafts/{id}` `{config, revision, reason?}` | 409 on a stale `revision` (the store's `Conflict`), 404/409 when not a draft |
+| `POST /drafts/{id}/validate` | `{errors[{path,message}], warnings[], diff[]}`; warnings include the prompt lint |
+| `POST /drafts/{id}/discard` `{revision}` | |
+| `POST /drafts/{id}/publish` `{revision}` | the gate in §6; 422 with reasons when it fails |
+| `GET /versions?kind=` · `GET /versions/{id}/diff?against=` | |
+| `POST /rollback` `{kind, to_version_id, reason}` | publishes a new version (store behavior) |
+| `POST /policy/simulate` `{version_id? , config?}` | returns `SimulationRun` (gate G1) |
+| `POST /followups/pause` `{paused, reason}` | the kill switch: `flags.put(KILL_SWITCH, …)` |
+| `GET /audit?kind=&limit=` | version history + settings events, from the existing tables |
+| `POST /prompts/test` | 501 "deferred"; optional at G5 |
 
 Events: `settings.draft_saved.v1`, `settings.policy_published.v1`, `settings.prompt_published.v1`,
 `settings.rollback_applied.v1`, `policy.simulation_completed.v1`. The kill switch emits its event through `flags.put`.
+The natural-language proposal route (`interpret-proposal`) is deferred (§12).
 
 ## 8. Follow-up API, clock and jobs (owner: Agent B; `backend/app/api/followup.py`)
 Customer routes (the customer session for that case; no rule ids, attempts, policy versions or banker text):
@@ -160,29 +171,37 @@ Customer routes (the customer session for that case; no rule ids, attempts, poli
   customer_text_he}], snooze_until, contact{voice_allowed, message_allowed, preferred_channel}, simulated}`.
 - `POST /api/cases/{id}/followup-snooze` `{minutes (15–1440) | until}` · `POST /api/cases/{id}/contact-preferences`
   `{opt_out_voice?, opt_out_message?, preferred_channel?}` → both return the GET shape.
-- `POST /api/links/redeem` `{token}` → `{state: ok|resolved|expired|used|invalid, case_id?, target?}`.
-  - `ok` and `resolved` set a customer session bound to that case only.
+- `POST /api/links/redeem` `{token}` → `{state: ok|resolved|expired|invalid, case_id?, target?}`.
+  - A link works until it expires or its tasks are resolved. It is not single-use, so a presenter can open it twice.
+    The `used` state and `upload_links.used_at` are reserved (§12).
+  - The token is 32 random bytes, and only its SHA-256 is stored. `demo_token` (the clear token) is written in the
+    demo environment only, for `sent-links`.
+  - `ok` and `resolved` set a customer session bound to that case only (`auth.issue` + `auth._set`).
   - `target` is `/customer/documents?req=<code>`.
 
-Banker routes:
-- `GET /api/banker/cases/{id}/followup` (`case.read`) → `{plan{state, plan_version, next_eligible_at,
+Banker routes (access per §4):
+- `GET /api/banker/cases/{id}/followup` → `{plan{state, plan_version, next_eligible_at,
   policy_version, updated_at}, decision (Decision), tasks[], attempts[{attempt_id, channel, provider, simulated,
   status, outcome, created_at, updated_at, prompt_version, link_id}], preferences, overrides[], kill_switch,
   talk_mode, simulated}`.
-- `GET /api/banker/cases/{id}/timeline` (`case.read`) → `[{at, type, actor, summary_he, payload}]`.
-- `POST /api/banker/cases/{id}/followup-override` (`followup.override` + assigned) `{type: pause|resume|
-  human_review|reschedule|cancel, reason (≥3), until?}`.
-- `POST /api/banker/cases/{id}/followups` (`followup.manual_call` + assigned) `{reason}` → 201 attempt, or 409
+- `GET /api/banker/cases/{id}/timeline` → `[{at, type, actor, summary_he, payload}]`, from `case_events`.
+- `POST /api/banker/cases/{id}/followup-override` `{type: pause|resume|cancel, reason (≥3)}`.
+- `POST /api/banker/cases/{id}/followups` `{reason}` (a manual call through the same guards) → 201 attempt, or 409
   `{detail, blocked_by[]}`.
 
-Webhook:
-- `POST /api/webhooks/jeen-talk`.
-- Headers: `X-Talk-Timestamp` (±300 s) and `X-Talk-Signature: v1=<hex hmac_sha256(secret, ts + "." + body)>`.
-- Responses: 200 `applied|duplicate|ignored`, 202 `orphan` (+ `integration.reconciliation_required.v1`), 401 for a
-  bad signature or stale timestamp, 400 for a malformed body.
-- The secret is `TALK_WEBHOOK_SECRET`, or a random per-DATA_DIR file `talk_webhook_secret` (0600).
+Talk events and webhook (demo-grade until the live connection; the real scheme comes from JEEN Talk's spec):
+- **The main path is in-process.** `comms.webhook.apply(event: dict, provider: str) -> result` does every functional
+  check: dedupe on `provider_events.event_id`, forward-only ranks, a final status is never overwritten, and an unknown
+  `client_reference` is stored as an orphan with `integration.reconciliation_required.v1`. The mock provider calls
+  `apply` directly. The event body is `{event_id, event_type: "call.status_changed", client_reference,
+  provider_call_id, sequence, status, outcome?, occurred_at, data: {link_sent?, callback_at?}}`.
+- **HTTP receiver** `POST /api/webhooks/jeen-talk`: a thin wrapper around `apply`.
+  - 404 when `TALK_WEBHOOK_SECRET` is not set, which is the default in the demo.
+  - When it is set, the header `X-Talk-Secret` must equal it (constant-time compare), else 401.
+  - Responses: 200 `applied|duplicate|ignored`, 202 `orphan`, 400 for a malformed body.
+  - The HMAC signature, timestamp window and secret file are deferred to the live integration (§12).
 
-Demo routes (`/api/demo`; `demo_identity` + `demo.simulate`; audited, with a "סימולציה" label in every response):
+Demo routes (`/api/demo`; access per §4; each call writes one `repo.audit` row and returns a "סימולציה" label):
 - `POST /clock` `{advance_minutes? | to_next_window? | reset?}` → `{now, offset_seconds}`.
 - `POST /cases/{id}/customer-left`.
 - `POST /cases/{id}/talk-outcome` `{outcome ∈ CALL_OUTCOMES, callback_at?}`.
@@ -195,11 +214,16 @@ Clock (`backend/app/clock.py`, owner: Agent B):
 - Call windows and holidays are evaluated in `Asia/Jerusalem`.
 - `settings.SIMULATION_DATE` (review months) and `util.now_iso()` (existing code) are unchanged.
 
-Jobs:
-- Kinds: `followup_evaluate` `{trigger}`, `talk_mock_script` `{attempt_id, step}`, `talk_reconcile` `{attempt_id}`.
-- `not_before` is wall-clock UTC, so a clock-time target is stored as `target - offset`.
-- Wiring them into `workflow/engine.py::_claim` is Agent B's job at gate G5. Before that the orchestrator exposes
-  `tick(now)` and `run_due(now)`, so tests drive it with a fixed `now`.
+Scheduling: no new job kinds; one tick.
+- `orchestrator.tick(now)` runs all due follow-up work in one pass:
+  - evaluates plans whose `next_eligible_at` has passed;
+  - advances due mock-call script steps, whose state lives on the attempt row (`request`, `history`);
+  - reconciles `UNKNOWN` attempts older than `talk.reconcile_after_minutes` through `provider.get_call`.
+- `orchestrator.on_event(case_id, trigger, now)` re-evaluates one case right away (presence change, upload, review
+  finished, override).
+- Before G5, tests (with a fixed `now`) and `POST /api/demo/tick` drive both. At G5 the existing worker loop calls
+  `tick(clock.now())` every few seconds, and the upload and review paths call `on_event`. `engine._claim` is
+  unchanged.
 
 Flags (`backend/app/flags.py`, shared; owner: Agent B) [tested]:
 - `KILL_SWITCH = "followup.kill_switch"` (bool) and `DEMO_CLOCK_OFFSET = "demo.clock_offset_seconds"` (int).
@@ -236,16 +260,39 @@ Flags (`backend/app/flags.py`, shared; owner: Agent B) [tested]:
   - `requires_identity_verification`
   - `context_tool = "get_followup_context"`
   - `callback_url`, `expires_at`
-- `MockTalkProvider` (`simulated=True`) never dials. It schedules `talk_mock_script` steps that build signed payloads
-  and send them through the same webhook handler.
+- `MockTalkProvider` (`simulated=True`) never dials. Its scripted steps (dialing → connected → outcome) are advanced
+  by `tick` and produce the same event bodies a live provider would, passed to `webhook.apply`. A demo control
+  (`talk-outcome`) picks the outcome.
 - `JeenTalkProvider` is a stub: `health()` returns not configured, and every call raises `ProviderNotConfigured`.
 - `comms.registry.active(policy)` maps `talk.mode`:
   - `simulation` → mock
   - `off` → None
-  - `live` → the stub, whose unhealthy status makes the evaluator return `OP-PROVIDER-UNHEALTHY`
+  - `live` → the stub, whose unhealthy status makes the evaluator return `OP-PROVIDER-UNHEALTHY`. In the demo
+    environment `HG-LIVE-DIAL-DEMO` blocks as well.
+  - So no real call can start until a live provider is implemented, configured and explicitly enabled.
 - Every attempt records `provider` and `simulated`.
+- Connecting live Talk later means implementing `JeenTalkProvider` and the receiver's real signature check. The
+  workflow, the evaluator, the gate and the tables stay as they are.
 
 ## 11. Change log
 | Date | Owner | Change | Approved by |
 |---|---|---|---|
 | 2026-10-14 | setup | initial freeze | user (parallel workflow) |
+| 2026-10-14 | Agent B (for the user) | demo-first scope: §4 existing sessions only; §6 no distinct approver; §7 no capabilities, If-Match/ETag or NL proposal; §8 reusable links, in-process Talk events + shared-secret receiver, override types pause/resume/cancel, one tick instead of job kinds; §10 mock via `webhook.apply`; §12 added | user ("demo-first scope simplification") |
+
+## 12. Deferred (not built in Rounds 3–4; the integration path stays open)
+| Deferred | Today instead | When it comes back |
+|---|---|---|
+| Editor/approver roles, the distinct-approver rule, persona switcher, capability checks on new routes | one demo admin on the existing staff session | bank SSO and roles |
+| A separate staff session per console (`/admin` vs `/banker`) | the shared `mzl_staff` demo session | with SSO |
+| `demo.simulate` capability for the presenter | demo routes open to the case's customer session or any staff session, in demo mode only | never in prod (demo routes are 404 outside demo) |
+| `If-Match` / `ETag` / 428 | `revision` in the body; 409 when stale | if a real multi-editor admin is needed |
+| NL policy proposal (FR-27, P1, `interpret-proposal`, `proposal.py`) | the structured editor | after the demo |
+| `POST /prompts/test` through the agent loop | prompt lint + rendered preview | optional at G5 |
+| HMAC v1 signature, ±300 s timestamp window, per-DATA_DIR secret file | in-process `apply`; the HTTP receiver is off unless `TALK_WEBHOOK_SECRET` is set | live JEEN Talk, per JEEN's actual spec |
+| Single-use links (`used`, `used_at`) | reusable until expiry or resolution | production links (with OTP) |
+| `TALK_LIVE_ALLOWLIST`, live-mode start-up refusal | `live` maps to a not-configured stub (`OP-PROVIDER-UNHEALTHY` + `HG-LIVE-DIAL-DEMO`) | live JEEN Talk |
+| Job kinds `followup_evaluate`, `talk_mock_script`, `talk_reconcile` | `orchestrator.tick` + `on_event` | if load ever needs it |
+| Override types `human_review`, `reschedule` | `pause`, `resume`, `cancel` | after the demo |
+| Identity-verification screens | the `requires_identity_verification` flag in `CallRequest` only (Talk-side) | live JEEN Talk |
+| Staging/prod behavior beyond the schema's environment checks | the demo environment | production |
