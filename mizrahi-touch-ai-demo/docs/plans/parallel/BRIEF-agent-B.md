@@ -23,6 +23,16 @@ listed below.
 Deliver the follow-up loop as a backend, driven entirely by the server and testable with a fixed clock:
 self-service in the app → grace period → simulated call → secure link → corrected upload → ready for the banker.
 
+**Demo-first scope (user decision, 2026-10-14).** This is a sales demo. Build what the loop needs and nothing for a
+future production deployment. CONTRACTS.md (the top note and §12) lists what was cut. In short:
+- Use the existing sessions only, with no capability checks on new routes.
+- No HMAC/timestamp webhook security.
+- Links are not single-use.
+- No new job kinds: one `tick`.
+- Override types are `pause|resume|cancel`.
+
+Keep the `OutboundProvider` boundary clean so live JEEN Talk plugs in later.
+
 ## Build this, in this order
 1. **`backend/app/clock.py`:**
    - `now()` returns aware UTC plus the demo offset (`flags.DEMO_CLOCK_OFFSET`, demo environment only); `now_iso()`.
@@ -55,28 +65,32 @@ self-service in the app → grace period → simulated call → secure link → 
    - Picker and upload flags. Upload and evaluation in flight are derived from `jobs` and `documents`.
 6. **`backend/app/comms/`:**
    - `contract.py` (CONTRACTS §10 dataclasses + `OutboundProvider` protocol)
-   - `mock_talk.py` (never dials; scripted steps produce signed events)
+   - `mock_talk.py` (never dials; scripted steps, advanced by `tick`, produce the same event bodies a live provider
+     would)
    - `jeen_talk.py` stub (not configured)
    - `registry.py`
-   - `webhook.py`: HMAC v1 signature, ±300 s timestamp, dedupe on `provider_events.event_id`, forward-only ranks,
-     orphan → 202 + `integration.reconciliation_required.v1`
+   - `webhook.py`:
+     - `apply(event, provider)`: dedupe on `provider_events.event_id`, forward-only ranks, a final status is never
+       overwritten, orphan → stored + `integration.reconciliation_required.v1`;
+     - the thin HTTP receiver from CONTRACTS §8: 404 unless `TALK_WEBHOOK_SECRET` is set, then an `X-Talk-Secret`
+       compare.
 7. **`followup/links.py`:**
-   - A 32-byte token; only the SHA-256 is stored; scoped to case + tasks; expiry from `talk.link_ttl_minutes`;
-     single use.
+   - A 32-byte token; only the SHA-256 is stored; scoped to case + tasks; expiry from `talk.link_ttl_minutes`.
+     Reusable until expiry or resolution.
    - `demo_token` is written only in the demo environment.
-   - Redeem returns `ok|resolved|expired|used|invalid` and issues a case-bound customer session (`auth.issue` +
-     `auth._set`; a public helper comes at G5).
+   - Redeem returns `ok|resolved|expired|invalid` and issues a case-bound customer session (`auth.issue` +
+     `auth._set`).
 8. **`followup/orchestrator.py`:**
    - `context(case_id, now)` builds `FollowupContext` from the database.
-   - `tick(now)` / `run_due(now)` / `on_event(case_id, trigger, now)`.
+   - `tick(now)` (every kind of due work, CONTRACTS §8 "Scheduling") and `on_event(case_id, trigger, now)`.
    - A single contact plan per case, with consolidation.
    - The **atomic pre-dispatch gate**: re-read state and re-evaluate inside one `db.tx()`, and create the attempt
      with its idempotency key in the same transaction.
    - Write a `policy_decisions` row per evaluation and `case_events` per transition (`events.emit(..., conn=c)`).
    - Kill switch: the next evaluation and the gate both block; queued plans are cancelled.
    - The derived case status (`FOLLOWUP_IN_PROGRESS` / `AWAITING_CUSTOMER`).
-9. **`backend/app/api/followup.py`:** every route in CONTRACTS §8 (customer, banker, webhook, demo), with
-   permissions from §4.
+9. **`backend/app/api/followup.py`:** every route in CONTRACTS §8 (customer, banker, webhook, demo), with the
+   existing session checks from §4.
    - The customer projection contains no rule ids, attempts, policy versions or banker text.
    - The demo routes return a "סימולציה" label.
 
@@ -121,11 +135,13 @@ seam (a function argument, a fixture). Don't edit the file.
   - envelope clamps hold;
   - `explanation_he` is never empty;
   - covers P01–P29.
-- **`test_talk_webhook.py`:** valid signature; bad or missing signature → 401; stale timestamp; duplicate
-  `event_id` → `duplicate`; lower rank → `ignored`; a final status is never overwritten; orphan → 202 + event
-  (W01–W06).
-- **`test_upload_links.py`:** the token is never stored in clear; single use; expired; resolved (L01); used and
-  expired (L02); the session is bound to one case; another case is 403.
+- **`test_talk_webhook.py`:**
+  - through `apply`: duplicate `event_id` → `duplicate`; lower rank → `ignored`; a final status is never
+    overwritten; orphan → stored + event; `CALLBACK_REQUESTED` and `REFUSED` outcomes (W01–W06);
+  - through HTTP: 404 without `TALK_WEBHOOK_SECRET`; with it, a wrong or missing `X-Talk-Secret` → 401 and the
+    right one → 200.
+- **`test_upload_links.py`:** the token is never stored in clear; it works twice; expired (L02); resolved (L01);
+  an unknown token → `invalid`; the session is bound to one case; another case is 403.
 - **`test_followup_flow.py`** (through `TestClient` and `tests/loan_helpers.py`, case `DEMO-MTZ-2026-009`):
   - one task per issue (AC 6) and consolidation;
   - customer leaves → grace → tick → scheduled → gate → mock call → `LINK_SENT` → link redeem → corrected upload
@@ -135,7 +151,8 @@ seam (a function argument, a fixture). Don't edit the file.
   - case 010 (no consent) is blocked with a reason;
   - a manual call under opt-out → 409;
   - the customer projection has no internals;
-  - RBAC: no session 401, wrong capability 403, unassigned banker 403;
+  - access with the existing checks: no session → 401; the customer of another case → 403; an unassigned banker
+    writing → 403;
   - Talk failure does not block uploads (AC 13).
 - **`test_clock.py`:** offset, call window, Shabbat, holiday, DST.
 
@@ -147,7 +164,8 @@ seam (a function argument, a fixture). Don't edit the file.
 - [ ] `python3 docs/plans/parallel/check_scope.py B` prints `OK`.
 - [ ] No Gemini call made: `grep -c . $DATA_DIR/*.jsonl` is absent or 0; tests disable Gemini.
 - [ ] Optional smoke: start `uvicorn` on :8796 with your `DATA_DIR` and exercise the demo routes with `curl`.
-- [ ] `NOTES-agent-B.md` lists the G5 wiring (engine job kinds, triggers, MCP tool, `/system`, README/CODEMAP text).
+- [ ] `NOTES-agent-B.md` lists the G5 wiring (`tick` in the worker loop, `on_event` triggers after uploads and
+      reviews, MCP tool, `/system` row, README/CODEMAP text).
 - [ ] Everything is committed on `agent-b/round3-followup`; nothing pushed or merged.
 - [ ] Report the commands you ran and their output. Label anything not run as not verified.
 
