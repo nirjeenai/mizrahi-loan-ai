@@ -54,6 +54,7 @@ RULES: dict[str, tuple[Tier, str]] = {
     "OP-PRESENCE-UNKNOWN": ("OPERATIONAL", "נוכחות הלקוח אינה ודאית — המתנה נוספת"),
     "OP-PROVIDER-UNHEALTHY": ("OPERATIONAL", "ספק השיחות אינו זמין"),
     "OP-ATTEMPT-UNKNOWN": ("OPERATIONAL", "סטטוס שיחה קודמת אינו ידוע — מבררים לפני פנייה נוספת"),
+    "OP-CALL-IN-PROGRESS": ("OPERATIONAL", "פנייה קודמת עדיין בתהליך — אין פנייה נוספת"),
     # published configuration
     "CFG-AUTO-OFF": ("CONFIG", "הטיפול היזום כבוי בהגדרות"),
     "CFG-TALK-OFF": ("CONFIG", "ערוץ השיחה כבוי בהגדרות"),
@@ -131,6 +132,8 @@ class FollowupContext(_Frozen):
     customer_attempts_today: int = Field(0, ge=0)   # across every case of the same customer
     provider_healthy: bool = True
     plan_state: str = "IDLE"
+    live_sessions: int = Field(0, ge=0)          # sessions not ENDED or expired; ≥2 with ACTIVE means another device
+    manual: bool = False                         # a banker's call-now request: no grace, and every deferral blocks
 
 
 class Decision(_Frozen):
@@ -207,6 +210,15 @@ def matches(expect: Expectation, decision: Decision) -> bool:
     return (decision.action == expect.action and set(expect.rule_ids_include) <= set(decision.rule_ids)
             and set(expect.blocked_by_include) <= set(decision.blocked_by)
             and (expect.next_eligible_at is None or decision.next_eligible_at == expect.next_eligible_at))
+
+
+def merge_overrides(config: dict, overrides: dict) -> dict:
+    """A scenario's `policy_overrides` over a configuration: dicts merge key by key, anything else (lists included)
+    replaces. Neither input is modified."""
+    out = dict(config)
+    for key, value in overrides.items():
+        out[key] = merge_overrides(out[key], value) if isinstance(value, dict) and isinstance(out.get(key), dict) else value
+    return out
 
 
 def load_scenarios(directory: Path = SCENARIO_DIR) -> list[Scenario]:
