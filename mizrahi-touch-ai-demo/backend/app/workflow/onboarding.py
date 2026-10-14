@@ -19,6 +19,9 @@ from ..util import now_iso
 from . import requirements
 
 MAX_DRAFTS = 500
+ID_PROMPT = "מה מספר תעודת הזהות שלך? (9 ספרות; בהדגמה מתקבל גם מזהה סינתטי בצורה DEMO-ID-201)"
+ID_QUESTIONS = ("national_id", "co_national_id", "signatory_id")
+_DEMO_ID = re.compile(r"^DEMO-ID-\d{3}$")
 MAX_CASES = 200
 _NAME = re.compile(r"^[^<>{}\\]{2,30}$")
 _confirm_lock = threading.Lock()
@@ -58,6 +61,7 @@ QUESTIONS: list[tuple[str, str, str, Callable[[], list[dict]] | list[dict], Call
      [{"value": "individual", "label_he": "הלוואה פרטית — עבורי (או עבורי ועבור לווה נוסף)"},
       {"value": "company", "label_he": "מימון לחברה בע״מ שאני מורשה החתימה בה"}], lambda a: True),
     ("name", "name", "איך קוראים לך?", [], _individual),
+    ("national_id", "text", ID_PROMPT, [], _individual),
     ("purpose", "choice", "מה מטרת ההלוואה?", lambda: _purposes("individual"), _individual),
     ("income", "multi", "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.", INCOME, _individual),
     ("registration", "choice", "איך העסק רשום במע״מ?", REGISTRATION,
@@ -65,6 +69,7 @@ QUESTIONS: list[tuple[str, str, str, Callable[[], list[dict]] | list[dict], Call
     ("net", "number", "מה ההכנסה החודשית נטו שלך, בערך? (הצהרה בלבד — אינה מאומתת)", NET, _individual),
     ("co_borrower", "choice", "האם יש לווה נוסף בבקשה — מישהו שיחתום איתך על ההלוואה?", YES_NO, _individual),
     ("co_name", "name", "איך קוראים ללווה הנוסף?", [], _co),
+    ("co_national_id", "text", "ומה מספר תעודת הזהות של הלווה הנוסף?", [], _co),
     ("co_income", "multi", "מאיפה ההכנסה של הלווה הנוסף?", INCOME, _co),
     ("co_registration", "choice", "איך העסק של הלווה הנוסף רשום במע״מ?", REGISTRATION,
      lambda a: _co(a) and "self_employed" in (a.get("co_income") or [])),
@@ -73,6 +78,7 @@ QUESTIONS: list[tuple[str, str, str, Callable[[], list[dict]] | list[dict], Call
      [{"value": "joint", "label_he": "כן, חשבון משותף לשנינו"}, {"value": "separate", "label_he": "לא, לכל אחד חשבון משלו"}], _co),
     ("company_name", "text", "מה שם החברה?", [], lambda a: a.get("entity") == "company"),
     ("signatory", "name", "מי מורשה החתימה שמגיש את הפנייה?", [], lambda a: a.get("entity") == "company"),
+    ("signatory_id", "text", "מה מספר תעודת הזהות של מורשה החתימה?", [], lambda a: a.get("entity") == "company"),
     ("company_purpose", "choice", "למה החברה צריכה את המימון?", lambda: _purposes("company"),
      lambda a: a.get("entity") == "company"),
     ("amount", "number", "איזה סכום מבקשים?", AMOUNTS, _individual),
@@ -131,6 +137,12 @@ def _validate(qid: str, value: Any) -> Any:
             raise OnboardingError("נא להזין שם פרטי ושם משפחה (2–30 תווים)")
         return {"first": first, "last": last}
     text = " ".join(str(value or "").split())
+    if qid in ID_QUESTIONS:
+        from ..review import deterministic as det
+        text = text.replace(" ", "").upper() if text.upper().startswith("DEMO") else text.replace("-", "").replace(" ", "")
+        if not (_DEMO_ID.match(text) or (text.isdigit() and len(text) == 9 and det.israeli_id_check(text) == "valid")):
+            raise OnboardingError("מספר הזהות אינו תקין (9 ספרות עם ספרת ביקורת, או מזהה הדגמה DEMO-ID-XXX)")
+        return text
     if not 2 <= len(text) <= 60 or any(ch in text for ch in "<>{}\\"):
         raise OnboardingError("נא להזין 2–60 תווים")
     return text
@@ -155,8 +167,7 @@ def build_case(answers: dict, case_id: str, display_number: str, persona_id: str
     if a["entity"] == "company":
         purpose = pol.product.purposes[a["company_purpose"]]
         sig = a["signatory"]
-        borrower = mock_bank._person("BRW-A", sig["first"], sig["last"], f"DEMO-ID-S{display_number[-4:]}",
-                                     "authorized_signatory", [], 0)
+        borrower = mock_bank._person("BRW-A", sig["first"], sig["last"], a["signatory_id"], "authorized_signatory", [], 0)
         return mock_bank._case(
             case_id, display_number, f"{purpose.label_he} — {a['company_name']}", [borrower],
             mock_bank._loan(a["company_purpose"], purpose.label_he, a["business_amount"], a["payments"], business=True),
@@ -167,15 +178,15 @@ def build_case(answers: dict, case_id: str, display_number: str, persona_id: str
                      "signatory_he": f"{sig['first']} {sig['last']}", "signatory_role_he": "מורשה חתימה"})
     purpose = pol.product.purposes[a["purpose"]]
 
-    def person(bid: str, prefix: str, role: str, n: int) -> dict:
+    def person(bid: str, prefix: str, role: str) -> dict:
         name = a[f"{prefix}name"]
-        return mock_bank._person(bid, name["first"], name["last"], f"DEMO-ID-{n}{display_number[-4:]}", role,
+        return mock_bank._person(bid, name["first"], name["last"], a[f"{prefix}national_id"], role,
                                  a[f"{prefix}income"], a[f"{prefix}net"], registration=a.get(f"{prefix}registration"))
 
-    borrowers = [person("BRW-A", "", "primary", 5)]
+    borrowers = [person("BRW-A", "", "primary")]
     accounts = mock_bank._accounts(["BRW-A"])
     if a.get("co_borrower") == "yes":
-        borrowers.append(person("BRW-B", "co_", "co_borrower", 6))
+        borrowers.append(person("BRW-B", "co_", "co_borrower"))
         accounts = (mock_bank._accounts(["BRW-A", "BRW-B"]) if a["accounts"] == "joint"
                     else mock_bank._accounts(["BRW-A"], ["BRW-B"]))
         if a["accounts"] == "joint":
@@ -245,6 +256,8 @@ def answer(draft_id: str, question_id: str, value: Any) -> dict[str, Any]:
         if not BY_ID[question_id][4](_clean_answers(answers)):
             raise OnboardingError("השאלה אינה רלוונטית לתשובות הקודמות")
         answers[question_id] = _validate(question_id, value)
+        if question_id == "co_national_id" and answers[question_id] == answers.get("national_id"):
+            raise OnboardingError("ללווה הנוסף צריך להיות מספר זהות משלו")
     with db.tx() as c:
         c.execute("UPDATE onboarding_drafts SET answers=?, updated_at=? WHERE draft_id=? AND status='draft'",
                   (db.jdump(answers), now_iso(), draft_id))

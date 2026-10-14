@@ -1,0 +1,78 @@
+{
+ "sha256": "f496889a855b2cf2af4cca005207f2ed889eaa53089a7bd718f6be589ceebbf3",
+ "file": "presenter/profile_set/vat_report_shiran_2026-07_08.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "PNL_STATEMENT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"pnl_statement\",\n  \"doc_type_reason\": \"דוח תקופתי למע״מ (דו-חודשי) הכולל פירוט עסקאות ותשומות לתקופה מוגדרת\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"שירן אזולאי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [100, 552, 112, 632],\n      \"label_quote\": \"שם העוסק\",\n      \"normalized\": \"שירן אזולאי\",\n      \"quote\": \"שירן אזולאי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-103\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [122, 75, 134, 186],\n      \"label_quote\": \"מספר עוסק\",\n      \"normalized\": \"DEMO-ID-103\",\n      \"quote\": \"DEMO-ID-103\"\n    },\n    {\n      \"name\": \"business_name\",\n      \"value\": \"אזולאי עיצוב פנים\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [144, 510, 156, 632],\n      \"label_quote\": \"שם העסק\",\n      \"normalized\": \"אזולאי עיצוב פנים\",\n      \"quote\": \"אזולאי עיצוב פנים\"\n    },\n    {\n      \"name\": \"period_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [167, 75, 178, 163],\n      \"label_quote\": \"תקופת הדיווח מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"period_to\",\n      \"value\": \"31.08.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [189, 75, 200, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"31.08.2026\",\n      \"quote\": \"31.08.2026\"\n    },\n    {\n      \"name\": \"issuer_name\",\n      \"value\": \"רו״ח דורית לנדאו\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [211, 514, 222, 632],\n      \"label_quote\": \"הוגש באמצעות מייצג\",\n      \"normalized\": \"רו״ח דורית לנדאו\",\n      \"quote\": \"רו״ח דורית לנדאו\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"14.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [233, 75, 245, 163],\n      \"label_quote\": \"תאריך הגשה\",\n      \"normalized\": \"14.09.2026\",\n      \"quote\": \"14.09.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינו דוח רשמי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"רשות המסים · מע״מ · דוח תקופתי (דו־חודשי)\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TN3kGNNOEyQKGo2WZK1aPrZ7JiDmAZPmekfYnWDIXGGIkEZ8x99F4qkoRPrVtTuf0zqbPAA9apNO74ouQyXIogC0RqD6DQf8fn61QVpT2NMTOfkXvj8uXuKvfWLIbjbWyGz8="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1217,
+    "totalTokenCount": 2859,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "24XPav2POtblkdUPvoKU4AY"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PL-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דוח תקופתי למע״מ (דו-חודשי), המקובל לפי מדיניות הדמו במקום דוח רווח והפסד.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם. פרטי בעל העסק, תקופת הדיווח והמייצג מופיעים בבירור.\",\n      \"cited_fields\": [\"holder_name\", \"period_from\", \"period_to\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל העסק ומספר הזהות תואמים במדויק לפרטי המבקש/ת שנקבעו מראש.\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא אותרו הוראות חשודות או פניות למערכת בינה מלאכותית במסמך; סימוני הדמו הם חלק מובנה מסביבת הבדיקה.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך הוא דוח מע״מ תקופתי תקין וקריא, התואם לפרטי המבקשת שירן אזולאי ללא ממצאים חשודים.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TmCPp8LAozRVBvssqUZqAVXmt2eb7tkYx4uJmN8mL89pIOq76ynB2c1IGHaXjpeQpIeW28dlHJdJdqWK2u57EL4wAmQPDLLeA55soyPdHipiVXHp7KwO66GaeuvORmGTgmEA="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2440,
+    "candidatesTokenCount": 471,
+    "totalTokenCount": 2911,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1908
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "5YXPaq6GJtzsxN8PgbztIA"
+  }
+ }
+}

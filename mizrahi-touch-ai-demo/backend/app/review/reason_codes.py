@@ -5,7 +5,8 @@ family in Hebrew ("תעודת הזהות", "דף העו״ש"…), `{file}` the f
 from __future__ import annotations
 
 DOC_HE = {"payslip": "תלוש שכר", "id_document": "תעודת זהות", "bank_statement": "דף עו״ש",
-          "purpose_proof": "אסמכתה למטרת ההלוואה", "tax_form": "שומת מס / אישור רו״ח"}
+          "purpose_proof": "אסמכתה למטרת ההלוואה", "tax_form": "שומת מס / אישור רו״ח",
+          "business_registration": "אישור רישום עוסק", "pnl_statement": "דוח רווח והפסד"}
 
 # (title, message) for a failed check on a non-payslip document; payslips keep their wording in case_review.DOC_FINDING_TEXT
 DOCUMENT = {
@@ -20,6 +21,9 @@ DOCUMENT = {
     "PURPOSE_MISMATCH": ("האסמכתה אינה תואמת למטרת ההלוואה", "במסמך {file}: {detail}"),
     "UNTRUSTED_INSTRUCTION_IN_DOCUMENT": ("טקסט חשוד במסמך", "במסמך {file} נמצא טקסט המופנה למערכת או לבודק. הטקסט לא בוצע; המסמך הועבר לבדיקת בנקאי."),
     "EVIDENCE_UNVERIFIED": ("ראיה לא אומתה מול הקובץ", "במסמך {file} חלק מהערכים המכריעים לא אומתו מול הקובץ המקורי: {detail}"),
+    "REGISTRATION_TYPE_MISMATCH": ("סוג הרישום אינו תואם לדרישה", "{detail}. יש להעלות את אישור הרישום המתאים."),
+    "DEALER_NUMBER_MISMATCH": ("מספר העוסק אינו תואם למבקש/ת", "במסמך {file}: {detail}. הועבר לבדיקת בנקאי."),
+    "ISSUER_DETAILS_MISSING": ("פרטי עורך הדוח חסרים", "במסמך {file}: {detail}. הועבר לבדיקת בנקאי."),
 }
 UNCERTAIN = {
     "UNEXPECTED_DOCUMENT_TYPE": ("לא ברור אם המסמך הוא {doc}", "בדיקת ה-AI לא הצליחה לקבוע אם {file} הוא {doc}. המסמך הועבר לבדיקת בנקאי."),
@@ -43,6 +47,7 @@ CUSTOMER_SHORT = {
     REQUIRED_DOCUMENT_MISSING: "המסמך טרם הועלה",
     STATEMENT_PERIOD_GAP: "חסרה תקופה בדפי העו״ש",
     "MANDATORY_FIELD_MISSING": "חסר פרט במסמך",
+    "REGISTRATION_TYPE_MISMATCH": "סוג הרישום אינו תואם לדרישה",
 }
 
 

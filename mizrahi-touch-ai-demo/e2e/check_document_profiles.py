@@ -71,12 +71,19 @@ def close_drawer(page: Page) -> None:
 def prepared_cases(page: Page) -> None:
     page.goto(f"{BASE}/customer")
     open_presenter(page)
-    cards = page.locator("[data-testid=use-cases] article.uc")
+    cards = page.locator("[data-testid=use-cases] article.uc:not(.uc-new)")      # the seventh card is the new-customer journey
     badges = page.locator("[data-testid=usecase-badge]").all_inner_texts()
     check("presenter: six use-case cards, TC-01…06 ↔ UC-01…06 in order", cards.count() == 6
           and all(b.startswith(f"TC-0{i} ↔ UC-0{i}") for i, b in enumerate(badges, 1)), " | ".join(badges))
-    check("presenter: no download is offered on the Round 1 use-case cards",
-          page.locator("[data-testid=use-cases] a[download], [data-testid=use-cases] .fx-dl").count() == 0)
+    for u in USE_CASES:
+        c = page.locator(f"[data-testid=usecase-{u['id']}]")
+        if not c.locator("[data-testid=usecase-requirements]").count():
+            c.locator("[data-testid=usecase-toggle]").click()
+    files = sum(1 for u in USE_CASES for st in u["steps"] if not st["role"].startswith("banker"))
+    check("presenter: every use-case card offers its pack's downloads (Round 2)",
+          page.locator("[data-testid=use-cases] [data-testid=usecase-download]").count() == files, f"{files} files")
+    for u in USE_CASES:
+        page.locator(f"[data-testid=usecase-{u['id']}] [data-testid=usecase-toggle]").click()
     more = page.locator("[data-testid=more-tests]")
     check("the 15 earlier scenarios sit under a collapsed 'בדיקות נוספות'",
           more.get_attribute("open") is None and "בדיקות נוספות" in page.locator("[data-testid=more-tests-toggle]").inner_text())
@@ -156,24 +163,24 @@ def banker_views(page: Page) -> None:
 def human_review_upload(page: Page) -> None:
     page.goto(f"{BASE}/customer")
     open_presenter(page)
-    card = page.locator("[data-testid=usecase-TC-02]")
+    card = page.locator("[data-testid=usecase-TC-06]")
     card.locator("[data-testid=usecase-open-case]").click()
-    expect(page.locator("[data-testid=document-profile][data-use-case=UC-02]")).to_be_visible(timeout=15000)
+    expect(page.locator("[data-testid=document-profile][data-use-case=UC-06]")).to_be_visible(timeout=15000)
     if not card.locator("[data-testid=usecase-requirements]").count():
         card.locator("[data-testid=usecase-toggle]").click()
     card.locator("[data-testid=usecase-reset]").click()
     card.locator("[data-testid=usecase-reset-confirm]").click()
     expect(card.get_by_text("התיק אופס")).to_be_visible(timeout=10000)
     page.locator("[data-testid=presenter-close]").click()
-    row = page.locator("[data-testid='req-VAT_EXEMPT_CERT:BRW-A']")
+    row = page.locator("[data-testid='req-COMPANY_EXTRACT']")
     row.locator(".dl-head").click()
     check("a human-review row explains why it is needed and what else is accepted",
-          "עוסק פטור" in row.locator("[data-testid=req-why]").inner_text()
-          and "תעודת עוסק פטור" in row.locator("[data-testid=req-alternatives]").inner_text())
-    row.locator("[data-testid='upload-VAT_EXEMPT_CERT:BRW-A']").click()
+          "מספר החברה" in row.locator("[data-testid=req-why]").inner_text()
+          and "נסח חברה מרשם החברות" in row.locator("[data-testid=req-alternatives]").inner_text())
+    row.locator("[data-testid='upload-COMPANY_EXTRACT']").click()
     sheet = page.locator("[data-testid=upload-sheet]")
     expect(sheet.locator("[data-testid=upload-human-review]")).to_be_visible()
-    sheet.locator("[data-testid=file-input]").set_input_files(str(FIX / "car_quote_ido.pdf"))
+    sheet.locator("[data-testid=file-input]").set_input_files(str(FIX.parent / "profile_set" / "company_extract_sg.pdf"))
     sheet.locator("[data-testid=upload-submit]").click()
     expect(sheet.locator("[data-testid=upload-stored]")).to_be_visible(timeout=15000)
     check("upload to a requirement without a rubric: stored for the banker, no AI verdict shown",
@@ -196,7 +203,7 @@ def answer(page: Page, qid: str, value=None, *, name=None, multi=None) -> None:
         for v in multi:
             page.locator(f"[data-testid=onb-option][data-value='{v}']").click()
         page.locator("[data-testid=onb-send]").click()
-    elif qid in ("company_name",):
+    elif qid in ("company_name", "national_id", "co_national_id", "signatory_id"):
         page.locator("[data-testid=onb-text]").fill(value)
         page.locator("[data-testid=onb-send]").click()
     else:
@@ -236,6 +243,7 @@ def onboarding(page: Page) -> None:
     start_application(page)
     answer(page, "entity", "individual")
     answer(page, "name", name=("דנה", "רז"))
+    answer(page, "national_id", "DEMO-ID-301")
     answer(page, "purpose", "car")
     answer(page, "income", multi=["salaried"])
     shot(page, "onboarding-questionnaire")
@@ -263,7 +271,7 @@ def onboarding(page: Page) -> None:
     row.locator(".dl-head").click()
     row.locator("[data-testid='upload-ID_CARD:BRW-A']").click()
     sheet = page.locator("[data-testid=upload-sheet]")
-    sheet.locator("[data-testid=file-input]").set_input_files(str(FIX / "id_card_ido.pdf"))
+    sheet.locator("[data-testid=file-input]").set_input_files(str(FIX / "id_card_ido.pdf"))      # not דנה רז's: a real mismatch
     sheet.locator("[data-testid=upload-submit]").click()
     expect(sheet.locator("[data-testid=upload-stages]")).to_be_visible(timeout=10000)
     expect(sheet.get_by_text("לתוצאות הבדיקה")).to_be_visible(timeout=90000)
@@ -276,6 +284,7 @@ def onboarding(page: Page) -> None:
     start_application(page)
     answer(page, "entity", "individual")
     answer(page, "name", name=("עומר", "גל"))
+    answer(page, "national_id", "DEMO-ID-302")
     answer(page, "purpose", "car")
     answer(page, "income", multi=["self_employed"])
     answer(page, "registration", "vat_exempt")
@@ -301,11 +310,13 @@ def onboarding(page: Page) -> None:
     start_application(page)
     answer(page, "entity", "individual")
     answer(page, "name", name=("ליאת", "כץ"))
+    answer(page, "national_id", "DEMO-ID-303")
     answer(page, "purpose", "renovation")
     answer(page, "income", multi=["salaried"])
     answer(page, "net", 12000)
     answer(page, "co_borrower", "yes")
     answer(page, "co_name", name=("אבי", "כץ"))
+    answer(page, "co_national_id", "DEMO-ID-304")
     answer(page, "co_income", multi=["self_employed"])
     answer(page, "co_registration", "vat_registered")
     answer(page, "co_net", 16000)
@@ -325,6 +336,7 @@ def onboarding(page: Page) -> None:
     answer(page, "entity", "company")
     answer(page, "company_name", "אלפא מערכות בע״מ")
     answer(page, "signatory", name=("רון", "לב"))
+    answer(page, "signatory_id", "DEMO-ID-305")
     answer(page, "company_purpose", "business_equipment")
     answer(page, "business_amount", 300000)
     answer(page, "payments", 60)

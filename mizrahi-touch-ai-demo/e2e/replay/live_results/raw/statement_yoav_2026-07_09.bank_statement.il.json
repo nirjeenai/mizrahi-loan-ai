@@ -1,0 +1,78 @@
+{
+ "sha256": "d268c55062593776e1fd2610dba22e2fefade1b287e0b669a85496654f3b2957",
+ "file": "presenter/profile_set/statement_yoav_2026-07_09.pdf",
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"bank_statement\",\n  \"doc_type_reason\": \"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרת סגירה ופרטי חשבון בבנק מזרחי-טפחות\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"bank_name\",\n      \"value\": \"מזרחי־טפחות\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [51, 782, 66, 933],\n      \"label_quote\": null,\n      \"normalized\": \"מזרחי־טפחות\",\n      \"quote\": \"מזרחי־טפחות\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"יואב כרמי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [101, 567, 110, 631],\n      \"label_quote\": \"שם בעל החשבון\",\n      \"normalized\": \"יואב כרמי\",\n      \"quote\": \"יואב כרמי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-102\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [123, 75, 133, 186],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-102\",\n      \"quote\": \"DEMO-ID-102\"\n    },\n    {\n      \"name\": \"account_number\",\n      \"value\": \"20-512-104477\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [146, 75, 155, 193],\n      \"label_quote\": \"בנק / סניף / חשבון\",\n      \"normalized\": \"20-512-104477\",\n      \"quote\": \"20-512-104477\"\n    },\n    {\n      \"name\": \"statement_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 75, 177, 163],\n      \"label_quote\": \"תקופה מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"statement_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [190, 75, 199, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"closing_balance\",\n      \"value\": \"15,083.02\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [741, 75, 752, 153],\n      \"label_quote\": \"יתרת סגירה\",\n      \"normalized\": \"15083.02\",\n      \"quote\": \"15,083.02\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [],\n  \"uncertainties\": [],\n  \"title_quote\": \"דף תנועות בחשבון עו״ש\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TWMRUBBS/73wudWGfHTc20t4ag89aRaYonGMaF89G+yMkKlvIzCvCcTKYN0kg7flSxeUdwyW2//WGxIT2HP2Wf6otmelcLhoyqB8zwcFFN4RRZMlujLVz7FxPQPD8RBgTgBQ="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1078,
+    "totalTokenCount": 2720,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "eoXPavz_MpOixN8Pv-G7YQ"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דף תנועות בחשבון עו״ש של בנק מזרחי-טפחות הכולל פירוט תנועות לתקופה מוגדרת.\",\n      \"cited_fields\": [\n        \"bank_name\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, מלא וברור; פרטי החשבון, התקופה ושורות התנועות קריאים לחלוטין ללא חיתוכים.\",\n      \"cited_fields\": [\n        \"account_number\",\n        \"statement_from\",\n        \"statement_to\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל החשבון ומספר הזהות תואמים באופן מלא למבקש ההלוואה.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא אותרו הוראות מיועדות למודל AI או סימני עריכה חשודים. סימוני מסמך הדמו הם חלק מהסביבה הסינתטית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק בהצלחה: מדובר בדף תנועות עו״ש קריא ותקין של בנק מזרחי-טפחות, התואם לפרטי המבקש, ללא תוכן חשוד.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TB5xgaEh5lxyBa6EXSNEBZPYNTsydsJXvXCWkq7RYdvVbhQG56QxpopI1CqDFN7Rv0qSXNlRgmEJl9Sem/+tW4qLinvvmIMtB8GY3JH5GLQUyNv9h5zGFHkgIEPO29FjHSKc="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2350,
+    "candidatesTokenCount": 508,
+    "totalTokenCount": 2858,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1818
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "hYXPavb3K5ihnsEP7s-w4Qs"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "sha256": "6fe4d486487cb30c66d01647d8baef2ed5b77897a6b87e2600a7f6fa129ab14d",
+ "file": "presenter/profile_set/payslip_alon_2026-09.pdf",
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "PAYSLIPS:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"payslip\",\n  \"doc_type_reason\": \"כותרת המסמך היא 'תלוש שכר לחודש ספטמבר 2026' והוא כולל טבלאות תשלומים, ניכויים ונתוני שכר ברוטו ונטו.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"employer_name\",\n      \"value\": \"נתיב תוכנה בע״מ\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [53, 728, 68, 933],\n      \"label_quote\": null,\n      \"normalized\": \"נתיב תוכנה בע״מ\",\n      \"quote\": \"נתיב תוכנה בע״מ\"\n    },\n    {\n      \"name\": \"employer_id\",\n      \"value\": \"516447201\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [75, 826, 88, 934],\n      \"label_quote\": \"ח.פ.\",\n      \"normalized\": \"516447201\",\n      \"quote\": \"516447201\"\n    },\n    {\n      \"name\": \"document_number\",\n      \"value\": \"SAL-alon-2026-09\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [66, 67, 76, 183],\n      \"label_quote\": \"מספר מסמך:\",\n      \"normalized\": \"SAL-alon-2026-09\",\n      \"quote\": \"SAL-alon-2026-09\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"06.10.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [76, 67, 88, 140],\n      \"label_quote\": \"תאריך הפקה:\",\n      \"normalized\": \"06.10.2026\",\n      \"quote\": \"06.10.2026\"\n    },\n    {\n      \"name\": \"employee_name\",\n      \"value\": \"אלון פרידמן\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [159, 834, 172, 918],\n      \"label_quote\": \"שם העובד/ת\",\n      \"normalized\": \"אלון פרידמן\",\n      \"quote\": \"אלון פרידמן\"\n    },\n    {\n      \"name\": \"employee_id\",\n      \"value\": \"DEMO-ID-104\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [159, 618, 169, 705],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-104\",\n      \"quote\": \"DEMO-ID-104\"\n    },\n    {\n      \"name\": \"employee_number\",\n      \"value\": \"E-1290\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [159, 434, 169, 492],\n      \"label_quote\": \"מספר עובד\",\n      \"normalized\": \"E-1290\",\n      \"quote\": \"E-1290\"\n    },\n    {\n      \"name\": \"salary_period\",\n      \"value\": \"09/2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [193, 853, 203, 918],\n      \"label_quote\": \"תקופת שכר\",\n      \"normalized\": \"2026-09\",\n      \"quote\": \"09/2026\"\n    },\n    {\n      \"name\": \"payment_date\",\n      \"value\": \"09.10.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [192, 616, 203, 705],\n      \"label_quote\": \"תאריך תשלום\",\n      \"normalized\": \"09.10.2026\",\n      \"quote\": \"09.10.2026\"\n    },\n    {\n      \"name\": \"gross_pay\",\n      \"value\": \"18,546.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [403, 797, 417, 895],\n      \"label_quote\": \"שכר ברוטו\",\n      \"normalized\": \"18546.00\",\n      \"quote\": \"18,546.00\"\n    },\n    {\n      \"name\": \"total_deductions\",\n      \"value\": \"4,696.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [403, 516, 418, 603],\n      \"label_quote\": \"סה״כ ניכויים\",\n      \"normalized\": \"4696.00\",\n      \"quote\": \"4,696.00\"\n    },\n    {\n      \"name\": \"net_pay\",\n      \"value\": \"13,850.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [403, 212, 417, 309],\n      \"label_quote\": \"נטו לתשלום\",\n      \"normalized\": \"13850.00\",\n      \"quote\": \"13,850.00\"\n    }\n  ],\n  \"earnings\": [\n    {\n      \"label\": \"שכר בסיס\",\n      \"amount\": \"17,896.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"החזר נסיעות\",\n      \"amount\": \"650.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"סה״כ ברוטו\",\n      \"amount\": \"18,546.00\",\n      \"page\": 1\n    }\n  ],\n  \"deductions\": [\n    {\n      \"label\": \"מס הכנסה\",\n      \"amount\": \"2,632.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"ביטוח לאומי\",\n      \"amount\": \"762.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"מס בריאות\",\n      \"amount\": \"471.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"פנסיה — חלק עובד\",\n      \"amount\": \"831.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"סה״כ ניכויים\",\n      \"amount\": \"4,696.00\",\n      \"page\": 1\n    }\n  ],\n  \"suspicious_content\": [],\n  \"uncertainties\": [\n    \"מדובר במסמך דמו סינתטי (סימון מים וכיתוב בתחתית המסמך)\"\n  ],\n  \"title_quote\": \"תלוש שכר לחודש ספטמבר 2026\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0Tyt4obiYljzHZL7vY0d6ym0plwQqa5slTHhd5XGNTqw5/FB+Xn9LFYsGSJGDZgKp4rJ6NR2XgFMXN+p6/aeUiuTcRUZX/jrEPO4caneSNTmM6NLfnfcuxhnu1fMnpzLo9nU8="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 2074,
+    "totalTokenCount": 3716,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "GobPauDXOKf_nsEP55iRwAU"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\"criterion_id\": \"PS-01\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך הוא תלוש שכר סטנדרטי הכולל כותרת ברורה, פירוט תשלומים וניכויים ושכר נטו לתשלום.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-02\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך שלם, קריא וברור לחלוטין ללא חיתוכים או טשטוש בכל אזורי המידע המרכזיים.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-03\", \"outcome\": \"PASS\", \"explanation_he\": \"שם העובד ומספר הזהות במסמך תואמים במדויק לנתוני הלווה המשויך.\", \"cited_fields\": [\"employee_name\", \"employee_id\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-08\", \"outcome\": \"PASS\", \"explanation_he\": \"לא אותרו במסמך הוראות המיועדות למערכת AI, שינויים חשודים או זיופים; סימוני הדמו הם חלק מובנה מסביבת הבדיקה.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-10\", \"outcome\": \"PASS\", \"explanation_he\": \"תאריך התשלום המודפס (09.10.2026) תואם ליום ה-9 בחודש העוקב לתקופת השכר (09/2026).\", \"cited_fields\": [\"salary_period\", \"payment_date\"], \"confidence\": 1.0}\n  ],\n  \"summary_he\": \"המסמך תקין, קריא, ומאומת במלואו ביחס לפרטי הלווה ותקופת השכר.\",\n  \"limitations_he\": [\"הבדיקה התבססה על מסמך מסביבת בדיקה סינתטית\"],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TC49QXw8imBzqcyg7kq6J7rJWi4+ACKZPCnvMAMU6vemal5PkQLnVPqR8D+tFujit6OcrqYuwpnM7DXVQwYnrPM+LHwWqQ3hj14X1cXHOfiJyoEWP/3WnjmTMh0aEyFh/YvE="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 3541,
+    "candidatesTokenCount": 514,
+    "totalTokenCount": 4055,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 3009
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "KobPao3_BuKY3boPscnNsAg"
+  }
+ }
+}

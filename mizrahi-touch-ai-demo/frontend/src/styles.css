@@ -1181,3 +1181,9 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .upload-human { color: var(--info); background: var(--info-soft); border-radius: 8px; padding: 6px 9px; line-height: 1.5; }
 .case-profile { flex: none; font-size: 12px; font-weight: 700; color: var(--info); background: var(--info-soft); border-radius: 999px; padding: 1px 8px; }
 .case-profile.assisted { color: var(--jeen); background: var(--jeen-soft); }
+.dx-profile-edit { align-self: flex-start; }
+.dx-profile-editor { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--mz-line-soft); padding-top: 10px; }
+.dl-inactive { padding: 10px 12px; opacity: 0.85; }
+.dl-inactive .dl-row { border-style: dashed; }
+.uc-banker-step { background: var(--info-soft); }
+.uc-new { border: 1px dashed var(--ok); }

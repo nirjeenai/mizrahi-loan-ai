@@ -1,0 +1,78 @@
+{
+ "sha256": "9ffd1ddf6d098cd1625fcfbdb9fe2e6699960f28991836b0730438a6f4d4dcb6",
+ "file": "presenter/profile_set/car_quote_neta.pdf",
+ "case_id": "DEMO-LN-REC-NETA",
+ "requirement_code": "PURPOSE_PROOF",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"purpose_proof\",\"doc_type_reason\":\"המסמך הוא הצעת מחיר לרכב (הצעת מחיר מספק) הכולל פרטי לקוח, ספק, תיאור הרכב וסכום לתשלום\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"issuer_name\",\"value\":\"אוטו־דמו יבואנים בע״מ\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[53,673,66,933],\"label_quote\":null,\"normalized\":\"אוטו־דמו יבואנים בע״מ\",\"quote\":\"אוטו־דמו יבואנים בע״מ\"},{\"name\":\"document_kind\",\"value\":\"הצעת מחיר לרכב\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[100,511,110,632],\"label_quote\":\"סוג המסמך\",\"normalized\":\"הצעת מחיר לרכב\",\"quote\":\"הצעת מחיר לרכב\"},{\"name\":\"issue_date\",\"value\":\"01.10.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[144,74,155,163],\"label_quote\":\"תאריך\",\"normalized\":\"01.10.2026\",\"quote\":\"01.10.2026\"},{\"name\":\"holder_name\",\"value\":\"נטע אלון\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[167,573,180,632],\"label_quote\":\"לכבוד\",\"normalized\":\"נטע אלון\",\"quote\":\"נטע אלון\"},{\"name\":\"subject\",\"value\":\"רכב עירוני חדש, דגם דמו 1.2, שנת ייצור 2026\",\"page\":1,\"confidence\":0.98,\"legible\":true,\"box_2d\":[189,311,202,632],\"label_quote\":\"תיאור\",\"normalized\":\"רכב עירוני חדש, דגם דמו 1.2, שנת ייצור 2026\",\"quote\":\"רכב עירוני חדש, דגם דמו 1.2, שנת ייצור 2026\"},{\"name\":\"total_amount\",\"value\":\"96,000.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[310,75,322,152],\"label_quote\":\"סה״כ לתשלום\",\"normalized\":\"96000.00\",\"quote\":\"96,000.00\"}],\"earnings\":[],\"deductions\":[],\"suspicious_content\":[],\"uncertainties\":[],\"title_quote\":\"הצעת מחיר לרכב\"}",
+        "thoughtSignature": "EmkKZwFpFH0TWy7h+4/wbHbMJFPUE6iuDj4DXaVUFTSgijHoXdDwxoFVveDbxLNoGUBDxpWARNDB0mDSosOSYR2r6OeKFEbmEr8pDfLwhvDIw8CJZ65JQi2hMALlKFvIWlc9dirLwsWok+Q="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 672,
+    "totalTokenCount": 2314,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "TofPaqzVLLf8nsEPvpOi8AI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PP-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא הצעת מחיר לרכב מטעם ספק (אוטו־דמו יבואנים בע״מ).\",\n      \"cited_fields\": [\"document_kind\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם, ומכיל את כל הפרטים המהותיים: ספק, תאריך, תיאור וסכום.\",\n      \"cited_fields\": [\"issuer_name\", \"issue_date\", \"subject\", \"total_amount\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"מטרת ההלוואה שהוצהרה הינה 'רכישת רכב', והמסמך מהווה הצעת מחיר עבור 'רכב עירוני חדש, דגם דמו 1.2, שנת ייצור 2026'. ישנה התאמה מלאה.\",\n      \"cited_fields\": [\"subject\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא אותרו הוראות המיועדות למודל/בודק או סימני שינוי/עריכה; סימון הדמו הינו חלק מובנה מהסביבה הסינתטית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך הוא הצעת מחיר תקינה, קריאה ושלמה התואמת באופן מלא את מטרת ההלוואה המוצהרת.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TAMISqEppQYKFVDeKozqv55tmidigTZF4XI7BmPFUgXLh40c8CCqy8COKlQXkZkCHE38XHxSnXm3FzkDWhS3IwQ8//kryPylNIecop2ba4+oRyKr/EBtfKFqKmjKLwayS98M="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2249,
+    "candidatesTokenCount": 497,
+    "totalTokenCount": 2746,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1717
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "VYfPaq3OCKys28oPlIDO8A8"
+  }
+ }
+}

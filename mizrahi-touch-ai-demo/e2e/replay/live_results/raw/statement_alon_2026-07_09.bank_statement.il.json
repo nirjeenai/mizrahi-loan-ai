@@ -1,0 +1,78 @@
+{
+ "sha256": "630586151d9d672f58f9b11963820b212de3cf0b9f9b69f68a3cbc7fe4174554",
+ "file": "presenter/profile_set/statement_alon_2026-07_09.pdf",
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"bank_statement\",\n  \"doc_type_reason\": \"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרת סגירה ופרטי חשבון בנק מזרחי-טפחות\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"bank_name\",\n      \"value\": \"מזרחי־טפחות\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [53, 781, 68, 933],\n      \"label_quote\": null,\n      \"normalized\": \"מזרחי־טפחות\",\n      \"quote\": \"מזרחי־טפחות\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"אלון פרידמן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [101, 552, 112, 631],\n      \"label_quote\": \"שם בעל החשבון\",\n      \"normalized\": \"אלון פרידמן\",\n      \"quote\": \"אלון פרידמן\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-104\",\n      \"page\": 1,\n      \"confidence\": 0.98,\n      \"legible\": true,\n      \"box_2d\": [123, 75, 133, 186],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-104\",\n      \"quote\": \"DEMO-ID-104\"\n    },\n    {\n      \"name\": \"account_number\",\n      \"value\": \"20-701-559310\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [146, 75, 155, 194],\n      \"label_quote\": \"בנק / סניף / חשבון\",\n      \"normalized\": \"20-701-559310\",\n      \"quote\": \"20-701-559310\"\n    },\n    {\n      \"name\": \"statement_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 75, 177, 163],\n      \"label_quote\": \"תקופה מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"statement_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [190, 75, 200, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"closing_balance\",\n      \"value\": \"27,362.52\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [741, 75, 752, 153],\n      \"label_quote\": \"יתרת סגירה\",\n      \"normalized\": \"27362.52\",\n      \"quote\": \"27,362.52\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי — אינו דף חשבון אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"מזרחי־טפחות · דף תנועות בחשבון עו״ש\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T1rj3j5vzjHWHCKxIBE8fWy/LhxPjNnNNxIX6HPbquNaAFZ8WvFQHfcgn4aiYpsUUBZ5GpX2938tCbRBhDOWFNC0dqehpO2ahcZesolZ4ZN8XI/CSXMC2qqbY5PsKDMrOxeI="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1192,
+    "totalTokenCount": 2834,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "MYbPasShKuegnsEP0a7TcQ"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דף תנועות חשבון עו״ש תקין מבנק מזרחי-טפחות, המציג פירוט תנועות לתקופה מוגדרת.\",\n      \"cited_fields\": [\n        \"bank_name\",\n        \"statement_from\",\n        \"statement_to\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם בכל שדות החובה ופירוט התנועות.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"account_number\",\n        \"statement_from\",\n        \"statement_to\",\n        \"closing_balance\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל החשבון ומספר הזהות תואמים באופן מלא למבקש ההלוואה.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו הוראות חשודות או עריכות במסמך; סימוני הדמו הם חלק מובנה מסביבת הבדיקה הסינתטית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"דף החשבון עומד בכל הקריטריונים שנבדקו: מדובר בדף תנועות תקין, קריא, ללא סימני זיוף, השייך למבקש ההלוואה.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TvmvESWwx6zOfdjm3sJq+uJonMGP1tUYN/9hdMFA72JxSsrvYZtpF0P2Gw/BNF2AJE0x70YcoHhcbZtpCQW1/IbrCl1f4rUA9k4HuVitY0JBJcROLYzWgfs5KoGS8/pK0a44="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2455,
+    "candidatesTokenCount": 513,
+    "totalTokenCount": 2968,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1923
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "OYbParnYMbbNnsEP0rbIUA"
+  }
+ }
+}

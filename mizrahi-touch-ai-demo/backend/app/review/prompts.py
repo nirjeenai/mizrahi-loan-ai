@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ..llm.gemini import S
 
-PROMPT_VERSION = "gemini-review/2.0.0"
+PROMPT_VERSION = "gemini-review/2.1.0"
 
 PAYSLIP_FIELDS = ["employee_name", "employee_id", "employee_number", "employer_name", "employer_id", "salary_period",
                   "payment_date", "issue_date", "document_number", "gross_pay", "total_deductions", "net_pay"]
@@ -15,6 +15,8 @@ FAMILY_FIELDS = {
                        "closing_balance"],
     "purpose_proof": ["issuer_name", "holder_name", "document_kind", "subject", "issue_date", "total_amount"],
     "tax_form": ["holder_name", "holder_id", "tax_year", "issue_date"],
+    "business_registration": ["holder_name", "holder_id", "business_name", "dealer_number", "registration_type", "issue_date"],
+    "pnl_statement": ["holder_name", "holder_id", "business_name", "period_from", "period_to", "issuer_name", "issue_date"],
 }
 FIELDS = list(dict.fromkeys(f for fields in FAMILY_FIELDS.values() for f in fields))
 FIELD_LABELS_HE = {
@@ -25,14 +27,17 @@ FIELD_LABELS_HE = {
     "holder_name": "שם", "holder_id": "מספר זהות", "date_of_birth": "תאריך לידה", "expiry_date": "תוקף עד",
     "bank_name": "בנק", "account_number": "מספר חשבון", "statement_from": "תקופה מ־", "statement_to": "תקופה עד",
     "closing_balance": "יתרת סגירה", "issuer_name": "שם הספק", "document_kind": "סוג המסמך", "subject": "תיאור",
-    "total_amount": "סכום", "tax_year": "שנת מס",
+    "total_amount": "סכום", "tax_year": "שנת מס", "business_name": "שם העסק", "dealer_number": "מספר עוסק",
+    "registration_type": "סוג הרישום", "period_from": "תקופת הדוח מ־", "period_to": "תקופת הדוח עד",
 }
-DATE_FIELDS = ("payment_date", "issue_date", "date_of_birth", "expiry_date", "statement_from", "statement_to")
+DATE_FIELDS = ("payment_date", "issue_date", "date_of_birth", "expiry_date", "statement_from", "statement_to", "period_from",
+               "period_to")
 MONEY_FIELDS = ("gross_pay", "net_pay", "total_deductions", "closing_balance", "total_amount")
-DOC_TYPES = ["payslip", "bank_statement", "id_document", "purpose_proof", "tax_form", "application_form", "other",
-             "unreadable"]
+DOC_TYPES = ["payslip", "bank_statement", "id_document", "purpose_proof", "tax_form", "business_registration", "pnl_statement",
+             "application_form", "other", "unreadable"]
 DOC_TYPES_HE = {"payslip": "תלוש שכר", "bank_statement": "דף חשבון בנק", "id_document": "תעודת זהות",
-                "purpose_proof": "אסמכתה למטרה", "tax_form": "טופס מס / אישור רו״ח", "application_form": "טופס בקשה",
+                "purpose_proof": "אסמכתה למטרה", "tax_form": "טופס מס / אישור רו״ח", "business_registration": "אישור רישום עוסק",
+                "pnl_statement": "דוח רווח והפסד", "application_form": "טופס בקשה",
                 "other": "מסמך אחר", "unreadable": "מסמך לא קריא"}
 
 EXTRACTION_SYSTEM = """You are the intake, classification and extraction stage of a document-review pipeline for
@@ -46,7 +51,13 @@ DOCUMENT TYPES (doc_type) and the fields to extract for each:
   account_number, statement_from, statement_to (the period the statement covers), closing_balance.
 - purpose_proof (הצעת מחיר, חשבונית, הזמנה או הסכם מספק): issuer_name (the supplier), holder_name (the customer named
   on it), document_kind (e.g. "הצעת מחיר"), subject (what is bought or done, in a few words), issue_date, total_amount.
-- tax_form (שומת מס / אישור רו״ח): holder_name, holder_id, tax_year, issue_date.
+- tax_form (שומת מס, דוח שנתי למס הכנסה, אישור רו״ח על הכנסות): holder_name, holder_id, tax_year, issue_date.
+- business_registration (תעודת עוסק מורשה, אישור עוסק פטור, אישור פתיחת תיק במע״מ): holder_name (the registered
+  proprietor), holder_id, business_name, dealer_number (מספר עוסק), registration_type (as printed, e.g. "עוסק פטור"),
+  issue_date.
+- pnl_statement (דוח רווח והפסד, or a periodic VAT report — דוח תקופתי למע״מ): holder_name (the business owner),
+  holder_id, business_name, period_from and period_to (the reporting period), issuer_name (the CPA or representative
+  who prepared or signed it), issue_date.
 - application_form, other or unreadable: extract only what is clearly printed among the fields above.
 Classify by what the document IS, never by its file name. Extract only the fields of the type you detected.
 Identity numbers: employee_id / holder_id is the person's identity number (מספר זהות, ת.ז.); employee_number is an

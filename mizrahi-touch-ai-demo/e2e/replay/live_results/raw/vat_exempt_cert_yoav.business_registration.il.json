@@ -1,0 +1,78 @@
+{
+ "sha256": "cd8cb67a45e60b61b9ff90e785475f3142cdcac87da6d4a5f7fac770bda668e3",
+ "file": "presenter/profile_set/vat_exempt_cert_yoav.pdf",
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "VAT_EXEMPT_CERT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"business_registration\",\n  \"doc_type_reason\": \"המסמך הוא אישור עוסק פטור של רשות המסים (מע״מ)\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"יואב כרמי\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [102, 566, 114, 633],\n      \"label_quote\": \"שם העוסק\",\n      \"normalized\": \"יואב כרמי\",\n      \"quote\": \"יואב כרמי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-102\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [123, 74, 137, 187],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-102\",\n      \"quote\": \"DEMO-ID-102\"\n    },\n    {\n      \"name\": \"business_name\",\n      \"value\": \"כרמי צילום\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [146, 559, 158, 633],\n      \"label_quote\": \"שם העסק\",\n      \"normalized\": \"כרמי צילום\",\n      \"quote\": \"כרמי צילום\"\n    },\n    {\n      \"name\": \"dealer_number\",\n      \"value\": \"DEMO-ID-102\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [168, 74, 181, 187],\n      \"label_quote\": \"מספר עוסק\",\n      \"normalized\": \"DEMO-ID-102\",\n      \"quote\": \"DEMO-ID-102\"\n    },\n    {\n      \"name\": \"registration_type\",\n      \"value\": \"עוסק פטור\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [191, 558, 204, 632],\n      \"label_quote\": \"סוג הרישום\",\n      \"normalized\": \"עוסק פטור\",\n      \"quote\": \"עוסק פטור\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"18.09.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [257, 75, 270, 164],\n      \"label_quote\": \"תאריך הפקת האישור\",\n      \"normalized\": \"18.09.2026\",\n      \"quote\": \"18.09.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינו אישור רשמי של רשות המסים\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"משרד מע״מ (דמו) · האישור הופק ממערכת דמו לצורך ההדגמה בלבד.\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · Synthetic Test Corpus JEEN × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"רשות המסים בישראל · מע״מ · אישור עוסק פטור\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TZAU/gmSx2FuIy+bZ2CV2s7QoRHZpSql8Ra5v8XukmZsgtD6t7rakrSvf2CiAk0wZ8MsPVNtoPMllTpPtSsO+qxF9VKOginm/iDUK6o4ujqyZz0O6vpbVWZM+CdgOZiZ3cHE="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1053,
+    "totalTokenCount": 2695,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "rXrPaqv3GPGFnsEPpcPRWQ"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BR-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא אישור רישום עוסק פטור של רשות המסים (מע״מ).\",\n      \"cited_fields\": [\n        \"registration_type\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא לחלוטין וכולל את שם בעל העסק, מספר העוסק וסוג הרישום באופן ברור.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"dealer_number\",\n        \"registration_type\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל העסק (יואב כרמי) תואם במדויק לשם הלווה המבוקש.\",\n      \"cited_fields\": [\n        \"holder_name\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו במסמך הוראות הממוענות למערכת AI או לבודק אנושי; סימוני הדמו הנם חלק מסביבת הבדיקה הסינתטית המאושרת.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"אישור עוסק פטור תקין וקריא, פרטי בעל העסק תואמים ללווה ולא נמצאו הוראות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TLNT7uqK9wPEwZuiINzVkIL+qDEWiUZ0+nQO1hPr6RxApC2a3w1NQe8AKhEE0pJO4ps2S58LFdj+G3Vk6hI+KepHRKGnvPAESO+fhsuOigSo7F/Gj/MQfJkTKrcFux9Vl3rI="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2324,
+    "candidatesTokenCount": 466,
+    "totalTokenCount": 2790,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1792
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "tXrPaq2vIKSBxs0Pj8-ZiAo"
+  }
+ }
+}

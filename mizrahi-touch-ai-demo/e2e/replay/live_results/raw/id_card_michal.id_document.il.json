@@ -1,0 +1,78 @@
+{
+ "sha256": "dce40d904c6bc76c2a587093a86c020787e39fffb92731c7d31ad6515a5c4af1",
+ "file": "presenter/profile_set/id_card_michal.pdf",
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "ID_CARD:BRW-C",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"id_document\",\n  \"doc_type_reason\": \"תעודת זהות של מדינת ישראל הכוללת שם, מספר זהות, תאריך לידה ותוקף.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"מיכל ברק\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [160, 668, 173, 733],\n      \"label_quote\": \"שם מלא\",\n      \"normalized\": \"מיכל ברק\",\n      \"quote\": \"מיכל ברק\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"311204572\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [183, 417, 194, 506],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"311204572\",\n      \"quote\": \"311204572\"\n    },\n    {\n      \"name\": \"date_of_birth\",\n      \"value\": \"02.11.1986\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [206, 417, 216, 506],\n      \"label_quote\": \"תאריך לידה\",\n      \"normalized\": \"02.11.1986\",\n      \"quote\": \"02.11.1986\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"14.07.2022\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [227, 417, 238, 507],\n      \"label_quote\": \"תאריך הנפקה\",\n      \"normalized\": \"14.07.2022\",\n      \"quote\": \"14.07.2022\"\n    },\n    {\n      \"name\": \"expiry_date\",\n      \"value\": \"14.07.2032\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [250, 417, 260, 507],\n      \"label_quote\": \"תוקף עד\",\n      \"normalized\": \"14.07.2032\",\n      \"quote\": \"14.07.2032\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינו תעודה רשמית\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"מדינת ישראל · תעודת זהות\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0Ts9Hr9OFOv5Zv9ZRQncVcyJvsC3MrsqiC/BAjjLzqMsvwFyzyBkadyhS0rpFkQURKc0mhLHW60e4s/nbj7qHrV9IjRRLm7TrbHTrtitQzS1G5NVeg144vurkeumvF5C8hjUg="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 923,
+    "totalTokenCount": 2565,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "GYXPatPjG621kdUPxIXtwQs"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\"criterion_id\": \"ID-01\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך הוא תעודת זהות ישראלית הכוללת את כל הפרטים הנדרשים.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"ID-02\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך קריא, מלא וברור, וכל השדות המזהים והתאריכים מוצגים ללא חיתוך או טשטוש.\", \"cited_fields\": [\"holder_name\", \"holder_id\", \"date_of_birth\", \"issue_date\", \"expiry_date\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"ID-03\", \"outcome\": \"PASS\", \"explanation_he\": \"השם ומספר הזהות תואמים באופן מלא לנתוני המבקש/ת, בהתאם לתוצאה הדטרמיניסטית שנקבעה.\", \"cited_fields\": [\"holder_name\", \"holder_id\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"ID-06\", \"outcome\": \"PASS\", \"explanation_he\": \"לא זוהו הוראות חשודות או עריכה זדונית במסמך; הכיתוב 'מסמך דמו' הינו סימן מים צפוי בסביבת הדגמה זו.\", \"cited_fields\": [], \"confidence\": 0.98}\n  ],\n  \"summary_he\": \"כל הקריטיונים שנבדקו עבור תעודת הזהות עברו בהצלחה (PASS).\",\n  \"limitations_he\": [\"מדובר במסמך מסביבת הדגמה סינתטית הנושא סימני מים.\"],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TwFU7/9weiCiCTi/vJA7yqGO0wdEwtolCqausVCJL+UZaENGYBQ6B6kujgERP7Q4sphiTgxl6yxuKN48rvaAJsSsLqfRpwj2HWvIDOmqKl1QqHS4vIIrhgMWwfByFt0RBMtI="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2347,
+    "candidatesTokenCount": 430,
+    "totalTokenCount": 2777,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1815
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "IYXParCyGYn6nsEPh9KY6As"
+  }
+ }
+}

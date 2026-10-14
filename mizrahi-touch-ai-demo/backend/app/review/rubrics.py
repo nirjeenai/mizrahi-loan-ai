@@ -43,7 +43,8 @@ def latest(rubric_id: str) -> dict[str, Any]:
 
 # one document rubric per document family; a family without a rubric is listed but not reviewed by AI
 FAMILY_RUBRIC = {"payslip": "payslip.il.salaried", "id_document": "id_document.il", "bank_statement": "bank_statement.il",
-                 "purpose_proof": "purpose_proof.il", "tax_form": "tax_form.il"}
+                 "purpose_proof": "purpose_proof.il", "tax_form": "tax_form.il",
+                 "business_registration": "business_registration.il", "pnl_statement": "pnl_statement.il"}
 
 
 def has_family(family: str) -> bool:

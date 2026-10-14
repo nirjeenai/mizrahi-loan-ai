@@ -458,8 +458,10 @@ def test_every_scenario_file_goes_to_a_real_card_of_its_case_and_belongs_to_one_
             assert d["ownerHe"] in names or it["role"] == "wrong" or d["issueHe"], (s["id"], it["file"], d["ownerHe"])
     for d in docs.values():
         assert d["displayNameHe"] and d["slotHe"] and d["sha256"]
-        if d["expectedDocumentVerdict"] != "VALID" or d["expectedRequiredFollowup"]:
+        if d["expectedDocumentVerdict"] not in ("VALID", None) or d["expectedRequiredFollowup"]:
             assert d["issueHe"], d["id"]                     # every intentionally invalid file says why it is there
+        if d["expectedDocumentVerdict"] is None:              # a banker-review file: no AI verdict is ever advertised
+            assert d.get("intake") == "human_review", d["id"]
 
 
 def test_the_joint_scenario_tracks_each_applicant_and_one_statement_for_the_joint_account(monkeypatch):
@@ -502,7 +504,9 @@ def test_featured_loan_scenarios_point_at_real_unmodified_files_and_the_demo_cas
             assert step["borrower"] in {b["borrower_id"] for b in bank.get_case(f["caseId"])["borrowers"]}
             assert (f.get("uploadAs") or {}).get(step["file"], d["uploadAs"]) in codes      # a real card of that case
     bundle = TestClient(app).get("/api/presenter/scenarios").json()
-    assert len(bundle["manifest"]["scenarios"]) == 11 and len(bundle["manifest"]["documents"]) == 25
+    assert len(bundle["manifest"]["scenarios"]) == 11
+    assert len([d for d in bundle["manifest"]["documents"] if d.get("set") != "profiles"]) == 25      # the 15 scenarios' files
+    assert len([d for d in bundle["manifest"]["documents"] if d.get("set") == "profiles"]) == 52      # the six use-case packs
     assert all(f["sha256_matches_manifest"] for f in bundle["files"].values())          # incl. the Lavi set in fixtures/out
     lavi = next(d for d in bundle["manifest"]["documents"] if d["set"] == "lavi")
     served = TestClient(app).get("/api/presenter/file", params={"id": lavi["id"]})

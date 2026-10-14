@@ -24,7 +24,7 @@ from ..review import evidence as ev
 from ..review import registry, rubrics
 from ..store import repo
 from ..util import sha256_bytes
-from ..workflow import demo, desk_state, engine, intake, onboarding, outcomes, readiness, review_desk
+from ..workflow import demo, desk_state, engine, intake, onboarding, outcomes, profile_change, readiness, review_desk
 
 router = APIRouter(prefix="/api")
 
@@ -62,6 +62,7 @@ def cases(request: Request):
 
 
 CUSTOMER_UPDATES = ("document_uploaded", "document_reviewed", "case_reviewed", "customer_statement_recorded",
+                    "customer_profile_changed",
                     "banker_handoff_created", "banker_finding_decision", "banker_confirmed_preparation",
                     "document_review_failed", "banker_document_decision", "banker_requested_document",
                     "customer_request_responded", "banker_request_withdrawn", "banker_handoff_acknowledged")
@@ -184,6 +185,23 @@ async def upload(case_id: str, request: Request, file: UploadFile = File(...), b
                    {"document_id": doc["document_id"], "replaces": replaces, "filename": doc["filename"]})
     return {"document": _doc_view(doc), "created": created, "note": note, "intent": intent,
             "answered_request": answered["customer_request_id"] if answered else None, "replaces": replaces}
+
+
+class ProfileChange(BaseModel):
+    borrowers: dict[str, dict]
+
+
+@router.post("/cases/{case_id}/profile")
+def change_profile(case_id: str, body: ProfileChange, request: Request):
+    """The customer corrects their income profile after confirming the application; the checklist is recomposed by
+    the same policy engine (workflow/profile_change.py). Documents and review history are kept."""
+    auth.require_customer_case(request, case_id)
+    try:
+        out = profile_change.change(case_id, body.borrowers, "customer")
+    except profile_change.ProfileError as exc:
+        raise HTTPException(exc.status, exc.message_he) from None
+    return {k: v for k, v in out.items() if k != "requirements"} | {
+        "requirements": [{k: r[k] for k in ("code", "title_he", "owner_he", "intake")} for r in out["requirements"]]}
 
 
 class Reply(BaseModel):

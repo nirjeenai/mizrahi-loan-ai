@@ -277,8 +277,237 @@ USE_CASES = [
                           "ש.ג. מערכות מיזוג בע״מ", H)],
      "notRequiredHe": ["תלושי שכר", "אסמכתה צרכנית למטרה", "דפי עו״ש פרטיים"], "bankerAssisted": True},
 ]
+# ---- the use cases' synthetic packs (fixtures/profiles/generate.py → presenter/profile_set). Labels, owners, periods and
+# defects were checked against each PDF's text; identities are the prepared cases' own (mock_bank._USE_CASES).
+# (file, label, category, requirement, owner, period, slot, expected AI verdict or None for banker review, note, issue)
+PROFILE_DOCS = [
+    ("id_card_michal.pdf", "תעודת זהות — מיכל ברק", "ID_CARD", "ID_CARD:BRW-C", "מיכל ברק", "בתוקף עד 14.07.2032",
+     "מיכל ← תעודת זהות", "VALID", "השם ומספר הזהות (311204572) תואמים לתיק.", None),
+    *[(f"payslip_michal_2026-{m}.pdf", f"תלוש שכר — מיכל ברק — {he} 2026", "PAYSLIP", "PAYSLIPS:BRW-C", "מיכל ברק", f"{he} 2026",
+       "מיכל ← תלושי שכר", "VALID", f"שחף הנדסה בע״מ · נטו ₪{net}", None)
+      for m, he, net in (("07", "יולי", "21,000"), ("08", "אוגוסט", "21,300"), ("09", "ספטמבר", "20,850"))],
+    ("statement_michal_2026-07_09.pdf", "דפי עו״ש — מיכל ברק — יולי–ספטמבר 2026", "BANK_STATEMENT", "BANK_STATEMENTS:ACC-1",
+     "מיכל ברק", "01.07–30.09.2026", "דפי עו״ש — חשבון עו״ש 1", "VALID", "זיכויי המשכורת תואמים לתלושים.", None),
+    ("car_quote_michal.pdf", "הצעת מחיר לרכב — מיכל ברק", "PURPOSE_PROOF", "PURPOSE_PROOF", "מיכל ברק", "הופקה 01.10.2026 · ₪132,000",
+     "אסמכתה למטרה", "VALID", "הצעת מחיר עדכנית לרכב משפחתי.", None),
+    ("id_card_yoav.pdf", "תעודת זהות — יואב כרמי", "ID_CARD", "ID_CARD:BRW-A", "יואב כרמי", "בתוקף עד 03.02.2033",
+     "יואב ← תעודת זהות", "VALID", "תואם לתיק (DEMO-ID-102).", None),
+    ("statement_yoav_2026-07_09.pdf", "דפי עו״ש — יואב כרמי — יולי–ספטמבר 2026", "BANK_STATEMENT", "BANK_STATEMENTS:ACC-1",
+     "יואב כרמי", "01.07–30.09.2026", "דפי עו״ש — חשבון עו״ש 1", "VALID", "תקבולים מלקוחות, ללא משכורת.", None),
+    ("car_quote_yoav.pdf", "הצעת מחיר לרכב — יואב כרמי", "PURPOSE_PROOF", "PURPOSE_PROOF", "יואב כרמי", "הופקה 01.10.2026 · ₪68,000",
+     "אסמכתה למטרה", "VALID", "רכב מסחרי קל לעסק.", None),
+    ("vat_exempt_cert_yoav.pdf", "אישור עוסק פטור — יואב כרמי", "VAT_CERT", "VAT_EXEMPT_CERT:BRW-A", "יואב כרמי", "תיק נפתח 01.03.2019",
+     "יואב ← אישור עוסק פטור", "VALID", "מספר העוסק זהה למספר הזהות; רישום: עוסק פטור.", None),
+    ("cpa_income_letter_yoav_2025.pdf", "אישור רו״ח על הכנסות 2025 — יואב כרמי", "TAX_FORM", "TAX_ASSESSMENT:BRW-A", "יואב כרמי",
+     "שנת מס 2025 · הופק 22.09.2026", "יואב ← שומת מס / אישור רו״ח", "VALID",
+     "חלופה מקובלת לשומה — אישור רו״ח על הכנסה חייבת לשנת 2025.", "המסמך החסר: מעלים אותו רק אחרי שהאפליקציה מבקשת אותו"),
+    ("id_card_shiran.pdf", "תעודת זהות — שירן אזולאי", "ID_CARD", "ID_CARD:BRW-A", "שירן אזולאי", "בתוקף עד 19.11.2030",
+     "שירן ← תעודת זהות", "VALID", "תואם לתיק (DEMO-ID-103).", None),
+    ("statement_shiran_2026-07_09.pdf", "דפי עו״ש — שירן אזולאי — יולי–ספטמבר 2026", "BANK_STATEMENT", "BANK_STATEMENTS:ACC-1",
+     "שירן אזולאי", "01.07–30.09.2026", "דפי עו״ש — חשבון עו״ש 1", "VALID", "תקבולים מלקוחות העסק.", None),
+    ("car_quote_shiran.pdf", "הצעת מחיר לרכב — שירן אזולאי", "PURPOSE_PROOF", "PURPOSE_PROOF", "שירן אזולאי",
+     "הופקה 01.10.2026 · ₪152,000", "אסמכתה למטרה", "VALID", "רכב פנאי חדש.", None),
+    ("tax_assessment_shiran_2025.pdf", "שומת מס 2025 — שירן אזולאי", "TAX_FORM", "TAX_ASSESSMENT:BRW-A", "שירן אזולאי",
+     "שנת מס 2025", "שירן ← שומת מס / אישור רו״ח", "VALID", "הודעת שומה לשנת 2025.", None),
+    ("vat_dealer_cert_shiran.pdf", "תעודת עוסק מורשה — שירן אזולאי", "VAT_CERT", "VAT_DEALER_CERT:BRW-A", "שירן אזולאי",
+     "תיק נפתח 15.05.2016", "שירן ← תעודת עוסק מורשה", "VALID", "רישום: עוסק מורשה; מספר העוסק זהה למספר הזהות.", None),
+    ("pnl_shiran_2025_OUTDATED.pdf", "דוח רווח והפסד 2025 — שירן אזולאי (לא עדכני)", "PNL", "PNL_STATEMENT:BRW-A", "שירן אזולאי",
+     "01.01–31.12.2025", "שירן ← דוח רווח והפסד", "NEEDS_REVIEW", "התקופה הסתיימה ב־31.12.2025 — מעבר ל־120 יום (DOCUMENT_STALE).",
+     "מיועד להדגמת דוח לא עדכני — מסתיים ב־31.12.2025"),
+    ("pnl_shiran_2026-01_09.pdf", "דוח רווח והפסד ינואר–ספטמבר 2026 — שירן אזולאי", "PNL", "PNL_STATEMENT:BRW-A", "שירן אזולאי",
+     "01.01–30.09.2026", "שירן ← דוח רווח והפסד", "VALID", "הדוח העדכני, חתום בידי רו״ח.", None),
+    ("vat_report_shiran_2026-07_08.pdf", "דוח מע״מ תקופתי יולי–אוגוסט 2026 — שירן אזולאי", "PNL", "PNL_STATEMENT:BRW-A",
+     "שירן אזולאי", "01.07–31.08.2026", "שירן ← דוח רווח והפסד (חלופה)", "VALID",
+     "חלופה מקובלת לדוח רווח והפסד לפי מדיניות ההדגמה.", "רשות — חלופה לדוח רווח והפסד"),
+    ("id_card_alon.pdf", "תעודת זהות — אלון פרידמן", "ID_CARD", "ID_CARD:BRW-A", "אלון פרידמן", "בתוקף עד 08.09.2029",
+     "אלון ← תעודת זהות", "VALID", "תואם לתיק (DEMO-ID-104).", None),
+    *[(f"payslip_alon_2026-{m}.pdf", f"תלוש שכר — אלון פרידמן — {he} 2026", "PAYSLIP", "PAYSLIPS:BRW-A", "אלון פרידמן", f"{he} 2026",
+       "אלון ← תלושי שכר", "VALID", f"נתיב תוכנה בע״מ · נטו ₪{net}", None)
+      for m, he, net in (("07", "יולי", "13,900"), ("08", "אוגוסט", "14,100"), ("09", "ספטמבר", "13,850"))],
+    ("statement_alon_2026-07_09.pdf", "דפי עו״ש — אלון פרידמן — יולי–ספטמבר 2026", "BANK_STATEMENT", "BANK_STATEMENTS:ACC-1",
+     "אלון פרידמן", "01.07–30.09.2026", "דפי עו״ש — חשבון עו״ש 1", "VALID", "משכורת ותקבולי הדרכה באותו חשבון.", None),
+    ("car_quote_alon.pdf", "הצעת מחיר לרכב — אלון פרידמן", "PURPOSE_PROOF", "PURPOSE_PROOF", "אלון פרידמן",
+     "הופקה 01.10.2026 · ₪124,000", "אסמכתה למטרה", "VALID", "רכב משפחתי חדש.", None),
+    ("vat_exempt_cert_alon.pdf", "אישור עוסק פטור — אלון פרידמן", "VAT_CERT", "VAT_EXEMPT_CERT:BRW-A", "אלון פרידמן",
+     "תיק נפתח 10.10.2021", "אלון ← אישור עוסק פטור", "VALID", "פרידמן הדרכות — עוסק פטור.", None),
+    ("cpa_income_letter_alon_2025.pdf", "אישור רו״ח על הכנסות 2025 — אלון פרידמן", "TAX_FORM", "TAX_ASSESSMENT:BRW-A",
+     "אלון פרידמן", "שנת מס 2025", "אלון ← שומת מס / אישור רו״ח", "VALID", "ההכנסה מהעסק לצד המשכורת.", None),
+    ("id_card_roy.pdf", "תעודת זהות — רועי שטרן", "ID_CARD", "ID_CARD:BRW-A", "רועי שטרן", "בתוקף עד 26.06.2031",
+     "רועי ← תעודת זהות", "VALID", "תואם לתיק (DEMO-ID-105).", None),
+    ("id_card_maya.pdf", "תעודת זהות — מאיה שטרן", "ID_CARD", "ID_CARD:BRW-B", "מאיה שטרן", "בתוקף עד 11.04.2034",
+     "מאיה ← תעודת זהות", "VALID", "תואם לתיק (DEMO-ID-115).", None),
+    ("id_card_maya_COPY.pdf", "תעודת זהות — מאיה שטרן (צילום נוסף)", "ID_CARD", "ID_CARD:BRW-B", "מאיה שטרן", "בתוקף עד 11.04.2034",
+     "מאיה ← תעודת זהות", "VALID", "בכרטיס של רועי: התעודה של מאיה אינה מספקת את הדרישה של רועי (BORROWER_MISMATCH).",
+     "מיועד להדגמת מסמך של לווה אחד בכרטיס של הלווה השני"),
+    *[(f"payslip_roy_2026-{m}.pdf", f"תלוש שכר — רועי שטרן — {he} 2026", "PAYSLIP", "PAYSLIPS:BRW-A", "רועי שטרן", f"{he} 2026",
+       "רועי ← תלושי שכר", "VALID", f"מרכז רפואי השרון · נטו ₪{net}", None)
+      for m, he, net in (("07", "יולי", "15,600"), ("08", "אוגוסט", "15,750"), ("09", "ספטמבר", "15,450"))],
+    ("statement_stern_joint_2026-07_09.pdf", "דפי עו״ש — חשבון משותף רועי ומאיה — יולי–ספטמבר 2026", "BANK_STATEMENT",
+     "BANK_STATEMENTS:ACC-1", "רועי שטרן ומאיה שטרן", "01.07–30.09.2026", "דפי עו״ש — חשבון משותף", "VALID",
+     "דף אחד מכסה את שני הלווים בחשבון המשותף.", None),
+    ("statement_roy_rachel_2026-07_09.pdf", "דפי עו״ש — חשבון רועי ורחל שטרן — יולי–ספטמבר 2026", "BANK_STATEMENT",
+     "BANK_STATEMENTS:ACC-2", "רועי שטרן (ורחל שטרן, שאינה לווה)", "01.07–30.09.2026", "דפי עו״ש — חשבון של רועי ואמו", "VALID",
+     "רחל מודפסת כבעלת חשבון בלבד — לא נדרש ממנה דבר.", None),
+    ("renovation_quote_stern.pdf", "הצעת מחיר לשיפוץ — רועי ומאיה שטרן", "PURPOSE_PROOF", "PURPOSE_PROOF", "רועי ומאיה שטרן",
+     "הופקה 28.09.2026 · ₪166,000", "אסמכתה למטרה", "VALID", "הצעת מחיר מקבלן לשיפוץ הדירה.", None),
+    ("tax_assessment_maya_2025.pdf", "שומת מס 2025 — מאיה שטרן", "TAX_FORM", "TAX_ASSESSMENT:BRW-B", "מאיה שטרן", "שנת מס 2025",
+     "מאיה ← שומת מס / אישור רו״ח", "VALID", "הודעת שומה לשנת 2025.", None),
+    ("vat_dealer_cert_maya.pdf", "תעודת עוסק מורשה — מאיה שטרן", "VAT_CERT", "VAT_DEALER_CERT:BRW-B", "מאיה שטרן",
+     "תיק נפתח 02.01.2018", "מאיה ← תעודת עוסק מורשה", "VALID", "סטודיו מאיה שטרן — עוסק מורשה.", None),
+    ("pnl_maya_2026-01_09.pdf", "דוח רווח והפסד ינואר–ספטמבר 2026 — מאיה שטרן", "PNL", "PNL_STATEMENT:BRW-B", "מאיה שטרן",
+     "01.01–30.09.2026", "מאיה ← דוח רווח והפסד", "VALID", "חתום בידי רו״ח.", None),
+    ("id_card_gilad.pdf", "תעודת זהות — גלעד ששון (מורשה חתימה)", "ID_CARD", "ID_CARD:BRW-A", "גלעד ששון", "בתוקף עד 17.12.2030",
+     "גלעד ← תעודת זהות", "VALID", "מורשה החתימה לפי הפרוטוקול.", None),
+    ("company_extract_sg_OUTDATED.pdf", "נסח חברה — ש.ג. מערכות מיזוג (מיוני 2026)", "COMPANY_EXTRACT", "COMPANY_EXTRACT",
+     "ש.ג. מערכות מיזוג בע״מ", "הופק 02.06.2026", "נסח חברה עדכני", None,
+     "בדיקת בנקאי: הנסח הופק לפני יותר מ־30 יום — הבנקאית מבקשת נסח עדכני.", "מיועד להדגמת נסח ישן — הבנקאית מחליטה, לא ה-AI"),
+    ("company_extract_sg.pdf", "נסח חברה — ש.ג. מערכות מיזוג (אוקטובר 2026)", "COMPANY_EXTRACT", "COMPANY_EXTRACT",
+     "ש.ג. מערכות מיזוג בע״מ", "הופק 05.10.2026", "נסח חברה עדכני", None, "הנסח העדכני — לבדיקת הבנקאית.", None),
+    ("signatory_protocol_sg.pdf", "פרוטוקול מורשי חתימה — ש.ג. מערכות מיזוג", "SIGNATORY_PROTOCOL", "SIGNATORY_AUTHORITY",
+     "ש.ג. מערכות מיזוג בע״מ", "15.09.2026", "פרוטוקול מורשי חתימה", None, "גלעד ששון מורשה חתימה יחיד — לבדיקת הבנקאית.", None),
+    ("audited_fs_sg_2025.pdf", "דוחות כספיים מבוקרים 2025 — ש.ג. מערכות מיזוג", "FINANCIAL_STATEMENTS", "COMPANY_FINANCIALS",
+     "ש.ג. מערכות מיזוג בע״מ", "שנת 2025", "דוחות כספיים מבוקרים", None, "חוות דעת רו״ח מבקר — לבדיקת הבנקאית.", None),
+    ("interim_pnl_sg_2026-01_06.pdf", "דוח רווח והפסד ביניים ינואר–יוני 2026 — ש.ג. מערכות מיזוג", "PNL", "COMPANY_INTERIM",
+     "ש.ג. מערכות מיזוג בע״מ", "01.01–30.06.2026", "דוח רווח והפסד לתקופה השוטפת", None, "לבדיקת הבנקאית.", None),
+    ("business_statements_sg_2026-04_09.pdf", "דפי עו״ש עסקי — ש.ג. מערכות מיזוג — אפריל–ספטמבר 2026", "BUSINESS_STATEMENT",
+     "BUSINESS_STATEMENTS:ACC-1", "ש.ג. מערכות מיזוג בע״מ", "01.04–30.09.2026", "דפי עו״ש עסקי — חשבון החברה", None,
+     "שישה חודשים של חשבון החברה — לבדיקת הבנקאית.", None),
+    ("id_card_neta.pdf", "תעודת זהות — נטע אלון", "ID_CARD", "ID_CARD:BRW-A", "נטע אלון", "בתוקף עד 02.05.2033",
+     "נטע ← תעודת זהות", "VALID", "לקוחה חדשה (DEMO-ID-201).", None),
+    *[(f"payslip_neta_2026-{m}.pdf", f"תלוש שכר — נטע אלון — {he} 2026", "PAYSLIP", "PAYSLIPS:BRW-A", "נטע אלון", f"{he} 2026",
+       "נטע ← תלושי שכר", "VALID", f"גל־אור תקשורת בע״מ · נטו ₪{net}", None)
+      for m, he, net in (("07", "יולי", "12,000"), ("08", "אוגוסט", "12,150"), ("09", "ספטמבר", "11,900"))],
+    ("statement_neta_2026-07_09.pdf", "דפי עו״ש — נטע אלון — יולי–ספטמבר 2026", "BANK_STATEMENT", "BANK_STATEMENTS:ACC-1",
+     "נטע אלון", "01.07–30.09.2026", "דפי עו״ש — חשבון עו״ש 1", "VALID", "זיכויי המשכורת תואמים לתלושים.", None),
+    ("car_quote_neta.pdf", "הצעת מחיר לרכב — נטע אלון", "PURPOSE_PROOF", "PURPOSE_PROOF", "נטע אלון", "הופקה 01.10.2026 · ₪96,000",
+     "אסמכתה למטרה", "VALID", "רכב עירוני חדש.", None),
+]
+PROFILE_BY_FILE = {f[0]: f for f in PROFILE_DOCS}
+
+
+def pstep(file: str, role: str = "upload", period: str | None = None, code: str | None = None, note: str | None = None,
+          borrower: str | None = None, optional: bool = False) -> dict:
+    f = PROFILE_BY_FILE[file]
+    code = code or f[3]
+    who = borrower or (code.split(":")[1] if ":" in code and code.split(":")[1].startswith("BRW") else None)
+    return {"file": f"profiles/{file}", "labelHe": f[1], "slotHe": SLOT_OVERRIDE.get((file, code), f[6]), "uploadAs": code,
+            "period": period, "role": role, "noteHe": note or f[9], "borrower": who, **({"optional": True} if optional else {})}
+
+
+SLOT_OVERRIDE = {("id_card_maya_COPY.pdf", "ID_CARD:BRW-A"): "רועי ← תעודת זהות (בכוונה — הכרטיס של רועי)"}
+PAY3 = (("07", "2026-07"), ("08", "2026-08"), ("09", "2026-09"))
+H_BANKER = "banker_accept"
+STEPS = {
+    "TC-01": [pstep("id_card_michal.pdf"), *[pstep(f"payslip_michal_2026-{m}.pdf", period=p) for m, p in PAY3],
+              pstep("statement_michal_2026-07_09.pdf"), pstep("car_quote_michal.pdf")],
+    "TC-02": [pstep("id_card_yoav.pdf"), pstep("statement_yoav_2026-07_09.pdf"), pstep("car_quote_yoav.pdf"),
+              pstep("vat_exempt_cert_yoav.pdf"),
+              pstep("cpa_income_letter_yoav_2025.pdf", role="replacement", note="המסמך החסר — אישור רו״ח כחלופה מקובלת לשומה")],
+    "TC-03": [pstep("id_card_shiran.pdf"), pstep("statement_shiran_2026-07_09.pdf"), pstep("car_quote_shiran.pdf"),
+              pstep("tax_assessment_shiran_2025.pdf"), pstep("vat_dealer_cert_shiran.pdf"),
+              pstep("pnl_shiran_2025_OUTDATED.pdf", role="wrong"),
+              pstep("pnl_shiran_2026-01_09.pdf", role="replacement", note="התיקון — דרך ״העלאת מסמך חלופי״"),
+              pstep("vat_report_shiran_2026-07_08.pdf", role="alternative", optional=True,
+                    note="רשות: דוח מע״מ תקופתי מתקבל במקום דוח רווח והפסד")],
+    "TC-04": [pstep("id_card_alon.pdf"), *[pstep(f"payslip_alon_2026-{m}.pdf", period=p) for m, p in PAY3],
+              pstep("statement_alon_2026-07_09.pdf"), pstep("car_quote_alon.pdf"), pstep("vat_exempt_cert_alon.pdf"),
+              pstep("cpa_income_letter_alon_2025.pdf")],
+    "TC-05": [pstep("id_card_maya_COPY.pdf", role="wrong", code="ID_CARD:BRW-A",
+                    note="התעודה של מאיה בכרטיס של רועי — אינה מספקת את הדרישה שלו"),
+              pstep("id_card_roy.pdf", role="replacement", note="התיקון — התעודה של רועי"),
+              pstep("id_card_maya.pdf"), *[pstep(f"payslip_roy_2026-{m}.pdf", period=p) for m, p in PAY3],
+              pstep("statement_stern_joint_2026-07_09.pdf"), pstep("statement_roy_rachel_2026-07_09.pdf"),
+              pstep("renovation_quote_stern.pdf"), pstep("tax_assessment_maya_2025.pdf"), pstep("vat_dealer_cert_maya.pdf"),
+              pstep("pnl_maya_2026-01_09.pdf")],
+    "TC-06": [pstep("id_card_gilad.pdf"), pstep("company_extract_sg_OUTDATED.pdf", role="wrong"),
+              {"role": "banker_correction", "file": "profiles/company_extract_sg_OUTDATED.pdf", "uploadAs": "COMPANY_EXTRACT",
+               "labelHe": "הבנקאית: ״בקשת מסמך מתוקן״ על הנסח הישן", "slotHe": "תצוגת הבנקאית", "period": None,
+               "noteHe": "נדרש נסח שהופק ב־30 הימים האחרונים", "borrower": None},
+              pstep("company_extract_sg.pdf", role="replacement", note="הלקוח עונה לבקשת הבנקאית עם נסח עדכני"),
+              pstep("signatory_protocol_sg.pdf"), pstep("audited_fs_sg_2025.pdf"), pstep("interim_pnl_sg_2026-01_06.pdf"),
+              pstep("business_statements_sg_2026-04_09.pdf"),
+              *[{"role": H_BANKER, "file": f"profiles/{f}", "uploadAs": PROFILE_BY_FILE[f][3], "labelHe": f"הבנקאית מקבלת: {PROFILE_BY_FILE[f][1]}",
+                 "slotHe": "תצוגת הבנקאית", "period": None, "noteHe": None, "borrower": None}
+                for f in ("company_extract_sg.pdf", "signatory_protocol_sg.pdf", "audited_fs_sg_2025.pdf",
+                          "interim_pnl_sg_2026-01_06.pdf", "business_statements_sg_2026-04_09.pdf")]],
+}
+F = lambda name: f"profiles/{name}"  # noqa: E731
+PLAY = {
+    "TC-01": {"instructionHe": "מעלים כל קובץ בכרטיס שלו (תלושים: יולי, אוגוסט, ספטמבר). צפוי: 4 מתוך 4 — מוכן לבנקאית.",
+              "expectHe": "כל הדרישות מתקיימות; ההכנסה המוצהרת (₪21,000) מתיישבת עם התלושים.",
+              "expectedLabelHe": "כל המסמכים הנדרשים הושלמו — מוכן לבדיקת הבנקאית", "expectedCaseStatus": "READY_FOR_BANKER",
+              "expectedReasonCodes": [],
+              "expectedResult": {"openFindings": [], "progress": [4, 4],
+                                 "documents": {s["file"]: "PASS" for s in STEPS["TC-01"]}}},
+    "TC-02": {"instructionHe": "מעלים ת״ז, דפי עו״ש, הצעת מחיר ואישור עוסק פטור — בלי מסמך הכנסה. צפוי: ״חסר: שומת מס / אישור רו״ח״ "
+                               "ומשימת השלמה. ואז מעלים את אישור הרו״ח — חלופה מקובלת — והתיק מוכן לבנקאית.",
+              "expectHe": "אין תלושים ואין דוחות מע״מ; מסמך ההכנסה החסר נפתח כמשימת השלמה ונסגר כשאישור הרו״ח נבדק.",
+              "expectedLabelHe": "חסר מסמך הכנסה ← אחרי ההשלמה: מוכן לבדיקת הבנקאית", "expectedCaseStatus": "READY_FOR_BANKER",
+              "expectedReasonCodes": ["REQUIRED_DOCUMENT_MISSING"],
+              "expectedResult": {"openFindings": [], "progress": [5, 5],
+                                 "documents": {s["file"]: "PASS" for s in STEPS["TC-02"]},
+                                 "requirements": {"TAX_ASSESSMENT:BRW-A": "extracted", "VAT_EXEMPT_CERT:BRW-A": "extracted"},
+                                 "tasks": {"TAX_ASSESSMENT:BRW-A": "RESOLVED"}}},
+    "TC-03": {"instructionHe": "מעלים את החבילה עם דוח רווח והפסד של 2025. צפוי: ״המסמך אינו עדכני״ — ואז ״העלאת מסמך חלופי״ עם "
+                               "הדוח של ינואר–ספטמבר 2026.",
+              "expectHe": "ה-AI מזהה שתקופת הדוח הסתיימה לפני יותר מ־120 יום (הנחת מדיניות הדגמה) ומחזיר אותו; הדוח העדכני מתקבל.",
+              "expectedLabelHe": "דוח רווח והפסד לא עדכני ← אחרי ההחלפה: מוכן לבדיקת הבנקאית", "expectedCaseStatus": "READY_FOR_BANKER",
+              "expectedReasonCodes": ["DOCUMENT_STALE"],
+              "expectedResult": {"openFindings": [], "progress": [6, 6],
+                                 "documents": {F("pnl_shiran_2025_OUTDATED.pdf"): "REPLACED",
+                                               F("pnl_shiran_2026-01_09.pdf"): "PASS", F("vat_dealer_cert_shiran.pdf"): "PASS"},
+                                 "requirements": {"PNL_STATEMENT:BRW-A": "extracted", "VAT_DEALER_CERT:BRW-A": "extracted"}}},
+    "TC-04": {"instructionHe": "מעלים ת״ז אחת, שלושה תלושים, דף עו״ש אחד, הצעת מחיר, אישור עוסק פטור ואישור רו״ח. צפוי: 6 מתוך 6.",
+              "expectHe": "מסמכי שכר ומסמכי עסק באותו תיק — ת״ז ודפי עו״ש פעם אחת. אין השוואה אוטומטית של ההכנסה המשולבת לתלושים בלבד.",
+              "expectedLabelHe": "כל המסמכים הנדרשים הושלמו — מוכן לבדיקת הבנקאית", "expectedCaseStatus": "READY_FOR_BANKER",
+              "expectedReasonCodes": [],
+              "expectedResult": {"openFindings": [], "progress": [6, 6],
+                                 "documents": {s["file"]: "PASS" for s in STEPS["TC-04"]}}},
+    "TC-05": {"instructionHe": "מעלים את צילום התעודה של מאיה בכרטיס של רועי. צפוי: ״המסמך אינו על שם המבקש/ת״. ואז את התעודה של רועי "
+                               "כמסמך חלופי, ואת שאר החבילה — כל מסמך בכרטיס של בעליו.",
+              "expectHe": "מסמך של לווה אחד אינו מספק את הדרישה של האחר; דף אחד לחשבון המשותף; רחל (בעלת חשבון בלבד) לא נדרשת לדבר.",
+              "expectedLabelHe": "התעודה של מאיה בכרטיס של רועי חוזרת ← אחרי ההחלפה: מוכן לבדיקת הבנקאית",
+              "expectedCaseStatus": "READY_FOR_BANKER", "expectedReasonCodes": ["BORROWER_MISMATCH"],
+              "expectedResult": {"openFindings": [], "progress": [9, 9],
+                                 "documents": {F("id_card_maya_COPY.pdf"): "REPLACED", F("id_card_roy.pdf"): "PASS",
+                                               F("id_card_maya.pdf"): "PASS", F("statement_roy_rachel_2026-07_09.pdf"): "PASS",
+                                               F("statement_stern_joint_2026-07_09.pdf"): "PASS"},
+                                 "requirements": {"ID_CARD:BRW-A": "extracted", "ID_CARD:BRW-B": "extracted",
+                                                  "BANK_STATEMENTS:ACC-1": "extracted", "BANK_STATEMENTS:ACC-2": "extracted"}}},
+    "TC-06": {"instructionHe": "מעלים את ת״ז מורשה החתימה ואת הנסח הישן. הבנקאית בודקת ומבקשת נסח עדכני; הלקוח מעלה אותו ואת שאר "
+                               "המסמכים, והבנקאית מקבלת אותם.",
+              "expectHe": "רק תעודת הזהות נבדקת ב-AI; מסמכי החברה נשמרים ״התקבל · ממתין לבדיקת הבנקאי״ — ההחלטה של הבנקאית. "
+                          "מסלול מוגבל בליווי בנקאי, ללא חיתום והחלטת אשראי.",
+              "expectedLabelHe": "מסמכי החברה התקבלו אצל הבנקאית — מוכן להמשך טיפול בנקאי", "expectedCaseStatus": "READY_FOR_BANKER",
+              "expectedReasonCodes": [],
+              "expectedResult": {"openFindings": [], "progress": [6, 6],
+                                 "documents": {F("id_card_gilad.pdf"): "PASS", F("company_extract_sg_OUTDATED.pdf"): "REPLACED",
+                                               F("company_extract_sg.pdf"): "ACCEPTED"},
+                                 "requirements": {"ID_CARD:BRW-A": "extracted", "COMPANY_EXTRACT": "accepted_by_banker",
+                                                  "SIGNATORY_AUTHORITY": "accepted_by_banker", "COMPANY_FINANCIALS": "accepted_by_banker",
+                                                  "COMPANY_INTERIM": "accepted_by_banker",
+                                                  "BUSINESS_STATEMENTS:ACC-1": "accepted_by_banker"}}},
+}
 for _uc in USE_CASES:
-    _uc.update({"packStatus": "ROUND_2", "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."})
+    _uc.update({"packStatus": "READY", "steps": STEPS[_uc["id"]], **PLAY[_uc["id"]],
+                "packNoteHe": "כל הקבצים סינתטיים ותואמים לזהות שבתיק. התוצאה הצפויה היא הניתוב שהתרחיש בנוי להראות — "
+                              "לא תוצאת AI בפועל ולא החלטת אשראי."})
+    for _r in _uc["requirements"]:
+        if _r["code"].startswith(("VAT_EXEMPT_CERT", "VAT_DEALER_CERT", "PNL_STATEMENT")):
+            _r["intake"] = "ai_review"
+
+NEW_CUSTOMER = {
+    "id": "NEW-CUSTOMER", "titleHe": "לקוחה חדשה — בקשת הלוואה מהשאלון", "personaHe": "נטע אלון",
+    "answersHe": ["עבור מי: הלוואה פרטית", "שם: נטע אלון", "מספר זהות: DEMO-ID-201", "מטרה: רכישת רכב",
+                  "הכנסה: שכירה", "נטו: כ־12,000 ₪", "לווה נוסף: לא", "סכום: 80,000 ₪ · 60 תשלומים"],
+    "instructionHe": "״בקשת הלוואה חדשה״ ← עונים כמו ברשימה ← מאשרים. מעלים ת״ז, תלושי יולי ואוגוסט, דפי עו״ש והצעת מחיר. "
+                     "צפוי: חסר תלוש ספטמבר ומשימת השלמה; אחרי העלאתו — מוכן לבנקאית.",
+    "steps": [pstep("id_card_neta.pdf"), pstep("payslip_neta_2026-07.pdf", period="2026-07"),
+              pstep("payslip_neta_2026-08.pdf", period="2026-08"), pstep("statement_neta_2026-07_09.pdf"),
+              pstep("car_quote_neta.pdf"), pstep("payslip_neta_2026-09.pdf", role="replacement", period="2026-09",
+                                                 note="התלוש החסר")],
+    "noteHe": "התיק נוצר בזמן הדמו ולכן אין לו מזהה קבוע; הקבצים תואמים לזהות שמוזנת בשאלון.",
+}
 
 QA, CLEAN, JOINT = "DEMO-MTZ-2026-005", "DEMO-MTZ-2026-004", "DEMO-MTZ-2026-003"
 # id, title, goal, instruction, banker, case, state, files (file or (file, requirement)), expected, codes, final status, verification
@@ -390,6 +619,14 @@ def sha(rel: str) -> str:
 def main() -> None:
     documents = [{**d, "uploadGuidanceHe": f"מסמכים ← {d['slotHe']}", "expectedBorrower": "IDO" if d["ownerHe"] == IDO else None,
                   "expectedGrossILS": None, "isSynthetic": True, "sha256": sha(d["downloadPath"])} for d in DOCS]
+    for file, label, category, code, owner, period, slot, verdict, note, issue in PROFILE_DOCS:
+        documents.append({"id": f"profiles/{file}", "downloadPath": f"profile_set/{file}", "displayNameHe": label,
+                          "category": category, "uploadAs": code, "ownerHe": owner, "periodHe": period, "slotHe": slot,
+                          "issueHe": issue, "uploadPeriod": None, "set": "profiles", "casesHe": None,
+                          "intake": "ai_review" if verdict else "human_review", "expectedDocumentVerdict": verdict,
+                          "expectedPrintedPeriod": None, "expectedNetILS": None, "expectedNoteHe": note,
+                          "expectedRequiredFollowup": None, "uploadGuidanceHe": f"מסמכים ← {slot}", "expectedBorrower": None,
+                          "expectedGrossILS": None, "isSynthetic": True, "sha256": sha(f"profile_set/{file}")})
     scenarios = []
     for sid, title, goal, instruction, banker, case_id, state, files, expected, codes, status, *verification in SCENARIOS:
         items = [item(*f) if isinstance(f, tuple) else item(f) for f in files]
@@ -402,9 +639,10 @@ def main() -> None:
                           **({"verification": verification[0]} if verification else {})})
     manifest = {
         "schemaVersion": "2.2", "titleHe": "ספריית תרחישי בדיקה — השלמת מסמכים להלוואה · Mizrahi × JEEN",
-        "useCasesNoteHe": "שישה פרופילי לקוח, כל אחד בתיק משלו. הרשימה נגזרת ממדיניות המסמכים להדגמה (מבוססת פרקטיקה ציבורית) — "
-                          "אינה רשימת דרישות מאושרת של מזרחי־טפחות. ״בדיקת הבנקאי״ = אין בדיקת AI לסוג המסמך.",
-        "useCases": USE_CASES,
+        "useCasesNoteHe": "שישה פרופילי לקוח, כל אחד בתיק משלו, עם חבילת מסמכים סינתטית התואמת לזהות שבתיק. הרשימה נגזרת "
+                          "ממדיניות המסמכים להדגמה (מבוססת פרקטיקה ציבורית; גיל מסמכים וחלופות הם הנחות הדגמה) — אינה רשימת דרישות "
+                          "מאושרת של מזרחי־טפחות. ״בדיקת בנקאי״ = אין בדיקת AI לסוג המסמך; ההחלטה של הבנקאית.",
+        "useCases": USE_CASES, "newCustomer": NEW_CUSTOMER,
         "disclosureHe": "כל המסמכים והנתונים סינתטיים. התוצאה הצפויה היא הניתוב שהתרחיש בנוי להראות — לא תוצאת AI בפועל ולא החלטת אשראי.",
         "caseContext": {"id": "LOAN-DEMO-2026", "borrowers": [IDO], "bankStage": "DOCUMENTS_AND_CHECKS (MOCK)",
                         "reviewScope": "Document Review בלבד"},
@@ -422,7 +660,7 @@ def main() -> None:
     }
     OUT.write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n", encoding="utf8")
     print(f"wrote {OUT} · {len(USE_CASES)} use cases · {len(FEATURED)} featured · {len(scenarios)} scenarios · "
-          f"{len(documents)} documents")
+          f"{len(documents)} documents ({len(PROFILE_DOCS)} in the use-case packs)")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,78 @@
+{
+ "sha256": "37f256dd28b88f05df9e70f18056ff6779830dc9a2eec06761aab1c34f50721e",
+ "file": "presenter/profile_set/payslip_michal_2026-07.pdf",
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "PAYSLIPS:BRW-C",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"payslip\",\n  \"doc_type_reason\": \"כותרת המסמך היא 'תלוש שכר לחודש יולי 2026' והוא כולל פירוט תשלומים, ניכויים, שכר ברוטו ונטו לתשלום.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"employer_name\",\n      \"value\": \"שחף הנדסה בע״מ\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [51, 715, 68, 934],\n      \"label_quote\": null,\n      \"normalized\": \"שחף הנדסה בע״מ\",\n      \"quote\": \"שחף הנדסה בע״מ\"\n    },\n    {\n      \"name\": \"employer_id\",\n      \"value\": \"515338204\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [75, 827, 86, 934],\n      \"label_quote\": \"ח.פ.\",\n      \"normalized\": \"515338204\",\n      \"quote\": \"515338204\"\n    },\n    {\n      \"name\": \"document_number\",\n      \"value\": \"SAL-michal-2026-07\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [66, 67, 76, 203],\n      \"label_quote\": \"מספר מסמך:\",\n      \"normalized\": \"SAL-michal-2026-07\",\n      \"quote\": \"SAL-michal-2026-07\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"06.08.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [76, 67, 87, 139],\n      \"label_quote\": \"תאריך הפקה:\",\n      \"normalized\": \"06.08.2026\",\n      \"quote\": \"06.08.2026\"\n    },\n    {\n      \"name\": \"employee_name\",\n      \"value\": \"מיכל ברק\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [158, 850, 172, 918],\n      \"label_quote\": \"שם העובד/ת\",\n      \"normalized\": \"מיכל ברק\",\n      \"quote\": \"מיכל ברק\"\n    },\n    {\n      \"name\": \"employee_id\",\n      \"value\": \"311204572\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [159, 618, 170, 706],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"311204572\",\n      \"quote\": \"311204572\"\n    },\n    {\n      \"name\": \"employee_number\",\n      \"value\": \"E-4471\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [159, 434, 170, 493],\n      \"label_quote\": \"מספר עובד\",\n      \"normalized\": \"E-4471\",\n      \"quote\": \"E-4471\"\n    },\n    {\n      \"name\": \"salary_period\",\n      \"value\": \"07/2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [193, 853, 203, 918],\n      \"label_quote\": \"תקופת שכר\",\n      \"normalized\": \"2026-07\",\n      \"quote\": \"07/2026\"\n    },\n    {\n      \"name\": \"payment_date\",\n      \"value\": \"09.08.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [193, 617, 203, 705],\n      \"label_quote\": \"תאריך תשלום\",\n      \"normalized\": \"09.08.2026\",\n      \"quote\": \"09.08.2026\"\n    },\n    {\n      \"name\": \"gross_pay\",\n      \"value\": \"28,119.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [403, 799, 417, 895],\n      \"label_quote\": \"שכר ברוטו\",\n      \"normalized\": \"28119.00\",\n      \"quote\": \"28,119.00\"\n    },\n    {\n      \"name\": \"total_deductions\",\n      \"value\": \"7,119.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [404, 519, 417, 603],\n      \"label_quote\": \"סה״כ ניכויים\",\n      \"normalized\": \"7119.00\",\n      \"quote\": \"7,119.00\"\n    },\n    {\n      \"name\": \"net_pay\",\n      \"value\": \"21,000.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [403, 212, 418, 309],\n      \"label_quote\": \"נטו לתשלום\",\n      \"normalized\": \"21000.00\",\n      \"quote\": \"21,000.00\"\n    }\n  ],\n  \"earnings\": [\n    {\n      \"label\": \"שכר בסיס\",\n      \"amount\": \"27,469.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"החזר נסיעות\",\n      \"amount\": \"650.00\",\n      \"page\": 1\n    }\n  ],\n  \"deductions\": [\n    {\n      \"label\": \"מס הכנסה\",\n      \"amount\": \"3,990.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"ביטוח לאומי\",\n      \"amount\": \"1,155.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"מס בריאות\",\n      \"amount\": \"714.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"פנסיה — חלק עובד\",\n      \"amount\": \"1,260.00\",\n      \"page\": 1\n    }\n  ],\n  \"suspicious_content\": [],\n  \"uncertainties\": [],\n  \"title_quote\": \"תלוש שכר לחודש יולי 2026\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TSdq4ljJ481MuNuuLhFFGpzwehZQe8Ja+3iHabSAnUdrhNvSN4y8Kx3ea5fo8ZCKmWUIXG1KZgzuMphKJ+5J2YrhdA3lTe10L28hqxrGLRa/pXh4E0Dh2IICWKwHgBkVWMl8="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1959,
+    "totalTokenCount": 3601,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "mXrPao-0EsecnsEPxbGFcQ"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא תלוש שכר סטנדרטי הכולל כותרת מפורשת, פירוט תשלומי שכר, ניכויים וסכום נטו לתשלום.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך שלם וקריא לחלוטין ללא חיתוכים, טשטוש או אזורים חסרים.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"פרטי העובד תואמים במדויק ללווה המשויך (מיכל ברק, ת.ז. 311204572).\",\n      \"cited_fields\": [\n        \"employee_name\",\n        \"employee_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-08\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו סימני עריכה, שינוי או פקודות חשודות. סימני המים וההערות בתחתית הם חלק מסביבת הבדיקה הסינתטית המאושרת.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-10\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"תאריך התשלום המודפס (09.08.2026) תואם ליום ה-9 בחודש העוקב לתקופת השכר (07/2026), כנדרש.\",\n      \"cited_fields\": [\n        \"salary_period\",\n        \"payment_date\"\n      ],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"תלוש השכר נמצא תקין בכל הקריטריונים שנבדקו. פרטי הזיהוי, מבנה המסמך ותאריך התשלום תואמים את הכללים במלואם.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TSe0ac5WWloUTai6Sb0ndzb5CQdiQ5gDYevF7qPjFBDoDQ3E0DBKa87ntIEJHnO3lVT/0k7sm3z7uWhCqNiaq6Q/YDp7seE6Xx603NUsoR2K6ReqleDbFJUI58P7zq9oyrvo="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 3456,
+    "candidatesTokenCount": 604,
+    "totalTokenCount": 4060,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 2924
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "pnrPasb8E8y9nsEP2o604AM"
+  }
+ }
+}

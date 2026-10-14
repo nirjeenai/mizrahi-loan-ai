@@ -1,0 +1,288 @@
+{
+ "case_id": "DEMO-MTZ-2026-106",
+ "requirement_code": "ID_CARD:BRW-A",
+ "sha256": "5d132424ce2af1b4cfb916a069e993bd3ce70e3a8dd8c28a2fd9a9281dd63c03",
+ "result": {
+  "run_id": "REC-5d132424",
+  "document_id": "REC-5d132424",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "id_document.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T12:52:20+00:00",
+  "finished_at": "2026-10-14T12:52:34+00:00",
+  "doc_type": "id_document",
+  "doc_type_he": "תעודת זהות",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "גלעד ששון",
+    "value_normalized": "גלעד ששון",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-5d132424:holder_name",
+     "document_id": "REC-5d132424",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "גלעד ששון",
+     "bbox": [
+      394.44,
+      134.49,
+      437.06,
+      146.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-106",
+    "value_normalized": "DEMO-ID-106",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-5d132424:holder_id",
+     "document_id": "REC-5d132424",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-106",
+     "bbox": [
+      249.62,
+      153.24,
+      316.13,
+      164.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "date_of_birth",
+    "label_he": "תאריך לידה",
+    "value_raw": "05.08.1979",
+    "value_normalized": "1979-08-05",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-5d132424:date_of_birth",
+     "document_id": "REC-5d132424",
+     "field": "date_of_birth",
+     "page": 1,
+     "quote": "05.08.1979",
+     "bbox": [
+      249.62,
+      171.99,
+      302.16,
+      183.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "17.12.2020",
+    "value_normalized": "2020-12-17",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-5d132424:issue_date",
+     "document_id": "REC-5d132424",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "17.12.2020",
+     "bbox": [
+      249.62,
+      190.74,
+      302.16,
+      202.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "expiry_date",
+    "label_he": "תוקף עד",
+    "value_raw": "17.12.2030",
+    "value_normalized": "2030-12-17",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-5d132424:expiry_date",
+     "document_id": "REC-5d132424",
+     "field": "expiry_date",
+     "page": 1,
+     "quote": "17.12.2030",
+     "bbox": [
+      249.62,
+      190.74,
+      302.16,
+      202.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "ID-01",
+    "title_he": "המסמך הוא תעודת זהות",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך מציג תעודת זהות ישראלית (בגרסת דמו סינתטית).",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך ברור, קריא ושלם, כל הפרטים והתאריכים מוצגים היטב ואינם חתוכים.",
+    "evidence_ids": [
+     "REC-5d132424:holder_name",
+     "REC-5d132424:holder_id",
+     "REC-5d132424:date_of_birth",
+     "REC-5d132424:issue_date",
+     "REC-5d132424:expiry_date"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-03",
+    "title_he": "השם ומספר הזהות תואמים למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים לגלעד ששון",
+    "evidence_ids": [
+     "REC-5d132424:holder_name",
+     "REC-5d132424:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-04",
+    "title_he": "מספר הזהות תקין (ספרת ביקורת)",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "ID_NUMBER_INVALID",
+    "explanation_he": "מזהה סינתטי של סביבת ההדגמה (DEMO-ID-106) — בדיקת ספרת ביקורת אינה רלוונטית",
+    "evidence_ids": [
+     "REC-5d132424:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "ID-05",
+    "title_he": "התעודה בתוקף",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "ID_EXPIRED",
+    "explanation_he": "בתוקף עד 17.12.2030",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-06",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "אין במסמך הוראות חשודות או פניות למערכת AI. סימוני ה-DEMO/מסמך דמו הינם חלק מסביבת הבדיקה הסינתטית המאושרת.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "ID-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "תעודת הזהות של גלעד ששון קריאה, תקינה ותואמת למבקש בכל הקריטריונים שנבדקו בסביבת הדמו.",
+  "limitations_he": [
+   "מדובר במסמך סינתטי הנושא סימוני דמו כחלק ממערך בדיקות.",
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [
+   "מדובר במסמך דמו/סינתטי כפי שמצוין במפורש בכותרות ובמספר הזהות"
+  ],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3976,
+   "output_tokens": 1454,
+   "thought_tokens": 0
+  }
+ }
+}

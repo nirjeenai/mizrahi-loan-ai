@@ -1,0 +1,78 @@
+{
+ "sha256": "4e1d845072224b3859476e9c28ca3508bc634819f160f090a9c2d669bfe98cc3",
+ "file": "presenter/profile_set/vat_dealer_cert_maya.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "VAT_DEALER_CERT:BRW-B",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"business_registration\",\n  \"doc_type_reason\": \"תעודת עוסק מורשה מרשות המסים\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"מאיה שטרן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [102, 555, 115, 631],\n      \"label_quote\": \"שם העוסק\",\n      \"normalized\": \"מאיה שטרן\",\n      \"quote\": \"מאיה שטרן\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-115\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [124, 75, 135, 185],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-115\",\n      \"quote\": \"DEMO-ID-115\"\n    },\n    {\n      \"name\": \"business_name\",\n      \"value\": \"סטודיו מאיה שטרן — אדריכלות\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [147, 416, 160, 631],\n      \"label_quote\": \"שם העסק\",\n      \"normalized\": \"סטודיו מאיה שטרן — אדריכלות\",\n      \"quote\": \"סטודיו מאיה שטרן — אדריכלות\"\n    },\n    {\n      \"name\": \"dealer_number\",\n      \"value\": \"DEMO-ID-115\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [169, 75, 180, 185],\n      \"label_quote\": \"מספר עוסק\",\n      \"normalized\": \"DEMO-ID-115\",\n      \"quote\": \"DEMO-ID-115\"\n    },\n    {\n      \"name\": \"registration_type\",\n      \"value\": \"עוסק מורשה\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [191, 546, 204, 631],\n      \"label_quote\": \"סוג הרישום\",\n      \"normalized\": \"עוסק מורשה\",\n      \"quote\": \"עוסק מורשה\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"18.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [258, 75, 268, 163],\n      \"label_quote\": \"תאריך הפקת האישור\",\n      \"normalized\": \"18.09.2026\",\n      \"quote\": \"18.09.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [],\n  \"uncertainties\": [\n    \"מדובר במסמך דמו (Synthetic Test Corpus)\"\n  ],\n  \"title_quote\": \"רשות המסים בישראל · מע״מ · תעודת עוסק מורשה\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TjEEK6E+OuTT/RkZ9NllZKRlA9zu32U2R4zlcpS3dU70M9iFZYacUCyOFnERY+ViHn9eXZ+RQj8tlAKX6tCkOnMgyQjBUsRmErD+O26ONifJfHtqNxWaB7Mq8HNs2FpcE4gU="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 940,
+    "totalTokenCount": 2582,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "-HrPav3IE-fpnsEP9LWaSA"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BR-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא תעודת עוסק מורשה של רשות המסים (רישום מע״מ).\",\n      \"cited_fields\": [\n        \"registration_type\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא ושלם; פרטי בעל העסק, מספר העוסק וסוג הרישום ברורים.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"dealer_number\",\n        \"registration_type\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל העסק ומספר הזהות תואמים למבקשת (מאיה שטרן, DEMO-ID-115).\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הנחיות זדוניות או טקסט הפונה למערכת AI; סימוני הדמו הם חלק מסביבת הבדיקה.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך מהווה תעודת עוסק מורשה תקינה, קריאה, תואמת לפרטי המבקשת וללא תוכן חשוד.\",\n  \"limitations_he\": [\n    \"בדיקת הדגמה בלבד, אין אימות מול מאגרי רשות המסים.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TjtPE65l/2ClaSATRZcg7h+PESZzNOKLQJFGxDGXCsTMwwUJiuTydomjYAAa01EWKeNtlD0SP0UoCnlP1BSRFOTBFxs+srAbRQalMfmJ3ppdij8ugm/4S8hQEbACRp772T9o="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2172,
+    "candidatesTokenCount": 497,
+    "totalTokenCount": 2669,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1640
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "AHvParDIH7D4nsEPsvvcqAs"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "sha256": "794d128904b55d40b477577b4453a39b9a40d2e96a6a4460886db8cc15baf969",
+ "file": "presenter/profile_set/payslip_neta_2026-08.pdf",
+ "case_id": "DEMO-LN-REC-NETA",
+ "requirement_code": "PAYSLIPS:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"payslip\",\"doc_type_reason\":\"כותרת המסמך היא 'תלוש שכר לחודש אוגוסט 2026' ומכיל פירוט שכר, תשלומים, ניכויים ופרטי עובד ומעסיק\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"employer_name\",\"value\":\"גל־אור תקשורת בע״מ\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[51,675,72,933],\"label_quote\":null,\"normalized\":\"גל־אור תקשורת בע״מ\",\"quote\":\"גל־אור תקשורת בע״מ\"},{\"name\":\"employer_id\",\"value\":\"514902336\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[76,827,87,899],\"label_quote\":\"ח.פ.\",\"normalized\":\"514902336\",\"quote\":\"514902336\"},{\"name\":\"document_number\",\"value\":\"SAL-neta-2026-08\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[67,67,76,219],\"label_quote\":\"מספר מסמך:\",\"normalized\":\"SAL-neta-2026-08\",\"quote\":\"SAL-neta-2026-08\"},{\"name\":\"issue_date\",\"value\":\"06.09.2026\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[77, 67, 87, 139],\"label_quote\":\"תאריך הפקה:\",\"normalized\":\"06.09.2026\",\"quote\":\"06.09.2026\"},{\"name\":\"salary_period\",\"value\":\"08/2026\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[192,854,204,918],\"label_quote\":\"תקופת שכר\",\"normalized\":\"2026-08\",\"quote\":\"08/2026\"},{\"name\":\"employee_name\",\"value\":\"נטע אלון\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[159,857,171,917],\"label_quote\":\"שם העובד/ת\",\"normalized\":\"נטע אלון\",\"quote\":\"נטע אלון\"},{\"name\":\"employee_id\",\"value\":\"DEMO-ID-201\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[159,603,169,705],\"label_quote\":\"מספר זהות\",\"normalized\":\"DEMO-ID-201\",\"quote\":\"DEMO-ID-201\"},{\"name\":\"employee_number\",\"value\":\"E-3318\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[159,435,169,491],\"label_quote\":\"מספר עובד\",\"normalized\":\"E-3318\",\"quote\":\"E-3318\"},{\"name\":\"payment_date\",\"value\":\"09.09.2026\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[192,616,203,704],\"label_quote\":\"תאריך תשלום\",\"normalized\":\"09.09.2026\",\"quote\":\"09.09.2026\"},{\"name\":\"gross_pay\",\"value\":\"16,268.00 ₪\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[403,799,419,918],\"label_quote\":\"שכר ברוטו\",\"normalized\":\"16268.00\",\"quote\":\"16,268.00 ₪\"},{\"name\":\"total_deductions\",\"value\":\"4,118.00 ₪\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[403,518,419,626],\"label_quote\":\"סה״כ ניכויים\",\"normalized\":\"4118.00\",\"quote\":\"4,118.00 ₪\"},{\"name\":\"net_pay\",\"value\":\"12,150.00 ₪\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[403,213,419,333],\"label_quote\":\"נטו לתשלום\",\"normalized\":\"12150.00\",\"quote\":\"12,150.00 ₪\"}],\"earnings\":[{\"label\":\"שכר בסיס\",\"amount\":\"15,618.00\",\"page\":1},{\"label\":\"החזר נסיעות\",\"amount\":\"650.00\",\"page\":1}],\"deductions\":[{\"label\":\"מס הכנסה\",\"amount\":\"2,308.00\",\"page\":1},{\"label\":\"ביטוח לאומי\",\"amount\":\"668.00\",\"page\":1},{\"label\":\"מס בריאות\",\"amount\":\"413.00\",\"page\":1},{\"label\":\"פנסיה — חלק עובד\",\"amount\":\"729.00\",\"page\":1}],\"suspicious_content\":[{\"quote\":\"מסמך דמו סינתטי. אינו מסמך רשמי של מעסיק, בנק או רשות; השמות והמזהים בדויים.\",\"kind\":\"other\",\"page\":1},{\"quote\":\"מסמך דמו · סינתטי\",\"kind\":\"other\",\"page\":1}],\"uncertainties\":[],\"title_quote\":\"תלוש שכר לחודש אוגוסט 2026\"}",
+        "thoughtSignature": "EmkKZwFpFH0TMMRSG8TWq01BGQX6K52phyZH2CQlW1o6Pe20BmNe86/BOi+5HwDJDJ68TC72V9ILEoxxZM7YgYB/aPGguBWGmu7SCcvskhDobVlwqEunInuFGJzr+a9IAIrvNLEJAUTaH34="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1372,
+    "totalTokenCount": 3014,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "L4fPauaNBMmwnsEPou-72AY"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא תלוש שכר סטנדרטי הכולל כותרת ברורה, פירוט תשלומים וניכויים וסכום נטו לתשלום.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, שלם, אינו קטוע וכל הנתונים החיוניים ברורים לחלוטין.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"פרטי העובד תואמים במדויק ללווה המשויך (נטע אלון, מספר זהות DEMO-ID-201).\",\n      \"cited_fields\": [\n        \"employee_name\",\n        \"employee_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-08\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו הוראות חשודות המיועדות למערכת AI או סימני שינוי ועריכה; סימוני הדמו הם חלק מובנה מסביבת הבדיקה.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-10\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"תאריך התשלום המודפס (09.09.2026) תואם ליום ה-9 בחודש העוקב לתקופת השכר (08/2026), בהתאם להוראות החוק.\",\n      \"cited_fields\": [\n        \"salary_period\",\n        \"payment_date\"\n      ],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"תלוש השכר קריא, שלם, תואם לזהות הלווה המבוקש ולתקופת השכר, ללא סימני עריכה או הנחיות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TJHY992bc870GdFLSzKpHCwAaj8zaPhkOsmE/U8oyOeoxrn6IyijqCIJXeAjjOXOVM1hiu1zKtHpcm+ywlA1SiIffo+vsFYbjDv+lvZBSC/bANqA4e8egs439pRNG/57GKus="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 3569,
+    "candidatesTokenCount": 597,
+    "totalTokenCount": 4166,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 3037
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "OofPaseaEeb-nsEP2YHdQA"
+  }
+ }
+}

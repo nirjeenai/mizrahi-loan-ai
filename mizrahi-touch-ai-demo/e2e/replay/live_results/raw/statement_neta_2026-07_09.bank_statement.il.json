@@ -1,0 +1,78 @@
+{
+ "sha256": "f25b15575933f32aba5cc3fed4e132b6e6f097354cccfd053837038530e514f2",
+ "file": "presenter/profile_set/statement_neta_2026-07_09.pdf",
+ "case_id": "DEMO-LN-REC-NETA",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"bank_statement\",\n  \"doc_type_reason\": \"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרת סגירה ופרטי חשבון\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"bank_name\",\n      \"value\": \"מזרחי־טפחות\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [53, 781, 68, 933],\n      \"label_quote\": null,\n      \"normalized\": \"מזרחי־טפחות\",\n      \"quote\": \"מזרחי־טפחות\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"נטע אלון\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [98, 574, 113, 631],\n      \"label_quote\": \"שם בעל החשבון\",\n      \"normalized\": \"נטע אלון\",\n      \"quote\": \"נטע אלון\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-201\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [121, 74, 133, 184],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-201\",\n      \"quote\": \"DEMO-ID-201\"\n    },\n    {\n      \"name\": \"account_number\",\n      \"value\": \"20-388-246190\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [143, 74, 155, 194],\n      \"label_quote\": \"בנק / סניף / חשבון\",\n      \"normalized\": \"20-388-246190\",\n      \"quote\": \"20-388-246190\"\n    },\n    {\n      \"name\": \"statement_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [166, 74, 178, 163],\n      \"label_quote\": \"תקופה מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"statement_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [189, 74, 201, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"closing_balance\",\n      \"value\": \"12,479.83\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [672, 74, 685, 153],\n      \"label_quote\": \"יתרת סגירה\",\n      \"normalized\": \"12479.83\",\n      \"quote\": \"12,479.83\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי — אינו דף חשבון אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"מזרחי־טפחות · דף תנועות בחשבון עו״ש\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T9YlDeVehkEcIngRGMBo1gLFvGtIB6lUzPDWHYvLDmoqpuLMQFWV+SGmORpzvSzfWOVucvDjwp26VBN1FktpdllvnNnpa4xNeYzsirmoKb+tVZMlcDustSqJU3Gnt/phQNgA="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1176,
+    "totalTokenCount": 2818,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "P4fPauHAO7bvnsEPu8Wa4AI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דף תנועות חשבון עו״ש הכולל פירוט תנועות, יתרות ופרטי חשבון מלאים.\",\n      \"cited_fields\": [\"bank_name\", \"account_number\", \"statement_from\", \"statement_to\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם, כל פרטי החשבון, התנועות והיתרות מוצגים כראוי ללא חיתוך או טשטוש.\",\n      \"cited_fields\": [\"holder_name\", \"account_number\", \"statement_from\", \"statement_to\", \"closing_balance\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל החשבון ומספר הזהות תואמים באופן מלא למבקש ההלוואה (נטע אלון, DEMO-ID-201).\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו הוראות חשודות או סימני עריכה/זיוף; כיתובי הדמו והסימונים הסינתטיים הינם חלק מובנה מסביבת הבדיקה.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"דף תנועות תקין, קריא ושלם מחשבון עו״ש במזרחי־טפחות השייך למבקשת נטע אלון, ללא סימני שינוי או הנחיות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TTolEbOAY6DiQPhg5EIrfdlDDj/o2wPi+l1vMIM80rnkofzAQU0A81woSxP25JCEU7jaRKHUge9EXGo1HPFCMwmZMYDrfrhJBxvC7VPt5tY1/MQEPLeeIpjntJjyICX4YTN0="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2439,
+    "candidatesTokenCount": 525,
+    "totalTokenCount": 2964,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1907
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "SYfPaobzAv_i7M8PnaHLkAs"
+  }
+ }
+}

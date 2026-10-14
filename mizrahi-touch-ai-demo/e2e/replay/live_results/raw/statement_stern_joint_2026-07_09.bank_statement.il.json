@@ -1,0 +1,78 @@
+{
+ "sha256": "6146f49f0adf81919fd81ea57ec3471c884644861358070a940129bb80e979ad",
+ "file": "presenter/profile_set/statement_stern_joint_2026-07_09.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"bank_statement\",\n  \"doc_type_reason\": \"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרות, תקופת דוח, מספרי חשבון ושם בעלי החשבון בבנק מזרחי-טפחות.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"bank_name\",\n      \"value\": \"מזרחי־טפחות\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [51, 780, 68, 933],\n      \"label_quote\": null,\n      \"normalized\": \"מזרחי־טפחות\",\n      \"quote\": \"מזרחי־טפחות\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"רועי שטרן ומאיה שטרן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [100, 477, 114, 630],\n      \"label_quote\": \"שם בעל החשבון\",\n      \"normalized\": \"רועי שטרן ומאיה שטרן\",\n      \"quote\": \"רועי שטרן ומאיה שטרן\"\n    },\n    {\n      \"name\": \"account_number\",\n      \"value\": \"20-655-310442\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [121, 74, 134, 195],\n      \"label_quote\": \"בנק / סניף / חשבון\",\n      \"normalized\": \"20-655-310442\",\n      \"quote\": \"20-655-310442\"\n    },\n    {\n      \"name\": \"statement_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [143, 74, 156, 163],\n      \"label_quote\": \"תקופה מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"statement_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [166, 75, 178, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"closing_balance\",\n      \"value\": \"69,537.02\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [784, 75, 796, 154],\n      \"label_quote\": \"יתרת סגירה\",\n      \"normalized\": \"69537.02\",\n      \"quote\": \"69,537.02\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי — אינו דף חשבון אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"המסמך מסומן במפורש כדמו סינתטי (אינו דף חשבון אמיתי)\"\n  ],\n  \"title_quote\": \"מזרחי־טפחות · דף תנועות בחשבון עו״ש\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TdXtqduEzJ1M1Z9fUSo/1Mra6RgfDBWjx7wN0QebspcBNptGVmQ1qDD4OyKFXwiBEFwAoJctJSTrxFnMNp648RifxTqJya/+4TIsliqcq9VJlOC8QL02ufrPwSsKLn3Oaf3c="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1125,
+    "totalTokenCount": 2767,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "wIbPaoqaLtGinsEP5e6DyQw"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דף תנועות בחשבון עו\\\"ש של בנק מזרחי-טפחות המפרט תנועות לחודשים 07.2026 עד 09.2026.\",\n      \"cited_fields\": [\n        \"bank_name\",\n        \"statement_from\",\n        \"statement_to\"\n      ],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"BS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, מלא וברור, וכולל פרטי בעלי החשבון, מספר חשבון, תאריכים, תנועות ויתרות.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"account_number\",\n        \"statement_from\",\n        \"statement_to\",\n        \"closing_balance\"\n      ],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"BS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם המבקש רועי שטרן מופיע כבעל חשבון משותף (רועי שטרן ומאיה שטרן), תואם להכרעה הדטרמיניסטית.\",\n      \"cited_fields\": [\n        \"holder_name\"\n      ],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"BS-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הוראות הממוענות למערכת AI או סימני שינוי/עריכה; סימוני הדמו הם חלק מסביבת הבדיקה הסינתטית המותרת.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.98\n    }\n  ],\n  \"summary_he\": \"דף חשבון בנק תקין, קריא ושלם מחשבון משותף הכולל את שם הלווה, ללא סימני עריכה או הוראות חשודות.\",\n  \"limitations_he\": [\n    \"המסמך הינו חלק מסביבת בדיקה סינתטית ונושא חותמות דמו.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TWDoIKrXKFJGYE3O+6s5TW4RzLDQ1DT9hyiZkhWDnvAG3vJM/ZdlC0Tvix0FWHb9Jf4dJrjNyhkhNnczWdCOE46vrqkrTPLGB1+Ie8Jgcs1Yempc+KKZsQMWnoUsj71A4aZY="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2428,
+    "candidatesTokenCount": 589,
+    "totalTokenCount": 3017,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1896
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "yIbPavPWNeWgkdUP2IS5kQs"
+  }
+ }
+}

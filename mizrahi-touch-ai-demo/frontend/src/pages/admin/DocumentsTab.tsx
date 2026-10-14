@@ -13,8 +13,8 @@ const PER_HE: Record<string, string> = { applicant: "לכל לווה", account: 
 const EMPLOYMENT_HE: Record<string, string> = { salaried: "שכירים", self_employed: "עצמאים", allowance: "מקבלי קצבה" };
 const REGISTRATION_HE: Record<string, string> = { vat_exempt: "עוסק פטור", vat_registered: "עוסק מורשה" };
 const ENTITY_HE: Record<string, string> = { individual: "הלוואה פרטית", company: "חברה בע״מ" };
-// families without a review rubric (backend/rubrics): uploads are stored for the banker
-const AI_FAMILIES = ["id_document", "payslip", "bank_statement", "purpose_proof", "tax_form"];
+// families with a review rubric (backend/rubrics); in the limited company path only the signatory's ID is AI-reviewed
+const AI_FAMILIES = ["id_document", "payslip", "bank_statement", "purpose_proof", "tax_form", "business_registration", "pnl_statement"];
 // the rule fields each document family uses, with the schema's bounds
 const RULE_FIELDS: Record<string, { key: string; label: string; min?: number; max?: number; unit?: string; bool?: boolean }[]> = {
   id_document: [{ key: "check_expiry", label: "בדיקת תוקף התעודה", bool: true }],

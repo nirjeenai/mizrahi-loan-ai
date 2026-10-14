@@ -1,0 +1,78 @@
+{
+ "sha256": "e9e6e1371f10343789cf367da904ca7f399c853eb16c1fb5ed39bb39e7e2a459",
+ "file": "presenter/profile_set/car_quote_alon.pdf",
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "PURPOSE_PROOF",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"purpose_proof\",\"doc_type_reason\":\"המסמך הינו הצעת מחיר לרכב (הוכחת מטרת הלוואה / הצעת מחיר מספק)\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"issuer_name\",\"value\":\"אוטו־דמו יבואנים בע״מ\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[51,680,68,934],\"label_quote\":null,\"normalized\":\"אוטו־דמו יבואנים בע״מ\",\"quote\":\"אוטו־דמו יבואנים בע״מ\"},{\"name\":\"holder_name\",\"value\":\"אלון פרידמן\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[167,552,180,631],\"label_quote\":\"לכבוד\",\"normalized\":\"אלון פרידמן\",\"quote\":\"אלון פרידמן\"},{\"name\":\"document_kind\",\"value\":\"הצעת מחיר לרכב\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[99,513,112,631],\"label_quote\":\"סוג המסמך\",\"normalized\":\"הצעת מחיר לרכב\",\"quote\":\"הצעת מחיר לרכב\"},{\"name\":\"subject\",\"value\":\"רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[189,248,202,632],\"label_quote\":\"תיאור\",\"normalized\":\"רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026\",\"quote\":\"רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026\"},{\"name\":\"issue_date\",\"value\":\"01.10.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[144,74,157,163],\"label_quote\":\"תאריך\",\"normalized\":\"01.10.2026\",\"quote\":\"01.10.2026\"},{\"name\":\"total_amount\",\"value\":\"124,000.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[309,75,322,164],\"label_quote\":\"סה״כ לתשלום\",\"normalized\":\"124000.00\",\"quote\":\"124,000.00\"}],\"earnings\":[],\"deductions\":[],\"suspicious_content\":[],\"uncertainties\":[],\"title_quote\":\"הצעת מחיר לרכב\"}",
+        "thoughtSignature": "EmkKZwFpFH0Tpd4VxDPw50OaUUjPTHPKGHsUFIZru9YUwQEg6rZaX0Td6IWchuj8kzC+yXzOkbyqDvb+Rf9ECgbvZ8EvX4/950EUCqvXm31bZgzhDk/we6hxW0+xNiWQh5jnTu3DOtVuX/Y="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 677,
+    "totalTokenCount": 2319,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "P4bPaohJupaR1Q-OjovgAQ"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PP-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא הצעת מחיר מספק (אוטו־דמו יבואנים בע״מ) עבור רכישת רכב.\",\n      \"cited_fields\": [\"document_kind\", \"issuer_name\", \"subject\"],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"PP-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך ברור, שלם וקריא לחלוטין: מופיעים פרטי הספק, התאריך, פירוט הרכב והסכום.\",\n      \"cited_fields\": [\"issuer_name\", \"issue_date\", \"subject\", \"total_amount\"],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"PP-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"מטרת ההלוואה המוצהרת היא 'רכישת רכב', והמסמך מתאר במדויק הצעת מחיר לרכישת רכב משפחתי חדש.\",\n      \"cited_fields\": [\"subject\"],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"PP-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו טקסטים המופנים למערכת AI או סימני עריכה/זיוף; סימני המים הינם חלק מסביבת הדמו הסינתטית המאושרת.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.99\n    }\n  ],\n  \"summary_he\": \"המסמך תקין לחלוטין כהוכחת מטרת הלוואה: הצעת מחיר קריאה ושלמה, תואמת את מטרת ההלוואה (רכישת רכב), וללא סימני זיוף.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TQ5Nzvh1JGxjClR4qFrWDLoLALPScl5it8dqBVj7uiumNtFwIsowI1klTkoC5WgoYdHy1Zs6txJ6Ckat4V6w/Ar/PAf3NEkJy8a2o+ebOH29+vcRuFkQ7s3NR7KsXDVOa7ZA="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2250,
+    "candidatesTokenCount": 508,
+    "totalTokenCount": 2758,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1718
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "RYbPapW4N5O5vdIP54bHOQ"
+  }
+ }
+}

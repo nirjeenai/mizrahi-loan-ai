@@ -199,7 +199,11 @@ def confirmation(case_id: str, docs: list[dict]) -> tuple[dict | None, dict | No
 
 
 def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
-    docs = repo.documents(case_id)
+    from . import requirements as reqs_mod
+    all_docs = repo.documents(case_id)
+    # documents of a requirement a profile change made inactive stay in the history, outside the evaluated set
+    inactive = reqs_mod.inactive_codes(case_id, all_docs)
+    docs = [d for d in all_docs if d["requirement_code"] not in inactive]
     open_f = repo.findings(case_id, status="open")
     pending = db.query("SELECT kind, document_id FROM jobs WHERE case_id=? AND status IN ('queued','running') AND job_id<>?",
                        (case_id, ignore_job_id or ""))
@@ -338,6 +342,10 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
                    "payslip_requirements_ready": sum(r["ai_state"] in ("extracted", "preparation_confirmed") for r in payslip_reqs),
                    "payslip_requirements_total": len(payslip_reqs)},
         "pending_jobs": pending, "not_evaluated": [r["title_he"] for r in requirements if not r["evaluated_by_ai"]],
+        "inactive_requirements": [{"code": code, "family": reqs_mod.family_of(code, case_id),
+                                   "family_he": reqs_mod.FAMILY_HE.get(reqs_mod.family_of(code, case_id), ""),
+                                   "document_ids": [d["document_id"] for d in all_docs if d["requirement_code"] == code],
+                                   "state_he": "לא נדרש עוד — פרופיל ההכנסה עודכן"} for code in sorted(inactive)],
         "banker_confirmation": confirmed, "banker_confirmation_stale": stale_confirmation,
         "last_case_run_id": latest_case_run, "computed_at": now_iso(),
     }

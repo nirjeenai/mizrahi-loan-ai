@@ -1,4 +1,5 @@
-"""Deterministic outcomes for the non-payslip document families (ID card, bank statement, proof of purpose, tax form).
+"""Deterministic outcomes for the non-payslip document families (ID card, bank statement, proof of purpose, tax form,
+VAT registration confirmation, a sole proprietor's P&L).
 
 Pure functions over extracted, evidence-checked facts. Code decides identity, check digits, dates and recency; a
 criterion it cannot decide is returned as JUDGE for the hybrid judge. Thresholds come from the loan policy the case
@@ -124,4 +125,48 @@ def outcomes(family: str, rubric: dict, *, val: Callable[[str], Any], norm: Call
             put("TX-04", ("FAIL", "שנת המס אינה מודפסת"))
         injection("TX-05")
         evidence("TX-06")
+    elif family == "business_registration":
+        put("BR-03", _holder("BR-03", assigned, borrowers, holder_name, holder_id, matched))
+        wanted = rules.get("registration")
+        printed = " ".join(str(val("registration_type") or "").split())
+        kind = "vat_exempt" if "פטור" in printed else "vat_registered" if "מורשה" in printed else None
+        if not printed:
+            put("BR-04", ("FAIL", "סוג הרישום (עוסק פטור / מורשה) אינו מודפס"))
+        elif not wanted or kind == wanted:
+            put("BR-04", ("PASS", f"רישום: {printed}"))
+        else:
+            put("BR-04", ("FAIL", f"במסמך מודפס ״{printed}״, אבל הדרישה היא ל{REGISTRATION_HE.get(wanted, wanted)}"))
+        dealer = val("dealer_number")
+        if not dealer:
+            put("BR-05", ("NEEDS_REVIEW", "מספר העוסק אינו מודפס"))
+        elif not assigned:
+            put("BR-05", ("NEEDS_REVIEW", "המסמך לא שויך למבקש/ת"))
+        else:
+            rel = det.id_relation(dealer, assigned["national_id"])
+            put("BR-05", ("PASS", f"מספר העוסק {dealer} זהה למספר הזהות של {assigned['name_he']}") if rel == "same" else
+                ("FAIL", f"מספר העוסק {dealer} אינו מספר הזהות של {assigned['name_he']}") if rel == "different" else
+                ("NEEDS_REVIEW", f"לא ניתן להשוות את מספר העוסק {dealer}"))
+        injection("BR-06")
+        evidence("BR-07")
+    elif family == "pnl_statement":
+        put("PL-03", _holder("PL-03", assigned, borrowers, holder_name, holder_id, matched))
+        end = norm("period_to")
+        limit = int(rules.get("max_age_days", 120))
+        if end:
+            d = date.fromisoformat(end)
+            age = (as_of - d).days
+            start = norm("period_from")
+            span = f"{det.day_he(date.fromisoformat(start))}–{det.day_he(d)}" if start else f"עד {det.day_he(d)}"
+            put("PL-04", ("PASS", f"תקופת הדוח {span} — הסתיימה לפני {age} ימים (עד {limit})") if 0 <= age <= limit else
+                ("FAIL", f"תקופת הדוח הסתיימה ב־{det.day_he(d)}, {age} ימים לפני תאריך הבדיקה — מעבר ל־{limit} הימים "
+                         "שמדיניות ההדגמה מאפשרת. נדרש דוח עדכני."))
+        else:
+            put("PL-04", ("FAIL", "תקופת הדוח אינה מודפסת"))
+        issuer = val("issuer_name")
+        put("PL-05", ("PASS", f"הדוח נערך בידי {issuer}") if issuer else ("NEEDS_REVIEW", "לא מודפס מי ערך או חתם על הדוח"))
+        injection("PL-06")
+        evidence("PL-07")
     return o
+
+
+REGISTRATION_HE = {"vat_exempt": "עוסק פטור", "vat_registered": "עוסק מורשה"}

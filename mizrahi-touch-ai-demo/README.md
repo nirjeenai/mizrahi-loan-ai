@@ -132,6 +132,49 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   upload, and onboarding for salaried, self-employed, a mixed correction, joint and company; the double-click
   confirmation creates one case).
 
+## Smart document profiling — Round 2: six complete test cases and document intelligence
+- **Synthetic packs.** `fixtures/profiles/generate.py` renders 52 PDFs into `fixtures/presenter/profile_set/` (pass a
+  file name to regenerate only that file). Every identity is its prepared case's own: names, ID numbers, employers,
+  businesses, accounts and the company number. Payslip nets match the declarations, and statements carry the matching
+  credits. The presenter manifest (`useCases[].steps`, `newCustomer`) lists each file with its Hebrew label, slot,
+  period, role and expected outcome, and the downloads are checksum-verified like every other presenter file.
+- **New rubrics.** `business_registration.il` (VAT-exempt and VAT-registered dealer certificates) checks the proprietor,
+  the registration type the requirement asks for, and that the dealer number equals the ID number (a demo assumption).
+  `pnl_statement.il` (a sole proprietor's P&L, or a periodic VAT report accepted instead) checks the proprietor, that
+  the period ended at most 120 days ago (a demo assumption) and that the preparer is printed. Both are decided by code
+  in `review/family_checks.py`; `PROMPT_VERSION` is 2.1.0. Neither extracts figures or assesses profitability.
+- **The company path stays with the banker.** In a company case only the signatory's ID is AI-reviewed
+  (`requirements.COMPANY_AI_FAMILIES`). Company documents, the company's interim P&L included, are stored as
+  "התקבל · ממתין לבדיקת הבנקאי" and accepted or sent back by the banker. A follow-up task for such a requirement
+  resolves when the document is received, so the follow-up never asks again for a document that is waiting for the banker.
+- **Engine fixes found by the packs.**
+  - Payslip months are asked only of borrowers who have a payslip requirement (before this, a self-employed borrower
+    or a signatory got `REQUIRED_PERIOD_MISSING`).
+  - For a salaried and self-employed applicant, IS-04 is NOT_APPLICABLE: payslips cover only the salary part of the
+    declared income.
+  - מיכל ברק's seeded ID number failed the check digit and was corrected to `311204572` (cases 002 and 101).
+- **Profile change after confirmation.** `POST /api/cases/{id}/profile` (`workflow/profile_change.py`; "עדכון מקורות
+  ההכנסה" in the profile card on Documents) stores the new income profile as the case's overlay (`profile_overlays`,
+  cleared by a case reset), and `compose` recomposes the checklist under the pinned policy version. New requirements
+  appear at once. An obsolete requirement's documents and reviews are kept: they are listed as "לא נדרש עוד" for the
+  customer and as an inactive row in the banker's matrix, and are left out of the evaluated set. Its customer-action
+  findings are superseded, its open customer requests are closed, its tasks are canceled, and a queued simulated call
+  that concerned only those tasks is canceled before it runs. Banker-review findings stay open for the banker.
+- **New customers give an ID number** in the questionnaire (9 digits with a valid check digit, or `DEMO-ID-NNN`), so
+  their uploads can be matched to them. The new-customer pack (נטע אלון, `DEMO-ID-201`) demonstrates Path 2 with real
+  REPLAY reviews.
+- **REPLAY coverage.** All 46 AI-reviewed files of the packs were recorded live on 2026-10-14: 94 Gemini calls, 2 of
+  them for a statement that was then regenerated. The raw API responses are in `e2e/replay/live_results/raw/`. The 6
+  company documents have no recording because they never go to the model. `record_live.py --only … --max-calls N` was
+  used for a 9-file pilot first.
+- **Verification.**
+  - `e2e/verify_presenter_scenarios.py` now also runs TC-01…06, including the banker's correction and acceptance
+    steps and follow-up task states (21/21 on REPLAY).
+  - `e2e/check_round2_journeys.py` runs both paths in real Chrome (53 checks), including TC-02 through presence, grace,
+    a mock call and the secure link, the profile change, and the new customer from questionnaire to banker.
+  - Its follow-up checks depend on the 09:00–18:00 contact window (Sunday–Thursday, real time), like
+    `check_policy_acceptance.py`.
+
 ## Follow-up engine and Admin Settings (Rounds 3–4, integrated at G3–G5)
 When a customer leaves a correction unfinished, the server decides whether to wait, nudge in the app, schedule a call
 or block. It decides in code, with rule ids and a Hebrew reason (`followup/policy.py`, 39 scenario fixtures in

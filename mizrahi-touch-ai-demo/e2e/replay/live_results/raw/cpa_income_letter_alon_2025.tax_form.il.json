@@ -1,0 +1,78 @@
+{
+ "sha256": "1c86459d62e154e277744fde66c62194f2e101824dac64c6d394ddbd65ceb68f",
+ "file": "presenter/profile_set/cpa_income_letter_alon_2025.pdf",
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "TAX_ASSESSMENT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"tax_form\",\n  \"doc_type_reason\": \"אישור רואה חשבון על הכנסות מעסק לשנת מס מסוימת\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"אלון פרידמן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [165, 552, 177, 633],\n      \"label_quote\": \"שם הנישום\",\n      \"normalized\": \"אלון פרידמן\",\n      \"quote\": \"אלון פרידמן\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-104\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [187, 75, 197, 187],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-104\",\n      \"quote\": \"DEMO-ID-104\"\n    },\n    {\n      \"name\": \"tax_year\",\n      \"value\": \"2025\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [231, 75, 241, 114],\n      \"label_quote\": \"שנת המס\",\n      \"normalized\": \"2025\",\n      \"quote\": \"2025\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"24.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [114, 791, 125, 878],\n      \"label_quote\": \"תאריך:\",\n      \"normalized\": \"24.09.2026\",\n      \"quote\": \"24.09.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [],\n  \"uncertainties\": [],\n  \"title_quote\": \"אישור רואה חשבון על הכנסות מעסק\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T7g6zofFl0/ai5Za40mVHolIgt9odhxM9XDbif3X8OyqfZ+3TSYtEq/GZbhprG5uSbaL+NPz0tNeGrvItUFqgsMz2ShL6DcwK2L7yHD2h3HhKkT29NlWdhW1p+flQBymsbPU="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 631,
+    "totalTokenCount": 2273,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "XIbPapbZH8XwnsEP9IjouAs"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"TX-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא אישור רואה חשבון על הכנסות מעסק כמבוקש בהנחיות.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא לחלוטין, ברור ושלם.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם הנישום ומספר הזהות תואמים במדויק לנתוני מבקש ההלוואה (נקבע גם דטרמיניסטית).\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא נמצאו במסמך הוראות חשודות, פניות למערכת AI או ניסיונות הזרקת הנחיות. סימוני הדמו הם חלק מסביבת ההדגמה.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק ונמצא תקין בכל הקריטריונים: אישור רו״ח קריא ושלם, זהות הנישום תואמת למבקש וללא הוראות חשודות.\",\n  \"limitations_he\": [\n    \"מדובר במסמך סינתטי מתוך סביבת הדגמה הנושא סימני מים בהתאם.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TXRCaLvOdtOyJQiTft0EZzK51IRIGGP/uAPaKZmEwIg8fSG9za8NM4e0MHpJdelyYezbZG/e4XYNc8ebIw/cZ6udy1GIDberUOFxYliBnJawbGsfkBcV4tIhgvpA8Q1O1iwA="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1907,
+    "candidatesTokenCount": 468,
+    "totalTokenCount": 2375,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1375
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "YobParOTJIqAxs0PxdPVsQk"
+  }
+ }
+}

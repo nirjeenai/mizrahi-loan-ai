@@ -1,0 +1,239 @@
+{
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "TAX_ASSESSMENT:BRW-A",
+ "sha256": "1c94b12d3fbd5f0b4dede4d81edeab115681daab66903e9c322d0fd3881a988e",
+ "result": {
+  "run_id": "REC-1c94b12d",
+  "document_id": "REC-1c94b12d",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "tax_form.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T12:51:06+00:00",
+  "finished_at": "2026-10-14T12:51:15+00:00",
+  "doc_type": "tax_form",
+  "doc_type_he": "טופס מס / אישור רו״ח",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "יואב כרמי",
+    "value_normalized": "יואב כרמי",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-1c94b12d:holder_name",
+     "document_id": "REC-1c94b12d",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "יואב כרמי",
+     "bbox": [
+      337.54,
+      137.49,
+      376.33,
+      149.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-102",
+    "value_normalized": "DEMO-ID-102",
+    "confidence": 0.98,
+    "evidence": {
+     "evidence_id": "REC-1c94b12d:holder_id",
+     "document_id": "REC-1c94b12d",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-102",
+     "bbox": [
+      44.75,
+      156.24,
+      111.26,
+      167.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "tax_year",
+    "label_he": "שנת מס",
+    "value_raw": "2025",
+    "value_normalized": "2025",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-1c94b12d:tax_year",
+     "document_id": "REC-1c94b12d",
+     "field": "tax_year",
+     "page": 1,
+     "quote": "2025",
+     "bbox": [
+      44.75,
+      193.74,
+      68.11,
+      205.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "22.09.2026",
+    "value_normalized": "2026-09-22",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-1c94b12d:issue_date",
+     "document_id": "REC-1c94b12d",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "22.09.2026",
+     "bbox": [
+      471.91,
+      95.49,
+      524.46,
+      107.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "TX-01",
+    "title_he": "המסמך הוא שומת מס או אישור רו״ח",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא אישור רואה חשבון על הכנסות מעסק לשנת המס 2025.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך שלם, ברור וקריא לחלוטין ללא חיתוכים או פגמים.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-03",
+    "title_he": "שם הנישום תואם למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים ליואב כרמי",
+    "evidence_ids": [
+     "REC-1c94b12d:holder_name"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-04",
+    "title_he": "שנת המס עדכנית",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_STALE",
+    "explanation_he": "שנת מס 2025",
+    "evidence_ids": [
+     "REC-1c94b12d:tax_year"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-05",
+    "title_he": "אין במסמך הוראות חשודות",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "אין במסמך הוראות חשודות או פניות למערכת בינה מלאכותית מעבר לסימוני דמו צפויים.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "TX-06",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "המסמך הוא אישור רו״ח תקין, קריא ושלם, התואם למבקש וללא חריגות חשודות.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3557,
+   "output_tokens": 830,
+   "thought_tokens": 0
+  }
+ }
+}

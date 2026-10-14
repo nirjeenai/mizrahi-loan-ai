@@ -1,0 +1,78 @@
+{
+ "sha256": "c377870f5b72936ebbac0514639601a491380419ad263a986fa774ef955b9e44",
+ "file": "presenter/profile_set/payslip_roy_2026-08.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "PAYSLIPS:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"payslip\",\n  \"doc_type_reason\": \"המסמך נושא כותרת 'תלוש שכר לחודש אוגוסט 2026' ומכיל פירוט שכר, ניכויים ופרטי עובד ומעסיק\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"employer_name\",\n      \"value\": \"מרכז רפואי השרון\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [55, 727, 72, 934],\n      \"label_quote\": null,\n      \"normalized\": \"מרכז רפואי השרון\",\n      \"quote\": \"מרכז רפואי השרון\"\n    },\n    {\n      \"name\": \"employer_id\",\n      \"value\": \"580112233\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [78, 830, 87, 933],\n      \"label_quote\": \"ח.פ.\",\n      \"normalized\": \"580112233\",\n      \"quote\": \"580112233\"\n    },\n    {\n      \"name\": \"document_number\",\n      \"value\": \"SAL-roy-2026-08\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [66, 67, 77, 217],\n      \"label_quote\": \"מספר מסמך:\",\n      \"normalized\": \"SAL-roy-2026-08\",\n      \"quote\": \"SAL-roy-2026-08\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"06.09.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [77, 67, 88, 138],\n      \"label_quote\": \"תאריך הפקה:\",\n      \"normalized\": \"06.09.2026\",\n      \"quote\": \"06.09.2026\"\n    },\n    {\n      \"name\": \"employee_name\",\n      \"value\": \"רועי שטרן\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [160, 847, 172, 917],\n      \"label_quote\": \"שם העובד/ת\",\n      \"normalized\": \"רועי שטרן\",\n      \"quote\": \"רועי שטרן\"\n    },\n    {\n      \"name\": \"employee_id\",\n      \"value\": \"DEMO-ID-105\",\n      \"page\": 1,\n      \"confidence\": 0.95,\n      \"legible\": true,\n      \"box_2d\": [160, 594, 169, 704],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-105\",\n      \"quote\": \"DEMO-ID-105\"\n    },\n    {\n      \"name\": \"employee_number\",\n      \"value\": \"E-7720\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [160, 435, 169, 491],\n      \"label_quote\": \"מספר עובד\",\n      \"normalized\": \"E-7720\",\n      \"quote\": \"E-7720\"\n    },\n    {\n      \"name\": \"salary_period\",\n      \"value\": \"08/2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [193, 854, 203, 918],\n      \"label_quote\": \"תקופת שכר\",\n      \"normalized\": \"2026-08\",\n      \"quote\": \"08/2026\"\n    },\n    {\n      \"name\": \"payment_date\",\n      \"value\": \"09.09.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [193, 617, 203, 704],\n      \"label_quote\": \"תאריך תשלום\",\n      \"normalized\": \"09.09.2026\",\n      \"quote\": \"09.09.2026\"\n    },\n    {\n      \"name\": \"gross_pay\",\n      \"value\": \"21,089.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [346, 516, 356, 594],\n      \"label_quote\": \"סה״כ ברוטו\",\n      \"normalized\": \"21089.00\",\n      \"quote\": \"21,089.00\"\n    },\n    {\n      \"name\": \"total_deductions\",\n      \"value\": \"5,339.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [352, 75, 362, 143],\n      \"label_quote\": \"סה״כ ניכויים\",\n      \"normalized\": \"5339.00\",\n      \"quote\": \"5,339.00\"\n    },\n    {\n      \"name\": \"net_pay\",\n      \"value\": \"15,750.00\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [404, 212, 417, 309],\n      \"label_quote\": \"נטו לתשלום\",\n      \"normalized\": \"15750.00\",\n      \"quote\": \"15,750.00\"\n    }\n  ],\n  \"earnings\": [\n    {\n      \"label\": \"שכר בסיס\",\n      \"amount\": \"20,439.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"החזר נסיעות\",\n      \"amount\": \"650.00\",\n      \"page\": 1\n    }\n  ],\n  \"deductions\": [\n    {\n      \"label\": \"מס הכנסה\",\n      \"amount\": \"2,992.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"ביטוח לאומי\",\n      \"amount\": \"866.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"מס בריאות\",\n      \"amount\": \"536.00\",\n      \"page\": 1\n    },\n    {\n      \"label\": \"פנסיה — חלק עובד\",\n      \"amount\": \"945.00\",\n      \"page\": 1\n    }\n  ],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי. אינו מסמך רשמי של מעסיק, בנק או רשות; השמות והמזהים בדויים.\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"תלוש שכר לחודש אוגוסט 2026\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T89G1q4WDsciVZ/k9Zx91ydIqCQTNBSQoNmZWn/FalOa5UTbOaNfkUSEdr+KN2L5SvTtSEYoFDZPtom/ya9nXrbzyg1GdryKBfBeVJ6WAhDBsQdTCXY26d2dcPF3qiV888Uc="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 2020,
+    "totalTokenCount": 3662,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "mIbPavOYNbf8nsEPvpOi8AI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא תלוש שכר הכולל כותרת ברורה, פירוט תשלומים וניכויים, וסכום נטו לתשלום.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, מלא, ללא חיתוכים או טשטוש בכל האזורים המרכזיים.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם העובד ומספר הזהות תואמים באופן מלא לפרטי הלווה שסופקו.\",\n      \"cited_fields\": [\"employee_name\", \"employee_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-08\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הוראות המיועדות למערכת בינה מלאכותית או סימני שינוי ועריכה; סימוני הדמו והווטרמרק הינם חלק מסביבת הבדיקה.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-10\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"תאריך התשלום הוא 09.09.2026, המהווה מועד סביר התואם לחוק הגנת השכר עבור תקופת שכר 08/2026.\",\n      \"cited_fields\": [\"salary_period\", \"payment_date\"],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק בהצלחה ועומד בכל הקריטריונים שהוגדרו (תלוש תקין, קריא, זהות תואמת, ללא הוראות חשודות ותאריך תשלום סביר).\",\n  \"limitations_he\": [\n    \"המסמך הינו חלק ממאגר בדיקה סינתטי ומכיל מזהים פיקטיביים בהתאם להגדרה.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TtIS46u4U2C0tyyXbPajX1cbt2MJMvCXVvm0jUh2XdJjEWe1PAwLbmalEwvPYnTal0MvMzytgvD1XZfNUMytVdh/FM19gKwHEi7EVrZ4uAevLys1cPpaNr9Dj4lh7sv/EGZ4="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 3518,
+    "candidatesTokenCount": 610,
+    "totalTokenCount": 4128,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 2986
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "pYbPaoOOCZv6xs0Por26sAg"
+  }
+ }
+}

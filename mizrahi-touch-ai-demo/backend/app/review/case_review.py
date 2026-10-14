@@ -229,7 +229,16 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
                 evidence=[e for fid in c.get("evidence_ids", []) for e in _evidence(d, fid.split(":", 1)[1])]))
 
     requirement_coverage = _requirement_coverage(ctx, req.documents, as_of, findings, criteria)
+    # payslip months are asked only of a borrower the policy gives a payslip requirement (not a self-employed applicant
+    # or a company signatory); a context without a requirements list keeps the payslip-only behaviour
+    listed = ctx.get("requirements")
+    with_payslips = {q.get("borrower_id") for q in listed or [] if q["family"] == "payslip"}
     for bid, b in borrowers.items():
+        if listed is not None and bid not in with_payslips:
+            income[bid] = {"declared_net_monthly_ils": b.get("declared_net_monthly_ils"),
+                           "declaration_note_he": b.get("declaration_note_he"),
+                           "declared_provenance": b.get("declared_income_provenance"), "months": {}}
+            continue
         assigned = [d for d in reviewed if d["borrower_id"] == bid and family(d) == "payslip"]
         counting, mismatched = [], []
         for d in assigned:
@@ -329,11 +338,25 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
     tol = float(policy["income_variance_tolerance_pct"])
     for bid, b in borrowers.items():
         stats, s = income[bid], sem_by.get(bid)
-        if "difference_pct" not in stats:
+        if "difference_pct" in stats and "self_employed" in (b.get("income_sources") or []):
+            # the declaration covers salary and business income; payslips show the salary part only
             criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים — {_first(b)}",
                                              method="judge", outcome="NOT_APPLICABLE", severity="major",
                                              reason_code="DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
-                                             explanation_he="אין עדיין תלושים מאומתים להשוואה", decided_by="code"))
+                                             explanation_he=(f"הכנסה משולבת: ההצהרה ({stats['declared_net_monthly_ils']:,.0f} ₪) כוללת גם "
+                                                             f"הכנסה מעסק, והתלושים ({stats['average_documented_net_ils']:,.0f} ₪ בממוצע) "
+                                                             "מראים רק את השכר — אין השוואה אוטומטית; ההכנסה מהעסק מתועדת "
+                                                             "בשומה או באישור הרו״ח לשיקול הבנקאי."),
+                                             decided_by="code"))
+            continue
+        if "difference_pct" not in stats:
+            no_payslips = listed is not None and bid not in with_payslips
+            criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים — {_first(b)}",
+                                             method="judge", outcome="NOT_APPLICABLE", severity="major",
+                                             reason_code="DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
+                                             explanation_he=("לא נדרשים תלושי שכר מלווה זה — ההכנסה מתועדת במסמכים אחרים "
+                                                             "לשיקול הבנקאי" if no_payslips else "אין עדיין תלושים מאומתים להשוואה"),
+                                             decided_by="code"))
             continue
         # the numeric band is code's decision; the model only judges whether the figures are comparable
         within = abs(stats["difference_pct"]) <= tol

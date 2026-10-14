@@ -1,0 +1,78 @@
+{
+ "sha256": "3e00f43e07058352eb30b0ff0589a53cd051cd91b217479b4fe2ca106a109d32",
+ "file": "presenter/profile_set/statement_michal_2026-07_09.pdf",
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"bank_statement\",\n  \"doc_type_reason\": \"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרת סגירה ופרטי חשבון בנק\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"bank_name\",\n      \"value\": \"מזרחי־טפחות\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [51, 775, 68, 933],\n      \"label_quote\": null,\n      \"normalized\": \"מזרחי־טפחות\",\n      \"quote\": \"מזרחי־טפחות\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"מיכל ברק\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [100, 566, 114, 633],\n      \"label_quote\": \"שם בעל החשבון\",\n      \"normalized\": \"מיכל ברק\",\n      \"quote\": \"מיכל ברק\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"311204572\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [121, 73, 134, 163],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"311204572\",\n      \"quote\": \"311204572\"\n    },\n    {\n      \"name\": \"account_number\",\n      \"value\": \"20-614-338120\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [144, 73, 156, 195],\n      \"label_quote\": \"בנק / סניף / חשבון\",\n      \"normalized\": \"20-614-338120\",\n      \"quote\": \"20-614-338120\"\n    },\n    {\n      \"name\": \"statement_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [166, 73, 178, 164],\n      \"label_quote\": \"תקופה מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"statement_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [188, 73, 201, 164],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"closing_balance\",\n      \"value\": \"35,884.22\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [672, 73, 686, 155],\n      \"label_quote\": \"יתרת סגירה\",\n      \"normalized\": \"35884.22\",\n      \"quote\": \"35,884.22\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי — אינו דף חשבון אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"המסמך מסומן כמסמך דמו סינתטי (Synthetic Test Corpus)\"\n  ],\n  \"title_quote\": \"מזרחי־טפחות · דף תנועות בחשבון עו״ש\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TwlzMKMeotU2yvCz+sWCI/JCJ+LSaUK7Fax+JL1U8e2Wh6mVWFuvremKU7sr6I4OLE4H/Tc+FIJ93Ig7p7CItUV+oT4TUwHMNyGwN98xJQ9zQF++m4oDJZNFq+cEUP/LqmR0="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1209,
+    "totalTokenCount": 2851,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "ToXPaqumDYSFxs0P5fmM8AI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דף תנועות חשבון עו״ש הכולל פירוט תנועות, יתרות, פרטי חשבון ותקופה מוגדרת.\",\n      \"cited_fields\": [\n        \"bank_name\",\n        \"account_number\",\n        \"statement_from\",\n        \"statement_to\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא לחלוטין, ברור ושלם, ללא חיתוכים או עמודים חסרים.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"account_number\",\n        \"statement_from\",\n        \"statement_to\",\n        \"closing_balance\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל החשבון ומספר הזהות תואמים במדויק לפרטי המבקשת.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BS-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא נמצאו סימני עריכה או הוראות חשודות המיועדות למודל/בודק. סימוני ה'דמו' הם חלק מובנה מסביבת הבדיקה הסינתטית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"דף תנועות חשבון עו״ש תקף, קריא ושלם של בנק מזרחי-טפחות עבור מיכל ברק. כל הקריטריונים עברו בהצלחה.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TcXWXKFqIUClu3O6/d3lahuOAruX/Fx9CliOG9cD6ie1dytaJbYKQXy20LtAbVhwTfhwS3jXspfPdUDUkvB3zt+VDcQmhs+AjYMB6yh3CaZ2LnSQIZEhDlL0cHrRHOrrJQsg="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2444,
+    "candidatesTokenCount": 531,
+    "totalTokenCount": 2975,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1912
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "V4XPatqWOrW7vdIPyv-kcA"
+  }
+ }
+}

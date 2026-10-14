@@ -1,0 +1,347 @@
+{
+ "case_id": "DEMO-LN-REC-NETA",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "sha256": "f25b15575933f32aba5cc3fed4e132b6e6f097354cccfd053837038530e514f2",
+ "result": {
+  "run_id": "REC-f25b1557",
+  "document_id": "REC-f25b1557",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "bank_statement.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:44:31+00:00",
+  "finished_at": "2026-10-14T13:44:46+00:00",
+  "doc_type": "bank_statement",
+  "doc_type_he": "דף חשבון בנק",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "bank_name",
+    "label_he": "בנק",
+    "value_raw": "מזרחי־טפחות",
+    "value_normalized": "מזרחי־טפחות",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:bank_name",
+     "document_id": "REC-f25b1557",
+     "field": "bank_name",
+     "page": 1,
+     "quote": "מזרחי־טפחות",
+     "bbox": [
+      465.46,
+      40.27,
+      556.25,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "נטע אלון",
+    "value_normalized": "נטע אלון",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:holder_name",
+     "document_id": "REC-f25b1557",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "נטע אלון",
+     "bbox": [
+      342.0,
+      83.49,
+      376.34,
+      95.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-201",
+    "value_normalized": "DEMO-ID-201",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:holder_id",
+     "document_id": "REC-f25b1557",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-201",
+     "bbox": [
+      44.75,
+      102.24,
+      111.26,
+      113.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "account_number",
+    "label_he": "מספר חשבון",
+    "value_raw": "20-388-246190",
+    "value_normalized": "20-388-246190",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:account_number",
+     "document_id": "REC-f25b1557",
+     "field": "account_number",
+     "page": 1,
+     "quote": "20-388-246190",
+     "bbox": [
+      44.75,
+      120.99,
+      115.96,
+      132.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "statement_from",
+    "label_he": "תקופה מ־",
+    "value_raw": "01.07.2026",
+    "value_normalized": "2026-07-01",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:statement_from",
+     "document_id": "REC-f25b1557",
+     "field": "statement_from",
+     "page": 1,
+     "quote": "01.07.2026",
+     "bbox": [
+      44.75,
+      139.74,
+      97.3,
+      151.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "statement_to",
+    "label_he": "תקופה עד",
+    "value_raw": "30.09.2026",
+    "value_normalized": "2026-09-30",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:statement_to",
+     "document_id": "REC-f25b1557",
+     "field": "statement_to",
+     "page": 1,
+     "quote": "30.09.2026",
+     "bbox": [
+      44.75,
+      158.49,
+      97.3,
+      170.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "closing_balance",
+    "label_he": "יתרת סגירה",
+    "value_raw": "12,479.83",
+    "value_normalized": 12479.83,
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f25b1557:closing_balance",
+     "document_id": "REC-f25b1557",
+     "field": "closing_balance",
+     "page": 1,
+     "quote": "12,479.83",
+     "bbox": [
+      44.75,
+      541.74,
+      91.46,
+      553.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "BS-01",
+    "title_he": "המסמך הוא דף תנועות של חשבון בנק",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא דף תנועות חשבון עו״ש הכולל פירוט תנועות, יתרות ופרטי חשבון מלאים.",
+    "evidence_ids": [
+     "REC-f25b1557:bank_name",
+     "REC-f25b1557:account_number",
+     "REC-f25b1557:statement_from",
+     "REC-f25b1557:statement_to"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BS-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא, ברור ושלם, כל פרטי החשבון, התנועות והיתרות מוצגים כראוי ללא חיתוך או טשטוש.",
+    "evidence_ids": [
+     "REC-f25b1557:holder_name",
+     "REC-f25b1557:account_number",
+     "REC-f25b1557:statement_from",
+     "REC-f25b1557:statement_to",
+     "REC-f25b1557:closing_balance"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BS-03",
+    "title_he": "בעל החשבון הוא המבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים לנטע אלון",
+    "evidence_ids": [
+     "REC-f25b1557:holder_name",
+     "REC-f25b1557:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BS-04",
+    "title_he": "תקופת הדף מודפסת וחד־משמעית",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "PERIOD_UNCLEAR",
+    "explanation_he": "תקופת הדף: 01.07.2026–30.09.2026",
+    "evidence_ids": [
+     "REC-f25b1557:statement_from",
+     "REC-f25b1557:statement_to"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BS-05",
+    "title_he": "הדף עדכני",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_STALE",
+    "explanation_he": "הדף מסתיים 12 ימים לפני תאריך הבדיקה — בתוך התקופה הנדרשת",
+    "evidence_ids": [
+     "REC-f25b1557:statement_to"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BS-06",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא זוהו הוראות חשודות או סימני עריכה/זיוף; כיתובי הדמו והסימונים הסינתטיים הינם חלק מובנה מסביבת הבדיקה.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BS-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "דף תנועות תקין, קריא ושלם מחשבון עו״ש במזרחי־טפחות השייך למבקשת נטע אלון, ללא סימני שינוי או הנחיות חשודות.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 4081,
+   "output_tokens": 1701,
+   "thought_tokens": 0
+  }
+ }
+}
