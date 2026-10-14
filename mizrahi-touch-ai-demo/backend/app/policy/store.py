@@ -11,7 +11,7 @@ from typing import Any, Optional
 
 from pydantic import ValidationError
 
-from .. import db
+from .. import db, events
 from ..config import BACKEND_DIR
 from ..util import new_id, now_iso, stable_hash
 from . import schema
@@ -76,6 +76,22 @@ def get(version_id: str) -> Optional[dict]:
     return _row(db.one("SELECT * FROM config_versions WHERE version_id=?", (version_id,)))
 
 
+def open_draft(kind: str) -> Optional[dict]:
+    """The newest open draft of a kind (the Admin works on one draft per kind)."""
+    return _row(db.one("SELECT * FROM config_versions WHERE kind=? AND scope=? AND status='DRAFT' ORDER BY number DESC"
+                       " LIMIT 1", (kind, SCOPE)))
+
+
+def _emit(c, event_type: str, kind: str, version_id: str, number: int, actor: str, **payload: Any) -> None:
+    """A settings event inside the caller's transaction. Payloads name versions and changed paths, never values."""
+    events.emit(event_type, None, actor, {"kind": kind, "version_id": version_id, "label": f"{kind}@v{number}", **payload},
+                conn=c)
+
+
+def _paths(before: Any, after: Any) -> list[str]:
+    return [d["path"] for d in diff(before, after)][:40]
+
+
 def versions(kind: str) -> list[dict]:
     return [_row(r) for r in db.query("SELECT * FROM config_versions WHERE kind=? AND scope=? ORDER BY number DESC",
                                       (kind, SCOPE))]
@@ -120,12 +136,15 @@ def create_draft(kind: str, actor: str, based_on: Optional[str] = None, config: 
     now = now_iso()
     vid = new_id("CFG")
     with db.tx() as c:
+        number = _next_number(c, kind)
         c.execute("INSERT INTO config_versions(version_id, kind, scope, number, status, config, schema_version, hash, revision,"
                   " author, created_at, updated_at, based_on, change_reason, validation, last_editor)"
                   " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                  (vid, kind, SCOPE, _next_number(c, kind), "DRAFT", db.jdump(body), body.get("schema_version"),
+                  (vid, kind, SCOPE, number, "DRAFT", db.jdump(body), body.get("schema_version"),
                    stable_hash(db.jdump(body)), 1, actor, now, now, base["version_id"], reason,
                    db.jdump(validate(kind, body)), actor))
+        _emit(c, "settings.draft_saved.v1", kind, vid, number, actor, action="created", revision=1,
+              based_on=base["version_id"], paths=_paths(base["config"], body), reason=reason)
     return get(vid)
 
 
@@ -143,15 +162,19 @@ def update_draft(version_id: str, config: dict, revision: int, actor: str, reaso
                          reason, actor, version_id, revision))
         if cur.rowcount != 1:
             raise Conflict(version_id)
+        _emit(c, "settings.draft_saved.v1", row["kind"], version_id, row["number"], actor, action="updated",
+              revision=revision + 1, paths=_paths(row["config"], config), reason=reason)
     return get(version_id)
 
 
-def discard_draft(version_id: str, revision: int) -> None:
+def discard_draft(version_id: str, revision: int, *, actor: str = "system") -> None:
     with db.tx() as c:
         cur = c.execute("UPDATE config_versions SET status='DISCARDED', updated_at=? WHERE version_id=? AND revision=?"
                         " AND status='DRAFT'", (now_iso(), version_id, revision))
         if cur.rowcount != 1:
             raise Conflict(version_id)
+        r = c.execute("SELECT kind, number FROM config_versions WHERE version_id=?", (version_id,)).fetchone()
+        _emit(c, "settings.draft_discarded.v1", r["kind"], version_id, r["number"], actor)
 
 
 def publish(version_id: str, revision: int, actor: str) -> dict:
@@ -165,22 +188,46 @@ def publish(version_id: str, revision: int, actor: str) -> dict:
         raise InvalidConfig(errors)
     now = now_iso()
     with db.tx() as c:
+        prev = c.execute("SELECT version_id, number, config FROM config_versions WHERE kind=? AND scope=? AND status='PUBLISHED'",
+                         (row["kind"], SCOPE)).fetchone()
         cur = c.execute("UPDATE config_versions SET status='PUBLISHED', published_at=?, published_by=?, updated_at=?"
                         " WHERE version_id=? AND revision=? AND status='DRAFT'", (now, actor, now, version_id, revision))
         if cur.rowcount != 1:
             raise Conflict(version_id)
         c.execute("UPDATE config_versions SET status='ARCHIVED', updated_at=? WHERE kind=? AND scope=? AND status='PUBLISHED'"
                   " AND version_id<>?", (now, row["kind"], SCOPE, version_id))
+        _emit(c, "settings.prompt_published.v1" if row["kind"] == "talk_prompt" else "settings.policy_published.v1",
+              row["kind"], version_id, row["number"], actor, previous_version_id=prev["version_id"] if prev else None,
+              previous_label=f"{row['kind']}@v{prev['number']}" if prev else None,
+              paths=_paths(db.jload(prev["config"]) if prev else {}, row["config"]), reason=row.get("change_reason") or "")
     return get(version_id)
 
 
 def rollback(kind: str, to_version_id: str, actor: str, reason: str) -> dict:
+    """Publish a NEW version that copies an earlier configuration, in one transaction."""
     target = get(to_version_id)
     if target is None or target["kind"] != kind or target["status"] not in ("ARCHIVED", "PUBLISHED"):
         raise KeyError(to_version_id)
-    draft = create_draft(kind, actor, based_on=to_version_id, config=target["config"],
-                         reason=f"שחזור לגרסה v{target['number']}: {reason}")
-    return publish(draft["version_id"], draft["revision"], actor)
+    errors = validate(kind, target["config"])
+    if errors:
+        raise InvalidConfig(errors)
+    body, now, vid = target["config"], now_iso(), new_id("CFG")
+    with db.tx() as c:
+        prev = c.execute("SELECT version_id, number FROM config_versions WHERE kind=? AND scope=? AND status='PUBLISHED'",
+                         (kind, SCOPE)).fetchone()
+        number = _next_number(c, kind)
+        c.execute("UPDATE config_versions SET status='ARCHIVED', updated_at=? WHERE kind=? AND scope=? AND status='PUBLISHED'",
+                  (now, kind, SCOPE))
+        c.execute("INSERT INTO config_versions(version_id, kind, scope, number, status, config, schema_version, hash, revision,"
+                  " author, created_at, updated_at, published_at, published_by, based_on, change_reason, validation, last_editor)"
+                  " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                  (vid, kind, SCOPE, number, "PUBLISHED", db.jdump(body), body.get("schema_version"),
+                   stable_hash(db.jdump(body)), 1, actor, now, now, now, actor, to_version_id,
+                   f"שחזור לגרסה v{target['number']}: {reason}", db.jdump([]), actor))
+        _emit(c, "settings.rollback_applied.v1", kind, vid, number, actor, restored_version_id=to_version_id,
+              restored_label=target["label"], previous_version_id=prev["version_id"] if prev else None,
+              previous_label=f"{kind}@v{prev['number']}" if prev else None, reason=reason)
+    return get(vid)
 
 
 def diff(before: Any, after: Any, path: str = "") -> list[dict]:
