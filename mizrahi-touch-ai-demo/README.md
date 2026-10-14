@@ -155,7 +155,7 @@ Prerequisites: Python 3.12, Node 20+, Google Chrome (fixtures and browser tests 
 
 | URL | What it is |
 |---|---|
-| `http://127.0.0.1:8791/customer` | Touch customer app (Hebrew RTL, mobile-first; desktop shows the phone with a side panel of presenter test scenarios and downloadable synthetic documents) |
+| `http://127.0.0.1:8791/customer` | Touch customer app (Hebrew RTL, mobile-first; desktop shows the phone centred, with a collapsible "תרחישי הדגמה" panel of presenter test scenarios and downloadable synthetic documents) |
 | `http://127.0.0.1:8791/banker` | Mortgage-specialist review workspace: prioritized queue, original document with evidence, decision panel; secondary views for the conversation and for runs, findings and audit |
 | `http://127.0.0.1:8791/system` | Integration matrix (LIVE / LOCAL / DEMO / BLOCKED), Gemini usage ledger, live MCP self-test, rubrics |
 | `http://127.0.0.1:8791/mcp` | Mortgage Case MCP server (Streamable HTTP, POST only) |
@@ -179,6 +179,10 @@ To start a presentation from an already-reviewed case instead of uploading live,
 
 The QA case `DEMO-MTZ-2026-003` (pick it in the case selector) takes the four "בדיקת קצה" files: Noa's payslip uploaded as Ido's, an unreadable scan, a payslip containing a prompt-injection instruction, and a payslip with contradictory amounts. None of them may come out VALID.
 
+### Presenter panel layout ("תרחישי הדגמה")
+
+The customer app is the centre of the page; the presenter starts collapsed on every page load. The small "תרחישי הדגמה" toggle in the top-left corner opens it; its own close button or Escape collapses it. From 1000 px wide it docks on the left (340–420 px, its own scroll) and the phone re-centres in the remaining space at its usual size. Below 1000 px it opens as a drawer over a backdrop (a click on the backdrop closes it). On a phone (≤ 520 px) there is no floating toggle: the menu's "הדגמה" section has "תרחישי הדגמה וקבצים להורדה", which opens it full width. The panel stays mounted while collapsed, so toggling keeps the open case, the app's screen and the panel's own state, and sends nothing to the server. The toggle and the backdrop, like the panel itself, are not counted as customer presence. Within the app, and after a visit to the banker or system page, it keeps the chosen state. `e2e/check_presenter_layout.py` checks all of this.
+
 ### Executive demo: PASS · REVIEW · BLOCKER (left pane, "תרחישים מומלצים לדמו")
 
 The top of the left pane is for live presentations. **התחל דמו חדש** wipes the three executive demo cases and nothing else, then opens the first one on the right. Below it are three scenario cards. Each card names what is checked, what to expect, the exact golden-set PDFs to download, the borrower, the case and the upload destination, and the expected result. "איך מציגים" expands the upload order, what the app will show, the presenter's steps and one sentence to say. Downloading changes nothing; the presenter uploads the file on the right.
@@ -201,7 +205,7 @@ Screenshots from the REPLAY browser suite (2026-10-13), not from a live Gemini r
 
 ### Presenter test scenarios (left pane, "כל תרחישי הבדיקה")
 
-On desktop (≥ 901 px), the left pane keeps all technical scenarios in "כל תרחישי הבדיקה", collapsed by default below the featured scenarios. The pane scrolls on its own, so the live app on the right stays in place. Inside is an accordion of the 11 loan test scenarios, and "קבצים משלימים", which holds the files no scenario uses, among them the remaining Lavi payslips for cases 001/003. Expected reason codes, statuses and each file's Expected Output are under "פרטים טכניים". Each scenario shows:
+The presenter panel keeps all technical scenarios in "כל תרחישי הבדיקה", collapsed by default below the featured scenarios. The panel scrolls on its own, so the live app stays in place. Inside is an accordion of the 11 loan test scenarios, and "קבצים משלימים", which holds the files no scenario uses, among them the remaining Lavi payslips for cases 001/003. Expected reason codes, statuses and each file's Expected Output are under "פרטים טכניים". Each scenario shows:
 
 - its goal and prerequisites (start clean, continue after 01, or isolated QA case);
 - what to look for in the app, with expected reason codes and case, salary-documents and bank status;

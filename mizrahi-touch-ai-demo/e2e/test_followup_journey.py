@@ -159,6 +159,8 @@ def submit_in_sheet(page: Page, key: str, period: str | None = None) -> str:
 
 
 def sim(page: Page, testid: str) -> str:
+    if page.locator(".hub").get_attribute("data-presenter") != "open":     # the presenter starts collapsed on each load
+        page.locator("[data-testid=presenter-toggle]").click()
     box = page.locator("[data-testid=followup-sim]")
     if box.get_attribute("open") is None:
         box.locator("summary").click()

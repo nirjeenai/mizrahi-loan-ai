@@ -53,8 +53,8 @@ export function usePresence(caseId: string, active: boolean): void {
     let lastActivity = Date.now();
     const beat = window.setInterval(() => reportPresence("heartbeat"), HEARTBEAT_MS);
     const activity = (e: Event) => {
-      // the presenter pane beside the phone is not the customer
-      if (e.target instanceof Element && e.target.closest(".hub-side")) return;
+      // the presenter pane beside the phone, its toggle and its backdrop are not the customer
+      if (e.target instanceof Element && e.target.closest(".hub-side, .presenter-toggle, .hub-scrim")) return;
       if (Date.now() - lastActivity < ACTIVITY_THROTTLE_MS && !ended) return;
       lastActivity = Date.now();
       reportPresence("user_activity");

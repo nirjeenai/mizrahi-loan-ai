@@ -31,4 +31,5 @@ export const IShield = ({ size = 16 }: P) => (<svg {...s(size)}><path d="M12 3 5
 export const IList = ({ size = 16 }: P) => (<svg {...s(size)}><path d="M9 6.5h11M9 12h11M9 17.5h11" /><path d="m3.5 6.5 1.2 1.2 2-2.2M3.5 12l1.2 1.2 2-2.2M4.2 17.5h.01" /></svg>);
 export const IPerson = ({ size = 16 }: P) => (<svg {...s(size)}><circle cx="12" cy="8" r="3.6" /><path d="M5 20a7 7 0 0 1 14 0" /></svg>);
 export const IInfo = ({ size = 16 }: P) => (<svg {...s(size)}><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5M12 8h.01" /></svg>);
+export const IPanel = ({ size = 18 }: P) => (<svg {...s(size)}><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><path d="M9.5 4.5v15M5.8 8.5h1.5M5.8 11.5h1.5" /></svg>);
 export const IChat = ({ size = 18 }: P) => (<svg {...s(size)}><path d="M4.5 5.5h15v10h-9l-4 3.5v-3.5h-2z" /></svg>);

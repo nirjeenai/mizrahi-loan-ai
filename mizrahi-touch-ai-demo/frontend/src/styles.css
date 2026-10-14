@@ -48,9 +48,27 @@ a { color: inherit; }
 .grow { flex: 1; min-width: 0; }
 .hidden { display: none !important; }
 
-/* ---------- Hub ---------- */
-.hub { min-height: 100vh; display: grid; grid-template-columns: minmax(380px, 430px) minmax(320px, 520px); justify-content: center; gap: 40px; padding: 28px; align-items: start; }
-.hub-side { padding-top: 40px; }
+/* ---------- Hub: the phone centred; the presenter a collapsible panel on the left (docked ≥1000px, drawer below) ---------- */
+.hub { --presenter-w: clamp(340px, 28vw, 420px); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 28px; transition: padding-left 0.22s ease; }
+.hub-side { position: fixed; z-index: 70; top: 0; bottom: 0; left: 0; width: var(--presenter-w); padding: 0 20px 32px; background: var(--mz-bg); border-right: 1px solid var(--mz-line); box-shadow: 10px 0 32px rgba(20, 26, 38, 0.08); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; transform: translateX(-100%); visibility: hidden; transition: transform 0.22s ease, visibility 0s linear 0.22s; }
+.hub[data-presenter=open] .hub-side { transform: none; visibility: visible; transition: transform 0.22s ease, visibility 0s; }
+.hub-side-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 -20px 14px; padding: 10px 12px 10px 16px; background: var(--mz-bg); border-bottom: 1px solid var(--mz-line); }
+.hub-side-title { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; color: var(--mz-navy); }
+.presenter-toggle { position: fixed; z-index: 60; top: 18px; left: 18px; display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px 8px 12px; border: 1px solid var(--mz-line); border-radius: 999px; background: rgba(255, 255, 255, 0.9); color: var(--mz-navy); font-size: 13px; font-weight: 700; box-shadow: var(--shadow); transition: background 0.15s ease, box-shadow 0.15s ease; }
+.presenter-toggle:hover { background: #fff; box-shadow: var(--shadow-strong); }
+.hub[data-presenter=open] .presenter-toggle { visibility: hidden; }
+.presenter-toggle:focus-visible, .hub-side-head .icon-btn:focus-visible { outline: 3px solid var(--mz-orange-ring); outline-offset: 2px; }
+.hub-side-head .icon-btn:hover { background: rgba(0, 0, 0, 0.05); }
+.hub-scrim { position: fixed; inset: 0; z-index: 65; background: rgba(20, 26, 38, 0.38); opacity: 0; visibility: hidden; transition: opacity 0.22s ease, visibility 0s linear 0.22s; }
+.hub[data-presenter=open] .hub-scrim { opacity: 1; visibility: visible; transition: opacity 0.22s ease, visibility 0s; }
+@media (min-width: 1000px) {
+  .hub[data-presenter=open] { padding-left: calc(var(--presenter-w) + 28px); }
+  .hub-scrim { display: none; }
+}
+@media (max-width: 999px) { .hub-side { width: min(400px, 92vw); box-shadow: 0 0 40px rgba(20, 26, 38, 0.25); } }
+@media (max-width: 899px) { .presenter-toggle { padding: 9px; } .presenter-toggle-label { display: none; } }
+@media (max-width: 520px) { .hub { padding: 0; } .hub-side { width: 100vw; border: none; } .presenter-toggle { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hub, .hub-side, .hub-scrim { transition: none; } }
 .hub-side h1 { color: var(--mz-ink); font-size: 26px; margin: 10px 0 6px; }
 .hub-side p { line-height: 1.7; }
 .hub-links { display: grid; gap: 10px; margin-top: 18px; }
@@ -58,9 +76,6 @@ a { color: inherit; }
 .hub-link span.small { font-weight: 400; color: var(--mz-muted); display: block; margin-top: 2px; }
 .hub > * { min-width: 0; }
 .hub-link .ltr { overflow-wrap: anywhere; }
-@media (max-width: 900px) { .hub { grid-template-columns: 1fr; padding: 0; gap: 0; } .hub-side { padding: 20px; } }
-@media (max-width: 520px) { .hub-side { display: none; } }
-@media (min-width: 901px) { .hub-side { max-height: calc(100vh - 56px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; } }
 
 /* ---------- Hub · presenter test scenarios ---------- */
 .scn-heading { margin: 22px 0 4px; color: var(--mz-ink); }

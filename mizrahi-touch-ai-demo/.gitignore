@@ -1,10 +1,59 @@
-backend/.env
-backend/data/
+# Secrets and local environment (keep .env.example)
+.env
+.env.*
+!.env.example
+*.pem
+credentials.json
+secrets.json
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+.eggs/
 backend/.venv/
-**/__pycache__/
-**/.pytest_cache/
-frontend/node_modules/
-frontend/dist/
 e2e/.venv/
+
+# Local databases and runtime data
+*.sqlite
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+backend/data/
+
+# Node / Vite
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+dist-ssr/
+.vite/
+*.local
+*.tsbuildinfo
+
+# Browser-test output
 e2e/artifacts/
+
 .DS_Store

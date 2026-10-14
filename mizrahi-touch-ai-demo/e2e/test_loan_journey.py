@@ -91,7 +91,15 @@ def card(page: Page, route: str):
     return page.locator(f"[data-testid=featured-{route}]")
 
 
+def show_presenter(page: Page) -> None:
+    """The presenter starts collapsed on every page load; its toggle opens it beside the app."""
+    if page.locator(".hub").get_attribute("data-presenter") != "open":
+        page.locator("[data-testid=presenter-toggle]").click()
+    expect(page.locator(".hub-side")).to_be_visible()
+
+
 def download(page: Page, route: str) -> dict[str, Path]:
+    show_presenter(page)
     out = {}
     links = card(page, route).locator("[data-testid=featured-download]")
     for i in range(links.count()):
@@ -106,6 +114,7 @@ def download(page: Page, route: str) -> dict[str, Path]:
 
 
 def open_case(page: Page, route: str) -> None:
+    show_presenter(page)
     card(page, route).locator("[data-testid=featured-open-case]").click()
     expect(page.locator(".case-pill")).to_contain_text(FEATURED[route]["caseDisplay"], timeout=15000)
     expect(page.locator("[data-testid=ai-card]")).to_be_visible(timeout=15000)
@@ -155,6 +164,12 @@ def doc_id(case: str, filename: str) -> str:
 
 def run(page: Page, banker: Page) -> None:
     page.goto(f"{BASE}/customer")
+    expect(page.locator("[data-testid=readiness-state]")).to_be_visible(timeout=20000)
+    check("presenter: collapsed on load, the app centred in the window",
+          page.locator(".hub").get_attribute("data-presenter") == "closed" and not page.locator(".hub-side").is_visible()
+          and page.evaluate("(() => { const b = document.querySelector('.phone').getBoundingClientRect(); "
+                            "return Math.abs((b.left + b.right) / 2 - innerWidth / 2) <= 1; })()"))
+    show_presenter(page)
     expect(page.locator("[data-testid=featured-scenarios]")).to_be_visible(timeout=20000)
 
     # ------------------------------------------------------------ the presenter pane, adapted to loans

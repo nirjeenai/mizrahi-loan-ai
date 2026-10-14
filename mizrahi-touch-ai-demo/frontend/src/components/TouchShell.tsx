@@ -15,7 +15,7 @@ const TABS = [
   { to: "/customer/tools", label: "כלים", icon: <IBulb /> },
 ];
 
-export function TouchShell({ children }: { children: ReactNode }) {
+export function TouchShell({ children, onPresenter }: { children: ReactNode; onPresenter?: () => void }) {
   const { snap, caseId, setCaseId, openAssistant, assistant, upload, assistantOrigin, auth } = useCase();
   const loc = useLocation();
   const nav = useNavigate();
@@ -57,7 +57,8 @@ export function TouchShell({ children }: { children: ReactNode }) {
             </button>
           ))}
         </nav>
-        {menu && <Drawer caseId={caseId} onPick={(id) => { setCaseId(id); setMenu(false); nav("/customer"); }} onClose={() => setMenu(false)} />}
+        {menu && <Drawer caseId={caseId} onPick={(id) => { setCaseId(id); setMenu(false); nav("/customer"); }} onClose={() => setMenu(false)}
+          onPresenter={onPresenter} />}
         {assistant.open && <AssistantSheet />}
         {upload.open && <UploadSheet key={upload.nonce} />}
         </>)}
@@ -66,7 +67,9 @@ export function TouchShell({ children }: { children: ReactNode }) {
   );
 }
 
-function Drawer({ caseId, onPick, onClose }: { caseId: string; onPick: (id: string) => void; onClose: () => void }) {
+function Drawer({ caseId, onPick, onClose, onPresenter }: {
+  caseId: string; onPick: (id: string) => void; onClose: () => void; onPresenter?: () => void;
+}) {
   const [cases, setCases] = useState<{ case_id: string; display_number: string; title_he: string }[] | null>(null);
   if (cases === null) api.demoCases().then(setCases).catch(() => setCases([]));
   const { reload } = useCase();
@@ -82,6 +85,7 @@ function Drawer({ caseId, onPick, onClose }: { caseId: string; onPick: (id: stri
         <Link to="/customer/apply" onClick={onClose} data-testid="drawer-apply" style={{ color: "var(--mz-orange)", fontWeight: 700 }}>
           + בקשת הלוואה חדשה</Link>
         <div className="small muted" style={{ marginTop: 14 }}>הדגמה</div>
+        {onPresenter && <button onClick={() => { onClose(); onPresenter(); }} data-testid="drawer-presenter">תרחישי הדגמה וקבצים להורדה</button>}
         <Link to="/banker" onClick={onClose}>תצוגת בנקאי — חבילת ראיות</Link>
         <Link to="/system" onClick={onClose}>מטריצת אינטגרציות, MCP ורובריקות</Link>
         <button onClick={async () => { if (confirm("לאפס את התיק הזה ולמחוק מסמכים, ממצאים ושיחה?")) { await api.reset(caseId); reload(); onClose(); } }}>
