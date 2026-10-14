@@ -8,6 +8,20 @@
 Agents B and C can read this folder without changing their trees:
 `git show main:mizrahi-touch-ai-demo/docs/plans/round-1-2-freeze/FREEZE.md`.
 
+## After G2 (uncommitted, awaiting the user's approval to commit before G3)
+- **Presenter labels and scenarios (Agent A, 2026-10-14):**
+  - **Scope:** a metadata-driven presenter, the joint scenario L-11, the Lavi files moved into the presenter manifest,
+    a self-employed assumption note in `Apply.tsx`, and `routes._presenter_path` allowing manifest files under
+    `fixtures/`.
+  - **Guard:** the F5 marker now checks "תרחישי הלוואה, קבצים משלימים", because the count left that text.
+  - **Checks:** 132 backend tests, `verify_presenter_scenarios.py` 14/14 (REPLAY), `check_presenter_labels.py` 17/17,
+    `test_loan_journey.py` 34/34.
+  - **L-11 recording (approved):** L-11 recorded live (4 Gemini calls); the verifier now also asserts each scenario's
+    claimed end state.
+- **Not Agent A's, left untouched:** collapsed Documents rows and month-chip styling, plus `open_row` helpers in five e2e
+  suites (11:11–11:29).
+- **Manifest:** `--manifest` will report these paths until the next commit.
+
 ## What is frozen
 Agent A's working tree in `/Users/nakash/Desktop/מזרחי copy` as of this note. `manifest.json` (next to this file) has the
 SHA-256 of every tracked and untracked, non-ignored file under `mizrahi-touch-ai-demo/` except this folder.

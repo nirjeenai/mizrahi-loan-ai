@@ -23,9 +23,13 @@ E2E = Path(__file__).resolve().parents[1]
 ROOT = E2E.parent
 BACKEND = ROOT / "backend"
 OUT = Path(__file__).resolve().parent / "recordings.json"
+RESULTS = Path(__file__).resolve().parent / "live_results"
 LOAN = ROOT / "fixtures" / "presenter" / "loan_set"
 GOLDEN = ROOT / "fixtures" / "presenter" / "golden_set"
+LAVI = ROOT / "fixtures" / "out" / "main"
 CASE = "DEMO-MTZ-2026-009"
+# the Lavi payslips print עידו לביא · 039812457: they are reviewed against the two-applicant Lavi case they belong to
+CASE_OF = {LAVI / "ido_payslip_2026-07.pdf": "DEMO-MTZ-2026-003", LAVI / "ido_payslip_2026-08.pdf": "DEMO-MTZ-2026-003"}
 # (file, family of the slot it is uploaded into, requirement code)
 PLAN = [
     (LOAN / "id_card_ido.pdf", "id_document", "ID_CARD:BRW-A"),
@@ -40,6 +44,8 @@ PLAN = [
     (LOAN / "car_quote_ido_OLD.pdf", "purpose_proof", "PURPOSE_PROOF"),
     (GOLDEN / "01_INITIAL_UPLOADS" / "ido_2026_09.pdf", "payslip", "PAYSLIPS:BRW-A"),
     (GOLDEN / "01_INITIAL_UPLOADS" / "ido_2026_07.pdf", "id_document", "ID_CARD:BRW-A"),
+    (LAVI / "ido_payslip_2026-07.pdf", "payslip", "PAYSLIPS:BRW-A"),
+    (LAVI / "ido_payslip_2026-08.pdf", "payslip", "PAYSLIPS:BRW-A"),
 ]
 
 
@@ -95,11 +101,12 @@ def main() -> None:
 
     g.generate = capture
     provider = GeminiReviewProvider()
-    ctx = bank.case_context(CASE)
     for path, family, code in todo:
         captured.clear()
+        case = CASE_OF.get(path, CASE)
+        ctx = bank.case_context(case)
         rubric = rubrics.for_family(family)
-        req = DocumentReviewRequest(case_id=CASE, document_id=f"REC-{sha(path)[:8]}", filename=path.name,
+        req = DocumentReviewRequest(case_id=case, document_id=f"REC-{sha(path)[:8]}", filename=path.name,
                                     mime="application/pdf", storage_path=str(path), assigned_borrower_id="BRW-A",
                                     requirement_code=code, case_context=ctx, rubric=rubric, run_id=f"REC-{sha(path)[:8]}")
         result = provider._review_document(req, lambda stage: None)
@@ -114,10 +121,15 @@ def main() -> None:
             **{k: judge.get(k) or ([] if k != "summary_he" else "") for k in ("summary_he", "limitations_he", "uncertainty_he")}}
         entry["provenance"] = "RECORDED_LIVE" if entry.get("provenance") in (None, "RECORDED_LIVE") else entry["provenance"]
         entry.setdefault("sources", []).append(
-            f"live Gemini review {date.today().isoformat()} · {path.name} · rubric {rubric['rubric_id']}@{rubric['version']}"
+            f"live Gemini review {date.today().isoformat()} · {path.name} · case {case} · rubric {rubric['rubric_id']}@{rubric['version']}"
             f" · verdict {result.verdict} · doc_type {result.doc_type}")
         print(f"recorded {path.name} × {rubric['rubric_id']}: {result.doc_type} {result.verdict} {result.verdict_reason_codes}")
         OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf8")
+        # the complete live review as the app stored it (facts, evidence coordinates and witnesses, criteria, verdict)
+        RESULTS.mkdir(exist_ok=True)
+        (RESULTS / f"{path.stem}.{rubric['rubric_id']}.json").write_text(
+            json.dumps({"case_id": case, "requirement_code": code, "sha256": key, "result": result.model_dump(mode="json")},
+                       ensure_ascii=False, indent=1) + "\n", encoding="utf8")
     print("ledger:", g.ledger_summary())
 
 

@@ -176,8 +176,8 @@ def run(page: Page, banker: Page) -> None:
           and side.evaluate("e => e.scrollWidth <= e.clientWidth"))
     bundle = httpx.get(f"{BASE}/api/presenter/scenarios", timeout=60).json()
     all_scn = page.locator("[data-testid=all-scenarios]")
-    check("presenter: the test-case library keeps its infrastructure — 10 loan scenarios, 14 checksum-verified files, engine rubrics",
-          all_scn.locator("[data-testid^=scn-toggle-L-]").count() == 10 and len(bundle["files"]) == 14
+    check("presenter: the test-case library keeps its infrastructure — 11 loan scenarios, 25 checksum-verified files, engine rubrics",
+          all_scn.locator("[data-testid^=scn-toggle-L-]").count() == 11 and len(bundle["files"]) == 25
           and all(f["sha256_matches_manifest"] for f in bundle["files"].values())
           and {r["rubric_id"] for r in bundle["rubrics"]} >= {"id_document.il", "bank_statement.il", "purpose_proof.il"})
     side = page.locator(".hub-side").inner_text()

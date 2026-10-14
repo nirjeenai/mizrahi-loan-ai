@@ -439,6 +439,51 @@ def test_the_review_pipeline_never_reads_the_golden_set_or_expected_outputs():
             assert not re.search(r"golden_set|05_EXPECTED|presenter_scenarios_manifest|expectedDocumentVerdict", text), py
 
 
+def test_every_scenario_file_goes_to_a_real_card_of_its_case_and_belongs_to_one_of_its_applicants(monkeypatch):
+    from app.policy import store
+    monkeypatch.setattr(requirements, "pin", lambda case_id: store.published("loan_policy")["version_id"])
+    manifest = json.loads(PRESENTER_MANIFEST.read_text(encoding="utf8"))
+    docs = {d["id"]: d for d in manifest["documents"]}
+    for s in manifest["scenarios"]:
+        case = bank.get_case(s["caseId"])
+        codes = {r["code"] for r in requirements.for_case(s["caseId"])}
+        names = {b["name_he"] for b in case["borrowers"]}
+        assert [i["file"] for i in s["items"]] == s["files"]
+        for it in s["items"]:
+            d = docs[it["file"]]
+            assert it["uploadAs"] in codes, (s["id"], it)
+            assert it["labelHe"] == d["displayNameHe"] and it["slotHe"]
+            # the printed owner is an applicant of the case, unless the file is in the wrong card on purpose
+            assert d["ownerHe"] in names or it["role"] == "wrong" or d["issueHe"], (s["id"], it["file"], d["ownerHe"])
+    for d in docs.values():
+        assert d["displayNameHe"] and d["slotHe"] and d["sha256"]
+        if d["expectedDocumentVerdict"] != "VALID" or d["expectedRequiredFollowup"]:
+            assert d["issueHe"], d["id"]                     # every intentionally invalid file says why it is there
+
+
+def test_the_joint_scenario_tracks_each_applicant_and_one_statement_for_the_joint_account(monkeypatch):
+    from app.policy import store
+    monkeypatch.setattr(requirements, "pin", lambda case_id: store.published("loan_policy")["version_id"])
+    case = "DEMO-MTZ-2026-003"
+    repo.reset_case(case)
+    for m in ("2026-07", "2026-08"):
+        add_doc("BRW-A", m, 13500, f"ido_payslip_{m}.pdf", case=case)
+    case_run(case)
+    state = {r["code"]: r for r in readiness_compute(case)["requirements"]}
+    assert state["PAYSLIPS:BRW-A"]["missing"] == ["2026-09"]
+    assert len(state["PAYSLIPS:BRW-B"]["missing"]) == 3 and state["PAYSLIPS:BRW-B"]["ai_state"] == "required_missing"
+    assert state["ID_CARD:BRW-A"]["ai_state"] == state["ID_CARD:BRW-B"]["ai_state"] == "required_missing"
+    assert state["BANK_STATEMENTS:ACC-1"]["holders"] == ["BRW-A", "BRW-B"]
+    missing = {(f["code"], f["borrower_id"]) for f in repo.findings(case, "open")}
+    assert ("REQUIRED_PERIOD_MISSING", "BRW-A") in missing and ("REQUIRED_PERIOD_MISSING", "BRW-B") in missing
+    repo.reset_case(case)
+
+
+def readiness_compute(case: str) -> dict:
+    from app.workflow import readiness
+    return readiness.compute(case)
+
+
 def test_featured_loan_scenarios_point_at_real_unmodified_files_and_the_demo_cases(monkeypatch):
     from app.policy import store
     monkeypatch.setattr(requirements, "pin", lambda case_id: store.published("loan_policy")["version_id"])  # the product default
@@ -456,7 +501,12 @@ def test_featured_loan_scenarios_point_at_real_unmodified_files_and_the_demo_cas
             assert step["borrower"] in {b["borrower_id"] for b in bank.get_case(f["caseId"])["borrowers"]}
             assert (f.get("uploadAs") or {}).get(step["file"], d["uploadAs"]) in codes      # a real card of that case
     bundle = TestClient(app).get("/api/presenter/scenarios").json()
-    assert len(bundle["manifest"]["scenarios"]) == 10 and len(bundle["manifest"]["documents"]) == 14
+    assert len(bundle["manifest"]["scenarios"]) == 11 and len(bundle["manifest"]["documents"]) == 25
+    assert all(f["sha256_matches_manifest"] for f in bundle["files"].values())          # incl. the Lavi set in fixtures/out
+    lavi = next(d for d in bundle["manifest"]["documents"] if d["set"] == "lavi")
+    served = TestClient(app).get("/api/presenter/file", params={"id": lavi["id"]})
+    assert served.status_code == 200 and hashlib.sha256(served.content).hexdigest() == lavi["sha256"]
+    assert TestClient(app).get("/api/presenter/file", params={"id": "../world.json"}).status_code == 404
     assert all(v["sha256_matches_manifest"] for v in bundle["files"].values())
     assert {r["rubric_id"] for r in bundle["rubrics"]} >= {"payslip.il.salaried", "id_document.il", "bank_statement.il"}
     # every golden-set payslip the scenarios use is the original, byte for byte

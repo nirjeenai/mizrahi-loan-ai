@@ -2824,6 +2824,579 @@
    "sources": [
     "live Gemini review 2026-10-14 · ido_2026_09.pdf · rubric payslip.il.salaried@1.2.0 · verdict NEEDS_REVIEW · doc_type payslip"
    ]
+  },
+  "6ce5cb49a98c87dd7e03846ada70efb4269a4889980ba85f0fff8601abd8195e": {
+   "file": "out/main/ido_payslip_2026-07.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "המסמך נושא כותרת 'תלוש שכר לחודש יולי 2026' וכולל פירוט תשלומים, ניכויי שכר, נתוני עובד ומעסיק.",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "עידו לביא",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       161,
+       851,
+       169,
+       918
+      ],
+      "label_quote": "שם העובד/ת",
+      "normalized": "עידו לביא",
+      "quote": "עידו לביא"
+     },
+     {
+      "name": "employee_id",
+      "value": "039812457",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       160,
+       617,
+       169,
+       704
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "039812457",
+      "quote": "039812457"
+     },
+     {
+      "name": "employee_number",
+      "value": "E-325",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       160,
+       444,
+       169,
+       492
+      ],
+      "label_quote": "מספר עובד",
+      "normalized": "E-325",
+      "quote": "E-325"
+     },
+     {
+      "name": "employer_name",
+      "value": "אופק לוגיסטיקה בע״מ",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       55,
+       675,
+       71,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "אופק לוגיסטיקה בע״מ",
+      "quote": "אופק לוגיסטיקה בע״מ"
+     },
+     {
+      "name": "employer_id",
+      "value": "514873920",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       77,
+       829,
+       85,
+       933
+      ],
+      "label_quote": "ח.פ.",
+      "normalized": "514873920",
+      "quote": "514873920"
+     },
+     {
+      "name": "salary_period",
+      "value": "07/2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       194,
+       854,
+       203,
+       918
+      ],
+      "label_quote": "תקופת שכר",
+      "normalized": "2026-07",
+      "quote": "07/2026"
+     },
+     {
+      "name": "payment_date",
+      "value": "09.08.2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       194,
+       617,
+       203,
+       704
+      ],
+      "label_quote": "תאריך תשלום",
+      "normalized": "09.08.2026",
+      "quote": "09.08.2026"
+     },
+     {
+      "name": "issue_date",
+      "value": "06.08.2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       78,
+       68,
+       86,
+       139
+      ],
+      "label_quote": "תאריך הפקה:",
+      "normalized": "06.08.2026",
+      "quote": "06.08.2026"
+     },
+     {
+      "name": "document_number",
+      "value": "SAL-ido-2026-07",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       67,
+       68,
+       76,
+       175
+      ],
+      "label_quote": "מספר מסמך:",
+      "normalized": "SAL-ido-2026-07",
+      "quote": "SAL-ido-2026-07"
+     },
+     {
+      "name": "gross_pay",
+      "value": "17,000.00 ₪",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       404,
+       799,
+       417,
+       918
+      ],
+      "label_quote": "שכר ברוטו",
+      "normalized": "17000.00",
+      "quote": "17,000.00 ₪"
+     },
+     {
+      "name": "total_deductions",
+      "value": "3,800.00 ₪",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       404,
+       518,
+       417,
+       626
+      ],
+      "label_quote": "סה״כ ניכויים",
+      "normalized": "3800.00",
+      "quote": "3,800.00 ₪"
+     },
+     {
+      "name": "net_pay",
+      "value": "13,200.00 ₪",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       404,
+       213,
+       417,
+       332
+      ],
+      "label_quote": "נטו לתשלום",
+      "normalized": "13200.00",
+      "quote": "13,200.00 ₪"
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר בסיס",
+      "amount": "15,500.00",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות",
+      "amount": "900.00",
+      "page": 1
+     },
+     {
+      "label": "החזר נסיעות",
+      "amount": "600.00",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "1,950.00",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי",
+      "amount": "760.00",
+      "page": 1
+     },
+     {
+      "label": "מס בריאות",
+      "amount": "470.00",
+      "page": 1
+     },
+     {
+      "label": "פנסיה — חלק עובד",
+      "amount": "620.00",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [],
+    "uncertainties": [],
+    "title_quote": "תלוש שכר לחודש יולי 2026"
+   },
+   "judge_by_rubric": {
+    "payslip.il.salaried": {
+     "criteria": {
+      "PS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא תלוש שכר סטנדרטי הכולל כותרת ברורה, פירוט תשלומים וניכויים ושכר נטו לתשלום."
+      },
+      "PS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא לחלוטין, שלם וללא שדות חתוכים או מטושטשים."
+      },
+      "PS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם העובד ומספר תעודת הזהות במסמך תואמים באופן מלא לפרטי הלווה המשויך."
+      },
+      "PS-08": {
+       "outcome": "PASS",
+       "explanation_he": "לא נמצאו הוראות חשודות, פניות למערכת AI או סימני עריכה גרפית. סימני המים והכיתוב בדבר מסמך דמו הינם חלק מסביבת הבדיקה הסינתטית."
+      },
+      "PS-10": {
+       "outcome": "PASS",
+       "explanation_he": "תאריך התשלום הינו 09.08.2026, תואם את סיום תקופת השכר של יולי 2026 ונופל בטווח המותר עד ה-9 לחודש העוקב."
+      }
+     },
+     "summary_he": "המסמך נבדק ונמצא תקין בכל הקריטריונים שהוקצו: סוג המסמך, תקינותו הוויזואלית, התאמת זהות הלווה, העדר תוכן חשוד וסבירות מועד תשלום השכר.",
+     "limitations_he": [
+      "הבדיקה התבססה על מסמך מסביבת בדיקה סינתטית הכולל סימון דמו מובנה."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · ido_payslip_2026-07.pdf · case DEMO-MTZ-2026-003 · rubric payslip.il.salaried@1.3.0 · verdict VALID · doc_type payslip"
+   ]
+  },
+  "680432f731b4701b7c9df229926b4e6690e1b784ac4d062e1dd325b28dd7febb": {
+   "file": "out/main/ido_payslip_2026-08.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "המסמך נושא כותרת 'תלוש שכר לחודש אוגוסט 2026' ומפרט נתוני שכר, ניכויים ופרטי מעסיק ועובד.",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employer_name",
+      "value": "אופק לוגיסטיקה בע״מ",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       51,
+       675,
+       71,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "אופק לוגיסטיקה בע״מ",
+      "quote": "אופק לוגיסטיקה בע״מ"
+     },
+     {
+      "name": "employer_id",
+      "value": "514873920",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       75,
+       827,
+       87,
+       896
+      ],
+      "label_quote": "ח.פ.",
+      "normalized": "514873920",
+      "quote": "514873920"
+     },
+     {
+      "name": "document_number",
+      "value": "SAL-ido-2026-08",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       67,
+       68,
+       76,
+       177
+      ],
+      "label_quote": "מספר מסמך:",
+      "normalized": "SAL-ido-2026-08",
+      "quote": "SAL-ido-2026-08"
+     },
+     {
+      "name": "issue_date",
+      "value": "06.09.2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       76,
+       68,
+       88,
+       142
+      ],
+      "label_quote": "תאריך הפקה:",
+      "normalized": "06.09.2026",
+      "quote": "06.09.2026"
+     },
+     {
+      "name": "salary_period",
+      "value": "08/2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       192,
+       854,
+       203,
+       918
+      ],
+      "label_quote": "תקופת שכר",
+      "normalized": "2026-08",
+      "quote": "08/2026"
+     },
+     {
+      "name": "employee_name",
+      "value": "עידו לביא",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       159,
+       851,
+       170,
+       917
+      ],
+      "label_quote": "שם העובד/ת",
+      "normalized": "עידו לביא",
+      "quote": "עידו לביא"
+     },
+     {
+      "name": "employee_id",
+      "value": "039812457",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       159,
+       617,
+       170,
+       704
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "039812457",
+      "quote": "039812457"
+     },
+     {
+      "name": "employee_number",
+      "value": "E-325",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       159,
+       444,
+       170,
+       491
+      ],
+      "label_quote": "מספר עובד",
+      "normalized": "E-325",
+      "quote": "E-325"
+     },
+     {
+      "name": "payment_date",
+      "value": "09.09.2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       192,
+       617,
+       203,
+       704
+      ],
+      "label_quote": "תאריך תשלום",
+      "normalized": "09.09.2026",
+      "quote": "09.09.2026"
+     },
+     {
+      "name": "gross_pay",
+      "value": "17,500.00",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       348,
+       517,
+       360,
+       594
+      ],
+      "label_quote": "סה״כ ברוטו",
+      "normalized": "17500.00",
+      "quote": "17,500.00"
+     },
+     {
+      "name": "total_deductions",
+      "value": "4,000.00",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       351,
+       74,
+       363,
+       143
+      ],
+      "label_quote": "סה״כ ניכויים",
+      "normalized": "4000.00",
+      "quote": "4,000.00"
+     },
+     {
+      "name": "net_pay",
+      "value": "13,500.00 ₪",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       404,
+       213,
+       418,
+       333
+      ],
+      "label_quote": "נטו לתשלום",
+      "normalized": "13500.00",
+      "quote": "13,500.00 ₪"
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר בסיס",
+      "amount": "15,500.00",
+      "page": 1
+     },
+     {
+      "label": "שעות נוספות",
+      "amount": "1,400.00",
+      "page": 1
+     },
+     {
+      "label": "החזר נסיעות",
+      "amount": "600.00",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "2,080.00",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי",
+      "amount": "790.00",
+      "page": 1
+     },
+     {
+      "label": "מס בריאות",
+      "amount": "490.00",
+      "page": 1
+     },
+     {
+      "label": "פנסיה — חלק עובד",
+      "amount": "640.00",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי. אינו מסמך רשמי של מעסיק, בנק או רשות; השמות והמזהים בדויים.",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · סינתטי",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "בתחתית המסמך ובסימן המים מצוין שמדובר במסמך דמו / סינתטי לבדיקות."
+    ],
+    "title_quote": "תלוש שכר לחודש אוגוסט 2026"
+   },
+   "judge_by_rubric": {
+    "payslip.il.salaried": {
+     "criteria": {
+      "PS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא תלוש שכר סטנדרטי הכולל פירוט תשלומים, ניכויים, שכר ברוטו ושכר נטו לתשלום."
+      },
+      "PS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך שלם, קריא וברור, וכל הנתונים הנדרשים נראים במלואם ללא חיתוך או טשטוש."
+      },
+      "PS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם העובד ומספר תעודת הזהות בתלוש תואמים באופן מלא לנתוני הלווה המשויך."
+      },
+      "PS-08": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות חשודות המיועדות למודל/בודק או סימני עריכה גרפית. סימוני ה'דמו' והשוליים הם חלק ממסגרת הבדיקה הסינתטית המאושרת."
+      },
+      "PS-10": {
+       "outcome": "PASS",
+       "explanation_he": "תאריך התשלום (09.09.2026) תואם את הכלל בהיותו בטווח שעד ה-9 בחודש העוקב לתקופת השכר (08/2026)."
+      }
+     },
+     "summary_he": "תלוש השכר קריא, מלא, ותואם את פרטי הלווה. תאריכי השכר והתשלום תקינים ולא אותרו סימני עריכה או הנחיות חשודות.",
+     "limitations_he": [
+      "המסמך מכיל סימוני דמו סינתטיים כחלק מסביבת הבדיקה."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · ido_payslip_2026-08.pdf · case DEMO-MTZ-2026-003 · rubric payslip.il.salaried@1.3.0 · verdict VALID · doc_type payslip"
+   ]
   }
  }
 }

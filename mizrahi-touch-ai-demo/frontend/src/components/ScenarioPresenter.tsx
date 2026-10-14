@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, ils, monthHe } from "../api";
 import { useCase } from "../caseContext";
-import { loadPresenterBundle } from "./FeaturedScenarios";
+import { fileName as baseName, loadPresenterBundle, type ScenarioFile } from "./FeaturedScenarios";
 import { IAlert, ICheck, IChevronDown, IDownload } from "./Icons";
 
 /* Expected outputs here are static golden-set ground truth (fixtures/presenter). They must never be fed into,
@@ -14,9 +14,11 @@ interface PresenterDoc {
   expectedDocumentVerdict: DocVerdict; expectedBorrower: "IDO" | "NOA" | "OTHER" | null; expectedPrintedPeriod: string | null;
   expectedNetILS: number | null; expectedGrossILS: number | null; expectedNoteHe: string; expectedRequiredFollowup: string | null;
   isSynthetic: boolean; sha256: string; uploadAs?: string;
+  ownerHe?: string | null; periodHe?: string | null; slotHe?: string; issueHe?: string | null; casesHe?: string | null;
 }
 interface PresenterScenario {
   id: string; titleHe: string; goalHe: string; state?: string; dependsOn?: string; files: string[]; uploadAs?: Record<string, string>;
+  instructionHe?: string; bankerHe?: string; caseId?: string; items?: ScenarioFile[]; verification?: "live";
   expectedCaseHe: string[]; expectedReasonCodes?: string[]; expectedJson?: string;
   declaredIncome?: { source: string; provenance: string; verified: boolean; noteHe: string };
 }
@@ -43,12 +45,7 @@ const QA_CASE = "DEMO-MTZ-2026-005";
 const MARKS_KEY = "mz.presenter.marks.v1";
 const OPEN_KEY = "mz.presenter.open.v1";
 const SUPPLEMENTARY = "SUPPLEMENTARY";
-const APP_BORROWER: Record<string, string> = { IDO: "BRW-A", NOA: "BRW-B" };
 
-const DOC_TYPE_HE: Record<string, string> = {
-  PAYSLIP: "תלוש שכר", BANK_STATEMENT: "דף עו״ש", ID_CARD: "תעודת זהות", PURPOSE_PROOF: "אסמכתה למטרת ההלוואה",
-  TAX_FORM: "שומת מס / אישור רו״ח", LOAN_BALANCES: "דוח יתרות הלוואות", EMPLOYER_LETTER: "אישור מעסיק",
-};
 const CATEGORY_FAMILY: Record<string, string> = { PAYSLIP: "payslip", BANK_STATEMENT: "bank_statement", ID_CARD: "id_document",
   PURPOSE_PROOF: "purpose_proof", TAX_FORM: "tax_form" };
 const VERDICT: Record<DocVerdict, { he: string; tone: string }> = {
@@ -77,13 +74,10 @@ const COVERAGE_CODES = ["REQUIRED_PERIOD_MISSING", "DUPLICATE_PERIOD", "FILENAME
 
 const unique = <T,>(xs: T[]) => Array.from(new Set(xs));
 const codesIn = (text?: string | null) => unique(text?.match(/\b[A-Z]+(?:_[A-Z]+)+\b/g) ?? []).filter((c) => c !== "NEEDS_REVIEW");
-const fileName = (d: PresenterDoc) => d.downloadPath.split("/").pop() || d.id;
-const fileMonth = (name: string) => {
-  const m = /(20\d{2})[_-](0[1-9]|1[0-2])(?!\d)/.exec(name);
-  return m ? `${m[1]}-${m[2]}` : null;
-};
 const scenarioNumber = (id: string) => id.replace(/^CASE-/, "");
-const targetCase = (s: PresenterScenario) => (s.state === "isolated_qa_case" ? QA_CASE : PRESENTER_CASE);
+const targetCase = (s: PresenterScenario) => s.caseId ?? (s.state === "isolated_qa_case" ? QA_CASE : PRESENTER_CASE);
+const scenarioItems = (s: PresenterScenario, docs: Record<string, PresenterDoc>): Partial<ScenarioFile>[] =>
+  s.items ?? s.files.filter((id) => docs[id]).map((id) => ({ file: id }));
 const markKey = (s: PresenterScenario, docId?: string) => (docId ? `${s.id}/${docId}` : s.id);
 
 function prerequisite(s: PresenterScenario): { chip: string; text: string; resettable: boolean } {
@@ -233,6 +227,7 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
           <span className="scn-meta">
             <span data-testid={`scn-count-${s.id}`}><span className="ltr">{uploaded}/{s.files.length}</span> מסמכים בתרחיש</span>
             <span className="scn-chip">{pre.chip}</span>
+            {s.verification === "live" && <span className="scn-chip warn" title="אין הקלטת REPLAY לקבצים — התוצאה נבדקת בהרצה חיה בלבד">LIVE בלבד</span>}
             {flagged && <span className="scn-chip warn"><IAlert size={11} />לבדיקה</span>}
           </span>
         </span>
@@ -241,6 +236,7 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
       {isOpen && (
         <div className="scn-body" id={bodyId}>
           <div className="scn-goal"><b>מטרה: </b>{s.goalHe}</div>
+          {s.instructionHe && <div className="scn-do" data-testid={`scn-instruction-${s.id}`}><b>מה עושים: </b>{s.instructionHe}</div>}
 
           <div className="scn-box" data-testid={`scn-prereq-${s.id}`}>
             <div className="scn-label">לפני שמתחילים</div>
@@ -279,6 +275,7 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
           <div className="scn-expect" data-testid={`scn-expected-case-${s.id}`}>
             <div className="scn-label">מה צריך לראות באפליקציה · Expected ברמת התיק</div>
             <ul>{s.expectedCaseHe.map((t) => <li key={t}>{t}</li>)}</ul>
+            {s.bankerHe && <div className="scn-banker" data-testid={`scn-banker-${s.id}`}>{s.bankerHe}</div>}
             <details className="scn-tech" data-testid={`scn-codes-${s.id}`}>
               <summary>פרטים טכניים · קודי ממצא וסטטוסים</summary>
               <div className="scn-label">קודי ממצא צפויים</div>
@@ -293,7 +290,8 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
           </div>
 
           <div className="scn-label">סדר העלאה</div>
-          {s.files.map((id, i) => (ctx.docs[id] ? <FileCard key={id} doc={ctx.docs[id]} index={i} scenario={s} ctx={ctx} /> : null))}
+          {scenarioItems(s, ctx.docs).map((it, i) => (ctx.docs[it.file!]
+            ? <FileCard key={it.file} doc={ctx.docs[it.file!]} item={it} index={i} scenario={s} ctx={ctx} /> : null))}
           <TechDetails s={s} ctx={ctx} links={links} />
         </div>
       )}
@@ -301,61 +299,40 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
   );
 }
 
-function FileCard({ doc, index, scenario, ctx }: { doc: PresenterDoc; index: number; scenario?: PresenterScenario; ctx: Ctx }) {
-  const { snap } = useCase();
+function FileCard({ doc, item, index, scenario, ctx }: {
+  doc: PresenterDoc; item?: Partial<ScenarioFile>; index: number; scenario?: PresenterScenario; ctx: Ctx;
+}) {
   const info = ctx.bundle.files[doc.id];
-  const name = fileName(doc);
-  const named = fileMonth(name);
-  const printed = doc.expectedPrintedPeriod;
-  const golden = ctx.bundle.manifest.caseContext.borrowers;
-  const borrowerName = doc.expectedBorrower === "IDO" ? golden[0] : doc.expectedBorrower === "NOA" ? golden[1]
-    : doc.expectedBorrower === "OTHER" ? "לווה אחר — לא בתיק" : null;
-  const appBorrower = APP_BORROWER[doc.expectedBorrower ?? ""] ?? "BRW-A";
-  const uploadAs = (appBorrower === "BRW-B" ? golden[1] : golden[0]).split(" ")[0];
-  // the card a file goes through: the scenario may name another one on purpose (a wrong-slot test)
-  const slotCode = scenario?.uploadAs?.[doc.id] || doc.uploadAs || `PAYSLIPS:${appBorrower}`;
-  const wrongSlot = !!scenario?.uploadAs?.[doc.id];
-  const cardTitle = snap?.readiness.requirements.find((r) => r.code === slotCode)?.title_he ?? DOC_TYPE_HE[doc.category] ?? slotCode;
-  const uploadNote = doc.expectedBorrower === "OTHER"
-    ? (doc.category === "PAYSLIP" ? `מעלים בכוונה תחת ${uploadAs} — בודקים שהמערכת מזהה שהתלוש אינו שלו.` : `אין בתיק לווה מתאים — מעלים תחת ${uploadAs}.`)
-    : doc.expectedBorrower ? null : `ללא לווה ייעודי — מעלים דרך הכרטיס של ${uploadAs}.`;
+  const name = baseName(doc.downloadPath);
+  const label = item?.labelHe || doc.displayNameHe;
+  const note = item?.noteHe ?? doc.issueHe;
   const verdict = VERDICT[doc.expectedDocumentVerdict] ?? { he: doc.expectedDocumentVerdict, tone: "info" };
   const alt = ctx.bundle.negative_tests.find((t) => t.input === doc.id && ALT_VERDICT_HE[t.expected_verdict]);
   const links = caseLinks(ctx, doc, scenario);
 
   return (
-    <article className="scn-file" data-testid="scn-file" data-doc-id={doc.id}>
+    <article className={`scn-file${item?.role === "wrong" ? " wrong" : ""}`} data-testid="scn-file" data-doc-id={doc.id}>
       <div className="scn-file-top">
         <span className="scn-num" aria-hidden="true">{index + 1}</span>
         <div className="grow">
-          <div className="scn-name">{doc.displayNameHe}</div>
-          <div className="scn-meta">
-            <span>{DOC_TYPE_HE[doc.category] ?? doc.category}</span>
-            {borrowerName && <span>· {borrowerName}</span>}
-            {printed && <span>· מודפס: <b>{monthHe(printed)}</b></span>}
-          </div>
+          <div className="scn-name" data-testid="scn-file-label">{label}</div>
+          <div className="scn-meta">{[doc.ownerHe, doc.periodHe].filter(Boolean).map((t) => <span key={t}>{t}</span>)}</div>
         </div>
-        <a className="scn-dl" href={`/api/presenter/file?id=${encodeURIComponent(doc.id)}`} download={name} data-testid="scn-download"
-          aria-label={`הורדת PDF — ${doc.displayNameHe}`}>
-          <IDownload size={14} />הורדת PDF
+        <a className="fx-dl" href={`/api/presenter/file?id=${encodeURIComponent(doc.id)}`} download={name} data-testid="scn-download"
+          data-doc-id={doc.id} aria-label={`הורדת ${label}`} title={`הורדת ${name}`}>
+          <IDownload size={15} />
         </a>
       </div>
-      {named && printed && named !== printed && (
-        <div className="scn-warnline"><IAlert size={13} />שם הקובץ מציין {monthHe(named)}, אבל החודש המודפס הוא {monthHe(printed)}</div>
-      )}
+      {note && <div className="scn-warnline" data-testid="scn-file-issue"><IAlert size={13} />{note}</div>}
+      <div className="scn-upload">
+        {scenario ? (
+          <><span className="scn-k">להעלאה מימין:</span> {item?.slotHe ?? doc.slotHe}{item?.period ? ` · חודש ${monthHe(item.period)}` : ""}</>
+        ) : <span className="tiny muted">קובץ רפרנס — אינו חלק מתרחיש.{doc.casesHe ? ` ${doc.casesHe} · ${doc.slotHe}` : ""}</span>}
+      </div>
       <div className="scn-filename">
         <span className="ltr">{name}</span>
         {info?.pages ? <span> · {info.pages} עמ׳</span> : null}
         {info?.input_mode === "image_only" && <span> · סרוק, ללא שכבת טקסט</span>}
-      </div>
-      <div className="scn-upload">
-        {scenario ? (
-          <>
-            <span className="scn-k">להעלאה מימין:</span> מסמכים ← ״{cardTitle}״ ← להעלאה
-            {wrongSlot && <div className="tiny warn-text" data-testid="scn-wrong-slot">בכוונה בכרטיס הלא נכון — בודקים שה-AI מזהה את סוג המסמך בעצמו.</div>}
-            {uploadNote && <div className="tiny muted">{uploadNote}</div>}
-          </>
-        ) : <span className="tiny muted">קובץ רפרנס — אינו חלק מתרחיש ואין צורך להעלות אותו.</span>}
       </div>
       <details className="scn-tech scn-filetech">
         <summary>פרטים טכניים · תוצאה צפויה למסמך</summary>

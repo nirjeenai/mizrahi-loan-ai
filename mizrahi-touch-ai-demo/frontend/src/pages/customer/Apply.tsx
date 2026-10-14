@@ -63,6 +63,10 @@ export function Apply() {
             </label>
           ))}
         </div>
+        {form.employment === "self_employed" && (
+          <div className="tiny muted" data-testid="apply-self-employed-note">הנחת הדגמה: לעצמאים נדרשת שומת מס או אישור רו״ח במקום תלושי שכר.
+            הרשימה הפומבית של מזרחי־טפחות מציינת תלושי שכר בלבד — הדרישה לעצמאים טעונה אישור הבנק.</div>
+        )}
         <label className="stack" style={{ gap: 4 }}><span className="small bold">{form.employment === "salaried" ? "מעסיק" : "שם העסק"} (רשות)</span>
           <input className="input" value={form.employer_he} onChange={(e) => set("employer_he", e.target.value)} /></label>
         <label className="stack" style={{ gap: 4 }}><span className="small bold">הכנסה חודשית נטו מוצהרת (₪)</span>

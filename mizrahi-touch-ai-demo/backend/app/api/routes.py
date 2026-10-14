@@ -414,8 +414,9 @@ PRESENTER_RUBRICS = "golden_set/06_RUBRICS"
 
 
 def _presenter_path(relative: str) -> Optional[Path]:
+    # manifest paths are relative to fixtures/presenter; the Lavi payslips it lists live next to it in fixtures/out
     target = (PRESENTER / relative).resolve()
-    return target if PRESENTER.resolve() in target.parents and target.is_file() else None
+    return target if FIXTURES.parent.resolve() in target.parents and target.is_file() else None
 
 
 def _presenter_json(relative: str) -> Optional[dict]:

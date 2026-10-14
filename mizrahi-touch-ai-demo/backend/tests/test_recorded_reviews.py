@@ -41,12 +41,12 @@ def replay(monkeypatch, path: Path, rubric_id: str) -> None:
     monkeypatch.setattr(g, "generate", generate)
 
 
-def review(monkeypatch, path: Path, family: str, code: str):
+def review(monkeypatch, path: Path, family: str, code: str, case: str = CASE):
     rubric = rubrics.for_family(family)
     replay(monkeypatch, path, rubric["rubric_id"])
-    req = DocumentReviewRequest(case_id=CASE, document_id="DOC-REC", filename=path.name, mime="application/pdf",
+    req = DocumentReviewRequest(case_id=case, document_id="DOC-REC", filename=path.name, mime="application/pdf",
                                 storage_path=str(path), assigned_borrower_id="BRW-A", requirement_code=code,
-                                case_context=bank.case_context(CASE), rubric=rubric, run_id="RUN-REC")
+                                case_context=bank.case_context(case), rubric=rubric, run_id="RUN-REC")
     return GeminiReviewProvider()._review_document(req, lambda stage: None)
 
 
@@ -82,6 +82,21 @@ def test_the_wrong_month_payslip_is_a_valid_august_payslip_with_verified_identit
     facts = {f.field: f for f in r.facts}
     assert facts["employee_id"].verified and facts["employee_id"].evidence.witness == "text_layer_exact"
     assert facts["salary_period"].evidence.quote and facts["salary_period"].verified
+
+
+@pytest.mark.parametrize("month,net", [("07", 13200.0), ("08", 13500.0)])
+def test_the_joint_scenario_payslips_belong_to_ido_lavi_in_the_two_applicant_case(monkeypatch, month, net):
+    """L-11: the Lavi payslips, recorded live against case 003, are VALID for its first applicant (עידו לביא 039812457),
+    for the month they print, with the identity and the net pay verified against the PDF's text layer."""
+    path = ROOT / "fixtures" / "out" / "main" / f"ido_payslip_2026-{month}.pdf"
+    r = review(monkeypatch, path, "payslip", "PAYSLIPS:BRW-A", case="DEMO-MTZ-2026-003")
+    facts = {f.field: f for f in r.facts}
+    assert r.verdict == "VALID" and r.matched_borrower_id == "BRW-A" and r.period == f"2026-{month}"
+    assert facts["employee_id"].value_normalized == "039812457" and facts["employee_id"].verified
+    assert facts["net_pay"].value_normalized == net and facts["net_pay"].evidence.witness == "text_layer_exact"
+    # the same payslip is not עידו לוי's: in the single-applicant golden case the identity does not match
+    other = review(monkeypatch, path, "payslip", "PAYSLIPS:BRW-A", case="DEMO-MTZ-2026-005")
+    assert other.verdict == "INVALID" and "BORROWER_MISMATCH" in other.verdict_reason_codes
 
 
 def test_an_unreadable_id_scan_is_never_valid(monkeypatch):

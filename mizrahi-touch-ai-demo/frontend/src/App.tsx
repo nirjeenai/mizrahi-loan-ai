@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { CaseProvider, useCase } from "./caseContext";
 import { FeaturedScenarios, NewDemoButton } from "./components/FeaturedScenarios";
@@ -14,10 +13,6 @@ import { SystemPage } from "./pages/system/SystemPage";
 
 function HubSide() {
   const { caseId } = useCase();
-  const [files, setFiles] = useState<{ file: string; scene: string; variant: string; upload_as: string; note: string }[]>([]);
-  useEffect(() => { fetch("/api/fixtures").then((r) => r.json()).then(setFiles).catch(() => setFiles([])); }, []);
-  // the Lavi fixture set belongs to cases 001 and 003; it prints עידו / נועה לביא
-  const who = (id: string) => ({ "BRW-A": "עידו", "BRW-B": "נועה" } as Record<string, string>)[id] || id;
   return (
     <aside className="hub-side">
       <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
@@ -36,21 +31,9 @@ function HubSide() {
       <details className="all-scn" data-testid="all-scenarios">
         <summary data-testid="all-scenarios-toggle">
           <span className="all-scn-title">כל תרחישי הבדיקה</span>
-          <span className="small muted">10 תרחישי הלוואה, קבצים משלימים ותלושי שכר לתיק לביא · לבדיקות ו-QA</span>
+          <span className="small muted">תרחישי הלוואה, קבצים משלימים ותלושי משפחת לביא · לבדיקות ו-QA</span>
         </summary>
         <ScenarioPresenter />
-        <details className="all-scn-sub" data-testid="lavi-files">
-          <summary>תלושי שכר לתיק לביא (438838921 · 438838999)</summary>
-          <div className="small muted" style={{ margin: "6px 0 8px" }}>תלושי השכר של עידו ונועה — להעלאה דרך ״מסמכים ← תלושי שכר ← להעלאה״ בתיקים 001 ו-003.</div>
-          <div className="stack" style={{ gap: 6 }}>
-            {files.map((f) => (
-              <a key={f.file} className="hub-link" style={{ padding: "9px 12px", fontWeight: 600 }} href={`/api/fixtures/file?path=${encodeURIComponent(f.file)}`} download>
-                <span className="ltr" style={{ fontSize: 12.5 }}>{f.file.split("/")[1]}</span>
-                <span className="small muted">{f.scene === "correction" ? "תיקון" : f.scene === "negative" ? "בדיקת קצה" : "סט ראשוני"} · להעלות עבור {who(f.upload_as)}{f.note ? ` · ${f.note}` : ""}</span>
-              </a>
-            ))}
-          </div>
-        </details>
       </details>
     </aside>
   );

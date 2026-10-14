@@ -32,7 +32,7 @@ MARKERS = [
     ("F3", "frontend/src/components/UploadSheet.tsx", ["customerVerdict(doc.review.verdict"], []),
     ("F4", "frontend/src/pages/customer/DocumentReview.tsx",
      ["{ requirementCode: doc.requirement_code || undefined, replacesDocumentId: aiBlocker ? doc.document_id : undefined }"], []),
-    ("F5", "frontend/src/App.tsx", ["10 תרחישי הלוואה", '<Route path="apply" element={<Apply />} />'], ["Golden Set"]),
+    ("F5", "frontend/src/App.tsx", ["תרחישי הלוואה, קבצים משלימים", '<Route path="apply" element={<Apply />} />'], ["Golden Set"]),
     ("F6", "backend/app/mcp/server.py", ["Personal-loan document case service", "A valid case MCP key is required."], ["Mortgage Case MCP key"]),
     ("F6", "backend/app/api/routes.py", ['"Loan Case Service (state, workflow', '"Loan Case MCP server"'], ['"Mortgage Case Service (state']),
     ("F7", "backend/app/workflow/review_desk.py", ["COVERAGE_CODES = engine.COVERAGE_CODES"], []),

@@ -9,17 +9,23 @@ import { IAlert, ICheck, IChevronDown, IDownload, IX } from "./Icons";
    never a live result. Downloading a file changes nothing in the app; the presenter uploads it on the right. */
 
 export type Route = "PASS" | "REVIEW" | "BLOCKER" | "CORRECTION";
-export interface FeaturedStep { file: string; borrower: string; period: string | null; role: "upload" | "setup" | "wrong" | "replacement"; optional?: boolean; noteHe?: string }
+export type FileRole = "upload" | "setup" | "wrong" | "replacement";
+/** One file of a scenario as the manifest resolves it: what it is, where it goes, which month to pick, why it is there. */
+export interface ScenarioFile { file: string; labelHe: string; slotHe: string; uploadAs: string; period: string | null; role: FileRole; noteHe?: string | null }
+export interface FeaturedStep extends ScenarioFile { borrower: string; optional?: boolean }
 export interface Featured {
   id: string; outcome: Route; badgeHe: string; titleHe: string; checksHe: string; expectHe: string; expectedLabelHe: string;
-  caseId: string; caseDisplay: string; borrowerHe: string; destinationHe: string; steps: FeaturedStep[];
+  instructionHe?: string; caseId: string; caseDisplay: string; borrowerHe: string; destinationHe: string; steps: FeaturedStep[];
   appShowsHe: string[]; playbookHe: string[]; sayHe: string; avoidHe?: string;
   /** a file uploaded into another requirement's card than its own (a wrong-slot scenario) */
   uploadAs?: Record<string, string>;
 }
+export interface FixtureDoc {
+  id: string; downloadPath: string; displayNameHe: string; uploadAs?: string; category?: string;
+  ownerHe?: string | null; periodHe?: string | null; slotHe?: string; issueHe?: string | null; casesHe?: string | null;
+}
 export interface PresenterBundle {
-  manifest: { featured?: Featured[]; featuredNoteHe?: string;
-    documents: { id: string; downloadPath: string; displayNameHe: string; uploadAs?: string; category?: string }[]; [k: string]: any };
+  manifest: { featured?: Featured[]; featuredNoteHe?: string; documents: FixtureDoc[]; [k: string]: any };
   files: Record<string, { available: boolean; sha256_matches_manifest: boolean }>;
   [k: string]: any;
 }
@@ -34,8 +40,29 @@ export function loadPresenterBundle(): Promise<PresenterBundle> {
 
 const OPEN_KEY = "mz.presenter.featured.v1";
 const TONE: Record<Route, string> = { PASS: "ok", REVIEW: "warn", BLOCKER: "bad", CORRECTION: "info" };
-const ROLE_HE: Record<FeaturedStep["role"], string> = { upload: "", setup: "הכנה", wrong: "הקובץ השגוי", replacement: "התיקון" };
-const fileName = (path: string) => path.split("/").pop() || path;
+const ROLE_HE: Record<FileRole, string> = { upload: "", setup: "הכנה", wrong: "הקובץ השגוי", replacement: "התיקון" };
+export const fileName = (path: string) => path.split("/").pop() || path;
+
+/** A downloadable fixture: its Hebrew label first, then where it is uploaded, the technical file name in small print, and
+ *  the reason an intentionally invalid file is there. Everything shown comes from the presenter manifest. */
+export function FixtureRow({ doc, item, testId }: { doc: FixtureDoc; item?: Partial<ScenarioFile>; testId: string }) {
+  const label = item?.labelHe || doc.displayNameHe;
+  const note = item?.noteHe ?? doc.issueHe;
+  const where = [item?.slotHe ?? doc.slotHe, item?.period ? `חודש ${monthHe(item.period)}` : null,
+    item?.role && ROLE_HE[item.role] ? ROLE_HE[item.role] : null].filter(Boolean).join(" · ");
+  return (
+    <li className={`fx${item?.role === "wrong" ? " wrong" : ""}`} data-doc-id={doc.id}>
+      <span className="grow fx-main">
+        <span className="fx-label">{label}</span>
+        <span className="fx-sub">{where && <span>{where}</span>}<span className="ltr fx-file">{fileName(doc.downloadPath)}</span></span>
+        {note && <span className="fx-note"><IAlert size={12} />{note}</span>}
+      </span>
+      <a className="fx-dl" href={`/api/presenter/file?id=${encodeURIComponent(doc.id)}`} download={fileName(doc.downloadPath)}
+        data-testid={testId} data-doc-id={doc.id} aria-label={`הורדת ${label}`} title={`הורדת ${fileName(doc.downloadPath)}`}>
+        <IDownload size={15} /></a>
+    </li>
+  );
+}
 const readOpen = (): string[] => { try { return JSON.parse(localStorage.getItem(OPEN_KEY) || "[]"); } catch { return []; } };
 
 export function FeaturedScenarios() {
@@ -69,16 +96,9 @@ export function FeaturedScenarios() {
 }
 
 function FeaturedCard({ f, index, docs, isOpen, onToggle }: {
-  f: Featured; index: number; docs: Record<string, { id: string; downloadPath: string; uploadAs?: string; category?: string }>;
-  isOpen: boolean; onToggle: () => void;
+  f: Featured; index: number; docs: Record<string, FixtureDoc>; isOpen: boolean; onToggle: () => void;
 }) {
-  const { caseId, auth, openCase, snap } = useCase();
-  /** the requirement card a file is uploaded through: its own family's, unless the scenario names another (a wrong slot) */
-  const slot = (file: string) => {
-    const code = f.uploadAs?.[file] || docs[file]?.uploadAs;
-    const r = snap && snap.case.case_id === f.caseId ? snap.readiness.requirements.find((q) => q.code === code) : undefined;
-    return r?.title_he || code || "";
-  };
+  const { caseId, auth, openCase } = useCase();
   const nav = useNavigate();
   const here = caseId === f.caseId && auth.status === "signed-in" && !auth.wantCase;
   const files = f.steps.filter((s, i) => f.steps.findIndex((x) => x.file === s.file) === i);
@@ -91,16 +111,10 @@ function FeaturedCard({ f, index, docs, isOpen, onToggle }: {
       <h3 className="feat-title">{f.titleHe}</h3>
       <div className="feat-line"><b>מה בודקים: </b>{f.checksHe}</div>
       <div className="feat-line"><b>מה מצופה: </b>{f.expectHe}</div>
-      <div className="feat-files" data-testid="featured-files">
-        {files.map((s) => (
-          <a key={s.file} className={`feat-file${s.role === "wrong" ? " wrong" : ""}`} href={`/api/presenter/file?id=${encodeURIComponent(s.file)}`}
-            download={fileName(docs[s.file]?.downloadPath || s.file)} data-testid="featured-download" data-doc-id={s.file}
-            aria-label={`הורדת ${fileName(s.file)}`}>
-            <IDownload size={13} /><span className="ltr">{fileName(s.file)}</span>
-            {ROLE_HE[s.role] && <span className="feat-role">{ROLE_HE[s.role]}</span>}
-          </a>
-        ))}
-      </div>
+      {f.instructionHe && <div className="feat-line feat-do" data-testid="featured-instruction"><b>איך מדגימים: </b>{f.instructionHe}</div>}
+      <ul className="fx-list" data-testid="featured-files">
+        {files.map((s) => (docs[s.file] ? <FixtureRow key={s.file} doc={docs[s.file]} item={s} testId="featured-download" /> : null))}
+      </ul>
       <div className="feat-line feat-where" data-testid="featured-destination">
         <b>מעלים עבור: </b>{f.borrowerHe} · תיק <span className="ltr">{f.caseDisplay}</span> · {f.destinationHe}
       </div>
@@ -121,9 +135,9 @@ function FeaturedCard({ f, index, docs, isOpen, onToggle }: {
           <ol className="feat-steps">
             {f.steps.map((s, i) => (
               <li key={`${s.file}-${i}`} className={s.optional ? "optional" : ""}>
-                <span className="ltr feat-step-file">{fileName(s.file)}</span>
+                <span className="feat-step-file">{s.labelHe || docs[s.file]?.displayNameHe || fileName(s.file)}</span>
                 <span className="tiny muted" data-testid="featured-step-slot">
-                  {[slot(s.file) ? `כרטיס: ${slot(s.file)}` : null, s.period ? `חודש ${monthHe(s.period)}` : null, s.noteHe].filter(Boolean).join(" · ")}
+                  {[s.slotHe, s.period ? `חודש ${monthHe(s.period)}` : null, ROLE_HE[s.role] || null, s.noteHe].filter(Boolean).join(" · ")}
                 </span>
               </li>
             ))}
