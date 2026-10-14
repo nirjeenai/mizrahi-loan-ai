@@ -24,6 +24,7 @@ FAMILY_HE = {"payslip": "תלוש שכר", "id_document": "תעודת זהות",
              "company_registry": "נסח חברה", "signatory_authority": "מורשי חתימה",
              "financial_statements": "דוחות כספיים", "business_bank_statement": "דפי עו״ש עסקי"}
 ENTITY_HE = {"individual": "הלוואה פרטית", "company": "מימון לחברה בע״מ"}
+COMPANY_AI_FAMILIES = ("id_document",)
 INCOME_HE = {"salaried": "שכיר/ה", "self_employed": "עצמאי/ת", "allowance": "מקבל/ת קצבה"}
 REGISTRATION_HE = {"vat_exempt": "עוסק פטור", "vat_registered": "עוסק מורשה"}
 ROLE_HE = {"primary": "לווה ראשי", "co_borrower": "לווה נוסף", "authorized_signatory": "מורשה חתימה"}
@@ -132,9 +133,13 @@ def compose(case: dict, pol: schema.LoanPolicy, label: str) -> list[dict[str, An
     company = (case.get("company") or {}).get("name_he")
     for rule in pol.document_requirements:
         title = rule.label_he.replace("{months}", str(rule.rules.months or 3))
-        ai = evaluated_by_ai(rule.family)
+        # the limited business path: company documents are the banker's to review; only the signatory's ID has a rubric
+        ai = evaluated_by_ai(rule.family) and (entity_of(case) != "company" or rule.family in COMPANY_AI_FAMILIES)
+        rules = rule.rules.model_dump(exclude_none=True)
+        if rule.family == "business_registration" and rule.condition and rule.condition.registration:
+            rules["registration"] = rule.condition.registration[0]
         base = {"requirement_id": rule.id, "family": rule.family, "family_he": FAMILY_HE[rule.family],
-                "required": rule.required, "rules": rule.rules.model_dump(exclude_none=True), "hint_he": rule.hint_he,
+                "required": rule.required, "rules": rules, "hint_he": rule.hint_he,
                 "why_he": rule.why_he, "alternatives_he": list(rule.alternatives_he),
                 "evaluated_by_ai": ai, "intake": "ai_review" if ai else "human_review", "bank_status": "awaiting_documents",
                 "policy_version": label, "family_code": FAMILY_CODE.get(rule.family, rule.id), **SOURCE}
@@ -190,10 +195,24 @@ def family_of(requirement_code: Optional[str], case_id: Optional[str] = None) ->
         if req:
             return req["family"]
     head = (requirement_code or "").split(":", 1)[0]
+    if case_id and head:
+        # a requirement that a profile change made inactive keeps its family: the pinned policy still defines it
+        try:
+            rule = next((r for r in case_policy(case_id)[0].document_requirements if r.id == head), None)
+        except (store.InvalidConfig, KeyError):
+            rule = None
+        if rule:
+            return rule.family
     for family, code in FAMILY_CODE.items():
         if head == code:
             return family
     return "payslip"
+
+
+def inactive_codes(case_id: str, docs: list[dict]) -> set[str]:
+    """Requirement codes that documents were filed under but the case's current profile no longer requires."""
+    active = {r["code"] for r in for_case(case_id)}
+    return {d["requirement_code"] for d in docs if d.get("requirement_code") and d["requirement_code"] not in active}
 
 
 def requirement(case_id: str, code: str) -> Optional[dict]:

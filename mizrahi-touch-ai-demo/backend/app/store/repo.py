@@ -321,7 +321,7 @@ def save_case_state(case_id: str, readiness: dict, last_case_run_id: Optional[st
 CASE_TABLES = ("documents", "review_runs", "findings", "statements", "turns", "audit", "jobs", "handoffs", "case_state",
                "upload_intents", "banker_decisions", "customer_requests", "case_profile", "completion_tasks",
                "contact_plans", "contact_attempts", "policy_decisions", "customer_presence", "contact_preferences",
-               "case_events", "case_overrides", "upload_links")
+               "case_events", "case_overrides", "upload_links", "profile_overlays")
 
 
 def reset_case(case_id: str) -> None:

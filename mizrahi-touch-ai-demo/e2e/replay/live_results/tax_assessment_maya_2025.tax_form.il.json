@@ -1,0 +1,243 @@
+{
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "TAX_ASSESSMENT:BRW-B",
+ "sha256": "5cf657bdbba66d0f51ce09386e9099358706c30038b2cbdfe2a0a5fba444dd2e",
+ "result": {
+  "run_id": "REC-5cf657bd",
+  "document_id": "REC-5cf657bd",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "tax_form.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:43:08+00:00",
+  "finished_at": "2026-10-14T13:43:22+00:00",
+  "doc_type": "tax_form",
+  "doc_type_he": "טופס מס / אישור רו״ח",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-B",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "מאיה שטרן",
+    "value_normalized": "מאיה שטרן",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-5cf657bd:holder_name",
+     "document_id": "REC-5cf657bd",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "מאיה שטרן",
+     "bbox": [
+      330.84,
+      84.99,
+      376.32,
+      96.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-115",
+    "value_normalized": "DEMO-ID-115",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-5cf657bd:holder_id",
+     "document_id": "REC-5cf657bd",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-115",
+     "bbox": [
+      44.75,
+      103.74,
+      110.48,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "tax_year",
+    "label_he": "שנת מס",
+    "value_raw": "2025",
+    "value_normalized": "2025",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-5cf657bd:tax_year",
+     "document_id": "REC-5cf657bd",
+     "field": "tax_year",
+     "page": 1,
+     "quote": "2025",
+     "bbox": [
+      44.75,
+      141.24,
+      68.11,
+      152.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "03.08.2026",
+    "value_normalized": "2026-08-03",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-5cf657bd:issue_date",
+     "document_id": "REC-5cf657bd",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "03.08.2026",
+     "bbox": [
+      44.75,
+      159.99,
+      97.3,
+      171.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "TX-01",
+    "title_he": "המסמך הוא שומת מס או אישור רו״ח",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא הודעת שומה של רשות המסים (מס הכנסה), התואם לסוג המסמך הנדרש.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך שלם, קריא וברור לחלוטין ללא חיתוכים או פגמים.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-03",
+    "title_he": "שם הנישום תואם למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים למאיה שטרן",
+    "evidence_ids": [
+     "REC-5cf657bd:holder_name",
+     "REC-5cf657bd:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-04",
+    "title_he": "שנת המס עדכנית",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_STALE",
+    "explanation_he": "שנת מס 2025",
+    "evidence_ids": [
+     "REC-5cf657bd:tax_year"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "TX-05",
+    "title_he": "אין במסמך הוראות חשודות",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "אין במסמך הוראות חשודות, פניות למערכת AI או ניסיונות עקיפה; סימוני הדמו הם חלק מסביבת הבדיקה המוגדרת.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "TX-06",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "המסמך הינו שומת מס תקינה, קריאה ושלמה עבור מאיה שטרן, ללא חריגות או הוראות זדוניות.",
+  "limitations_he": [
+   "מדובר במסמך סינתטי שנוצר לצורכי הדגמה ובדיקה.",
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [
+   "המסמך מוגדר כמסמך דמו / סינתטי"
+  ],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3640,
+   "output_tokens": 1241,
+   "thought_tokens": 0
+  }
+ }
+}

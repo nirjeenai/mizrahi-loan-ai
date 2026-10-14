@@ -1,0 +1,314 @@
+{
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "VAT_DEALER_CERT:BRW-A",
+ "sha256": "f97548566be0be6053eb1ec14755007db2309fad51248730ed18a9b532d2c592",
+ "result": {
+  "run_id": "REC-f9754856",
+  "document_id": "REC-f9754856",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "business_registration.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:38:23+00:00",
+  "finished_at": "2026-10-14T13:38:35+00:00",
+  "doc_type": "business_registration",
+  "doc_type_he": "אישור רישום עוסק",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "שירן אזולאי",
+    "value_normalized": "שירן אזולאי",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f9754856:holder_name",
+     "document_id": "REC-f9754856",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "שירן אזולאי",
+     "bbox": [
+      329.71,
+      84.99,
+      376.33,
+      96.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-103",
+    "value_normalized": "DEMO-ID-103",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f9754856:holder_id",
+     "document_id": "REC-f9754856",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-103",
+     "bbox": [
+      44.75,
+      103.74,
+      111.26,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "business_name",
+    "label_he": "שם העסק",
+    "value_raw": "אזולאי עיצוב פנים",
+    "value_normalized": "אזולאי עיצוב פנים",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f9754856:business_name",
+     "document_id": "REC-f9754856",
+     "field": "business_name",
+     "page": 1,
+     "quote": "אזולאי עיצוב פנים",
+     "bbox": [
+      304.84,
+      122.49,
+      376.34,
+      134.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "dealer_number",
+    "label_he": "מספר עוסק",
+    "value_raw": "DEMO-ID-103",
+    "value_normalized": "DEMO-ID-103",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f9754856:dealer_number",
+     "document_id": "REC-f9754856",
+     "field": "dealer_number",
+     "page": 1,
+     "quote": "DEMO-ID-103",
+     "bbox": [
+      44.75,
+      103.74,
+      111.26,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "registration_type",
+    "label_he": "סוג הרישום",
+    "value_raw": "עוסק מורשה",
+    "value_normalized": "עוסק מורשה",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f9754856:registration_type",
+     "document_id": "REC-f9754856",
+     "field": "registration_type",
+     "page": 1,
+     "quote": "עוסק מורשה",
+     "bbox": [
+      224.26,
+      40.27,
+      304.78,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "18.09.2026",
+    "value_normalized": "2026-09-18",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f9754856:issue_date",
+     "document_id": "REC-f9754856",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "18.09.2026",
+     "bbox": [
+      44.75,
+      216.24,
+      97.3,
+      227.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "BR-01",
+    "title_he": "המסמך הוא אישור רישום עוסק",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הינו תעודת עוסק מורשה של מע״מ כנדרש.",
+    "evidence_ids": [
+     "REC-f9754856:registration_type"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא, ברור ושלם, כולל פרטי העוסק, מספר העוסק וסוג הרישום.",
+    "evidence_ids": [
+     "REC-f9754856:holder_name",
+     "REC-f9754856:dealer_number",
+     "REC-f9754856:registration_type"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-03",
+    "title_he": "שם בעל העסק תואם למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים לשירן אזולאי",
+    "evidence_ids": [
+     "REC-f9754856:holder_name",
+     "REC-f9754856:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-04",
+    "title_he": "סוג הרישום תואם לדרישה",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "REGISTRATION_TYPE_MISMATCH",
+    "explanation_he": "רישום: עוסק מורשה",
+    "evidence_ids": [
+     "REC-f9754856:registration_type"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-05",
+    "title_he": "מספר העוסק תואם למספר הזהות של המבקש/ת",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DEALER_NUMBER_MISMATCH",
+    "explanation_he": "מספר העוסק DEMO-ID-103 זהה למספר הזהות של שירן אזולאי",
+    "evidence_ids": [
+     "REC-f9754856:dealer_number"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BR-06",
+    "title_he": "אין במסמך הוראות חשודות",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא אותרו הנחיות חשודות או פניות למערכת AI במסמך (למעט סימוני דמו סינתטיים מובנים).",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BR-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "כל הקריטריונים שנבדקו עבור אישור רישום העוסק עברו בהצלחה.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3817,
+   "output_tokens": 1340,
+   "thought_tokens": 0
+  }
+ }
+}

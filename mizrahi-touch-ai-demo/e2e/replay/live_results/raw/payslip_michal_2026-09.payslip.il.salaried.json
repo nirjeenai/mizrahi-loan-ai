@@ -1,0 +1,78 @@
+{
+ "sha256": "44703fd46ff4375973a698ef03aeb1a9aaff56d5bf66404d45992e70e030fbd7",
+ "file": "presenter/profile_set/payslip_michal_2026-09.pdf",
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "PAYSLIPS:BRW-C",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"payslip\",\"doc_type_reason\":\"The document is titled 'תלוש שכר לחודש ספטמבר 2026' and contains employee details, salary period, earnings, deductions, and net pay.\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"employer_name\",\"value\":\"שחף הנדסה בע״מ\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[53,718,72,933],\"label_quote\":null,\"normalized\":\"שחף הנדסה בע״מ\",\"quote\":\"שחף הנדסה בע״מ\"},{\"name\":\"employer_id\",\"value\":\"515338204\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[76,827,86,903],\"label_quote\":\"ח.פ.\",\"normalized\":\"515338204\",\"quote\":\"515338204\"},{\"name\":\"document_number\",\"value\":\"SAL-michal-2026-09\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[67, 68, 77, 206],\"label_quote\":\"מספר מסמך:\",\"normalized\":\"SAL-michal-2026-09\",\"quote\":\"SAL-michal-2026-09\"},{\"name\":\"issue_date\",\"value\":\"06.10.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[77, 68, 88, 140],\"label_quote\":\"תאריך הפקה:\",\"normalized\":\"06.10.2026\",\"quote\":\"06.10.2026\"},{\"name\":\"employee_name\",\"value\":\"מיכל ברק\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[159,850,172,918],\"label_quote\":\"שם העובד/ת\",\"normalized\":\"מיכל ברק\",\"quote\":\"מיכל ברק\"},{\"name\":\"employee_id\",\"value\":\"311204572\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[159,617,169,704],\"label_quote\":\"מספר זהות\",\"normalized\":\"311204572\",\"quote\":\"311204572\"},{\"name\":\"employee_number\",\"value\":\"E-4471\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[159,434,169,489],\"label_quote\":\"מספר עובד\",\"normalized\":\"E-4471\",\"quote\":\"E-4471\"},{\"name\":\"salary_period\",\"value\":\"09/2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[193,854,204,918],\"label_quote\":\"תקופת שכר\",\"normalized\":\"2026-09\",\"quote\":\"09/2026\"},{\"name\":\"payment_date\",\"value\":\"09.10.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[193,617,204,704],\"label_quote\":\"תאריך תשלום\",\"normalized\":\"09.10.2026\",\"quote\":\"09.10.2026\"},{\"name\":\"gross_pay\",\"value\":\"27,919.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[403,799,418,895],\"label_quote\":\"שכר ברוטו\",\"normalized\":\"27919.00\",\"quote\":\"27,919.00\"},{\"name\":\"total_deductions\",\"value\":\"7,069.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[403,517,418,599],\"label_quote\":\"סה״כ ניכויים\",\"normalized\":\"7069.00\",\"quote\":\"7,069.00\"},{\"name\":\"net_pay\",\"value\":\"20,850.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[403,213,418,309],\"label_quote\":\"נטו לתשלום\",\"normalized\":\"20850.00\",\"quote\":\"20,850.00\"}],\"earnings\":[{\"label\":\"שכר בסיס\",\"amount\":\"27,269.00\",\"page\":1},{\"label\":\"החזר נסיעות\",\"amount\":\"650.00\",\"page\":1}],\"deductions\":[{\"label\":\"מס הכנסה\",\"amount\":\"3,962.00\",\"page\":1},{\"label\":\"ביטוח לאומי\",\"amount\":\"1,147.00\",\"page\":1},{\"label\":\"מס בריאות\",\"amount\":\"709.00\",\"page\":1},{\"label\":\"פנסיה — חלק עובד\",\"amount\":\"1,251.00\",\"page\":1}],\"suspicious_content\":[{\"quote\":\"מסמך דמו סינתטי. אינו מסמך רשמי של מעסיק, בנק או רשות; השמות והמזהים בדויים.\",\"kind\":\"other\",\"page\":1}],\"uncertainties\":[],\"title_quote\":\"תלוש שכר לחודש ספטמבר 2026\"}",
+        "thoughtSignature": "EmkKZwFpFH0TON727g2SMRzGV24uMu7w1uK9jbKJoJnReRfaaoCMd78NFCWQOqpkyvprmFcu50OnNphsWk3JntD8FTNBtMy9tcPxQ9N+7ykYeFcfiAY4iCa3+gzzxcgMdAPFRGEeqMz+6Ro="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1343,
+    "totalTokenCount": 2985,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "PYXPaqPtF8bmnsEPuv6cmAc"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\"criterion_id\": \"PS-01\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך הוא בבירור תלוש שכר הכולל כותרת מתאימה, פירוט תשלומים, ניכויים וסכום נטו לתשלום.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-02\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך שלם, ברור וקריא בכל שדות המפתח, ללא חיתוכים או טשטוש.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-03\", \"outcome\": \"PASS\", \"explanation_he\": \"פרטי העובדת (שם ומספר זהות) תואמים במדויק לפרטי הלווה ששויכו למסמך.\", \"cited_fields\": [\"employee_name\", \"employee_id\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-08\", \"outcome\": \"PASS\", \"explanation_he\": \"לא נמצאו במסמך הוראות המיועדות למערכת בינה מלאכותית או סימני שינוי ועריכה, למעט סימוני סביבת הבדיקה הסינתטית המותרים.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"PS-10\", \"outcome\": \"PASS\", \"explanation_he\": \"תאריך התשלום הינו 09.10.2026, שהוא היום ה-9 של החודש העוקב לתקופת השכר (09/2026), ולכן עומד בכללי החוק.\", \"cited_fields\": [\"salary_period\", \"payment_date\"], \"confidence\": 1.0}\n  ],\n  \"summary_he\": \"המסמך נבדק ונמצא תקין לחלוטין: מדובר בתלוש שכר קריא ושלם של מיכל ברק, ללא סימני עריכה או הנחיות חשודות, ותאריך התשלום תואם את הכללים.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TSyZTYnoZQ3LANMqsn556iXIVbcR+7M7RpYBB9eN1YusQj+Td7sZ6x/YWt1rh5L9x0L9+ik6QoJILHW5f/El5Fe7CxCASLLXFGRaZ17YEZbiCOugNF6mXr5/E/wrs0X8QwqM="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 3511,
+    "candidatesTokenCount": 535,
+    "totalTokenCount": 4046,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 2979
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "SIXPatO0GpSI28oPksPjQQ"
+  }
+ }
+}

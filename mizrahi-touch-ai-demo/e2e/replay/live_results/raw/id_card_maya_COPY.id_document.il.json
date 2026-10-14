@@ -1,0 +1,78 @@
+{
+ "sha256": "f205e059ad484c628156cfee8c529ab899ff1f18c8211a76017172f3736d0aa0",
+ "file": "presenter/profile_set/id_card_maya_COPY.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "ID_CARD:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"id_document\",\n  \"doc_type_reason\": \"המסמך נושא כותרת 'מדינת ישראל · תעודת זהות' וכולל פרטי זיהוי אישיים כגון שם מלא, מספר זהות, תאריך לידה ותוקף.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"מאיה שטרן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [170, 655, 184, 731],\n      \"label_quote\": \"שם מלא\",\n      \"normalized\": \"מאיה שטרן\",\n      \"quote\": \"מאיה שטרן\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-115\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [194, 417, 206, 528],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-115\",\n      \"quote\": \"DEMO-ID-115\"\n    },\n    {\n      \"name\": \"date_of_birth\",\n      \"value\": \"30.03.1989\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [217, 417, 229, 508],\n      \"label_quote\": \"תאריך לידה\",\n      \"normalized\": \"30.03.1989\",\n      \"quote\": \"30.03.1989\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"11.04.2024\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [239, 419, 252, 506],\n      \"label_quote\": \"תאריך הנפקה\",\n      \"normalized\": \"11.04.2024\",\n      \"quote\": \"11.04.2024\"\n    },\n    {\n      \"name\": \"expiry_date\",\n      \"value\": \"11.04.2034\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [262, 419, 274, 507],\n      \"label_quote\": \"תוקף עד\",\n      \"normalized\": \"11.04.2034\",\n      \"quote\": \"11.04.2034\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינו תעודה רשמית\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"מדובר במסמך דמו/סינתטי לבדיקות\"\n  ],\n  \"title_quote\": \"מדינת ישראל · תעודת זהות\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T40yolyg0Kim+fja62iDJfJ2XvgUTf7T+cUYF0JOHTZcGLYlr6yORYI6qythHKeiG7SImA2fLY37inSnN2kW8+gwX2tI/dTuCz6+Yfs6xTo2HfC6VO1GCoJ0lmWhHy7pcxBk="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 941,
+    "totalTokenCount": 2583,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "33rPas6-IYz6xs0Pt7TL6QI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"ID-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך מציג תעודת זהות ישראלית (מדינת ישראל · תעודת זהות).\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"התעודה קריאה ושלמה, כל הפרטים הנדרשים (שם, מזהה, תאריכים) ברורים ואינם חתוכים.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\",\n        \"date_of_birth\",\n        \"issue_date\",\n        \"expiry_date\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-03\",\n      \"outcome\": \"FAIL\",\n      \"explanation_he\": \"פרטי בעל התעודה (מאיה שטרן, DEMO-ID-115) אינם תואמים לפרטי המבקש המשויך (רועי שטרן, DEMO-ID-105).\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא נמצאו הוראות חשודות המיועדות ל-AI או סימני זיוף/עריכה, מעבר לסימוני סביבת ההדגמה הסינתטית הצפויים.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.95\n    }\n  ],\n  \"summary_he\": \"המסמך הוא צילום תעודת זהות קריא ותקין, אך אינו שייך למבקש ההלוואה (אי-התאמה מלאה בשם ובמספר הזהות).\",\n  \"limitations_he\": [\n    \"סביבת דמו סינתטית עם סימוני מים מובנים\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0T6MhPDpsr6vUVOZC+Y3z0aXL9Pn373OAbW/Z0HurgKUQ9kHy7f7qeHI7ozxcDrrP5Ts+ZPyze8ngifbjyUu/El4gf9rOC6ellgg21soAylCCqn1BoCx7Mwf0Au4S7UIiPIdY="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2363,
+    "candidatesTokenCount": 551,
+    "totalTokenCount": 2914,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1831
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "5nrPav6LNoOyvdIPhs3rSQ"
+  }
+ }
+}

@@ -1,0 +1,316 @@
+{
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "PURPOSE_PROOF",
+ "sha256": "8fded515d728835552d9288be19363ac977ae2399414e51c0b303bbf028971d1",
+ "result": {
+  "run_id": "REC-8fded515",
+  "document_id": "REC-8fded515",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "purpose_proof.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:36:30+00:00",
+  "finished_at": "2026-10-14T13:36:44+00:00",
+  "doc_type": "purpose_proof",
+  "doc_type_he": "אסמכתה למטרה",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-C",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "issuer_name",
+    "label_he": "שם הספק",
+    "value_raw": "אוטו־דמו יבואנים בע״מ",
+    "value_normalized": "אוטו־דמו יבואנים בע״מ",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-8fded515:issuer_name",
+     "document_id": "REC-8fded515",
+     "field": "issuer_name",
+     "page": 1,
+     "quote": "אוטו־דמו יבואנים בע״מ",
+     "bbox": [
+      405.28,
+      40.27,
+      556.25,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "מיכל ברק",
+    "value_normalized": "מיכל ברק",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-8fded515:holder_name",
+     "document_id": "REC-8fded515",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "מיכל ברק",
+     "bbox": [
+      337.99,
+      139.74,
+      376.33,
+      151.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "document_kind",
+    "label_he": "סוג המסמך",
+    "value_raw": "הצעת מחיר לרכב",
+    "value_normalized": "הצעת מחיר לרכב",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-8fded515:document_kind",
+     "document_id": "REC-8fded515",
+     "field": "document_kind",
+     "page": 1,
+     "quote": "הצעת מחיר לרכב",
+     "bbox": [
+      278.72,
+      40.27,
+      391.06,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "subject",
+    "label_he": "תיאור",
+    "value_raw": "רכב משפחתי חדש, דגם דמו 1.6 היברידי, שנת ייצור 2026",
+    "value_normalized": "רכב משפחתי חדש, דגם דמו 1.6 היברידי, שנת ייצור 2026",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-8fded515:subject",
+     "document_id": "REC-8fded515",
+     "field": "subject",
+     "page": 1,
+     "quote": "רכב משפחתי חדש, דגם דמו 1.6 היברידי, שנת ייצור 2026",
+     "bbox": [
+      140.12,
+      158.49,
+      376.34,
+      170.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "01.10.2026",
+    "value_normalized": "2026-10-01",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-8fded515:issue_date",
+     "document_id": "REC-8fded515",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "01.10.2026",
+     "bbox": [
+      44.75,
+      120.99,
+      97.3,
+      132.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "total_amount",
+    "label_he": "סכום",
+    "value_raw": "132,000.00",
+    "value_normalized": 132000.0,
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-8fded515:total_amount",
+     "document_id": "REC-8fded515",
+     "field": "total_amount",
+     "page": 1,
+     "quote": "132,000.00",
+     "bbox": [
+      44.75,
+      222.99,
+      97.3,
+      234.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "PP-01",
+    "title_he": "המסמך הוא הצעת מחיר, חשבונית או הסכם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא הצעת מחיר לרכב מאת ספק (אוטו־דמו יבואנים בע״מ), התואם את סוג המסמכים המבוקש.",
+    "evidence_ids": [
+     "REC-8fded515:document_kind",
+     "REC-8fded515:issuer_name"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא, ברור ושלם; פרטי הספק, התאריך, תיאור הרכב והסכום קריאים באופן מלא.",
+    "evidence_ids": [
+     "REC-8fded515:issuer_name",
+     "REC-8fded515:issue_date",
+     "REC-8fded515:subject",
+     "REC-8fded515:total_amount"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-03",
+    "title_he": "שם הספק והסכום מודפסים",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "MANDATORY_FIELD_MISSING",
+    "explanation_he": "ספק: אוטו־דמו יבואנים בע״מ · סכום: 132,000.00",
+    "evidence_ids": [
+     "REC-8fded515:issuer_name",
+     "REC-8fded515:total_amount"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-04",
+    "title_he": "המסמך עדכני",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_STALE",
+    "explanation_he": "הופק לפני 11 ימים (עד 90)",
+    "evidence_ids": [
+     "REC-8fded515:issue_date"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-05",
+    "title_he": "המסמך מתאים למטרת ההלוואה שהוצהרה",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "minor",
+    "reason_code": "PURPOSE_MISMATCH",
+    "explanation_he": "הצעת המחיר היא עבור רכישת רכב משפחתי חדש, ומתאימה למטרת ההלוואה המוצהרת (רכישת רכב).",
+    "evidence_ids": [
+     "REC-8fded515:subject"
+    ],
+    "decided_by": "judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PP-06",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא נמצאו הוראות המיועדות למודל/סוקר או סימני עריכה/זיוף; סימוני הדמו הם חלק מסביבת הבדיקה הסינתטית כצפוי.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PP-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "המסמך הינו הצעת מחיר קריאה ושלמה עבור רכישת רכב, התואמת את מטרת ההלוואה המוצהרת, ללא אינדיקציות לעריכה זדונית או הוראות חשודות.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3882,
+   "output_tokens": 1521,
+   "thought_tokens": 0
+  }
+ }
+}

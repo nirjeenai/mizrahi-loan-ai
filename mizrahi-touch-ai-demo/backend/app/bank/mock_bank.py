@@ -95,7 +95,7 @@ _CASES: dict[str, dict[str, Any]] = {
         _loan("car", "רכישת רכב", 95000, 48), _accounts(["BRW-A", "BRW-B"]), submitted_at="2026-09-28T10:32:00+03:00"),
     "DEMO-MTZ-2026-002": {
         **_case("DEMO-MTZ-2026-002", "438840117", "הלוואה לשיפוץ",
-                [{"borrower_id": "BRW-C", "name_he": "מיכל ברק", "first_name_he": "מיכל", "national_id": "311204578",
+                [{"borrower_id": "BRW-C", "name_he": "מיכל ברק", "first_name_he": "מיכל", "national_id": "311204572",
                   "employment": "salaried", "employer_declared_he": "שחף הנדסה בע״מ", "role": "primary",
                   "declared_net_monthly_ils": 21000, "declaration_note_he": "שכר קבוע"}],
                 _loan("renovation", "שיפוץ", 80000, 60), _accounts(["BRW-C"]), submitted_at="2026-10-01T09:10:00+03:00"),
@@ -207,6 +207,16 @@ for _cid in _USE_CASES:
 _CASES.update(_USE_CASES)
 
 
+def _overlay(case_id: str) -> dict:
+    """A customer's profile change after confirmation (workflow/profile_change.py), stored per case; a case reset drops it."""
+    from .. import db
+    try:
+        row = db.one("SELECT overlay FROM profile_overlays WHERE case_id=?", (case_id,))
+    except Exception:                                   # the table may not exist before db.connect()
+        return {}
+    return db.jload(row["overlay"]) if row else {}
+
+
 def _applications() -> dict[str, dict]:
     """Customer-started applications (synthetic, stored in DATA_DIR) — see workflow/intake.py."""
     from .. import db
@@ -235,6 +245,11 @@ class MockBankAdapter:
         if case_id not in cases:
             raise KeyError(case_id)
         case = copy.deepcopy(cases[case_id])
+        overlay = _overlay(case_id)
+        for b in case["borrowers"]:
+            b.update(overlay.get("borrowers", {}).get(b["borrower_id"], {}))
+        if overlay:
+            case["profile_changed_at"] = overlay.get("changed_at")
         stage = STAGE_DICTIONARY[case["stage_index"] - 1]
         case["bank_stage"] = {**SOURCE, "index": stage["index"], "of": len(STAGE_DICTIONARY), "code": stage["code"],
                               "label_he": stage["label_he"], "label_observed_in_screenshot": stage["observed"]}
@@ -242,6 +257,8 @@ class MockBankAdapter:
         for b in case["borrowers"]:
             b["declared_income_provenance"] = "CUSTOMER_DECLARED"
         from ..workflow import requirements
+        if overlay:                                   # the prepared label described the profile before the change
+            case["profile_label_he"] = " · ".join(requirements.applicant_profile_he(b) for b in case["borrowers"])
         case["document_profile"] = requirements.profile(case)
         return case
 
@@ -279,7 +296,8 @@ class MockBankAdapter:
                                  for r in requirements.for_case(case_id)],
                 "borrowers": [{k: b[k] for k in ("borrower_id", "name_he", "national_id", "employment",
                                                  "employer_declared_he", "declared_net_monthly_ils",
-                                                 "declaration_note_he", "declared_income_provenance")} for b in case["borrowers"]],
+                                                 "declaration_note_he", "declared_income_provenance")}
+                               | {"income_sources": requirements.income_sources(b)} for b in case["borrowers"]],
                 "accounts": [{"account_id": a["account_id"], "holders": a["holders"]} for a in case.get("accounts", [])],
                 "source": SOURCE}
 

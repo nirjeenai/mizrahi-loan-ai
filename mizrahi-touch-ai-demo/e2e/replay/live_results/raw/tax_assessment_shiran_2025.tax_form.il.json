@@ -1,0 +1,78 @@
+{
+ "sha256": "06df23f2a38627b3a61d7020ea0bf05364d06d46ba7dea0f86ebb9433dfa5517",
+ "file": "presenter/profile_set/tax_assessment_shiran_2025.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "TAX_ASSESSMENT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"tax_form\",\n  \"doc_type_reason\": \"הודעת שומה מרשות המסים (שומת מס הכנסה)\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"שירן אזולאי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [102, 552, 114, 632],\n      \"label_quote\": \"שם הנישום\",\n      \"normalized\": \"שירן אזולאי\",\n      \"quote\": \"שירן אזולאי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-103\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [123, 75, 137, 187],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-103\",\n      \"quote\": \"DEMO-ID-103\"\n    },\n    {\n      \"name\": \"tax_year\",\n      \"value\": \"2025\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 74, 180, 114],\n      \"label_quote\": \"שנת המס\",\n      \"normalized\": \"2025\",\n      \"quote\": \"2025\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"12.08.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [190, 75, 203, 163],\n      \"label_quote\": \"תאריך הפקה\",\n      \"normalized\": \"12.08.2026\",\n      \"quote\": \"12.08.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינה שומה רשמית\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"פקיד שומה דמו\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"מספר הזהות הוא ערך דמה (DEMO-ID-103)\"\n  ],\n  \"title_quote\": \"רשות המסים בישראל · מס הכנסה · הודעת שומה\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TfQ9q+otxhKyYxw/HAbGim/SgTZxUz4wihFSfJPtoFsCybctk+sTuVdll/C++SID4g6gOBYi7U3zRqy+Ir1bm7SdPsG9usgrBZbiPJwOecQCgCrjX/lNvUDsOzfbmY0wOLJo="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 832,
+    "totalTokenCount": 2474,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "woXPatrTM8mLvdIPrbmw4As"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\"criterion_id\": \"TX-01\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך הוא הודעת שומה מרשות המסים (שומת מס הכנסה לשנת 2025).\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"TX-02\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך קריא לחלוטין, ברור ושלם.\", \"cited_fields\": [], \"confidence\": 1.0},\n    {\"criterion_id\": \"TX-03\", \"outcome\": \"PASS\", \"explanation_he\": \"שם הנישום ומספר הזהות במסמך תואמים למבקש/ת ההלוואה (שירן אזולאי).\", \"cited_fields\": [\"holder_name\", \"holder_id\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"TX-05\", \"outcome\": \"PASS\", \"explanation_he\": \"לא זוהו הוראות חשודות או פניות למערכת AI; סימוני הדמו הנם חלק מסביבת הבדיקה הסינתטית המאושרת.\", \"cited_fields\": [], \"confidence\": 1.0}\n  ],\n  \"summary_he\": \"המסמך נבדק בהצלחה: זוהתה הודעת שומה תקינה וקריאה עבור שירן אזולאי, ללא חריגות או הוראות זדוניות.\",\n  \"limitations_he\": [\"נתוני ההכנסה והמס לא נבדקו בשלב סיווג זה בהתאם לרובריקה.\"],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0ThstEaiRWxq5QojbCfZgti0JqwhUivb9WtL+LZBN0xDZ0oHk4Ux7cu+eHIaYE4Vbfl62dq9vbU+MlsV8eO7OvLu8YiKcH54k4DXZT4J/nWJjyMRfhl4LGpUbXzrZ5KGqsc4I="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2072,
+    "candidatesTokenCount": 398,
+    "totalTokenCount": 2470,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1540
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "yoXPaueZK_GFnsEPpcPRWQ"
+  }
+ }
+}

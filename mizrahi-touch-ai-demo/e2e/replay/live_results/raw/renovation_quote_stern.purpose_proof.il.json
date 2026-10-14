@@ -1,0 +1,78 @@
+{
+ "sha256": "f987fb1c91d472a7a2e837a04ec16d83451643bf3d7a7e2701a091458c69e1a7",
+ "file": "presenter/profile_set/renovation_quote_stern.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "PURPOSE_PROOF",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"purpose_proof\",\n  \"doc_type_reason\": \"המסמך הוא הצעת מחיר לשיפוץ דירה מספק/קבלן עבור לקוחות פרטיים\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"issuer_name\",\n      \"value\": \"שיפוצי הגליל בע״מ\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [51, 725, 68, 934],\n      \"label_quote\": null,\n      \"normalized\": \"שיפוצי הגליל בע״מ\",\n      \"quote\": \"שיפוצי הגליל בע״מ\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"רועי שטרן ומאיה שטרן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 477, 180, 631],\n      \"label_quote\": \"לכבוד\",\n      \"normalized\": \"רועי שטרן ומאיה שטרן\",\n      \"quote\": \"רועי שטרן ומאיה שטרן\"\n    },\n    {\n      \"name\": \"document_kind\",\n      \"value\": \"הצעת מחיר לשיפוץ דירה\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [99, 463, 113, 632],\n      \"label_quote\": \"סוג המסמך\",\n      \"normalized\": \"הצעת מחיר לשיפוץ דירה\",\n      \"quote\": \"הצעת מחיר לשיפוץ דירה\"\n    },\n    {\n      \"name\": \"subject\",\n      \"value\": \"שיפוץ דירה ברחוב הגפן 3, הוד השרון: מטבח, שני חדרי רחצה, ריצוף ואינסטלציה\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [190, 83, 203, 631],\n      \"label_quote\": \"תיאור\",\n      \"normalized\": \"שיפוץ דירה ברחוב הגפן 3, הוד השרון: מטבח, שני חדרי רחצה, ריצוף ואינסטלציה\",\n      \"quote\": \"שיפוץ דירה ברחוב הגפן 3, הוד השרון: מטבח, שני חדרי רחצה, ריצוף ואינסטלציה\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"28.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [146, 74, 155, 163],\n      \"label_quote\": \"תאריך\",\n      \"normalized\": \"28.09.2026\",\n      \"quote\": \"28.09.2026\"\n    },\n    {\n      \"name\": \"total_amount\",\n      \"value\": \"166,000.00\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [399, 75, 411, 163],\n      \"label_quote\": \"סה״כ לתשלום\",\n      \"normalized\": \"166000.00\",\n      \"quote\": \"166,000.00\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי\",\n      \"kind\": \"inconsistency\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"אינו מסמך אמיתי\",\n      \"kind\": \"inconsistency\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"שיפוצי הגליל בע״מ · הצעת מחיר לשיפוץ דירה\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T3czZysIPfcgz9XZFw5yQoJ8S+Sq6YX58rwCiV0r23J/k5vmhWmyuz7y8gF7Nj8MjkCoeaCNNm05AK/TsNSoBm6Um1P+3wPVj4XfmUgQbo3g25+FOayet/x9hRT7t8QoNi5I="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1101,
+    "totalTokenCount": 2743,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "3obPao-ALaSBxs0Pj8-ZiAo"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PP-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא הצעת מחיר תקפה לשיפוץ דירה שהונפקה על ידי חברת שיפוצי הגליל בע״מ.\",\n      \"cited_fields\": [\"document_kind\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם לחלוטין, וכולל את פרטי הספק, התאריך, פירוט העבודות והסכום.\",\n      \"cited_fields\": [\"issuer_name\", \"issue_date\", \"subject\", \"total_amount\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"פירוט השירותים במסמך (שיפוץ דירה, מטבח, חדרי רחצה, ריצוף ואינסטלציה) תואם במדויק את מטרת ההלוואה המוצהרת 'שיפוץ'.\",\n      \"cited_fields\": [\"subject\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא אותרו הוראות זדוניות למערכת או סימני עריכה חשודים. הכיתובים וסימני המים במסמך הם של סביבת דמו סינתטית מובנית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"הצעת המחיר לשיפוץ דירה עומדת בכל הקריטריונים: המסמך קריא ושלם, תואם במדויק את מטרת ההלוואה, ואינו מכיל שינויים או פקודות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0Tyzcl6/flSrV7XuCGwn1F05k0Di9vWeWKMiZHnCxiUqFc5ZGopVPYXn6n6qzoMWC29SYoC4UvpnjBGldFdtWu/lFG3M9OrdACr9LBUv6u7jnv5+Q6C4UMVBcHjLQQ2pG0o2k="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2342,
+    "candidatesTokenCount": 523,
+    "totalTokenCount": 2865,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1810
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "54bPao2gG4TmnsEPwd20oQ4"
+  }
+ }
+}

@@ -5,7 +5,8 @@ the banker's open requests. Nothing here talks to the customer; the orchestrator
 - A task is *unverified* while a banker item is open on its requirement or a review of its documents failed: such a
   task routes to human review, never to contact (S15, S33).
 - A task resolves only when a document uploaded after the task was opened, for its requirement, passed review (no open
-  finding on it). An issue that disappears any other way (a banker dismissal, a reset) cancels the task instead."""
+  finding on it) — or, for a requirement no rubric covers, was received for the banker's review (never "valid by AI").
+  An issue that disappears any other way (a banker dismissal, a reset, a profile change) cancels the task instead."""
 from __future__ import annotations
 
 import sqlite3
@@ -68,7 +69,7 @@ def _passed(case_id: str, task: dict, docs: dict[str, dict], open_f: list[dict])
     flagged = {f["document_id"] for f in open_f if f.get("document_id")}
     for d in docs.values():
         if (d["requirement_code"] == task["requirement_code"] and d["document_id"] not in known
-                and d["status"] == "reviewed" and d["document_id"] not in flagged):
+                and d["status"] in ("reviewed", "stored") and d["document_id"] not in flagged):
             return d["document_id"]
     return None
 
@@ -124,8 +125,10 @@ def sync(case_id: str, actor: str = "followup") -> dict[str, list[str]]:
                 continue
             doc = _passed(case_id, task, docs, open_f)
             status = "RESOLVED" if doc else "CANCELED"
+            stored = doc and docs[doc]["status"] == "stored"
             _set(c, task, status, actor, now, document_id=doc,
-                 note="מסמך חדש עבר בדיקה" if doc else "הדרישה נסגרה ללא מסמך חדש")
+                 note=("המסמך התקבל — ממתין לבדיקת הבנקאי" if stored else "מסמך חדש עבר בדיקה") if doc
+                 else "הדרישה נסגרה ללא מסמך חדש")
             if doc:
                 events.emit("completion.resolved.v1", case_id, actor, {"task_id": task["task_id"],
                             "requirement_code": task["requirement_code"], "document_id": doc}, occurred_at=now, conn=c)

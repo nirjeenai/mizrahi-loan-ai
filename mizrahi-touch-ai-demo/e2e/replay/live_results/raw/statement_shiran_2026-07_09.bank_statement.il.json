@@ -1,0 +1,78 @@
+{
+ "sha256": "ae5ace61556600e0bdb08f270fc7b00da9db0e47735900a5015a67e740d6a46d",
+ "file": "presenter/profile_set/statement_shiran_2026-07_09.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "BANK_STATEMENTS:ACC-1",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"bank_statement\",\"doc_type_reason\":\"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרה לתקופה, ופרטי חשבון בנק\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"bank_name\",\"value\":\"מזרחי־טפחות\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[51,777,69,933],\"label_quote\":null,\"normalized\":\"מזרחי־טפחות\",\"quote\":\"מזרחי־טפחות\"},{\"name\":\"holder_name\",\"value\":\"שירן אזולאי\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[100,553,113,632],\"label_quote\":\"שם בעל החשבון\",\"normalized\":\"שירן אזולאי\",\"quote\":\"שירן אזולאי\"},{\"name\":\"holder_id\",\"value\":\"DEMO-ID-103\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[122,74,133,186],\"label_quote\":\"מספר זהות\",\"normalized\":\"DEMO-ID-103\",\"quote\":\"DEMO-ID-103\"},{\"name\":\"account_number\",\"value\":\"20-433-778015\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[144,74,156,195],\"label_quote\":\"בנק / סניף / חשבון\",\"normalized\":\"20-433-778015\",\"quote\":\"20-433-778015\"},{\"name\":\"statement_from\",\"value\":\"01.07.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[166,74,178,163],\"label_quote\":\"תקופה מתאריך\",\"normalized\":\"01.07.2026\",\"quote\":\"01.07.2026\"},{\"name\":\"statement_to\",\"value\":\"30.09.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[189,74,200,163],\"label_quote\":\"עד תאריך\",\"normalized\":\"30.09.2026\",\"quote\":\"30.09.2026\"},{\"name\":\"closing_balance\",\"value\":\"53,922.19\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[741,74,752,153],\"label_quote\":\"יתרת סגירה\",\"normalized\":\"53922.19\",\"quote\":\"53,922.19\"}],\"earnings\":[],\"deductions\":[],\"suspicious_content\":[{\"quote\":\"מסמך דמו סינתטי — אינו דף חשבון אמיתי\",\"kind\":\"other\",\"page\":1},{\"quote\":\"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\"kind\":\"other\",\"page\":1}],\"uncertainties\":[],\"title_quote\":\"מזרחי־טפחות · דף תנועות בחשבון עו״ש\"}",
+        "thoughtSignature": "EmkKZwFpFH0T/YQiANY9KDXfwW8xrtioiD/mDb+pXkKtZ7KWDhxRV1f473u71FzdhA/MOM10HT2VDr+JOwi5ggxdqimUCHx54mcgYcHkbUcWjeCgW6h/W0ItGjFG6Iju/jjCsof3ESJb6SQ="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 803,
+    "totalTokenCount": 2445,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "qIXPar3WBbqWkdUPjo6L4AE"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\"criterion_id\": \"BS-01\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך הוא דף תנועות חשבון עו״ש תקין המציג פירוט תנועות לתקופה, יתרות, ופרטי בנק וחשבון.\", \"cited_fields\": [\"bank_name\", \"statement_from\", \"statement_to\"], \"confidence\": 0.99},\n    {\"criterion_id\": \"BS-02\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך קריא, מלא, שורות התנועה ופרטי בעל החשבון מוצגים בבירור ללא מחיקות או טשטוש.\", \"cited_fields\": [\"holder_name\", \"account_number\", \"statement_from\", \"statement_to\", \"closing_balance\"], \"confidence\": 0.99},\n    {\"criterion_id\": \"BS-03\", \"outcome\": \"PASS\", \"explanation_he\": \"שם בעל החשבון ומספר הזהות תואמים באופן מלא למבקש ההלוואה.\", \"cited_fields\": [\"holder_name\", \"holder_id\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"BS-06\", \"outcome\": \"PASS\", \"explanation_he\": \"לא זוהו סימני עריכה או הוראות חשודות. הכיתובים על מסמך דמו הנם חלק מובנה ומאושר מהסביבה הסינתטית.\", \"cited_fields\": [], \"confidence\": 0.98}\n  ],\n  \"summary_he\": \"דף חשבון תקין, קריא ושלם של בנק מזרחי-טפחות, התואם למבקשת ללא סימני שינוי חשודים.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TZ1aRfebmZiA9Gk4myUUvbecHjB3IbHXAgIlj7Lq90q4BKabA57x8cUhyploJqYkCdU5JA4BDNDZPcRuaLgjNpnAnnYuh2Fzl0ZRPkS3CydPORnjKZx1sQN862MSsn9pbN0w="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2449,
+    "candidatesTokenCount": 444,
+    "totalTokenCount": 2893,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1917
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "r4XPar2_Jrf8nsEPvpOi8AI"
+  }
+ }
+}

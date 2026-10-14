@@ -98,6 +98,9 @@ CREATE TABLE IF NOT EXISTS case_profile (
 CREATE TABLE IF NOT EXISTS demo_applications (
   case_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, application TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS profile_overlays (
+  case_id TEXT PRIMARY KEY, overlay TEXT NOT NULL, updated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS onboarding_drafts (
   draft_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, status TEXT NOT NULL,
   answers TEXT NOT NULL, case_id TEXT

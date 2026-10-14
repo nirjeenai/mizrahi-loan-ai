@@ -80,6 +80,8 @@ export interface Readiness {
   counts: { documents: number; reviewed: number; processing: number; failed: number; customer_actions: number; banker_items: number; payslip_requirements_ready: number; payslip_requirements_total: number;
     customer_requests?: number; documents_accepted?: number };
   pending_jobs: { kind: string; document_id?: string }[]; not_evaluated: string[]; banker_confirmation?: { confirmed_at: string } | null;
+  /** requirements a profile change made inactive: their documents stay in the history, outside the evaluated set */
+  inactive_requirements?: { code: string; family: string; family_he: string; document_ids: string[]; state_he: string }[];
 }
 export interface Borrower { borrower_id: string; name_he: string; first_name_he: string; national_id: string; employment: string; declared_net_monthly_ils: number; declaration_note_he: string; employer_declared_he: string; role?: string }
 export interface LoanDetails { product: string; product_he: string; purpose: string; purpose_he: string; requested_amount_ils: number; payments: number; note_he?: string }
@@ -91,6 +93,7 @@ export interface BankCase {
   banker: { name_he: string; role_he: string; staff_id?: string };
   meeting?: { date: string; from: string; to: string; type_he: string } | null; borrowers: Borrower[];
   persona_id?: string | null; use_case?: string | null; applicant_type?: "individual" | "company"; banker_assisted?: boolean;
+  profile_changed_at?: string | null;
   document_profile?: DocumentProfile;
   bank_stage: { index: number; of: number; label_he: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
 }
@@ -243,6 +246,9 @@ export const api = {
   applicationOptions: () => http<ApplicationOptions>(`/api/demo/applications/options`),
   createApplication: (body: Record<string, string | number>) =>
     http<{ case_id: string; requirements: string[] }>(`/api/demo/applications`, json(body)),
+  changeProfile: (caseId: string, borrowers: Record<string, { income_sources: string[]; business_registration?: string | null }>) =>
+    http<{ changed: boolean; added: string[]; removed: string[]; tasks_canceled: string[]; calls_canceled: number }>(
+      `/api/cases/${caseId}/profile`, json({ borrowers })),
   onboardingStart: () => http<OnboardingDraft>(`/api/demo/onboarding`, { method: "POST" }),
   onboarding: (draftId: string) => http<OnboardingDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}`),
   onboardingAnswer: (draftId: string, questionId: string, value: unknown) =>

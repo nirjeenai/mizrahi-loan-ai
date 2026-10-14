@@ -1,0 +1,78 @@
+{
+ "sha256": "1c94b12d3fbd5f0b4dede4d81edeab115681daab66903e9c322d0fd3881a988e",
+ "file": "presenter/profile_set/cpa_income_letter_yoav_2025.pdf",
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "TAX_ASSESSMENT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"tax_form\",\"doc_type_reason\":\"אישור רואה חשבון על הכנסות מעסק (דוח שנתי למס הכנסה / שומה)\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"holder_name\",\"value\":\"יואב כרמי\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[165,566,177,631],\"label_quote\":\"שם הנישום\",\"normalized\":\"יואב כרמי\",\"quote\":\"יואב כרמי\"},{\"name\":\"holder_id\",\"value\":\"DEMO-ID-102\",\"page\":1,\"confidence\":0.98,\"legible\":true,\"box_2d\":[186,75,198,186],\"label_quote\":\"מספר זהות\",\"normalized\":\"DEMO-ID-102\",\"quote\":\"DEMO-ID-102\"},{\"name\":\"tax_year\",\"value\":\"2025\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[230,75,242,114],\"label_quote\":\"שנת המס\",\"normalized\":\"2025\",\"quote\":\"2025\"},{\"name\":\"issue_date\",\"value\":\"22.09.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[114,791,126,880],\"label_quote\":\"תאריך:\",\"normalized\":\"22.09.2026\",\"quote\":\"22.09.2026\"}],\"earnings\":[],\"deductions\":[],\"suspicious_content\":[],\"uncertainties\":[],\"title_quote\":\"אישור רואה חשבון על הכנסות מעסק\"}",
+        "thoughtSignature": "EmkKZwFpFH0TagQ/J7fWR6LrMQ5ScUcIESkBYNbiQaQsBDHfONuIeakSI1rwukHUeSCl1Zt3mzZ/2AFC2jS8+WLgeOddRxeN+gOhzDO/tbntoEzNEDTVK3nuMVNqFstp+wCVD2x4+MLGGPw="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 427,
+    "totalTokenCount": 2069,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "u3rPauTkCePtxs0P3orGCA"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"TX-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא אישור רואה חשבון על הכנסות מעסק לשנת המס 2025.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך שלם, ברור וקריא לחלוטין ללא חיתוכים או פגמים.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם הנישום במסמך תואם במדויק לשם המבקש.\",\n      \"cited_fields\": [\n        \"holder_name\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הוראות חשודות או פניות למערכת בינה מלאכותית מעבר לסימוני דמו צפויים.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך הוא אישור רו״ח תקין, קריא ושלם, התואם למבקש וללא חריגות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TFM/DkBzZe7O0ctyhd6zJzgmJQmR57X2P+iPtE+/uv2DZAYKSgEq1eBsbgkarr4814PI48YSbVBwloODMPejLZb1IAxzTtUufOrBRTRCFPzKzc6o25IJNv6urmnZopT8/1VI="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1915,
+    "candidatesTokenCount": 403,
+    "totalTokenCount": 2318,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1383
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "v3rParSmJobtxN8Pu5CcqAk"
+  }
+ }
+}

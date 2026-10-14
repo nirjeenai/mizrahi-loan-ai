@@ -15,6 +15,8 @@ const DONE_STATES = ["extracted", "preparation_confirmed", "checking", "accepted
 /** Who the checklist was composed for, from the case's document profile — the same inputs the policy read. */
 function ProfileCard() {
   const { snap } = useCase();
+  const [editing, setEditing] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
   const p = snap?.case.document_profile;
   if (!snap || !p) return null;
   const version = snap.readiness.requirements[0]?.policy_version;
@@ -36,8 +38,74 @@ function ProfileCard() {
         <div className="notice navy small" data-testid="banker-assisted">מסלול עסקי מוגבל בליווי {snap.case.banker.name_he}: אוספים כאן את מסמכי
           הזיהוי והדוחות של החברה, והבנקאית ממשיכה את הטיפול. אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
       )}
+      {p.entity === "individual" && !editing && (
+        <button className="link small dx-profile-edit" onClick={() => { setEditing(true); setResult(null); }} data-testid="profile-edit">
+          עדכון מקורות ההכנסה</button>
+      )}
+      {editing && <ProfileEditor onDone={(text) => { setEditing(false); setResult(text); }} />}
+      {result && <div className="notice navy small" role="status" data-testid="profile-change-result">{result}</div>}
       <div className="tiny muted dx-profile-note">{p.disclaimer_he}{version ? <> · <span className="ltr">{version}</span></> : null}</div>
     </section>
+  );
+}
+
+const INCOME_OPTS: [string, string][] = [["salaried", "שכיר/ה"], ["self_employed", "עצמאי/ת"]];
+const REG_OPTS: [string, string][] = [["vat_exempt", "עוסק פטור"], ["vat_registered", "עוסק מורשה"]];
+
+/** The customer corrects an income profile after confirming: the same policy recomposes the checklist on the server.
+ *  Uploaded documents and their review history are kept. */
+function ProfileEditor({ onDone }: { onDone: (text: string | null) => void }) {
+  const { snap, caseId, reload } = useCase();
+  const people = snap!.case.document_profile!.applicants;
+  const [draft, setDraft] = useState(() => Object.fromEntries(people.map((a) => [a.borrower_id,
+    { income_sources: a.income_sources, business_registration: a.business_registration || null }])));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const toggle = (bid: string, src: string) => setDraft((d) => {
+    const cur = d[bid].income_sources;
+    return { ...d, [bid]: { ...d[bid], income_sources: cur.includes(src) ? cur.filter((x) => x !== src) : [...cur, src] } };
+  });
+  const save = async () => {
+    setBusy(true); setError(null);
+    try {
+      const r = await api.changeProfile(caseId, draft);
+      reload();
+      onDone(!r.changed ? "לא בוצע שינוי בפרופיל." : [r.added.length ? `נוספו: ${r.added.join(" · ")}` : "",
+        r.removed.length ? `לא נדרשים עוד: ${r.removed.join(" · ")} (המסמכים שכבר הועלו נשמרים)` : "",
+        r.tasks_canceled.length ? "בקשות ההשלמה הקשורות בוטלו." : ""].filter(Boolean).join(". ") || "הפרופיל עודכן.");
+    } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+  };
+  return (
+    <div className="dx-profile-editor" data-testid="profile-editor">
+      {people.map((a) => (
+        <div key={a.borrower_id} className="stack" style={{ gap: 6 }} data-testid="profile-editor-person" data-borrower={a.borrower_id}>
+          <div className="small bold">{a.name_he}</div>
+          <div className="choice">
+            {INCOME_OPTS.map(([k, label]) => (
+              <label key={k} className={draft[a.borrower_id].income_sources.includes(k) ? "on" : ""}>
+                <input type="checkbox" checked={draft[a.borrower_id].income_sources.includes(k)} onChange={() => toggle(a.borrower_id, k)}
+                  data-testid={`profile-income-${k}`} /><span>{label}</span></label>
+            ))}
+          </div>
+          {draft[a.borrower_id].income_sources.includes("self_employed") && (
+            <div className="choice">
+              {REG_OPTS.map(([k, label]) => (
+                <label key={k} className={draft[a.borrower_id].business_registration === k ? "on" : ""}>
+                  <input type="radio" name={`reg-${a.borrower_id}`} checked={draft[a.borrower_id].business_registration === k}
+                    onChange={() => setDraft((d) => ({ ...d, [a.borrower_id]: { ...d[a.borrower_id], business_registration: k } }))}
+                    data-testid={`profile-reg-${k}`} /><span>{label}</span></label>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      <div className="tiny muted">רשימת המסמכים תחושב מחדש לפי אותה מדיניות. מסמכים שכבר הועלו נשמרים בתיק.</div>
+      {error && <div className="notice small" role="alert">{error}</div>}
+      <div className="row" style={{ gap: 8 }}>
+        <button className="btn btn-orange" disabled={busy} onClick={save} data-testid="profile-save">{busy && <span className="spinner" />}שמירת השינוי</button>
+        <button className="btn btn-ghost" disabled={busy} onClick={() => onDone(null)}>ביטול</button>
+      </div>
+    </div>
   );
 }
 
@@ -372,6 +440,17 @@ export function Documents() {
           )}
         </section>
 
+        {(snap.readiness.inactive_requirements?.length ?? 0) > 0 && (
+          <section className="dl-card dl-inactive" data-testid="inactive-requirements" aria-label="מסמכים שאינם נדרשים עוד">
+            <div className="small bold">לא נדרשים עוד אחרי עדכון הפרופיל</div>
+            <ul className="dl-list">{snap.readiness.inactive_requirements!.map((r) => (
+              <li key={r.code} className="dl-row" data-testid="inactive-requirement" data-code={r.code}>
+                <span className="dl-head"><span className="grow dl-text"><span className="dl-name">{r.family_he}</span>
+                  <span className="dl-detail">{r.state_he} · {r.document_ids.length} מסמכים נשמרו בהיסטוריה</span></span></span>
+              </li>))}
+            </ul>
+          </section>
+        )}
         <div className="section-label dx-label" id="sec-uploaded">מסמכים שהועלו <span className="dx-count">{docs.length}</span></div>
         {docs.length === 0 && (
           <div className="dx-empty" data-testid="docs-empty">

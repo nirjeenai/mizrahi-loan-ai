@@ -1,0 +1,78 @@
+{
+ "sha256": "cc224467461ccfa6e413f35b1be5dcb8d3fc22a4dc3303b4302e242f89961e76",
+ "file": "presenter/profile_set/payslip_alon_2026-08.pdf",
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "PAYSLIPS:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"payslip\",\"doc_type_reason\":\"תלוש שכר לחודש אוגוסט 2026 הכולל פירוט מעסיק, עובד, רכיבי שכר, ניכויים ונטו לתשלום\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"employee_name\",\"value\":\"אלון פרידמן\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[159,835,171,918],\"label_quote\":\"שם העובד/ת\",\"normalized\":\"אלון פרידמן\",\"quote\":\"אלון פרידמן\"},{\"name\":\"employee_id\",\"value\":\"DEMO-ID-104\",\"page\":1,\"confidence\":0.98,\"legible\":true,\"box_2d\":[159,593,170,705],\"label_quote\":\"מספר זהות\",\"normalized\":\"DEMO-ID-104\",\"quote\":\"DEMO-ID-104\"},{\"name\":\"employee_number\",\"value\":\"E-1290\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[159,435,170,492],\"label_quote\":\"מספר עובד\",\"normalized\":\"E-1290\",\"quote\":\"E-1290\"},{\"name\":\"employer_name\",\"value\":\"נתיב תוכנה בע״מ\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[54,729,68,934],\"label_quote\":null,\"normalized\":\"נתיב תוכנה בע״מ\",\"quote\":\"נתיב תוכנה בע״מ\"},{\"name\":\"employer_id\",\"value\":\"516447201\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[75, 827, 86, 934],\"label_quote\":\"ח.פ.\",\"normalized\":\"516447201\",\"quote\":\"516447201\"},{\"name\":\"salary_period\",\"value\":\"08/2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[193,854,204,918],\"label_quote\":\"תקופת שכר\",\"normalized\":\"2026-08\",\"quote\":\"08/2026\"},{\"name\":\"payment_date\",\"value\":\"09.09.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[193,617,204,705],\"label_quote\":\"תאריך תשלום\",\"normalized\":\"09.09.2026\",\"quote\":\"09.09.2026\"},{\"name\":\"issue_date\",\"value\":\"06.09.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[77, 67, 87, 140],\"label_quote\":\"תאריך הפקה:\",\"normalized\":\"06.09.2026\",\"quote\":\"06.09.2026\"},{\"name\":\"document_number\",\"value\":\"SAL-alon-2026-08\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[65, 67, 76, 183],\"label_quote\":\"מספר מסמך:\",\"normalized\":\"SAL-alon-2026-08\",\"quote\":\"SAL-alon-2026-08\"},{\"name\":\"gross_pay\",\"value\":\"18,880.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[345,517,356,595],\"label_quote\":\"סה״כ ברוטו\",\"normalized\":\"18880.00\",\"quote\":\"18,880.00\"},{\"name\":\"total_deductions\",\"value\":\"4,780.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[350,75,363,143],\"label_quote\":\"סה״כ ניכויים\",\"normalized\":\"4780.00\",\"quote\":\"4,780.00\"},{\"name\":\"net_pay\",\"value\":\"14,100.00 ₪\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[403, 213, 417, 333],\"label_quote\":\"נטו לתשלום\",\"normalized\":\"14100.00\",\"quote\":\"14,100.00 ₪\"}],\"earnings\":[{\"label\":\"שכר בסיס\",\"amount\":\"18,230.00\",\"page\":1},{\"label\":\"החזר נסיעות\",\"amount\":\"650.00\",\"page\":1}],\"deductions\":[{\"label\":\"מס הכנסה\",\"amount\":\"2,679.00\",\"page\":1},{\"label\":\"ביטוח לאומי\",\"amount\":\"776.00\",\"page\":1},{\"label\":\"מס בריאות\",\"amount\":\"479.00\",\"page\":1},{\"label\":\"פנסיה — חלק עובד\",\"amount\":\"846.00\",\"page\":1}],\"suspicious_content\":[{\"quote\":\"מסמך דמו סינתטי. אינו מסמך רשמי של מעסיק, בנק או רשות; השמות והמזהים בדויים.\",\"kind\":\"other\",\"page\":1}],\"uncertainties\":[],\"title_quote\":\"תלוש שכר לחודש אוגוסט 2026\"}",
+        "thoughtSignature": "EmkKZwFpFH0TM5ctYjvEGLxcSBL0P19sCdQhmWhWFWU7JjhEMKtWiqcoUNyOscnsVBRZrbr5ATQVjZsBUFxz76vmQKSiBB2tHguHBq8hMWVN5fCoh0T295CrekLqcWjevFtSLyt+ngcazug="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1360,
+    "totalTokenCount": 3002,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "CobPaumoC7nBxN8P9c2PgAw"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא תלוש שכר סטנדרטי הכולל כותרת ברורה, פירוט תשלומים, ניכויים וסכום נטו לתשלום.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך שלם, קריא וכל הנתונים המהותיים ברורים ואינם קטועים.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם העובד ומספר הזהות תואמים באופן מלא לפרטי הלווה שסופקו.\",\n      \"cited_fields\": [\"employee_name\", \"employee_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-08\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הוראות המיועדות למערכת AI או סימני זיוף ועריכה; סימוני הדמו הינם חלק מובנה מהסביבה הסינתטית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PS-10\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"תאריך התשלום הינו 09.09.2026, שהוא היום התשיעי של החודש העוקב לתקופת השכר (08/2026), כנדרש.\",\n      \"cited_fields\": [\"salary_period\", \"payment_date\"],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק בהצלחה ועומד בכל הקריטריונים שנבחנו: מדובר בתלוש שכר קריא ותקין, התואם לפרטי הלווה ולכללי הדיווח.\",\n  \"limitations_he\": [\n    \"המסמך הינו מסמך דמו סינתטי לצורכי בדיקה.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TSjhdKp99384X3R/LRvcBVNGAhTmI1GItXc5yeL5xfQv7Nm6Fvh4K7yTPVRSyhgikVGXPK7l1M5sEIF+mrk4nzwcYg9wZf89byXoqZGeqOVrIkT6OSOCmOopF/uAlNIKib3M="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 3523,
+    "candidatesTokenCount": 591,
+    "totalTokenCount": 4114,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 2991
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "FYbPao7nCq3dxs0P2PLFoQg"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "sha256": "5d132424ce2af1b4cfb916a069e993bd3ce70e3a8dd8c28a2fd9a9281dd63c03",
+ "file": "presenter/profile_set/id_card_gilad.pdf",
+ "case_id": "DEMO-MTZ-2026-106",
+ "requirement_code": "ID_CARD:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"id_document\",\n  \"doc_type_reason\": \"תעודת זהות של מדינת ישראל הכוללת שם, מספר זהות, תאריך לידה, תאריך הנפקה ותוקף\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"גלעד ששון\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [160, 661, 173, 733],\n      \"label_quote\": \"שם מלא\",\n      \"normalized\": \"גלעד ששון\",\n      \"quote\": \"גלעד ששון\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-106\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [183, 417, 194, 530],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-106\",\n      \"quote\": \"DEMO-ID-106\"\n    },\n    {\n      \"name\": \"date_of_birth\",\n      \"value\": \"05.08.1979\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [204, 418, 216, 506],\n      \"label_quote\": \"תאריך לידה\",\n      \"normalized\": \"05.08.1979\",\n      \"quote\": \"05.08.1979\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"17.12.2020\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [227, 419, 238, 507],\n      \"label_quote\": \"תאריך הנפקה\",\n      \"normalized\": \"17.12.2020\",\n      \"quote\": \"17.12.2020\"\n    },\n    {\n      \"name\": \"expiry_date\",\n      \"value\": \"17.12.2030\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [249, 419, 260, 506],\n      \"label_quote\": \"תוקף עד\",\n      \"normalized\": \"17.12.2030\",\n      \"quote\": \"17.12.2030\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינו תעודה רשמית\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"מדובר במסמך דמו/סינתטי כפי שמצוין במפורש בכותרות ובמספר הזהות\"\n  ],\n  \"title_quote\": \"מדינת ישראל · תעודת זהות\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T/9fomo+CYLgL8G+cQ2kaV1Xp34Af5KCMa1tLX2G7YM406Cgr8qsS54cL+bhUiig3LkB/FSbglNGvY+IoblMQzdjUMTIWH9d70tD4HpZfL8SvhB3Oi6ZHr/umF01Q8DTqFHw="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 934,
+    "totalTokenCount": 2576,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "BXvPapvtD76u28oP2a7b-AY"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"ID-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך מציג תעודת זהות ישראלית (בגרסת דמו סינתטית).\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך ברור, קריא ושלם, כל הפרטים והתאריכים מוצגים היטב ואינם חתוכים.\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\", \"date_of_birth\", \"issue_date\", \"expiry_date\"],\n      \"confidence\": 0.98\n    },\n    {\n      \"criterion_id\": \"ID-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"השם ומספר הזהות במסמך תואמים באופן מלא לנתוני המבקש שהוגדרו (גלעד ששון, DEMO-ID-106). התוצאה נקבעה גם דטרמיניסטית.\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הוראות חשודות או פניות למערכת AI. סימוני ה-DEMO/מסמך דמו הינם חלק מסביבת הבדיקה הסינתטית המאושרת.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.99\n    }\n  ],\n  \"summary_he\": \"תעודת הזהות של גלעד ששון קריאה, תקינה ותואמת למבקש בכל הקריטריונים שנבדקו בסביבת הדמו.\",\n  \"limitations_he\": [\n    \"מדובר במסמך סינתטי הנושא סימוני דמו כחלק ממערך בדיקות.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TLBAFqB0UwUkQ9sKCV+u6RUb8WVzW+0Redtd3f1F+Txolbp5e21bWdcAVFmThXxONXthz8I4Mm7RkznfjaD16dTmJcVFCMw3MmoqDy17d5/3agNAGxvi30+GtrhnkTsqvyoc="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2334,
+    "candidatesTokenCount": 520,
+    "totalTokenCount": 2854,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1802
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "DXvPatDhJv_i7M8PnaHLkAs"
+  }
+ }
+}

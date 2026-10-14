@@ -1,0 +1,78 @@
+{
+ "sha256": "4c29f349ee9cb55ee1eae81026047922b8425994d5c5dfddce8a724af931840c",
+ "file": "presenter/profile_set/statement_roy_rachel_2026-07_09.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "BANK_STATEMENTS:ACC-2",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"bank_statement\",\n  \"doc_type_reason\": \"דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרת סגירה ופרטי חשבון\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"bank_name\",\n      \"value\": \"מזרחי־טפחות\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [53, 781, 66, 933],\n      \"label_quote\": null,\n      \"normalized\": \"מזרחי־טפחות\",\n      \"quote\": \"מזרחי־טפחות\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"רועי שטרן ורחל שטרן\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [101, 485, 113, 630],\n      \"label_quote\": \"שם בעל החשבון\",\n      \"normalized\": \"רועי שטרן ורחל שטרן\",\n      \"quote\": \"רועי שטרן ורחל שטרן\"\n    },\n    {\n      \"name\": \"account_number\",\n      \"value\": \"20-655-118097\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [123, 75, 134, 193],\n      \"label_quote\": \"בנק / סניף / חשבון\",\n      \"normalized\": \"20-655-118097\",\n      \"quote\": \"20-655-118097\"\n    },\n    {\n      \"name\": \"statement_from\",\n      \"value\": \"01.07.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [145, 75, 156, 163],\n      \"label_quote\": \"תקופה מתאריך\",\n      \"normalized\": \"01.07.2026\",\n      \"quote\": \"01.07.2026\"\n    },\n    {\n      \"name\": \"statement_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [168, 75, 178, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"closing_balance\",\n      \"value\": \"17,609.11\",\n      \"page\": 1,\n      \"confidence\": 1.0,\n      \"legible\": true,\n      \"box_2d\": [718, 75, 729, 149],\n      \"label_quote\": \"יתרת סגירה\",\n      \"normalized\": \"17609.11\",\n      \"quote\": \"17,609.11\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי — אינו דף חשבון אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"מזרחי־טפחות · דף תנועות בחשבון עו״ש\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TR5LZmXtZxhAQZlIsPUQL4HR+Pza/86RyIMJxZ9jIRd8r0/DwuAcuBQ0SvDDbzyWMGGjwTmAKBiewY3PjDrJxA8eVop2PLH1Op28OwOzltCi2DioK5fAKGoOMgv4kaZwCSsw="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1064,
+    "totalTokenCount": 2706,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "z4bPapKiF8ODkdUPmvytsQI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BS-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דף תנועות חשבון עו״ש הכולל פירוט תנועות לתקופה מוגדרת.\",\n      \"cited_fields\": [\n        \"statement_from\",\n        \"statement_to\"\n      ],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"BS-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם, כולל פרטי בעלי החשבון, מספר החשבון, תאריכים ושורות התנועה.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"account_number\",\n        \"closing_balance\"\n      ],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"BS-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם המבקש (רועי שטרן) מופיע כאחד מבעלי החשבון המשותף ('רועי שטרן ורחל שטרן').\",\n      \"cited_fields\": [\n        \"holder_name\"\n      ],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"BS-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא נמצאו הוראות זדוניות למערכת ה-AI או סימני שינוי ועריכה; סימוני הדמו הם חלק מסביבת הבדיקה המוגדרת מראש.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.98\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק בהצלחה: מדובר בדף תנועות עו״ש קריא ותקין, המכיל את שם המבקש כבעל חשבון משותף, ללא הוראות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0T13hjc/W/a/3saSX3bM85Icj2S9MKXp3r3wImTHVOit/ytrhQZMO7IziziPORKocWDaPiWbqZIEZcurqCZPI5GJ8X0bSHj6FdVByj8djVPrm0lRDtg+EAdRKTsRfqSM7vMgc="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2408,
+    "candidatesTokenCount": 518,
+    "totalTokenCount": 2926,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1876
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "2YbPauCKCLD4nsEPsvvcqAs"
+  }
+ }
+}

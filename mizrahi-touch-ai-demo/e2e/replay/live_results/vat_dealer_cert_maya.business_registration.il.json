@@ -1,0 +1,317 @@
+{
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "VAT_DEALER_CERT:BRW-B",
+ "sha256": "4e1d845072224b3859476e9c28ca3508bc634819f160f090a9c2d669bfe98cc3",
+ "result": {
+  "run_id": "REC-4e1d8450",
+  "document_id": "REC-4e1d8450",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "business_registration.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T12:52:07+00:00",
+  "finished_at": "2026-10-14T12:52:20+00:00",
+  "doc_type": "business_registration",
+  "doc_type_he": "אישור רישום עוסק",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-B",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "מאיה שטרן",
+    "value_normalized": "מאיה שטרן",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-4e1d8450:holder_name",
+     "document_id": "REC-4e1d8450",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "מאיה שטרן",
+     "bbox": [
+      330.84,
+      84.99,
+      376.32,
+      96.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-115",
+    "value_normalized": "DEMO-ID-115",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-4e1d8450:holder_id",
+     "document_id": "REC-4e1d8450",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-115",
+     "bbox": [
+      44.75,
+      103.74,
+      110.48,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "business_name",
+    "label_he": "שם העסק",
+    "value_raw": "סטודיו מאיה שטרן — אדריכלות",
+    "value_normalized": "סטודיו מאיה שטרן — אדריכלות",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-4e1d8450:business_name",
+     "document_id": "REC-4e1d8450",
+     "field": "business_name",
+     "page": 1,
+     "quote": "סטודיו מאיה שטרן — אדריכלות",
+     "bbox": [
+      248.05,
+      122.49,
+      376.35,
+      134.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "dealer_number",
+    "label_he": "מספר עוסק",
+    "value_raw": "DEMO-ID-115",
+    "value_normalized": "DEMO-ID-115",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-4e1d8450:dealer_number",
+     "document_id": "REC-4e1d8450",
+     "field": "dealer_number",
+     "page": 1,
+     "quote": "DEMO-ID-115",
+     "bbox": [
+      44.75,
+      103.74,
+      110.48,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "registration_type",
+    "label_he": "סוג הרישום",
+    "value_raw": "עוסק מורשה",
+    "value_normalized": "עוסק מורשה",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-4e1d8450:registration_type",
+     "document_id": "REC-4e1d8450",
+     "field": "registration_type",
+     "page": 1,
+     "quote": "עוסק מורשה",
+     "bbox": [
+      224.26,
+      40.27,
+      304.78,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "18.09.2026",
+    "value_normalized": "2026-09-18",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-4e1d8450:issue_date",
+     "document_id": "REC-4e1d8450",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "18.09.2026",
+     "bbox": [
+      44.75,
+      216.24,
+      97.3,
+      227.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "BR-01",
+    "title_he": "המסמך הוא אישור רישום עוסק",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא תעודת עוסק מורשה של רשות המסים (רישום מע״מ).",
+    "evidence_ids": [
+     "REC-4e1d8450:registration_type"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא ושלם; פרטי בעל העסק, מספר העוסק וסוג הרישום ברורים.",
+    "evidence_ids": [
+     "REC-4e1d8450:holder_name",
+     "REC-4e1d8450:dealer_number",
+     "REC-4e1d8450:registration_type"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-03",
+    "title_he": "שם בעל העסק תואם למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים למאיה שטרן",
+    "evidence_ids": [
+     "REC-4e1d8450:holder_name",
+     "REC-4e1d8450:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-04",
+    "title_he": "סוג הרישום תואם לדרישה",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "REGISTRATION_TYPE_MISMATCH",
+    "explanation_he": "רישום: עוסק מורשה",
+    "evidence_ids": [
+     "REC-4e1d8450:registration_type"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-05",
+    "title_he": "מספר העוסק תואם למספר הזהות של המבקש/ת",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DEALER_NUMBER_MISMATCH",
+    "explanation_he": "מספר העוסק DEMO-ID-115 זהה למספר הזהות של מאיה שטרן",
+    "evidence_ids": [
+     "REC-4e1d8450:dealer_number"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BR-06",
+    "title_he": "אין במסמך הוראות חשודות",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "אין במסמך הנחיות זדוניות או טקסט הפונה למערכת AI; סימוני הדמו הם חלק מסביבת הבדיקה.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BR-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "המסמך מהווה תעודת עוסק מורשה תקינה, קריאה, תואמת לפרטי המבקשת וללא תוכן חשוד.",
+  "limitations_he": [
+   "בדיקת הדגמה בלבד, אין אימות מול מאגרי רשות המסים.",
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [
+   "מדובר במסמך דמו (Synthetic Test Corpus)"
+  ],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3814,
+   "output_tokens": 1437,
+   "thought_tokens": 0
+  }
+ }
+}

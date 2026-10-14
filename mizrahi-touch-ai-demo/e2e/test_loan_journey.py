@@ -194,8 +194,9 @@ def run(page: Page, banker: Page) -> None:
           and side.evaluate("e => e.scrollWidth <= e.clientWidth"))
     bundle = httpx.get(f"{BASE}/api/presenter/scenarios", timeout=60).json()
     all_scn = page.locator("[data-testid=all-scenarios]")
+    library = {d["id"] for d in bundle["manifest"]["documents"] if d.get("set") != "profiles"}     # the use-case packs are Round 2's
     check("presenter: the test-case library keeps its infrastructure — 11 loan scenarios, 25 checksum-verified files, engine rubrics",
-          all_scn.locator("[data-testid^=scn-toggle-L-]").count() == 11 and len(bundle["files"]) == 25
+          all_scn.locator("[data-testid^=scn-toggle-L-]").count() == 11 and len(library) == 25 and library <= set(bundle["files"])
           and all(f["sha256_matches_manifest"] for f in bundle["files"].values())
           and {r["rubric_id"] for r in bundle["rubrics"]} >= {"id_document.il", "bank_statement.il", "purpose_proof.il"})
     side = page.locator(".hub-side").inner_text()
@@ -456,6 +457,9 @@ def run(page: Page, banker: Page) -> None:
 
     reply("entity", "individual")
     reply("name", name=("מיה", "ברקוביץ"))
+    chat.locator("[data-testid=onb-text]").fill("DEMO-ID-401")                          # the questionnaire asks for the ID number
+    chat.locator("[data-testid=onb-send]").click()
+    expect(chat.locator("[data-testid=onb-answered-national_id]")).to_be_visible(timeout=10000)
     reply("purpose", "renovation")
     reply("income", multi=["self_employed"])
     reply("registration", "vat_exempt")

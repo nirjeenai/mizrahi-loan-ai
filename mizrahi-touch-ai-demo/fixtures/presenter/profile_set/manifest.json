@@ -1,0 +1,264 @@
+{
+ "files": [
+  {
+   "file": "id_card_michal.pdf",
+   "sha256": "dce40d904c6bc76c2a587093a86c020787e39fffb92731c7d31ad6515a5c4af1",
+   "bytes": 67192
+  },
+  {
+   "file": "payslip_michal_2026-07.pdf",
+   "sha256": "37f256dd28b88f05df9e70f18056ff6779830dc9a2eec06761aab1c34f50721e",
+   "bytes": 155739
+  },
+  {
+   "file": "payslip_michal_2026-08.pdf",
+   "sha256": "9aaed662a721a45a6a36982d42be7a908ccfbb0340e9a13e45eec85a35ddaf56",
+   "bytes": 157263
+  },
+  {
+   "file": "payslip_michal_2026-09.pdf",
+   "sha256": "44703fd46ff4375973a698ef03aeb1a9aaff56d5bf66404d45992e70e030fbd7",
+   "bytes": 157029
+  },
+  {
+   "file": "statement_michal_2026-07_09.pdf",
+   "sha256": "3e00f43e07058352eb30b0ff0589a53cd051cd91b217479b4fe2ca106a109d32",
+   "bytes": 89783
+  },
+  {
+   "file": "car_quote_michal.pdf",
+   "sha256": "8fded515d728835552d9288be19363ac977ae2399414e51c0b303bbf028971d1",
+   "bytes": 92035
+  },
+  {
+   "file": "id_card_yoav.pdf",
+   "sha256": "eb2a408e1b53a997b79d7206ce2c5ae87043003709f5506577fbae53ab4af368",
+   "bytes": 68017
+  },
+  {
+   "file": "statement_yoav_2026-07_09.pdf",
+   "sha256": "d268c55062593776e1fd2610dba22e2fefade1b287e0b669a85496654f3b2957",
+   "bytes": 91556
+  },
+  {
+   "file": "car_quote_yoav.pdf",
+   "sha256": "35d3d76b8e544707cd7851234bcf3c1861f814be1c2b115d8e959959d90ed92b",
+   "bytes": 92365
+  },
+  {
+   "file": "vat_exempt_cert_yoav.pdf",
+   "sha256": "cd8cb67a45e60b61b9ff90e785475f3142cdcac87da6d4a5f7fac770bda668e3",
+   "bytes": 71630
+  },
+  {
+   "file": "cpa_income_letter_yoav_2025.pdf",
+   "sha256": "1c94b12d3fbd5f0b4dede4d81edeab115681daab66903e9c322d0fd3881a988e",
+   "bytes": 96752
+  },
+  {
+   "file": "id_card_shiran.pdf",
+   "sha256": "28e9cd174e9c8495330126cd147c1d769e57ff715d9c789e80e1bc7401f7e691",
+   "bytes": 68013
+  },
+  {
+   "file": "statement_shiran_2026-07_09.pdf",
+   "sha256": "ae5ace61556600e0bdb08f270fc7b00da9db0e47735900a5015a67e740d6a46d",
+   "bytes": 91591
+  },
+  {
+   "file": "car_quote_shiran.pdf",
+   "sha256": "21dda69ebe40b1974fbd86bf231a798a6e3046b223ef331732be688b39c161fd",
+   "bytes": 92491
+  },
+  {
+   "file": "tax_assessment_shiran_2025.pdf",
+   "sha256": "06df23f2a38627b3a61d7020ea0bf05364d06d46ba7dea0f86ebb9433dfa5517",
+   "bytes": 89637
+  },
+  {
+   "file": "vat_dealer_cert_shiran.pdf",
+   "sha256": "f97548566be0be6053eb1ec14755007db2309fad51248730ed18a9b532d2c592",
+   "bytes": 71354
+  },
+  {
+   "file": "pnl_shiran_2025_OUTDATED.pdf",
+   "sha256": "ecf0a54800dc1ef14d4964289aff4d7d74f56458bc7452ed1adb59224039cec6",
+   "bytes": 98268
+  },
+  {
+   "file": "pnl_shiran_2026-01_09.pdf",
+   "sha256": "f44eb09df000671ddc56c63332b573366e7097f414fba2b68b8934bb64fe0253",
+   "bytes": 97912
+  },
+  {
+   "file": "vat_report_shiran_2026-07_08.pdf",
+   "sha256": "f496889a855b2cf2af4cca005207f2ed889eaa53089a7bd718f6be589ceebbf3",
+   "bytes": 89168
+  },
+  {
+   "file": "id_card_alon.pdf",
+   "sha256": "caf2072638301042d2b009c2bb18f737fb48bc3f34a6b5aa1ef64f21a4652e79",
+   "bytes": 67942
+  },
+  {
+   "file": "payslip_alon_2026-07.pdf",
+   "sha256": "e0eb5b2e6d4886971ef33ff26c4d8c9e94b3fcb1e9878b970dde4501808677d0",
+   "bytes": 157327
+  },
+  {
+   "file": "payslip_alon_2026-08.pdf",
+   "sha256": "cc224467461ccfa6e413f35b1be5dcb8d3fc22a4dc3303b4302e242f89961e76",
+   "bytes": 157573
+  },
+  {
+   "file": "payslip_alon_2026-09.pdf",
+   "sha256": "6fe4d486487cb30c66d01647d8baef2ed5b77897a6b87e2600a7f6fa129ab14d",
+   "bytes": 158373
+  },
+  {
+   "file": "statement_alon_2026-07_09.pdf",
+   "sha256": "630586151d9d672f58f9b11963820b212de3cf0b9f9b69f68a3cbc7fe4174554",
+   "bytes": 91516
+  },
+  {
+   "file": "car_quote_alon.pdf",
+   "sha256": "e9e6e1371f10343789cf367da904ca7f399c853eb16c1fb5ed39bb39e7e2a459",
+   "bytes": 92892
+  },
+  {
+   "file": "vat_exempt_cert_alon.pdf",
+   "sha256": "00f8d650ac5a667a55bd287e6b66984b2453a21ee706486c29cd715959dd483a",
+   "bytes": 71540
+  },
+  {
+   "file": "cpa_income_letter_alon_2025.pdf",
+   "sha256": "1c86459d62e154e277744fde66c62194f2e101824dac64c6d394ddbd65ceb68f",
+   "bytes": 96741
+  },
+  {
+   "file": "id_card_roy.pdf",
+   "sha256": "a4f4a41df3d600bf0079f6b95a8e99fdd9edf0c4f6c4823ea04bb06ac2bea36a",
+   "bytes": 68430
+  },
+  {
+   "file": "id_card_maya.pdf",
+   "sha256": "92c8f3fe2e0b2fbbdec5ca65a07ab8bf2b989f93a1c59488818cfc6f1abedc84",
+   "bytes": 68206
+  },
+  {
+   "file": "id_card_maya_COPY.pdf",
+   "sha256": "f205e059ad484c628156cfee8c529ab899ff1f18c8211a76017172f3736d0aa0",
+   "bytes": 85666
+  },
+  {
+   "file": "payslip_roy_2026-07.pdf",
+   "sha256": "52f48381c1d0f906e1116530597a2e30232465578606c5545e3defbf6d35f826",
+   "bytes": 156196
+  },
+  {
+   "file": "payslip_roy_2026-08.pdf",
+   "sha256": "c377870f5b72936ebbac0514639601a491380419ad263a986fa774ef955b9e44",
+   "bytes": 158235
+  },
+  {
+   "file": "payslip_roy_2026-09.pdf",
+   "sha256": "23ff062b879eff1f9a5f418aba826eb0649d5376647e1179f16c15286c193228",
+   "bytes": 157821
+  },
+  {
+   "file": "statement_stern_joint_2026-07_09.pdf",
+   "sha256": "6146f49f0adf81919fd81ea57ec3471c884644861358070a940129bb80e979ad",
+   "bytes": 89822
+  },
+  {
+   "file": "statement_roy_rachel_2026-07_09.pdf",
+   "sha256": "4c29f349ee9cb55ee1eae81026047922b8425994d5c5dfddce8a724af931840c",
+   "bytes": 89816
+  },
+  {
+   "file": "renovation_quote_stern.pdf",
+   "sha256": "f987fb1c91d472a7a2e837a04ec16d83451643bf3d7a7e2701a091458c69e1a7",
+   "bytes": 92611
+  },
+  {
+   "file": "tax_assessment_maya_2025.pdf",
+   "sha256": "5cf657bdbba66d0f51ce09386e9099358706c30038b2cbdfe2a0a5fba444dd2e",
+   "bytes": 89708
+  },
+  {
+   "file": "vat_dealer_cert_maya.pdf",
+   "sha256": "4e1d845072224b3859476e9c28ca3508bc634819f160f090a9c2d669bfe98cc3",
+   "bytes": 71159
+  },
+  {
+   "file": "pnl_maya_2026-01_09.pdf",
+   "sha256": "9ccee25bac78ea629f163b91c1f55231aa843455858200429adfec8c9c56f7be",
+   "bytes": 98300
+  },
+  {
+   "file": "id_card_gilad.pdf",
+   "sha256": "5d132424ce2af1b4cfb916a069e993bd3ce70e3a8dd8c28a2fd9a9281dd63c03",
+   "bytes": 68661
+  },
+  {
+   "file": "company_extract_sg_OUTDATED.pdf",
+   "sha256": "4e0774d930167ba81baf46d409bdc5a903985aac2059d23c92c6d6c60724b8fb",
+   "bytes": 91126
+  },
+  {
+   "file": "company_extract_sg.pdf",
+   "sha256": "0ae631124dbb98b5090feae0aa849e0bdacdd9e9563b19dd0d12717cc1a34527",
+   "bytes": 91127
+  },
+  {
+   "file": "signatory_protocol_sg.pdf",
+   "sha256": "2ef3150804e3526215599f77ec4b69e5c781af409d104cc995b7a908e734c1af",
+   "bytes": 96075
+  },
+  {
+   "file": "audited_fs_sg_2025.pdf",
+   "sha256": "704db4e223094783f7d25804495905d6cc9b6b786f3d28f2869f099fa97a4062",
+   "bytes": 103129
+  },
+  {
+   "file": "interim_pnl_sg_2026-01_06.pdf",
+   "sha256": "f167e3840dc9f44091e5a29a242ee102bec21c801ca823568adae283bce384e2",
+   "bytes": 99080
+  },
+  {
+   "file": "business_statements_sg_2026-04_09.pdf",
+   "sha256": "0e85044a357e19c58966c99d3f2f331550932784ba47aa89de57bcc7403e16bc",
+   "bytes": 94005
+  },
+  {
+   "file": "id_card_neta.pdf",
+   "sha256": "1ffe2acc0678862b64a23e81aaa70580c772e03691f6974ecf7734c10299597f",
+   "bytes": 67546
+  },
+  {
+   "file": "payslip_neta_2026-07.pdf",
+   "sha256": "0f9782460596f65516b619588baa120fb5205323fb7aa7cc0166ac2881db8fde",
+   "bytes": 157264
+  },
+  {
+   "file": "payslip_neta_2026-08.pdf",
+   "sha256": "794d128904b55d40b477577b4453a39b9a40d2e96a6a4460886db8cc15baf969",
+   "bytes": 159557
+  },
+  {
+   "file": "payslip_neta_2026-09.pdf",
+   "sha256": "9c19b044690ab47c4d4d31cf547570c7328f62acaa8b046eb609c7d3b3e39575",
+   "bytes": 158504
+  },
+  {
+   "file": "statement_neta_2026-07_09.pdf",
+   "sha256": "f25b15575933f32aba5cc3fed4e132b6e6f097354cccfd053837038530e514f2",
+   "bytes": 91498
+  },
+  {
+   "file": "car_quote_neta.pdf",
+   "sha256": "9ffd1ddf6d098cd1625fcfbdb9fe2e6699960f28991836b0730438a6f4d4dcb6",
+   "bytes": 92316
+  }
+ ]
+}

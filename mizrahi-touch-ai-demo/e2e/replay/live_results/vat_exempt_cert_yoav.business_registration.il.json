@@ -1,0 +1,313 @@
+{
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "VAT_EXEMPT_CERT:BRW-A",
+ "sha256": "cd8cb67a45e60b61b9ff90e785475f3142cdcac87da6d4a5f7fac770bda668e3",
+ "result": {
+  "run_id": "REC-cd8cb67a",
+  "document_id": "REC-cd8cb67a",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "business_registration.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T12:50:52+00:00",
+  "finished_at": "2026-10-14T12:51:06+00:00",
+  "doc_type": "business_registration",
+  "doc_type_he": "אישור רישום עוסק",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "יואב כרמי",
+    "value_normalized": "יואב כרמי",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-cd8cb67a:holder_name",
+     "document_id": "REC-cd8cb67a",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "יואב כרמי",
+     "bbox": [
+      337.54,
+      84.99,
+      376.33,
+      96.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-102",
+    "value_normalized": "DEMO-ID-102",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-cd8cb67a:holder_id",
+     "document_id": "REC-cd8cb67a",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-102",
+     "bbox": [
+      44.75,
+      103.74,
+      111.26,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "business_name",
+    "label_he": "שם העסק",
+    "value_raw": "כרמי צילום",
+    "value_normalized": "כרמי צילום",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-cd8cb67a:business_name",
+     "document_id": "REC-cd8cb67a",
+     "field": "business_name",
+     "page": 1,
+     "quote": "כרמי צילום",
+     "bbox": [
+      332.96,
+      122.49,
+      376.34,
+      134.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "dealer_number",
+    "label_he": "מספר עוסק",
+    "value_raw": "DEMO-ID-102",
+    "value_normalized": "DEMO-ID-102",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-cd8cb67a:dealer_number",
+     "document_id": "REC-cd8cb67a",
+     "field": "dealer_number",
+     "page": 1,
+     "quote": "DEMO-ID-102",
+     "bbox": [
+      44.75,
+      103.74,
+      111.26,
+      115.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "registration_type",
+    "label_he": "סוג הרישום",
+    "value_raw": "עוסק פטור",
+    "value_normalized": "עוסק פטור",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-cd8cb67a:registration_type",
+     "document_id": "REC-cd8cb67a",
+     "field": "registration_type",
+     "page": 1,
+     "quote": "עוסק פטור",
+     "bbox": [
+      241.76,
+      40.27,
+      310.35,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "18.09.2026",
+    "value_normalized": "2026-09-18",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-cd8cb67a:issue_date",
+     "document_id": "REC-cd8cb67a",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "18.09.2026",
+     "bbox": [
+      44.75,
+      216.24,
+      97.3,
+      227.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "BR-01",
+    "title_he": "המסמך הוא אישור רישום עוסק",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא אישור רישום עוסק פטור של רשות המסים (מע״מ).",
+    "evidence_ids": [
+     "REC-cd8cb67a:registration_type"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא לחלוטין וכולל את שם בעל העסק, מספר העוסק וסוג הרישום באופן ברור.",
+    "evidence_ids": [
+     "REC-cd8cb67a:holder_name",
+     "REC-cd8cb67a:dealer_number",
+     "REC-cd8cb67a:registration_type"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-03",
+    "title_he": "שם בעל העסק תואם למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים ליואב כרמי",
+    "evidence_ids": [
+     "REC-cd8cb67a:holder_name"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-04",
+    "title_he": "סוג הרישום תואם לדרישה",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "REGISTRATION_TYPE_MISMATCH",
+    "explanation_he": "רישום: עוסק פטור",
+    "evidence_ids": [
+     "REC-cd8cb67a:registration_type"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "BR-05",
+    "title_he": "מספר העוסק תואם למספר הזהות של המבקש/ת",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DEALER_NUMBER_MISMATCH",
+    "explanation_he": "מספר העוסק DEMO-ID-102 זהה למספר הזהות של יואב כרמי",
+    "evidence_ids": [
+     "REC-cd8cb67a:dealer_number"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BR-06",
+    "title_he": "אין במסמך הוראות חשודות",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא זוהו במסמך הוראות הממוענות למערכת AI או לבודק אנושי; סימוני הדמו הנם חלק מסביבת הבדיקה הסינתטית המאושרת.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "BR-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "אישור עוסק פטור תקין וקריא, פרטי בעל העסק תואמים ללווה ולא נמצאו הוראות חשודות.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3966,
+   "output_tokens": 1519,
+   "thought_tokens": 0
+  }
+ }
+}

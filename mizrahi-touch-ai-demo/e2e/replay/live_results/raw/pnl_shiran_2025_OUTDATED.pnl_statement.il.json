@@ -1,0 +1,78 @@
+{
+ "sha256": "ecf0a54800dc1ef14d4964289aff4d7d74f56458bc7452ed1adb59224039cec6",
+ "file": "presenter/profile_set/pnl_shiran_2025_OUTDATED.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "PNL_STATEMENT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"pnl_statement\",\n  \"doc_type_reason\": \"כותרת המסמך הינה 'דוח רווח והפסד' ומכיל פירוט הכנסות, הוצאות ורווח לתקופה עבור עסק.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"business_name\",\n      \"value\": \"אזולאי עיצוב פנים\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [53, 545, 68, 742],\n      \"label_quote\": null,\n      \"normalized\": \"אזולאי עיצוב פנים\",\n      \"quote\": \"אזולאי עיצוב פנים\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"שירן אזולאי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [101, 552, 112, 633],\n      \"label_quote\": \"בעל העסק\",\n      \"normalized\": \"שירן אזולאי\",\n      \"quote\": \"שירן אזולאי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-103\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [121, 74, 134, 186],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-103\",\n      \"quote\": \"DEMO-ID-103\"\n    },\n    {\n      \"name\": \"period_from\",\n      \"value\": \"01.01.2025\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [144, 73, 156, 163],\n      \"label_quote\": \"תקופת הדוח מתאריך\",\n      \"normalized\": \"01.01.2025\",\n      \"quote\": \"01.01.2025\"\n    },\n    {\n      \"name\": \"period_to\",\n      \"value\": \"31.12.2025\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [166, 73, 178, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"31.12.2025\",\n      \"quote\": \"31.12.2025\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"20.02.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [188, 73, 201, 163],\n      \"label_quote\": \"תאריך הפקה\",\n      \"normalized\": \"20.02.2026\",\n      \"quote\": \"20.02.2026\"\n    },\n    {\n      \"name\": \"issuer_name\",\n      \"value\": \"רו״ח דורית לנדאו\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [211, 513, 222, 633],\n      \"label_quote\": \"נערך בידי\",\n      \"normalized\": \"רו״ח דורית לנדאו\",\n      \"quote\": \"רו״ח דורית לנדאו\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו סינתטי · לא מבוקר אלא אם צוין אחרת\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [],\n  \"title_quote\": \"דוח רווח והפסד · אזולאי עיצוב פנים\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0T52TgBWA6s3CEKnbswNS5sEWuFHsTHmGIcHZmBl/gHIuzqtKeFCVGKWObMpdcwsdFJRAH0r+nKHy6hFgt/DDMJuD3ferXBXcbymykLG+ja8vYm7oWxJl6PLp61jzhWOc6f3A="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1180,
+    "totalTokenCount": 2822,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "w3rPaq3MOuTR28oP2JTPsAc"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PL-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דוח רווח והפסד של עסק כנדרש.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא ושלם; פרטי בעל העסק, תקופת הדוח ועורך הדוח מופיעים וברורים.\",\n      \"cited_fields\": [\"holder_name\", \"period_from\", \"period_to\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל העסק ומספר הזהות תואמים במדויק למבקש ההלוואה.\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו במסמך הוראות חשודות, פניות למערכת AI או ניסיונות הזרקת הנחיות, מלבד סימוני דמו צפויים.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך הוא דוח רווח והפסד תקין, קריא, התואם ללווה וללא תוכן חשוד. עם זאת, על פי הבדיקות הדטרמיניסטיות תקופת הדוח אינה עדכנית.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TxF62TT3ouc2ZwXAWCnkHs2J1lj3WK5bUmBjY2iHiiLGZC76UpaNk6/gnOBGhB0yAwb2caZr7Ua6dM9YxYGDaSoXmbTDPIemnGEO+LKJWJLBP0mF4MNlKBSxSrMk8/rsfi7w="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2435,
+    "candidatesTokenCount": 453,
+    "totalTokenCount": 2888,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1903
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "znrPao6UEYD_nsEPyujqkAI"
+  }
+ }
+}

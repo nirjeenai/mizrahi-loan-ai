@@ -1,0 +1,78 @@
+{
+ "sha256": "f97548566be0be6053eb1ec14755007db2309fad51248730ed18a9b532d2c592",
+ "file": "presenter/profile_set/vat_dealer_cert_shiran.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "VAT_DEALER_CERT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"business_registration\",\n  \"doc_type_reason\": \"תעודת עוסק מורשה של רשות המסים בישראל (מע״מ)\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"שירן אזולאי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [101, 552, 115, 631],\n      \"label_quote\": \"שם העוסק\",\n      \"normalized\": \"שירן אזולאי\",\n      \"quote\": \"שירן אזולאי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-103\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [124, 75, 135, 186],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-103\",\n      \"quote\": \"DEMO-ID-103\"\n    },\n    {\n      \"name\": \"business_name\",\n      \"value\": \"אזולאי עיצוב פנים\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [146, 510, 159, 631],\n      \"label_quote\": \"שם העסק\",\n      \"normalized\": \"אזולאי עיצוב פנים\",\n      \"quote\": \"אזולאי עיצוב פנים\"\n    },\n    {\n      \"name\": \"dealer_number\",\n      \"value\": \"DEMO-ID-103\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 75, 180, 186],\n      \"label_quote\": \"מספר עוסק\",\n      \"normalized\": \"DEMO-ID-103\",\n      \"quote\": \"DEMO-ID-103\"\n    },\n    {\n      \"name\": \"registration_type\",\n      \"value\": \"עוסק מורשה\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [191, 545, 203, 631],\n      \"label_quote\": \"סוג הרישום\",\n      \"normalized\": \"עוסק מורשה\",\n      \"quote\": \"עוסק מורשה\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"18.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [258, 75, 269, 163],\n      \"label_quote\": \"תאריך הפקת האישור\",\n      \"normalized\": \"18.09.2026\",\n      \"quote\": \"18.09.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [],\n  \"uncertainties\": [],\n  \"title_quote\": \"רשות המסים בישראל · מע״מ · תעודת עוסק מורשה\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0Tf7OEAH1Yxek50tryI/MxRH6RBEFg2T+fbM81+dpfKDI1jzsGpJ72gMX+cGqskk3hOcfV59+Vk/5N0AP5XPwy7XLVPG7eLAUJcE0gaTs5Iv7g0Q5pkIqF671hNELzHqve8Bk="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 916,
+    "totalTokenCount": 2558,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "0IXPaqHeBqSBxs0Pj8-ZiAo"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"BR-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הינו תעודת עוסק מורשה של מע״מ כנדרש.\",\n      \"cited_fields\": [\"registration_type\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם, כולל פרטי העוסק, מספר העוסק וסוג הרישום.\",\n      \"cited_fields\": [\"holder_name\", \"dealer_number\", \"registration_type\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל העסק (שירן אזולאי) ומספר הזהות תואמים באופן מלא לנתוני הלווה.\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"BR-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא אותרו הנחיות חשודות או פניות למערכת AI במסמך (למעט סימוני דמו סינתטיים מובנים).\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"כל הקריטריונים שנבדקו עבור אישור רישום העוסק עברו בהצלחה.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TAOe+vYesSEu/Oi5lugwML+1SfyGj9avHZf+L64Ruy7a2opImTrUKbXfNvEcaCyOcvfMbsW0NMmyU2+z1bkGalNvrkrawSx5bBhBTQM2tZrFA+78cjalO1gKDUnwtBItNKRg="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2175,
+    "candidatesTokenCount": 424,
+    "totalTokenCount": 2599,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1643
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "14XPasSUF6O-vdIP9LOv-AY"
+  }
+ }
+}

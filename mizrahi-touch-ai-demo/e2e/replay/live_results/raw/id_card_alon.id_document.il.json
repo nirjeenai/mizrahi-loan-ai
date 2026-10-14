@@ -1,0 +1,78 @@
+{
+ "sha256": "caf2072638301042d2b009c2bb18f737fb48bc3f34a6b5aa1ef64f21a4652e79",
+ "file": "presenter/profile_set/id_card_alon.pdf",
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "ID_CARD:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"id_document\",\"doc_type_reason\":\"המסמך מציג תעודת זהות של מדינת ישראל הכוללת שם, מספר זהות, תאריך לידה ותוקף\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"holder_name\",\"value\":\"אלון פרידמן\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[160,654,174,732],\"label_quote\":\"שם מלא\",\"normalized\":\"אלון פרידמן\",\"quote\":\"אלון פרידמן\"},{\"name\":\"holder_id\",\"value\":\"DEMO-ID-104\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[183,419,195,530],\"label_quote\":\"מספר זהות\",\"normalized\":\"DEMO-ID-104\",\"quote\":\"DEMO-ID-104\"},{\"name\":\"date_of_birth\",\"value\":\"28.04.1983\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[205,419,216,506],\"label_quote\":\"תאריך לידה\",\"normalized\":\"28.04.1983\",\"quote\":\"28.04.1983\"},{\"name\":\"issue_date\",\"value\":\"08.09.2019\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[228,419,238,506],\"label_quote\":\"תאריך הנפקה\",\"normalized\":\"08.09.2019\",\"quote\":\"08.09.2019\"},{\"name\":\"expiry_date\",\"value\":\"08.09.2029\",\"page\":1,\"confidence\":1.0,\"legible\":true,\"box_2d\":[250,419,261,506],\"label_quote\":\"תוקף עד\",\"normalized\":\"08.09.2029\",\"quote\":\"08.09.2029\"}],\"earnings\":[],\"deductions\":[],\"suspicious_content\":[{\"quote\":\"מסמך דמו — אינו תעודה רשמית\",\"kind\":\"other\",\"page\":1},{\"quote\":\"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\"kind\":\"other\",\"page\":1}],\"uncertainties\":[],\"title_quote\":\"מדינת ישראל · תעודת זהות\"}",
+        "thoughtSignature": "EmkKZwFpFH0TGhdIHhtPSjUxaJ2D6Jvy3qMH3giZucP6eb9qO4X6LHS5ofLgqIgoQKu/jih59gNB+F9olh4ZUCNtXqvxoIwyXs3h73LYDbMz/lqimEfvwq8dMWQWDBYmn81SR1P9S0QRpP0="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 604,
+    "totalTokenCount": 2246,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "64XPareACoedkdUPhoqT2As"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\"criterion_id\": \"ID-01\", \"outcome\": \"PASS\", \"explanation_he\": \"המסמך מציג פורמט תעודת זהות של מדינת ישראל.\", \"cited_fields\": [], \"confidence\": 0.99},\n    {\"criterion_id\": \"ID-02\", \"outcome\": \"PASS\", \"explanation_he\": \"פרטי המסמך, לרבות השם, מספר הזהות והתאריכים, ברורים, קריאים ואינם חתוכים.\", \"cited_fields\": [\"holder_name\", \"holder_id\", \"date_of_birth\", \"issue_date\", \"expiry_date\"], \"confidence\": 0.99},\n    {\"criterion_id\": \"ID-03\", \"outcome\": \"PASS\", \"explanation_he\": \"השם המודרך ומספר הזהות תואמים באופן מלא לפרטי המבקש.\", \"cited_fields\": [\"holder_name\", \"holder_id\"], \"confidence\": 1.0},\n    {\"criterion_id\": \"ID-06\", \"outcome\": \"PASS\", \"explanation_he\": \"לא זוהו הוראות חשודות או ניסיונות הזרקה; סימוני הדמו הם חלק מסביבת הבדיקה הסינתטית המותרת.\", \"cited_fields\": [], \"confidence\": 0.99}\n  ],\n  \"summary_he\": \"תעודת הזהות נקלטה באופן קריא ותקין, פרטי המבקש תואמים במלואם, ולא זוהו סימני עריכה או הוראות אסורות.\",\n  \"limitations_he\": [\"המסמך הינו מסמך דמו סינתטי לצורכי בדיקה.\"],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TCpe7vsm+qWPxUN7806B/ZzDTXHhAPsP3tcRm6JH1plWNKFKjgWxfVD4h5SjcbwqkX3k0ec5Ijt5i2CJMQGG+H3weNEyfwhQRatsXY/IzMhshj3xWonA9VjVfc5grZm9vFXc="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2337,
+    "candidatesTokenCount": 416,
+    "totalTokenCount": 2753,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1805
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "8YXPavfDDqGavdIPt4SkuQ4"
+  }
+ }
+}

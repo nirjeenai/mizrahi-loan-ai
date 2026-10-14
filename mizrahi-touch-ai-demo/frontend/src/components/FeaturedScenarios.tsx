@@ -10,7 +10,7 @@ import type { UseCase } from "./UseCaseScenarios";
    never a live result. Downloading a file changes nothing in the app; the presenter uploads it on the right. */
 
 export type Route = "PASS" | "REVIEW" | "BLOCKER" | "CORRECTION";
-export type FileRole = "upload" | "setup" | "wrong" | "replacement";
+export type FileRole = "upload" | "setup" | "wrong" | "replacement" | "alternative" | "banker_correction" | "banker_accept";
 /** One file of a scenario as the manifest resolves it: what it is, where it goes, which month to pick, why it is there. */
 export interface ScenarioFile { file: string; labelHe: string; slotHe: string; uploadAs: string; period: string | null; role: FileRole; noteHe?: string | null }
 export interface FeaturedStep extends ScenarioFile { borrower: string; optional?: boolean }
@@ -42,7 +42,8 @@ export function loadPresenterBundle(): Promise<PresenterBundle> {
 
 const OPEN_KEY = "mz.presenter.featured.v1";
 const TONE: Record<Route, string> = { PASS: "ok", REVIEW: "warn", BLOCKER: "bad", CORRECTION: "info" };
-const ROLE_HE: Record<FileRole, string> = { upload: "", setup: "הכנה", wrong: "הקובץ השגוי", replacement: "התיקון" };
+export const ROLE_HE: Record<FileRole, string> = { upload: "", setup: "הכנה", wrong: "הקובץ השגוי", replacement: "התיקון",
+  alternative: "חלופה (רשות)", banker_correction: "פעולת הבנקאית", banker_accept: "פעולת הבנקאית" };
 export const fileName = (path: string) => path.split("/").pop() || path;
 
 /** A downloadable fixture: its Hebrew label first, then where it is uploaded, the technical file name in small print, and

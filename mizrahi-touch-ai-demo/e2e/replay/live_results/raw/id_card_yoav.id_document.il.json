@@ -1,0 +1,78 @@
+{
+ "sha256": "eb2a408e1b53a997b79d7206ce2c5ae87043003709f5506577fbae53ab4af368",
+ "file": "presenter/profile_set/id_card_yoav.pdf",
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "ID_CARD:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"id_document\",\n  \"doc_type_reason\": \"מדינת ישראל · תעודת זהות\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"יואב כרמי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [160, 666, 172, 731],\n      \"label_quote\": \"שם מלא\",\n      \"normalized\": \"יואב כרמי\",\n      \"quote\": \"יואב כרמי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-102\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [182, 417, 194, 530],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-102\",\n      \"quote\": \"DEMO-ID-102\"\n    },\n    {\n      \"name\": \"date_of_birth\",\n      \"value\": \"17.06.1990\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [204, 419, 216, 506],\n      \"label_quote\": \"תאריך לידה\",\n      \"normalized\": \"17.06.1990\",\n      \"quote\": \"17.06.1990\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"03.02.2023\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [226, 419, 238, 506],\n      \"label_quote\": \"תאריך הנפקה\",\n      \"normalized\": \"03.02.2023\",\n      \"quote\": \"03.02.2023\"\n    },\n    {\n      \"name\": \"expiry_date\",\n      \"value\": \"03.02.2033\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [249, 419, 260, 506],\n      \"label_quote\": \"תוקף עד\",\n      \"normalized\": \"03.02.2033\",\n      \"quote\": \"03.02.2033\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינו תעודה רשמית\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"מדובר במסמך דמו/סינתטי (DEMO-ID-102)\"\n  ],\n  \"title_quote\": \"מדינת ישראל · תעודת זהות\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0Tu1KHIpcyi5n2vaOQ9IdBrWkttSoxDEjQ9SKSEq2qKXows/dr0DX+YukqwUWo9hdzCeQmWE8tuDcF33+cSSXyQfHvrqu83UItAfpSgig32EU/uER3uxfjNmos48nOI9XGp1E="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 910,
+    "totalTokenCount": 2552,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "bIXPav_HLYbtxN8Pu5CcqAk"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"ID-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך מציג פורמט של תעודת זהות ישראלית (במסגרת סביבת דמו סינתטית).\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא לחלוטין ואינו חתוך; כלל הפרטים החשובים (שם, תעודת זהות, תאריכים) ברורים.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\",\n        \"date_of_birth\",\n        \"issue_date\",\n        \"expiry_date\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"השם המלא (יואב כרמי) ומספר הזהות תואמים בדיוק למבקש ההלוואה ולתוצאה הדטרמיניסטית שנקבעה.\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"ID-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו הוראות חשודות המיועדות ל-AI או ניסיונות עריכה זדוניים. כיתובי הדמו והסימן המים הם חלק מובנה מסביבת הבדיקה הסינתטית.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך עומד בכל הקריטריונים שנבדקו (ID-01, ID-02, ID-03, ID-06) במסגרת סביבת הדמו הסינתטית.\",\n  \"limitations_he\": [\n    \"מדובר במסמך בדיקה סינתטי (דמו) עם מזהה פיקטיבי DEMO-ID-102.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TPqUVGKgNZRRUcO4TPm8zD+OcGNVeZGwWXujAMvL9ReGY21QPIkhTjOonJ9KekVU/rA388tgZVzziaXOhxY2KYU22jf5qdcWWhXmBpL71vYb3F1xS4ju5OHCONRfb40Bgm/I="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2314,
+    "candidatesTokenCount": 568,
+    "totalTokenCount": 2882,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1782
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "dIXPaqqEOKSBxs0Pj8-ZiAo"
+  }
+ }
+}

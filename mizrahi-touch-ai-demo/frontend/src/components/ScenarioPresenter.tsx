@@ -165,7 +165,8 @@ export function ScenarioPresenter() {
   const slots = scenarios.flatMap((s) => s.files.map((id) => markKey(s, id)));
   const done = slots.filter((k) => marks[k]?.uploaded).length;
   const referenced = new Set(scenarios.flatMap((s) => s.files));
-  const extras = documents.filter((d) => !referenced.has(d.id));
+  // the use-case packs (set "profiles") are listed on their own cards, not among the library's supplementary files
+  const extras = documents.filter((d) => !referenced.has(d.id) && (d as { set?: string }).set !== "profiles");
   const flip = (id: string) => setOpen((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
   return (

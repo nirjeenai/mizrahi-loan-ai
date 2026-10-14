@@ -1,0 +1,316 @@
+{
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "PURPOSE_PROOF",
+ "sha256": "f987fb1c91d472a7a2e837a04ec16d83451643bf3d7a7e2701a091458c69e1a7",
+ "result": {
+  "run_id": "REC-f987fb1c",
+  "document_id": "REC-f987fb1c",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "purpose_proof.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:42:53+00:00",
+  "finished_at": "2026-10-14T13:43:08+00:00",
+  "doc_type": "purpose_proof",
+  "doc_type_he": "אסמכתה למטרה",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "issuer_name",
+    "label_he": "שם הספק",
+    "value_raw": "שיפוצי הגליל בע״מ",
+    "value_normalized": "שיפוצי הגליל בע״מ",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f987fb1c:issuer_name",
+     "document_id": "REC-f987fb1c",
+     "field": "issuer_name",
+     "page": 1,
+     "quote": "שיפוצי הגליל בע״מ",
+     "bbox": [
+      431.84,
+      40.27,
+      556.26,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "רועי שטרן ומאיה שטרן",
+    "value_normalized": "רועי שטרן ומאיה שטרן",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f987fb1c:holder_name",
+     "document_id": "REC-f987fb1c",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "רועי שטרן ומאיה שטרן",
+     "bbox": [
+      284.92,
+      139.74,
+      376.33,
+      151.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "document_kind",
+    "label_he": "סוג המסמך",
+    "value_raw": "הצעת מחיר לשיפוץ דירה",
+    "value_normalized": "הצעת מחיר לשיפוץ דירה",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f987fb1c:document_kind",
+     "document_id": "REC-f987fb1c",
+     "field": "document_kind",
+     "page": 1,
+     "quote": "הצעת מחיר לשיפוץ דירה",
+     "bbox": [
+      257.36,
+      40.27,
+      417.62,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "subject",
+    "label_he": "תיאור",
+    "value_raw": "שיפוץ דירה ברחוב הגפן 3, הוד השרון: מטבח, שני חדרי רחצה, ריצוף ואינסטלציה",
+    "value_normalized": "שיפוץ דירה ברחוב הגפן 3, הוד השרון: מטבח, שני חדרי רחצה, ריצוף ואינסטלציה",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f987fb1c:subject",
+     "document_id": "REC-f987fb1c",
+     "field": "subject",
+     "page": 1,
+     "quote": "שיפוץ דירה ברחוב הגפן 3, הוד השרון: מטבח, שני חדרי רחצה, ריצוף ואינסטלציה",
+     "bbox": [
+      50.4,
+      158.49,
+      376.32,
+      170.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "28.09.2026",
+    "value_normalized": "2026-09-28",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f987fb1c:issue_date",
+     "document_id": "REC-f987fb1c",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "28.09.2026",
+     "bbox": [
+      44.75,
+      120.99,
+      97.3,
+      132.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "total_amount",
+    "label_he": "סכום",
+    "value_raw": "166,000.00",
+    "value_normalized": 166000.0,
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-f987fb1c:total_amount",
+     "document_id": "REC-f987fb1c",
+     "field": "total_amount",
+     "page": 1,
+     "quote": "166,000.00",
+     "bbox": [
+      44.75,
+      335.49,
+      97.3,
+      347.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "PP-01",
+    "title_he": "המסמך הוא הצעת מחיר, חשבונית או הסכם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא הצעת מחיר תקפה לשיפוץ דירה שהונפקה על ידי חברת שיפוצי הגליל בע״מ.",
+    "evidence_ids": [
+     "REC-f987fb1c:document_kind",
+     "REC-f987fb1c:issuer_name"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא, ברור ושלם לחלוטין, וכולל את פרטי הספק, התאריך, פירוט העבודות והסכום.",
+    "evidence_ids": [
+     "REC-f987fb1c:issuer_name",
+     "REC-f987fb1c:issue_date",
+     "REC-f987fb1c:subject",
+     "REC-f987fb1c:total_amount"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-03",
+    "title_he": "שם הספק והסכום מודפסים",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "MANDATORY_FIELD_MISSING",
+    "explanation_he": "ספק: שיפוצי הגליל בע״מ · סכום: 166,000.00",
+    "evidence_ids": [
+     "REC-f987fb1c:issuer_name",
+     "REC-f987fb1c:total_amount"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-04",
+    "title_he": "המסמך עדכני",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_STALE",
+    "explanation_he": "הופק לפני 14 ימים (עד 90)",
+    "evidence_ids": [
+     "REC-f987fb1c:issue_date"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PP-05",
+    "title_he": "המסמך מתאים למטרת ההלוואה שהוצהרה",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "minor",
+    "reason_code": "PURPOSE_MISMATCH",
+    "explanation_he": "פירוט השירותים במסמך (שיפוץ דירה, מטבח, חדרי רחצה, ריצוף ואינסטלציה) תואם במדויק את מטרת ההלוואה המוצהרת 'שיפוץ'.",
+    "evidence_ids": [
+     "REC-f987fb1c:subject"
+    ],
+    "decided_by": "judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PP-06",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא אותרו הוראות זדוניות למערכת או סימני עריכה חשודים. הכיתובים וסימני המים במסמך הם של סביבת דמו סינתטית מובנית.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PP-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "הצעת המחיר לשיפוץ דירה עומדת בכל הקריטריונים: המסמך קריא ושלם, תואם במדויק את מטרת ההלוואה, ואינו מכיל שינויים או פקודות חשודות.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3984,
+   "output_tokens": 1624,
+   "thought_tokens": 0
+  }
+ }
+}

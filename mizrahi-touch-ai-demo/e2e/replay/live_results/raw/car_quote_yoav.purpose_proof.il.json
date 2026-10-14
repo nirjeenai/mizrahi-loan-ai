@@ -1,0 +1,78 @@
+{
+ "sha256": "35d3d76b8e544707cd7851234bcf3c1861f814be1c2b115d8e959959d90ed92b",
+ "file": "presenter/profile_set/car_quote_yoav.pdf",
+ "case_id": "DEMO-MTZ-2026-102",
+ "requirement_code": "PURPOSE_PROOF",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"purpose_proof\",\n  \"doc_type_reason\": \"המסמך הוא הצעת מחיר לרכב עבור לקוח, כולל פירוט סכום לתשלום ותיאור הרכב.\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"issuer_name\",\n      \"value\": \"אוטו־דמו יבואנים בע״מ\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [53, 672, 69, 933],\n      \"label_quote\": null,\n      \"normalized\": \"אוטו־דמו יבואנים בע״מ\",\n      \"quote\": \"אוטו־דמו יבואנים בע״מ\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"יואב כרמי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 566, 178, 631],\n      \"label_quote\": \"לכבוד\",\n      \"normalized\": \"יואב כרמי\",\n      \"quote\": \"יואב כרמי\"\n    },\n    {\n      \"name\": \"document_kind\",\n      \"value\": \"הצעת מחיר לרכב\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [100, 513, 111, 631],\n      \"label_quote\": \"סוג המסמך\",\n      \"normalized\": \"הצעת מחיר לרכב\",\n      \"quote\": \"הצעת מחיר לרכב\"\n    },\n    {\n      \"name\": \"subject\",\n      \"value\": \"רכב מסחרי קל, דגם דמו ואן, שנת ייצור 2025 (יד שנייה)\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [189, 252, 201, 631],\n      \"label_quote\": \"תיאור\",\n      \"normalized\": \"רכב מסחרי קל, דגם דמו ואן, שנת ייצור 2025 (יד שנייה)\",\n      \"quote\": \"רכב מסחרי קל, דגם דמו ואן, שנת ייצור 2025 (יד שנייה)\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"01.10.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [145, 75, 156, 163],\n      \"label_quote\": \"תאריך\",\n      \"normalized\": \"01.10.2026\",\n      \"quote\": \"01.10.2026\"\n    },\n    {\n      \"name\": \"total_amount\",\n      \"value\": \"68,000.00\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [311, 75, 323, 153],\n      \"label_quote\": \"סה״כ לתשלום\",\n      \"normalized\": \"68000.00\",\n      \"quote\": \"68,000.00\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [],\n  \"uncertainties\": [],\n  \"title_quote\": \"אוטו־דמו יבואנים בע״מ · הצעת מחיר לרכב\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TuBoSOi2w54RMxBps0K8pp6KL6yGLzsN7tnMOf4vHeM6lNMV66w0au2R4c6gp3ypKoG4qr21uLxLFwLvESOhOE4jjfsk8zSkVxqWbPINFTOOOBenMPUM/RBmcFd0L4MmcsNg="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 991,
+    "totalTokenCount": 2633,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "ioXPaoPULMODkdUPmvytsQI"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PP-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא הצעת מחיר לרכב מספק (אוטו־דמו יבואנים בע״מ), המפרטת רכישת רכב ומחיר לתשלום.\",\n      \"cited_fields\": [\"document_kind\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"כל פרטי המסמך קריאים ושלמים: שם הספק, תאריך ההפקה, תיאור הרכב והסכום לתשלום ברורים לחלוטין.\",\n      \"cited_fields\": [\"issuer_name\", \"issue_date\", \"subject\", \"total_amount\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"תיאור הרכישה במסמך ('רכב מסחרי קל') תואם באופן מלא למטרת ההלוואה המוצהרת ('רכישת רכב').\",\n      \"cited_fields\": [\"subject\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו טקסטים הממוענים למודל שפה, הנחיות זדוניות או סימני עריכה גרפית בסכום או בתאריך.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק ונמצא תקין: מדובר בהצעת מחיר קריאה ושלמת לרכישת רכב התואמת את מטרת ההלוואה המוצהרת, ללא אינדיקציות לעריכה חשודה.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TFtZJriV7d4D/20QpjhoJIfIF2ymIy7kEmSUdGrmOQdQvTz78Wza8TyRXHqOMla1kw21iV0pVm7XufWyIstLu2jtJvap7xvRRXj6etB0EKCammQ7VVMSpDrwbNTALDaHZ1HU="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2249,
+    "candidatesTokenCount": 503,
+    "totalTokenCount": 2752,
+    "promptTokensDetails": [
+     {
+      "modality": "TEXT",
+      "tokenCount": 1717
+     },
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "k4XPapLYMeWgkdUP2IS5kQs"
+  }
+ }
+}

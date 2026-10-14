@@ -1,4 +1,4 @@
-"""Runs every presenter scenario — the featured cards and the test library — through the real upload endpoint on a
+"""Runs every presenter scenario — the six use cases (TC-01…06, banker steps included), the featured cards and the test library — through the real upload endpoint on a
 REPLAY backend and reports what the app actually produced next to what the manifest advertises (zero Gemini calls).
 Resets each scenario's case before it runs, so point it only at an isolated stack.
 
@@ -51,7 +51,8 @@ def summary(c: httpx.Client, case: str, s: dict) -> dict:
 
 def steps_of(item: dict, featured: bool) -> list[dict]:
     rows = item["steps"] if featured else item.get("items") or [{"file": f} for f in item["files"]]
-    return [{"file": st["file"], "period": st.get("period"), "role": st.get("role", "upload")} for st in rows]
+    return [{"file": st["file"], "period": st.get("period"), "role": st.get("role", "upload"), "uploadAs": st.get("uploadAs"),
+             "borrower": st.get("borrower")} for st in rows if not st.get("optional")]
 
 
 VERIFIED = {"text_layer_exact", "vision_reread_confirmed"}
@@ -76,6 +77,12 @@ def end_state(c: httpx.Client, case: str, s: dict, uploaded: dict[str, str], wan
     for code, state in (want.get("requirements") or {}).items():
         if reqs.get(code, {}).get("ai_state") != state:
             errors.append(f"{code} {reqs.get(code, {}).get('ai_state')} ≠ {state}")
+    if want.get("tasks"):
+        c.post("/api/session/demo/staff", json={}).raise_for_status()
+        tasks = {t["requirement_code"]: t["status"] for t in c.get(f"/api/banker/cases/{case}/followup").json()["tasks"]}
+        for code, status in want["tasks"].items():
+            if tasks.get(code) != status:
+                errors.append(f"follow-up task {code} {tasks.get(code)} ≠ {status}")
     for code, months in (want.get("missing") or {}).items():
         if sorted(reqs.get(code, {}).get("missing") or []) != months:
             errors.append(f"{code} missing {reqs.get(code, {}).get('missing')} ≠ {months}")
@@ -100,10 +107,18 @@ def run(c: httpx.Client, item: dict, case: str, featured: bool) -> dict:
     uploaded: dict[str, str] = {}
     for st in steps_of(item, featured):
         doc = DOCS[st["file"]]
-        code = (item.get("uploadAs") or {}).get(st["file"]) or doc["uploadAs"]
+        code = st["uploadAs"] or (item.get("uploadAs") or {}).get(st["file"]) or doc["uploadAs"]
+        if st["role"] in ("banker_correction", "banker_accept"):
+            trail.append({"file": st["file"], "as": st["role"], "period": None, "replaces": None, "created": None,
+                          **banker_step(c, case, uploaded[st["file"]], st["role"])})
+            continue
         data = {"requirement_code": code}
-        if not code.startswith("PURPOSE"):
-            data["borrower_id"] = code.split(":")[1] if code.split(":")[1].startswith("BRW") else "BRW-A"
+        if code.startswith(("ID_CARD", "PAYSLIPS", "TAX_", "VAT_", "PNL_")):
+            data["borrower_id"] = st["borrower"] or (code.split(":")[1] if ":" in code else "BRW-A")
+        asked = next((q for q in c.get(f"/api/cases/{case}").json().get("customer_requests") or []
+                      if q["status"] == "OPEN" and q["requirement_code"] == code), None)
+        if asked:
+            data["customer_request_id"] = asked["customer_request_id"]
         if st["period"]:
             data["expected_period"] = st["period"]
         s = c.get(f"/api/cases/{case}").json()
@@ -131,9 +146,23 @@ def run(c: httpx.Client, item: dict, case: str, featured: bool) -> dict:
             "expected_status": want, "errors": errors, "trail": trail}
 
 
+def banker_step(c: httpx.Client, case: str, document_id: str, role: str) -> dict:
+    """The banker's human review of a document no rubric covers: a correction request, or the acceptance."""
+    c.post("/api/session/demo/staff", json={}).raise_for_status()
+    body = {"action": "request_correction", "customer_message": "נבקש נסח חברה שהופק ב־30 הימים האחרונים.",
+            "request_id": f"verify-{role}-{document_id}"} if role == "banker_correction" else \
+        {"action": "accept", "rationale": "נבדק ידנית מול המקור — תקין לצורך הכנת התיק", "acknowledged_finding_ids": [],
+         "request_id": f"verify-{role}-{document_id}"}
+    r = c.post(f"/api/banker/cases/{case}/documents/{document_id}/decision", json=body)
+    r.raise_for_status()
+    return summary(c, case, settle(c, case))
+
+
 def main() -> int:
     c = httpx.Client(base_url=BASE, timeout=60)
     results = []
+    for u in MANIFEST.get("useCases", []):
+        results.append(run(c, u, u["caseId"], True))
     for f in MANIFEST.get("featured", []):
         results.append(run(c, f, f["caseId"], True))
     for s in MANIFEST["scenarios"]:

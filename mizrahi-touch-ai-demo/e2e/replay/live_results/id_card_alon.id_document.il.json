@@ -1,0 +1,286 @@
+{
+ "case_id": "DEMO-MTZ-2026-104",
+ "requirement_code": "ID_CARD:BRW-A",
+ "sha256": "caf2072638301042d2b009c2bb18f737fb48bc3f34a6b5aa1ef64f21a4652e79",
+ "result": {
+  "run_id": "REC-caf20726",
+  "document_id": "REC-caf20726",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "id_document.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:38:50+00:00",
+  "finished_at": "2026-10-14T13:39:02+00:00",
+  "doc_type": "id_document",
+  "doc_type_he": "תעודת זהות",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "אלון פרידמן",
+    "value_normalized": "אלון פרידמן",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-caf20726:holder_name",
+     "document_id": "REC-caf20726",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "אלון פרידמן",
+     "bbox": [
+      390.28,
+      134.49,
+      437.07,
+      146.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-104",
+    "value_normalized": "DEMO-ID-104",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-caf20726:holder_id",
+     "document_id": "REC-caf20726",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-104",
+     "bbox": [
+      249.62,
+      153.24,
+      316.13,
+      164.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "date_of_birth",
+    "label_he": "תאריך לידה",
+    "value_raw": "28.04.1983",
+    "value_normalized": "1983-04-28",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-caf20726:date_of_birth",
+     "document_id": "REC-caf20726",
+     "field": "date_of_birth",
+     "page": 1,
+     "quote": "28.04.1983",
+     "bbox": [
+      249.62,
+      171.99,
+      302.16,
+      183.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "08.09.2019",
+    "value_normalized": "2019-09-08",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-caf20726:issue_date",
+     "document_id": "REC-caf20726",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "08.09.2019",
+     "bbox": [
+      249.62,
+      190.74,
+      302.16,
+      202.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "expiry_date",
+    "label_he": "תוקף עד",
+    "value_raw": "08.09.2029",
+    "value_normalized": "2029-09-08",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-caf20726:expiry_date",
+     "document_id": "REC-caf20726",
+     "field": "expiry_date",
+     "page": 1,
+     "quote": "08.09.2029",
+     "bbox": [
+      249.62,
+      190.74,
+      302.16,
+      202.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "ID-01",
+    "title_he": "המסמך הוא תעודת זהות",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך מציג פורמט תעודת זהות של מדינת ישראל.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "פרטי המסמך, לרבות השם, מספר הזהות והתאריכים, ברורים, קריאים ואינם חתוכים.",
+    "evidence_ids": [
+     "REC-caf20726:holder_name",
+     "REC-caf20726:holder_id",
+     "REC-caf20726:date_of_birth",
+     "REC-caf20726:issue_date",
+     "REC-caf20726:expiry_date"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-03",
+    "title_he": "השם ומספר הזהות תואמים למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים לאלון פרידמן",
+    "evidence_ids": [
+     "REC-caf20726:holder_name",
+     "REC-caf20726:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-04",
+    "title_he": "מספר הזהות תקין (ספרת ביקורת)",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "ID_NUMBER_INVALID",
+    "explanation_he": "מזהה סינתטי של סביבת ההדגמה (DEMO-ID-104) — בדיקת ספרת ביקורת אינה רלוונטית",
+    "evidence_ids": [
+     "REC-caf20726:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "ID-05",
+    "title_he": "התעודה בתוקף",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "ID_EXPIRED",
+    "explanation_he": "בתוקף עד 08.09.2029",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-06",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא זוהו הוראות חשודות או ניסיונות הזרקה; סימוני הדמו הם חלק מסביבת הבדיקה הסינתטית המותרת.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "ID-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "תעודת הזהות נקלטה באופן קריא ותקין, פרטי המבקש תואמים במלואם, ולא זוהו סימני עריכה או הוראות אסורות.",
+  "limitations_he": [
+   "המסמך הינו מסמך דמו סינתטי לצורכי בדיקה.",
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3979,
+   "output_tokens": 1020,
+   "thought_tokens": 0
+  }
+ }
+}

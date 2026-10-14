@@ -78,8 +78,9 @@ def submit_document(case_id: str, filename: str, mime: str, data: bytes, borrowe
     except Exception as exc:                          # corrupt / protected file
         path.unlink(missing_ok=True)
         raise UploadRejected(f"the file could not be opened ({type(exc).__name__})") from None
-    from .requirements import evaluated_by_ai
-    reviewed_by_ai = evaluated_by_ai(family)
+    from . import requirements
+    target_req = requirements.requirement(case_id, requirement_code) if requirement_code else None
+    reviewed_by_ai = target_req["evaluated_by_ai"] if target_req else requirements.evaluated_by_ai(family)
     row = {"document_id": document_id, "case_id": case_id, "borrower_id": borrower_id, "requirement_code": requirement_code,
            "filename": Path(filename).name[:120], "mime": mime, "sha256": sha, "bytes": len(data), "pages": info["pages"],
            "text_layer_chars": info["text_layer_chars"], "storage_path": str(path), "uploaded_at": now_iso(),
@@ -251,8 +252,11 @@ def _run_case(job: dict) -> None:
     docs = []
     # a payslip the customer replaced (at the banker's request or after the AI sent it back) no longer counts toward the set
     replaced = set(desk_state.replacements(repo.customer_requests(case_id), case_id))
-    for d in repo.documents(case_id):
-        if d["document_id"] in replaced:
+    from .requirements import inactive_codes
+    all_docs = repo.documents(case_id)
+    inactive = inactive_codes(case_id, all_docs)
+    for d in all_docs:
+        if d["document_id"] in replaced or d["requirement_code"] in inactive:
             continue
         docs.append({**{k: d[k] for k in ("document_id", "filename", "borrower_id", "status", "uploaded_at", "requirement_code")},
                      "review": repo.latest_document_result(d["document_id"]) if d["status"] == "reviewed" else None})

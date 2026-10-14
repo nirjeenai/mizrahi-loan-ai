@@ -1,0 +1,78 @@
+{
+ "sha256": "21dda69ebe40b1974fbd86bf231a798a6e3046b223ef331732be688b39c161fd",
+ "file": "presenter/profile_set/car_quote_shiran.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "PURPOSE_PROOF",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\"doc_type\":\"purpose_proof\",\"doc_type_reason\":\"המסמך הוא הצעת מחיר לרכב (הוכחת צורך / מטרת הלוואה) מאת אוטו־דמו יבואנים בע״מ עבור שירן אזולאי.\",\"legibility\":\"good\",\"is_scanned_or_photo\":false,\"fields\":[{\"name\":\"issuer_name\",\"value\":\"אוטו־דמו יבואנים בע״מ\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[53,680,68,932],\"label_quote\":null,\"normalized\":\"אוטו־דמו יבואנים בע״מ\",\"quote\":\"אוטו־דמו יבואנים בע״מ\"},{\"name\":\"holder_name\",\"value\":\"שירן אזולאי\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[167,554,178,632],\"label_quote\":\"לכבוד\",\"normalized\":\"שירן אזולאי\",\"quote\":\"שירן אזולאי\"},{\"name\":\"document_kind\",\"value\":\"הצעת מחיר לרכב\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[100,513,110,632],\"label_quote\":\"סוג המסמך\",\"normalized\":\"הצעת מחיר לרכב\",\"quote\":\"הצעת מחיר לרכב\"},{\"name\":\"subject\",\"value\":\"רכב פנאי חדש, דגם דמו קרוסאובר, שנת ייצור 2026\",\"page\":1,\"confidence\":0.98,\"legible\":true,\"box_2d\":[189,279,201,632],\"label_quote\":\"תיאור\",\"normalized\":\"רכב פנאי חדש, דגם דמו קרוסאובר, שנת ייצור 2026\",\"quote\":\"רכב פנאי חדש, דגם דמו קרוסאובר, שנת ייצור 2026\"},{\"name\":\"issue_date\",\"value\":\"01.10.2026\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[145,74,155,164],\"label_quote\":\"תאריך\",\"normalized\":\"01.10.2026\",\"quote\":\"01.10.2026\"},{\"name\":\"total_amount\",\"value\":\"152,000.00\",\"page\":1,\"confidence\":0.99,\"legible\":true,\"box_2d\":[310,74,321,164],\"label_quote\":\"סה״כ לתשלום\",\"normalized\":\"152000.00\",\"quote\":\"152,000.00\"}],\"earnings\":[],\"deductions\":[],\"suspicious_content\":[],\"uncertainties\":[],\"title_quote\":\"אוטו־דמו יבואנים בע״מ · הצעת מחיר לרכב\"}",
+        "thoughtSignature": "EmkKZwFpFH0T2Z96hNeJln/Vu14jrYTDcg/2NE/AWcymJn5a8yEVOnVDLFT2wWOEydixK4Ih7Kt7f/76kUIJ8pKQL6/Gw/BBHIjiJCpfnu3p/SkLXWYK8H4ip/ttF2R21X1DeGkxwwYgUZQ="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 702,
+    "totalTokenCount": 2344,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "tYXPasuyB7rnnsEP8biI0AE"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PP-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא הצעת מחיר לרכב מספק (אוטו־דמו יבואנים בע״מ).\",\n      \"cited_fields\": [\"document_kind\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך קריא, ברור ושלם, ומכיל את פרטי הספק, התאריך, התיאור והסכום.\",\n      \"cited_fields\": [\"issuer_name\", \"issue_date\", \"subject\", \"total_amount\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"נושא ההצעה (רכישת רכב פנאי חדש) תואם במדויק את מטרת ההלוואה שהוצהרה (רכישת רכב).\",\n      \"cited_fields\": [\"subject\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PP-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא זוהו הוראות חשודות למערכת או סימני עריכה במסמך; סימוני הדמו הם חלק מסביבת הבדיקה המוגדרת מראש.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"המסמך נבדק בהצלחה: הצעת מחיר תקינה, קריאה, תואמת את מטרת ההלוואה וללא סימני עריכה או הנחיות חשודות.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TUCmoefcr8GWbd4h1yNZrfRJPCkSLqXzzbBJnk/2QQu5HaH09opRauCbE/KyMDDw5F9yl84KKE3KKJEaZYvC4adFakj/3aVscXtkznLGq98Dkuo2ZP+IUL0Q5scdB1ywSnck="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2263,
+    "candidatesTokenCount": 477,
+    "totalTokenCount": 2740,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1731
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "vIXPaqWxEO-4vdIP1JXpwQc"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "sha256": "5cf657bdbba66d0f51ce09386e9099358706c30038b2cbdfe2a0a5fba444dd2e",
+ "file": "presenter/profile_set/tax_assessment_maya_2025.pdf",
+ "case_id": "DEMO-MTZ-2026-105",
+ "requirement_code": "TAX_ASSESSMENT:BRW-B",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"tax_form\",\n  \"doc_type_reason\": \"הודעת שומה של רשות המסים (מס הכנסה)\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"מאיה שטרן\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [101, 552, 115, 633],\n      \"label_quote\": \"שם הנישום\",\n      \"normalized\": \"מאיה שטרן\",\n      \"quote\": \"מאיה שטרן\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-115\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [123, 73, 137, 187],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-115\",\n      \"quote\": \"DEMO-ID-115\"\n    },\n    {\n      \"name\": \"tax_year\",\n      \"value\": \"2025\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [168, 73, 181, 116],\n      \"label_quote\": \"שנת המס\",\n      \"normalized\": \"2025\",\n      \"quote\": \"2025\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"03.08.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [190, 73, 203, 164],\n      \"label_quote\": \"תאריך הפקה\",\n      \"normalized\": \"03.08.2026\",\n      \"quote\": \"03.08.2026\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [\n    {\n      \"quote\": \"מסמך דמו — אינה שומה רשמית\",\n      \"kind\": \"other\",\n      \"page\": 1\n    },\n    {\n      \"quote\": \"מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי\",\n      \"kind\": \"other\",\n      \"page\": 1\n    }\n  ],\n  \"uncertainties\": [\n    \"המסמך מוגדר כמסמך דמו / סינתטי\"\n  ],\n  \"title_quote\": \"רשות המסים בישראל · מס הכנסה · הודעת שומה\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TPvlwoetg5tILEuHlqDp8bBs8aHsCeHTWWKWur61vdrb520xMuYkR8+m00QNbunx69Mhu8EBXic8i9xXbPGob4L0UPqPbhZLkNtcTzRvgSNerl5YWg7xGc5sAme0Q9mAop6Y="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 757,
+    "totalTokenCount": 2399,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "7YbPatfVCPGFnsEPpcPRWQ"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"TX-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא הודעת שומה של רשות המסים (מס הכנסה), התואם לסוג המסמך הנדרש.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"TX-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך שלם, קריא וברור לחלוטין ללא חיתוכים או פגמים.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.99\n    },\n    {\n      \"criterion_id\": \"TX-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם הנישום ומספר הזהות במסמך תואמים במדויק לפרטי המבקשת (מאיה שטרן, DEMO-ID-115).\",\n      \"cited_fields\": [\n        \"holder_name\",\n        \"holder_id\"\n      ],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"TX-05\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"אין במסמך הוראות חשודות, פניות למערכת AI או ניסיונות עקיפה; סימוני הדמו הם חלק מסביבת הבדיקה המוגדרת.\",\n      \"cited_fields\": [],\n      \"confidence\": 0.98\n    }\n  ],\n  \"summary_he\": \"המסמך הינו שומת מס תקינה, קריאה ושלמה עבור מאיה שטרן, ללא חריגות או הוראות זדוניות.\",\n  \"limitations_he\": [\n    \"מדובר במסמך סינתטי שנוצר לצורכי הדגמה ובדיקה.\"\n  ],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TcZumn/FB8YoNy6Yf6M6iZ4FKs6AhoasU4i7xtKdjVvlFrNyMeUoyvBGgcLjgoU+tfL9p4sU71rcWQDuTExvmcotnzpu0UtbQ2jNzun/K3NDtHlhsDnPbc9apwHUCvMCeE9U="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1998,
+    "candidatesTokenCount": 484,
+    "totalTokenCount": 2482,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1466
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "9YbPar-8Lo--vdIPoNvS0Qc"
+  }
+ }
+}

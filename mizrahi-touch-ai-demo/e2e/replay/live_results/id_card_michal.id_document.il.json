@@ -1,0 +1,286 @@
+{
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "ID_CARD:BRW-C",
+ "sha256": "dce40d904c6bc76c2a587093a86c020787e39fffb92731c7d31ad6515a5c4af1",
+ "result": {
+  "run_id": "REC-dce40d90",
+  "document_id": "REC-dce40d90",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "id_document.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T13:35:20+00:00",
+  "finished_at": "2026-10-14T13:35:33+00:00",
+  "doc_type": "id_document",
+  "doc_type_he": "תעודת זהות",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-C",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "מיכל ברק",
+    "value_normalized": "מיכל ברק",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-dce40d90:holder_name",
+     "document_id": "REC-dce40d90",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "מיכל ברק",
+     "bbox": [
+      398.73,
+      134.49,
+      437.07,
+      146.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "311204572",
+    "value_normalized": "311204572",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-dce40d90:holder_id",
+     "document_id": "REC-dce40d90",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "311204572",
+     "bbox": [
+      249.62,
+      153.24,
+      301.39,
+      164.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "date_of_birth",
+    "label_he": "תאריך לידה",
+    "value_raw": "02.11.1986",
+    "value_normalized": "1986-11-02",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-dce40d90:date_of_birth",
+     "document_id": "REC-dce40d90",
+     "field": "date_of_birth",
+     "page": 1,
+     "quote": "02.11.1986",
+     "bbox": [
+      249.62,
+      171.99,
+      301.39,
+      183.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "14.07.2022",
+    "value_normalized": "2022-07-14",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-dce40d90:issue_date",
+     "document_id": "REC-dce40d90",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "14.07.2022",
+     "bbox": [
+      249.62,
+      190.74,
+      302.16,
+      202.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "expiry_date",
+    "label_he": "תוקף עד",
+    "value_raw": "14.07.2032",
+    "value_normalized": "2032-07-14",
+    "confidence": 1.0,
+    "evidence": {
+     "evidence_id": "REC-dce40d90:expiry_date",
+     "document_id": "REC-dce40d90",
+     "field": "expiry_date",
+     "page": 1,
+     "quote": "14.07.2032",
+     "bbox": [
+      249.62,
+      190.74,
+      302.16,
+      202.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "ID-01",
+    "title_he": "המסמך הוא תעודת זהות",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא תעודת זהות ישראלית הכוללת את כל הפרטים הנדרשים.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא, מלא וברור, וכל השדות המזהים והתאריכים מוצגים ללא חיתוך או טשטוש.",
+    "evidence_ids": [
+     "REC-dce40d90:holder_name",
+     "REC-dce40d90:holder_id",
+     "REC-dce40d90:date_of_birth",
+     "REC-dce40d90:issue_date",
+     "REC-dce40d90:expiry_date"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-03",
+    "title_he": "השם ומספר הזהות תואמים למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים למיכל ברק",
+    "evidence_ids": [
+     "REC-dce40d90:holder_name",
+     "REC-dce40d90:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-04",
+    "title_he": "מספר הזהות תקין (ספרת ביקורת)",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "ID_NUMBER_INVALID",
+    "explanation_he": "מספר הזהות 311204572 עומד בבדיקת ספרת הביקורת",
+    "evidence_ids": [
+     "REC-dce40d90:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "ID-05",
+    "title_he": "התעודה בתוקף",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "ID_EXPIRED",
+    "explanation_he": "בתוקף עד 14.07.2032",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "ID-06",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא זוהו הוראות חשודות או עריכה זדונית במסמך; הכיתוב 'מסמך דמו' הינו סימן מים צפוי בסביבת הדגמה זו.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "ID-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "כל הקריטיונים שנבדקו עבור תעודת הזהות עברו בהצלחה (PASS).",
+  "limitations_he": [
+   "מדובר במסמך מסביבת הדגמה סינתטית הנושא סימני מים.",
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 3989,
+   "output_tokens": 1353,
+   "thought_tokens": 0
+  }
+ }
+}

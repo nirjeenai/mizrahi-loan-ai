@@ -14,7 +14,7 @@ DOCUMENT_EVENTS = ("document.uploaded.v1", "document.evaluated.v1")
 FOLLOWUP_EVENTS = (
     "completion.required.v1", "completion.resolved.v1", "customer.presence_changed.v1",
     "followup.policy_evaluated.v1", "followup.scheduled.v1", "followup.deferred.v1", "followup.canceled.v1",
-    "talk.call.status_changed.v1", "case.ready_for_banker.v1", "contact.permission_changed.v1",
+    "talk.call.status_changed.v1", "case.ready_for_banker.v1", "contact.permission_changed.v1", "case.profile_changed.v1",
     "case.override_applied.v1", "integration.reconciliation_required.v1", "demo.clock_changed.v1",
 )
 SETTINGS_EVENTS = (

@@ -1,0 +1,548 @@
+{
+ "case_id": "DEMO-MTZ-2026-101",
+ "requirement_code": "PAYSLIPS:BRW-C",
+ "sha256": "44703fd46ff4375973a698ef03aeb1a9aaff56d5bf66404d45992e70e030fbd7",
+ "result": {
+  "run_id": "REC-44703fd4",
+  "document_id": "REC-44703fd4",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "payslip.il.salaried",
+  "rubric_version": "1.3.0",
+  "started_at": "2026-10-14T13:35:56+00:00",
+  "finished_at": "2026-10-14T13:36:13+00:00",
+  "doc_type": "payslip",
+  "doc_type_he": "תלוש שכר",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-C",
+  "period": "2026-09",
+  "file_name_period": "2026-09",
+  "facts": [
+   {
+    "field": "employer_name",
+    "label_he": "שם המעסיק",
+    "value_raw": "שחף הנדסה בע״מ",
+    "value_normalized": "שחף הנדסה בע״מ",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:employer_name",
+     "document_id": "REC-44703fd4",
+     "field": "employer_name",
+     "page": 1,
+     "quote": "שחף הנדסה בע״מ",
+     "bbox": [
+      428.6,
+      40.86,
+      556.25,
+      59.85
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "employer_id",
+    "label_he": "ח.פ. מעסיק",
+    "value_raw": "515338204",
+    "value_normalized": "515338204",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:employer_id",
+     "document_id": "REC-44703fd4",
+     "field": "employer_id",
+     "page": 1,
+     "quote": "515338204",
+     "bbox": [
+      493.38,
+      63.1,
+      538.42,
+      73.16
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "document_number",
+    "label_he": "מספר מסמך",
+    "value_raw": "SAL-michal-2026-09",
+    "value_normalized": "SAL-michal-2026-09",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:document_number",
+     "document_id": "REC-44703fd4",
+     "field": "document_number",
+     "page": 1,
+     "quote": "SAL-michal-2026-09",
+     "bbox": [
+      40.25,
+      55.31,
+      117.71,
+      64.8
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "06.10.2026",
+    "value_normalized": "2026-10-06",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:issue_date",
+     "document_id": "REC-44703fd4",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "06.10.2026",
+     "bbox": [
+      40.25,
+      64.31,
+      82.78,
+      73.8
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "employee_name",
+    "label_he": "שם העובד/ת",
+    "value_raw": "מיכל ברק",
+    "value_normalized": "מיכל ברק",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:employee_name",
+     "document_id": "REC-44703fd4",
+     "field": "employee_name",
+     "page": 1,
+     "quote": "מיכל ברק",
+     "bbox": [
+      506.95,
+      132.99,
+      547.25,
+      144.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "employee_id",
+    "label_he": "מספר זהות",
+    "value_raw": "311204572",
+    "value_normalized": "311204572",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:employee_id",
+     "document_id": "REC-44703fd4",
+     "field": "employee_id",
+     "page": 1,
+     "quote": "311204572",
+     "bbox": [
+      368.14,
+      132.99,
+      420.11,
+      144.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "employee_number",
+    "label_he": "מספר עובד",
+    "value_raw": "E-4471",
+    "value_normalized": "E-4471",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:employee_number",
+     "document_id": "REC-44703fd4",
+     "field": "employee_number",
+     "page": 1,
+     "quote": "E-4471",
+     "bbox": [
+      259.14,
+      132.99,
+      292.99,
+      144.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "salary_period",
+    "label_he": "תקופת שכר",
+    "value_raw": "09/2026",
+    "value_normalized": "2026-09",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:salary_period",
+     "document_id": "REC-44703fd4",
+     "field": "salary_period",
+     "page": 1,
+     "quote": "09/2026",
+     "bbox": [
+      509.3,
+      161.49,
+      547.24,
+      173.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "payment_date",
+    "label_he": "תאריך תשלום",
+    "value_raw": "09.10.2026",
+    "value_normalized": "2026-10-09",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:payment_date",
+     "document_id": "REC-44703fd4",
+     "field": "payment_date",
+     "page": 1,
+     "quote": "09.10.2026",
+     "bbox": [
+      367.57,
+      161.49,
+      420.11,
+      173.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "gross_pay",
+    "label_he": "שכר ברוטו",
+    "value_raw": "27,919.00",
+    "value_normalized": 27919.0,
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:gross_pay",
+     "document_id": "REC-44703fd4",
+     "field": "gross_pay",
+     "page": 1,
+     "quote": "27,919.00",
+     "bbox": [
+      308.0,
+      288.99,
+      354.71,
+      300.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "total_deductions",
+    "label_he": "סה״כ ניכויים",
+    "value_raw": "7,069.00",
+    "value_normalized": 7069.0,
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:total_deductions",
+     "document_id": "REC-44703fd4",
+     "field": "total_deductions",
+     "page": 1,
+     "quote": "7,069.00",
+     "bbox": [
+      44.75,
+      294.24,
+      85.62,
+      305.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "net_pay",
+    "label_he": "נטו לתשלום",
+    "value_raw": "20,850.00",
+    "value_normalized": 20850.0,
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-44703fd4:net_pay",
+     "document_id": "REC-44703fd4",
+     "field": "net_pay",
+     "page": 1,
+     "quote": "20,850.00",
+     "bbox": [
+      126.93,
+      338.48,
+      184.75,
+      353.0
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "PS-01",
+    "title_he": "המסמך הוא תלוש שכר",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא בבירור תלוש שכר הכולל כותרת מתאימה, פירוט תשלומים, ניכויים וסכום נטו לתשלום.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PS-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך שלם, ברור וקריא בכל שדות המפתח, ללא חיתוכים או טשטוש.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PS-03",
+    "title_he": "זהות העובד תואמת ללווה שאליו שויך המסמך",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "שם ומספר זהות תואמים למיכל ברק",
+    "evidence_ids": [
+     "REC-44703fd4:employee_name",
+     "REC-44703fd4:employee_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PS-04",
+    "title_he": "תקופת השכר מודפסת וחד־משמעית",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "PERIOD_UNCLEAR",
+    "explanation_he": "תקופת השכר: ספטמבר 2026",
+    "evidence_ids": [
+     "REC-44703fd4:salary_period"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PS-05",
+    "title_he": "שכר ברוטו ונטו לתשלום מודפסים",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "MANDATORY_FIELD_MISSING",
+    "explanation_he": "ברוטו 27,919.00 ₪ · נטו 20,850.00 ₪",
+    "evidence_ids": [
+     "REC-44703fd4:gross_pay",
+     "REC-44703fd4:net_pay"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PS-06",
+    "title_he": "עקביות חשבונית: ברוטו פחות ניכויים שווה לנטו",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "INTERNAL_ARITHMETIC_MISMATCH",
+    "explanation_he": "27,919.00 − 7,069.00 = 20,850.00 (מודפס 20,850.00)",
+    "evidence_ids": [
+     "REC-44703fd4:gross_pay",
+     "REC-44703fd4:net_pay",
+     "REC-44703fd4:total_deductions"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PS-07",
+    "title_he": "שם המעסיק מזוהה במסמך",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "minor",
+    "reason_code": "MANDATORY_FIELD_MISSING",
+    "explanation_he": "מעסיק: שחף הנדסה בע״מ",
+    "evidence_ids": [
+     "REC-44703fd4:employer_name"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PS-08",
+    "title_he": "אין במסמך הוראות חשודות או סימני שינוי",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא נמצאו במסמך הוראות המיועדות למערכת בינה מלאכותית או סימני שינוי ועריכה, למעט סימוני סביבת הבדיקה הסינתטית המותרים.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PS-09",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PS-10",
+    "title_he": "תאריך התשלום, אם מודפס, סביר ביחס לתקופת השכר",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "minor",
+    "reason_code": "PAY_DATE_INCONSISTENT",
+    "explanation_he": "תאריך התשלום 09.10.2026 — בסוף ספטמבר 2026 או עד ה־9 בחודש העוקב",
+    "evidence_ids": [
+     "REC-44703fd4:salary_period",
+     "REC-44703fd4:payment_date"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "VALID",
+  "verdict_reason_codes": [],
+  "summary_he": "המסמך נבדק ונמצא תקין לחלוטין: מדובר בתלוש שכר קריא ושלם של מיכל ברק, ללא סימני עריכה או הנחיות חשודות, ותאריך התשלום תואם את הכללים.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [
+    {
+     "label": "שכר בסיס",
+     "amount": "27,269.00",
+     "page": 1
+    },
+    {
+     "label": "החזר נסיעות",
+     "amount": "650.00",
+     "page": 1
+    }
+   ],
+   "deductions": [
+    {
+     "label": "מס הכנסה",
+     "amount": "3,962.00",
+     "page": 1
+    },
+    {
+     "label": "ביטוח לאומי",
+     "amount": "1,147.00",
+     "page": 1
+    },
+    {
+     "label": "מס בריאות",
+     "amount": "709.00",
+     "page": 1
+    },
+    {
+     "label": "פנסיה — חלק עובד",
+     "amount": "1,251.00",
+     "page": 1
+    }
+   ]
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 5153,
+   "output_tokens": 1878,
+   "thought_tokens": 0
+  }
+ }
+}

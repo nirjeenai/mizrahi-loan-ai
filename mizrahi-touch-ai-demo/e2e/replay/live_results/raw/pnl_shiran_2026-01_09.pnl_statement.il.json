@@ -1,0 +1,78 @@
+{
+ "sha256": "f44eb09df000671ddc56c63332b573366e7097f414fba2b68b8934bb64fe0253",
+ "file": "presenter/profile_set/pnl_shiran_2026-01_09.pdf",
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "PNL_STATEMENT:BRW-A",
+ "responses": {
+  "extract": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"doc_type\": \"pnl_statement\",\n  \"doc_type_reason\": \"דוח רווח והפסד לתקופה מוגדרת שנערך על ידי רואה חשבון הכולל הכנסות, הוצאות ורווח לתקופה\",\n  \"legibility\": \"good\",\n  \"is_scanned_or_photo\": false,\n  \"fields\": [\n    {\n      \"name\": \"business_name\",\n      \"value\": \"אזולאי עיצוב פנים\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [53, 545, 68, 739],\n      \"label_quote\": null,\n      \"normalized\": \"אזולאי עיצוב פנים\",\n      \"quote\": \"אזולאי עיצוב פנים\"\n    },\n    {\n      \"name\": \"holder_name\",\n      \"value\": \"שירן אזולאי\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [98, 553, 112, 631],\n      \"label_quote\": \"בעל העסק\",\n      \"normalized\": \"שירן אזולאי\",\n      \"quote\": \"שירן אזולאי\"\n    },\n    {\n      \"name\": \"holder_id\",\n      \"value\": \"DEMO-ID-103\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [121, 75, 134, 187],\n      \"label_quote\": \"מספר זהות\",\n      \"normalized\": \"DEMO-ID-103\",\n      \"quote\": \"DEMO-ID-103\"\n    },\n    {\n      \"name\": \"period_from\",\n      \"value\": \"01.01.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [144, 75, 156, 163],\n      \"label_quote\": \"תקופת הדוח מתאריך\",\n      \"normalized\": \"01.01.2026\",\n      \"quote\": \"01.01.2026\"\n    },\n    {\n      \"name\": \"period_to\",\n      \"value\": \"30.09.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [166, 75, 178, 163],\n      \"label_quote\": \"עד תאריך\",\n      \"normalized\": \"30.09.2026\",\n      \"quote\": \"30.09.2026\"\n    },\n    {\n      \"name\": \"issue_date\",\n      \"value\": \"08.10.2026\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [189, 75, 201, 163],\n      \"label_quote\": \"תאריך הפקה\",\n      \"normalized\": \"08.10.2026\",\n      \"quote\": \"08.10.2026\"\n    },\n    {\n      \"name\": \"issuer_name\",\n      \"value\": \"רו״ח דורית לנדאו\",\n      \"page\": 1,\n      \"confidence\": 0.99,\n      \"legible\": true,\n      \"box_2d\": [211, 513, 222, 630],\n      \"label_quote\": \"נערך בידי\",\n      \"normalized\": \"רו״ח דורית לנדאו\",\n      \"quote\": \"רו״ח דורית לנדאו\"\n    }\n  ],\n  \"earnings\": [],\n  \"deductions\": [],\n  \"suspicious_content\": [],\n  \"uncertainties\": [],\n  \"title_quote\": \"דוח רווח והפסד\"\n}",
+        "thoughtSignature": "EmkKZwFpFH0TdmQg8CVXZ1npWTkT4fjukcpFYUMAgiXIdgbr2CW8uzoSviVVmBbY3GQTWKJn+oQ6MqXaNoIGCS64Ym6gGWF0+PfHxg/88d1jRj3fbJVJQ6/DQPezTo95nMLoCoEbZUkvvqo="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 1642,
+    "candidatesTokenCount": 1062,
+    "totalTokenCount": 2704,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1110
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "03rPasSrDummnsEPq6yPSA"
+  },
+  "judge": {
+   "candidates": [
+    {
+     "content": {
+      "parts": [
+       {
+        "text": "{\n  \"criteria\": [\n    {\n      \"criterion_id\": \"PL-01\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך הוא דוח רווח והפסד תקני עבור עסק עצמאי (אזולאי עיצוב פנים).\",\n      \"cited_fields\": [\"business_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-02\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"המסמך ברור, קריא ושלם. פרטי בעל העסק, תקופת הדוח וזהות עורך הדוח מופיעים בבירור.\",\n      \"cited_fields\": [\"holder_name\", \"period_from\", \"period_to\", \"issuer_name\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-03\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"שם בעל העסק ומספר הזהות תואמים במדויק לפרטי המבקשת שהוקצו (שירן אזולאי).\",\n      \"cited_fields\": [\"holder_name\", \"holder_id\"],\n      \"confidence\": 1.0\n    },\n    {\n      \"criterion_id\": \"PL-06\",\n      \"outcome\": \"PASS\",\n      \"explanation_he\": \"לא נמצאו במסמך הוראות חשודות, פניות למערכת AI או ניסיונות הזרקת הנחיות. סימוני הדמו הם חלק מובנה ממאגר הבדיקה הסינתטי.\",\n      \"cited_fields\": [],\n      \"confidence\": 1.0\n    }\n  ],\n  \"summary_he\": \"דוח רווח והפסד תקני, ברור וקריא. פרטי בעל העסק והמזהה תואמים ללווה, ואין במסמך כל תוכן חשוד.\",\n  \"limitations_he\": [],\n  \"uncertainty_he\": []\n}",
+        "thoughtSignature": "EmkKZwFpFH0TuTcR3/rJpHwdexnfBB6QYYZ+DgJKDtVT+uyb79rKXhoY63oSllKHibwCdwEjpKnAsVALmgC2qdUB+vQCRyuRzVQeHXnBs4YjU27zx6CM7iXygrLcRCHheK2hMcxttqA+KY0="
+       }
+      ],
+      "role": "model"
+     },
+     "finishReason": "STOP",
+     "index": 0
+    }
+   ],
+   "usageMetadata": {
+    "promptTokenCount": 2310,
+    "candidatesTokenCount": 481,
+    "totalTokenCount": 2791,
+    "promptTokensDetails": [
+     {
+      "modality": "IMAGE",
+      "tokenCount": 532
+     },
+     {
+      "modality": "TEXT",
+      "tokenCount": 1778
+     }
+    ],
+    "serviceTier": "standard"
+   },
+   "modelVersion": "gemini-3.8-flash",
+   "responseId": "2nrParDoFrD4nsEPsvvcqAs"
+  }
+ }
+}

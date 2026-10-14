@@ -570,8 +570,12 @@ def build_workspace(case_id: str, light: bool = False) -> dict[str, Any]:
                                 "units": f"{r.get('units_verified', 0)}/{r.get('units_required', 0)}",
                                 "policy_version": r.get("policy_version"), "intake": r.get("intake"),
                                 "owner_he": r.get("owner_he")}
-                               for r in state["requirements"]],
-        "document_profile": case.get("document_profile"),
+                               for r in state["requirements"]] + [
+            {"code": r["code"], "title_he": f"{r['family_he']} — לא נדרש עוד", "family": r["family"], "family_he": r["family_he"],
+             "ai_state": "inactive", "ai_state_he": r["state_he"], "borrower_he": None, "satisfied": False, "units": "—",
+             "policy_version": None, "intake": None, "owner_he": None, "inactive": True,
+             "document_ids": r["document_ids"]} for r in state.get("inactive_requirements") or []],
+        "document_profile": case.get("document_profile"), "profile_changed_at": case.get("profile_changed_at"),
         "progress": state.get("progress"), "case_status": state.get("case_status"),
         "groups": groups,
         "items": items,

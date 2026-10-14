@@ -1,0 +1,342 @@
+{
+ "case_id": "DEMO-MTZ-2026-103",
+ "requirement_code": "PNL_STATEMENT:BRW-A",
+ "sha256": "ecf0a54800dc1ef14d4964289aff4d7d74f56458bc7452ed1adb59224039cec6",
+ "result": {
+  "run_id": "REC-ecf0a548",
+  "document_id": "REC-ecf0a548",
+  "identity": {
+   "provider": "gemini",
+   "mode": "LIVE",
+   "models": {
+    "extract": "gemini-3.8-flash",
+    "evidence_reread": "gemini-3.8-flash",
+    "judge": "gemini-3.8-flash",
+    "semantic": "gemini-3.8-flash"
+   },
+   "prompt_version": "gemini-review/2.1.0"
+  },
+  "rubric_id": "pnl_statement.il",
+  "rubric_version": "1.0.0",
+  "started_at": "2026-10-14T12:51:15+00:00",
+  "finished_at": "2026-10-14T12:51:30+00:00",
+  "doc_type": "pnl_statement",
+  "doc_type_he": "דוח רווח והפסד",
+  "is_scanned": false,
+  "pages": 1,
+  "legibility": "good",
+  "matched_borrower_id": "BRW-A",
+  "period": null,
+  "file_name_period": null,
+  "facts": [
+   {
+    "field": "business_name",
+    "label_he": "שם העסק",
+    "value_raw": "אזולאי עיצוב פנים",
+    "value_normalized": "אזולאי עיצוב פנים",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:business_name",
+     "document_id": "REC-ecf0a548",
+     "field": "business_name",
+     "page": 1,
+     "quote": "אזולאי עיצוב פנים",
+     "bbox": [
+      325.69,
+      40.27,
+      441.02,
+      58.14
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_name",
+    "label_he": "שם",
+    "value_raw": "שירן אזולאי",
+    "value_normalized": "שירן אזולאי",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:holder_name",
+     "document_id": "REC-ecf0a548",
+     "field": "holder_name",
+     "page": 1,
+     "quote": "שירן אזולאי",
+     "bbox": [
+      329.71,
+      83.49,
+      376.33,
+      95.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "holder_id",
+    "label_he": "מספר זהות",
+    "value_raw": "DEMO-ID-103",
+    "value_normalized": "DEMO-ID-103",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:holder_id",
+     "document_id": "REC-ecf0a548",
+     "field": "holder_id",
+     "page": 1,
+     "quote": "DEMO-ID-103",
+     "bbox": [
+      44.75,
+      102.24,
+      111.26,
+      113.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "period_from",
+    "label_he": "תקופת הדוח מ־",
+    "value_raw": "01.01.2025",
+    "value_normalized": "2025-01-01",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:period_from",
+     "document_id": "REC-ecf0a548",
+     "field": "period_from",
+     "page": 1,
+     "quote": "01.01.2025",
+     "bbox": [
+      44.75,
+      120.99,
+      97.3,
+      132.73
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "period_to",
+    "label_he": "תקופת הדוח עד",
+    "value_raw": "31.12.2025",
+    "value_normalized": "2025-12-31",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:period_to",
+     "document_id": "REC-ecf0a548",
+     "field": "period_to",
+     "page": 1,
+     "quote": "31.12.2025",
+     "bbox": [
+      44.75,
+      139.74,
+      97.3,
+      151.48
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issue_date",
+    "label_he": "תאריך הפקה",
+    "value_raw": "20.02.2026",
+    "value_normalized": "2026-02-20",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:issue_date",
+     "document_id": "REC-ecf0a548",
+     "field": "issue_date",
+     "page": 1,
+     "quote": "20.02.2026",
+     "bbox": [
+      44.75,
+      158.49,
+      97.3,
+      170.23
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (1 מופעים בעמוד)"
+    }
+   },
+   {
+    "field": "issuer_name",
+    "label_he": "שם הספק",
+    "value_raw": "רו״ח דורית לנדאו",
+    "value_normalized": "רו״ח דורית לנדאו",
+    "confidence": 0.99,
+    "evidence": {
+     "evidence_id": "REC-ecf0a548:issuer_name",
+     "document_id": "REC-ecf0a548",
+     "field": "issuer_name",
+     "page": 1,
+     "quote": "רו״ח דורית לנדאו",
+     "bbox": [
+      306.88,
+      177.24,
+      376.35,
+      188.98
+     ],
+     "coord_space": "pdf_points",
+     "page_size": [
+      595.92,
+      842.88
+     ],
+     "witness": "text_layer_exact",
+     "witness_detail": "מודפס בשכבת הטקסט של ה־PDF (2 מופעים בעמוד)"
+    }
+   }
+  ],
+  "criteria": [
+   {
+    "criterion_id": "PL-01",
+    "title_he": "המסמך הוא דוח רווח והפסד (או דוח מע״מ תקופתי)",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "UNEXPECTED_DOCUMENT_TYPE",
+    "explanation_he": "המסמך הוא דוח רווח והפסד של עסק כנדרש.",
+    "evidence_ids": [],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PL-02",
+    "title_he": "המסמך קריא ושלם",
+    "method": "judge",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "DOCUMENT_UNREADABLE",
+    "explanation_he": "המסמך קריא ושלם; פרטי בעל העסק, תקופת הדוח ועורך הדוח מופיעים וברורים.",
+    "evidence_ids": [
+     "REC-ecf0a548:holder_name",
+     "REC-ecf0a548:period_from",
+     "REC-ecf0a548:period_to",
+     "REC-ecf0a548:issuer_name"
+    ],
+    "decided_by": "judge",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PL-03",
+    "title_he": "שם בעל העסק תואם למבקש/ת",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "blocking",
+    "reason_code": "BORROWER_MISMATCH",
+    "explanation_he": "השם ומספר הזהות תואמים לשירן אזולאי",
+    "evidence_ids": [
+     "REC-ecf0a548:holder_name",
+     "REC-ecf0a548:holder_id"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PL-04",
+    "title_he": "תקופת הדוח עדכנית",
+    "method": "deterministic",
+    "outcome": "FAIL",
+    "severity": "major",
+    "reason_code": "DOCUMENT_STALE",
+    "explanation_he": "תקופת הדוח הסתיימה ב־31.12.2025, 285 ימים לפני תאריך הבדיקה — מעבר ל־120 הימים שמדיניות ההדגמה מאפשרת. נדרש דוח עדכני.",
+    "evidence_ids": [
+     "REC-ecf0a548:period_to"
+    ],
+    "decided_by": "code",
+    "escalation": "customer"
+   },
+   {
+    "criterion_id": "PL-05",
+    "title_he": "פרטי עורך הדוח (רו״ח / מייצג) מודפסים",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "minor",
+    "reason_code": "ISSUER_DETAILS_MISSING",
+    "explanation_he": "הדוח נערך בידי רו״ח דורית לנדאו",
+    "evidence_ids": [
+     "REC-ecf0a548:issuer_name"
+    ],
+    "decided_by": "code",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PL-06",
+    "title_he": "אין במסמך הוראות חשודות",
+    "method": "hybrid",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "UNTRUSTED_INSTRUCTION_IN_DOCUMENT",
+    "explanation_he": "לא זוהו במסמך הוראות חשודות, פניות למערכת AI או ניסיונות הזרקת הנחיות, מלבד סימוני דמו צפויים.",
+    "evidence_ids": [],
+    "decided_by": "code+judge",
+    "escalation": "banker"
+   },
+   {
+    "criterion_id": "PL-07",
+    "title_he": "הראיות לשדות המכריעים אומתו מול הקובץ המקורי",
+    "method": "deterministic",
+    "outcome": "PASS",
+    "severity": "major",
+    "reason_code": "EVIDENCE_UNVERIFIED",
+    "explanation_he": "כל השדות המכריעים אומתו מול הקובץ המקורי",
+    "evidence_ids": [],
+    "decided_by": "code",
+    "escalation": "banker"
+   }
+  ],
+  "verdict": "NEEDS_REVIEW",
+  "verdict_reason_codes": [
+   "DOCUMENT_STALE"
+  ],
+  "summary_he": "המסמך הוא דוח רווח והפסד תקין, קריא, התואם ללווה וללא תוכן חשוד. עם זאת, על פי הבדיקות הדטרמיניסטיות תקופת הדוח אינה עדכנית.",
+  "limitations_he": [
+   "תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי."
+  ],
+  "uncertainty_he": [],
+  "security_flags": [],
+  "demo_marked": true,
+  "payroll_lines": {
+   "earnings": [],
+   "deductions": []
+  },
+  "usage": {
+   "llm_calls": 2,
+   "prompt_tokens": 4077,
+   "output_tokens": 1633,
+   "thought_tokens": 0
+  }
+ }
+}

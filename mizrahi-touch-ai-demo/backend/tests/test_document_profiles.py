@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = json.loads((ROOT / "fixtures" / "presenter" / "presenter_scenarios_manifest.json").read_text(encoding="utf8"))
 USE_CASES = MANIFEST["useCases"]
 PDF = ROOT / "fixtures" / "out" / "main" / "ido_payslip_2026-07.pdf"
+PACK = ROOT / "fixtures" / "presenter" / "profile_set"
 
 
 @pytest.fixture(autouse=True)
@@ -48,7 +49,7 @@ def test_six_use_cases_map_one_to_one_to_six_test_cases_and_their_own_cases():
         case = bank.get_case(u["caseId"])
         assert case["use_case"] == u["useCaseId"] and case["display_number"] == u["caseDisplay"]
         assert case["banker"]["staff_id"] == "STAFF-DANA" and case["executive_demo"]
-        assert u["packStatus"] == "ROUND_2" and "downloads" not in u    # no unfinished download is offered
+        assert u["packStatus"] == "READY" and u["steps"] and u["expectedCaseStatus"] == "READY_FOR_BANKER"
 
 
 def test_the_manifest_checklists_are_exactly_what_the_policy_composes():
@@ -112,18 +113,18 @@ def test_the_company_path_is_limited_banker_assisted_and_free_of_consumer_rules(
 
 # ---------------------------------------------------------------- honest intake for a family without a rubric
 def test_an_upload_without_a_rubric_is_stored_for_the_banker_and_never_marked_valid():
-    case_id = "DEMO-MTZ-2026-102"
+    case_id = "DEMO-MTZ-2026-106"
     repo.reset_case(case_id)
     c = client_for(case_id)
-    with PDF.open("rb") as fh:
-        r = c.post(f"/api/cases/{case_id}/documents", data={"requirement_code": "VAT_EXEMPT_CERT:BRW-A"},
-                   files={"file": ("osek_patur.pdf", fh, "application/pdf")})
+    with (PACK / "company_extract_sg.pdf").open("rb") as fh:
+        r = c.post(f"/api/cases/{case_id}/documents", data={"requirement_code": "COMPANY_EXTRACT"},
+                   files={"file": ("company_extract.pdf", fh, "application/pdf")})
     assert r.status_code == 202, r.text
     doc = r.json()["document"]
     assert doc["status"] == "stored" and doc["review"] is None
     assert not db.query("SELECT 1 FROM jobs WHERE document_id=?", (doc["document_id"],))      # no AI review queued
     state = readiness.compute(case_id)
-    req = next(q for q in state["requirements"] if q["code"] == "VAT_EXEMPT_CERT:BRW-A")
+    req = next(q for q in state["requirements"] if q["code"] == "COMPANY_EXTRACT")
     assert req["ai_state"] == "received_pending_review" and req["units_verified"] == 0
     snap = c.get(f"/api/cases/{case_id}").json()
     assert snap["outcomes"]["documents"][doc["document_id"]]["outcome"] == "HUMAN_REVIEW_PENDING"
@@ -144,7 +145,7 @@ def run(answers: list[tuple[str, object]]) -> tuple[TestClient, str, dict]:
     return c, d["draft_id"], d
 
 
-ME = [("entity", "individual"), ("name", {"first": "דנה", "last": "רז"}), ("purpose", "car")]
+ME = [("entity", "individual"), ("name", {"first": "דנה", "last": "רז"}), ("national_id", "DEMO-ID-301"), ("purpose", "car")]
 TAIL = [("amount", 80000), ("payments", 60)]
 
 
@@ -191,13 +192,15 @@ def test_self_employed_mixed_joint_and_company_answers_compose_different_checkli
     assert {"PAYSLIPS:BRW-A", "TAX_ASSESSMENT:BRW-A", "VAT_DEALER_CERT:BRW-A", "PNL_STATEMENT:BRW-A"} <= set(m)
     assert m.count("ID_CARD:BRW-A") == 1 and len(m) == len(set(m))
     _, _, joint = run(ME + [("income", ["salaried"]), ("net", 12000), ("co_borrower", "yes"),
-                            ("co_name", {"first": "יוני", "last": "רז"}), ("co_income", ["self_employed"]),
+                            ("co_name", {"first": "יוני", "last": "רז"}), ("co_national_id", "DEMO-ID-302"),
+                            ("co_income", ["self_employed"]),
                             ("co_registration", "vat_exempt"), ("co_net", 8000), ("accounts", "joint")] + TAIL)
     j = {r["code"]: r for r in joint["summary"]["requirements"]}
     assert j["PAYSLIPS:BRW-A"]["owner_he"] == "דנה רז" and j["VAT_EXEMPT_CERT:BRW-B"]["owner_he"] == "יוני רז"
     assert [k for k in j if k.startswith("BANK_STATEMENTS")] == ["BANK_STATEMENTS:ACC-1"]   # one joint account
     c, draft, company = run([("entity", "company"), ("company_name", "אלפא מערכות בע״מ"),
-                             ("signatory", {"first": "רון", "last": "לב"}), ("company_purpose", "business_equipment"),
+                             ("signatory", {"first": "רון", "last": "לב"}), ("signatory_id", "DEMO-ID-303"),
+                             ("company_purpose", "business_equipment"),
                              ("business_amount", 300000), ("payments", 60)])
     assert company["summary"]["profile"]["banker_assisted"]
     assert {r["code"] for r in company["summary"]["requirements"]} == {
@@ -231,6 +234,12 @@ def test_an_unfinished_draft_cannot_be_confirmed_and_resumes_where_it_stopped():
     assert c.post(f"/api/demo/onboarding/{d['draft_id']}/confirm").status_code == 409
     resumed = c.get(f"/api/demo/onboarding/{d['draft_id']}").json()
     assert resumed["next"]["question_id"] == "name" and resumed["status"] == "draft" and resumed["case_id"] is None
+    c.post(f"/api/demo/onboarding/{d['draft_id']}/answers", json={"question_id": "name", "value": {"first": "נטע", "last": "אלון"}})
+    for bad in ("123456789", "DEMO-201", "<script>"):
+        assert c.post(f"/api/demo/onboarding/{d['draft_id']}/answers",
+                      json={"question_id": "national_id", "value": bad}).status_code == 422, bad
+    ok = c.post(f"/api/demo/onboarding/{d['draft_id']}/answers", json={"question_id": "national_id", "value": "311204572"})
+    assert ok.status_code == 200 and ok.json()["next"]["question_id"] == "purpose"
     assert c.post(f"/api/demo/onboarding/{d['draft_id']}/answers",
                   json={"question_id": "name", "value": {"first": "<b>", "last": "x"}}).status_code == 422
 
@@ -269,3 +278,115 @@ def test_existing_cases_keep_exactly_the_four_requirement_package():
         pol, row = store.policy()
         heads = [r["code"].split(":")[0] for r in requirements.compose(case, pol, row["label"])]
         assert sorted(set(heads)) == ["BANK_STATEMENTS", "ID_CARD", "PAYSLIPS", "PURPOSE_PROOF"], cid
+
+
+# ---------------------------------------------------------------- Round 2: document intelligence and profile changes
+def test_new_rubrics_review_individuals_while_company_documents_stay_with_the_banker():
+    intake = {r["code"]: r["intake"] for c in ("DEMO-MTZ-2026-102", "DEMO-MTZ-2026-103", "DEMO-MTZ-2026-106")
+              for r in bank.requirements(c)}
+    assert intake["VAT_EXEMPT_CERT:BRW-A"] == intake["PNL_STATEMENT:BRW-A"] == "ai_review"
+    company = {r["code"]: r for r in bank.requirements("DEMO-MTZ-2026-106")}
+    assert company["COMPANY_INTERIM"]["family"] == "pnl_statement" and company["COMPANY_INTERIM"]["intake"] == "human_review"
+    assert company["ID_CARD:BRW-A"]["intake"] == "ai_review"
+    vat = {r["code"]: r for r in bank.requirements("DEMO-MTZ-2026-102")}["VAT_EXEMPT_CERT:BRW-A"]
+    assert vat["rules"]["registration"] == "vat_exempt"
+
+
+def test_registration_and_pnl_checks_are_decided_by_code():
+    from datetime import date
+    from app.review import family_checks, rubrics
+    yoav = {"borrower_id": "BRW-A", "name_he": "יואב כרמי", "national_id": "DEMO-ID-102"}
+    def run(family, facts, rules):
+        return family_checks.outcomes(family, rubrics.for_family(family), val=lambda n: facts.get(n), norm=lambda n: facts.get(n),
+                                      as_of=date(2026, 10, 12), borrowers={"BRW-A": yoav}, assigned=yoav, matched="BRW-A",
+                                      hits=[], unverified=[], present_decisive=list(facts), rules=rules, allowed_holders=None,
+                                      labels={})
+    ok = run("business_registration", {"holder_name": "יואב כרמי", "dealer_number": "DEMO-ID-102",
+                                       "registration_type": "עוסק פטור"}, {"registration": "vat_exempt"})
+    assert ok["BR-03"][0] == ok["BR-04"][0] == ok["BR-05"][0] == "PASS"
+    wrong = run("business_registration", {"holder_name": "יואב כרמי", "dealer_number": "DEMO-ID-999",
+                                          "registration_type": "עוסק מורשה"}, {"registration": "vat_exempt"})
+    assert wrong["BR-04"][0] == "FAIL" and wrong["BR-05"][0] == "FAIL"
+    stale = run("pnl_statement", {"holder_name": "יואב כרמי", "period_to": "2025-12-31", "issuer_name": "רו״ח"}, {"max_age_days": 120})
+    fresh = run("pnl_statement", {"holder_name": "יואב כרמי", "period_from": "2026-01-01", "period_to": "2026-09-30"},
+                {"max_age_days": 120})
+    assert stale["PL-04"][0] == "FAIL" and fresh["PL-04"][0] == "PASS" and fresh["PL-05"][0] == "NEEDS_REVIEW"
+
+
+def test_payslip_months_are_asked_only_of_borrowers_with_a_payslip_requirement():
+    from tests.loan_helpers import run_case
+    for case_id, expect in (("DEMO-MTZ-2026-102", set()), ("DEMO-MTZ-2026-105", {"BRW-A"}), ("DEMO-MTZ-2026-106", set())):
+        repo.reset_case(case_id)
+        run_case(case_id)
+        who = {f["borrower_id"] for f in repo.findings(case_id, status="open") if f["code"] == "REQUIRED_PERIOD_MISSING"}
+        assert who == expect, case_id
+        repo.reset_case(case_id)
+
+
+def test_a_banker_review_upload_resolves_its_follow_up_task():
+    from app.followup import tasks
+    from tests.loan_helpers import run_case
+    case_id = "DEMO-MTZ-2026-106"
+    repo.reset_case(case_id)
+    c = client_for(case_id)
+    with (PACK / "id_card_gilad.pdf").open("rb") as fh:                  # one document so the set review runs
+        c.post(f"/api/cases/{case_id}/documents", data={"requirement_code": "ID_CARD:BRW-A"},
+               files={"file": ("id.pdf", fh, "application/pdf")})
+    run_case(case_id)
+    tasks.sync(case_id)
+    assert any(t["requirement_code"] == "COMPANY_EXTRACT" and t["status"] in tasks.OPEN for t in tasks.all_for(case_id))
+    with (PACK / "company_extract_sg.pdf").open("rb") as fh:
+        c.post(f"/api/cases/{case_id}/documents", data={"requirement_code": "COMPANY_EXTRACT"},
+               files={"file": ("extract.pdf", fh, "application/pdf")})
+    run_case(case_id)
+    tasks.sync(case_id)
+    task = next(t for t in tasks.all_for(case_id) if t["requirement_code"] == "COMPANY_EXTRACT")
+    assert task["status"] == "RESOLVED" and "ממתין לבדיקת הבנקאי" in task["history"][-1]["note"]
+    repo.reset_case(case_id)
+
+
+def test_a_profile_change_recomposes_keeps_history_and_cancels_obsolete_follow_up():
+    from app.followup import tasks
+    from app.util import now_iso
+    from tests.loan_helpers import run_case
+    case_id = "DEMO-MTZ-2026-101"
+    repo.reset_case(case_id)
+    c = client_for(case_id)
+    with (PACK / "payslip_michal_2026-07.pdf").open("rb") as fh:
+        doc = c.post(f"/api/cases/{case_id}/documents", data={"requirement_code": "PAYSLIPS:BRW-C", "borrower_id": "BRW-C"},
+                     files={"file": ("p.pdf", fh, "application/pdf")}).json()["document"]
+    run_case(case_id)
+    tasks.sync(case_id)
+    payslip_tasks = [t["task_id"] for t in tasks.open_for(case_id) if t["requirement_code"] == "PAYSLIPS:BRW-C"]
+    assert payslip_tasks
+    now = now_iso()
+    with db.tx() as cx:                                    # a simulated call queued about the payslips only
+        cx.execute("INSERT INTO contact_attempts(attempt_id, case_id, channel, provider, simulated, idempotency_key, status,"
+                   " task_ids, created_at, updated_at, history, request) VALUES ('ATT-T1',?,?,?,?,?,?,?,?,?,?,?)",
+                   (case_id, "voice", "mock-talk", 1, "test-key-1", "QUEUED", db.jdump(payslip_tasks), now, now, "[]", "{}"))
+    before = {r["code"] for r in bank.requirements(case_id)}
+    r = c.post(f"/api/cases/{case_id}/profile",
+               json={"borrowers": {"BRW-C": {"income_sources": ["self_employed"], "business_registration": "vat_exempt"}}})
+    assert r.status_code == 200, r.text
+    out = r.json()
+    after = {q["code"] for q in out["requirements"]}
+    assert "PAYSLIPS:BRW-C" in before and "PAYSLIPS:BRW-C" not in after
+    assert {"TAX_ASSESSMENT:BRW-C", "VAT_EXEMPT_CERT:BRW-C"} <= after and out["removed_codes"] == ["PAYSLIPS:BRW-C"]
+    assert set(out["tasks_canceled"]) == set(payslip_tasks) and out["calls_canceled"] == 1
+    assert db.one("SELECT status FROM contact_attempts WHERE attempt_id='ATT-T1'")["status"] == "CANCELED"
+    assert repo.document(doc["document_id"])                                       # the uploaded payslip is kept
+    state = readiness.compute(case_id)
+    assert [i["code"] for i in state["inactive_requirements"]] == ["PAYSLIPS:BRW-C"]
+    assert not any(f["code"] == "REQUIRED_PERIOD_MISSING" for f in repo.findings(case_id, status="open"))
+    case = bank.get_case(case_id)
+    assert case["borrowers"][0]["borrower_id"] == "BRW-C" and case["borrowers"][0]["income_sources"] == ["self_employed"]
+    assert case["document_profile"]["profile_label_he"] == "עצמאי/ת (עוסק פטור)"
+    assert requirements.income_sources(bank.get_case("DEMO-MTZ-2026-002")["borrowers"][0]) == ["salaried"]   # 002 untouched
+    staff = client_for(case_id)
+    matrix = staff.get(f"/api/banker/cases/{case_id}/workspace").json()["requirement_matrix"]
+    assert any(m.get("inactive") and m["code"] == "PAYSLIPS:BRW-C" for m in matrix)
+    assert c.post(f"/api/cases/{case_id}/profile", json={"borrowers": {"BRW-C": {"income_sources": ["self_employed"]}}}
+                  ).status_code == 422                                              # a self-employed profile needs its VAT status
+    assert c.post("/api/cases/DEMO-MTZ-2026-106/profile", json={"borrowers": {}}).status_code in (403, 409)
+    repo.reset_case(case_id)
+    assert "PAYSLIPS:BRW-C" in {q["code"] for q in bank.requirements(case_id)}     # a reset restores the prepared profile
