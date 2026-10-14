@@ -83,11 +83,12 @@ export function DocumentCheckCard() {
   ].filter(Boolean).join(" · ");
 
   /** "עוד 3 תלושים של נועה" — the months (and further requests) this card's action does not cover. */
-  const moreLine = (rest: { borrower: string }[], extraRequests = 0) => {
+  const moreLine = (rest: { borrower: string }[], extraRequests = 0, otherDocs = 0) => {
     const names = joinHe([...new Set(rest.map((g) => first(g.borrower)))].filter(Boolean));
     const parts = [
       extraRequests ? (extraRequests === 1 ? "בקשה אחת" : `${extraRequests} בקשות`) : null,
       rest.length ? `${rest.length === 1 ? "תלוש אחד" : `${rest.length} תלושים`}${names ? ` של ${names}` : ""}` : null,
+      otherDocs ? (otherDocs === 1 ? "מסמך אחד" : `${otherDocs} מסמכים`) : null,
     ].filter(Boolean);
     return parts.length ? `עוד ${parts.join(" · ")}` : undefined;
   };
@@ -109,18 +110,17 @@ export function DocumentCheckCard() {
     }
     switch (status) {
       case "AWAITING_UPLOAD": {
+        const kinds = [...new Set(reqs.map((q) => q.family_he || q.family))];
         const months = r.payslips?.requested_months || [];
-        const sameMonths = months.length > 0 && reqs.every((q) => (q.required ?? 0) === months.length);
-        const names = reqs.length > 1 ? joinHe(reqs.map((q) => first(q.borrower_id)).filter(Boolean)) : "";
-        return { tone: "action", title: "ממתינים להעלאת תלושי שכר",
-          body: `כדי להתקדם בבדיקת המסמכים, יש להעלות את תלושי השכר הנדרשים${sameMonths ? `: ${monthsHe(months)}` : ""}${names ? `, עבור ${names}` : ""}.`,
+        return { tone: "action", title: "ממתינים למסמכים לבקשת ההלוואה",
+          body: `כדי להתקדם, יש להעלות ${joinHe(kinds)}${months.length ? ` (תלושי ${monthsHe(months)})` : ""}. כל מסמך נבדק מיד עם ההעלאה.`,
           primary: { label: "העלאת מסמכים", run: go(requirementsTarget), upload: true },
-          ask: { label: "אילו תלושים צריך להעלות?", prompt: "אילו תלושים צריך להעלות?" } };
+          ask: { label: "אילו מסמכים צריך להעלות?", prompt: "אילו מסמכים צריך להעלות לבקשת ההלוואה?" } };
       }
       case "PROCESSING": {
         const queuedOnly = n > 0 && inFlight.length > 0 && inFlight.every((d) => d.status === "queued");
         return { tone: "info", title: "בודקים את המסמכים שהעליתם",
-          body: n === 0 ? "כל המסמכים נקראו. עכשיו בודקים את סט התלושים כולו מול הדרישות."
+          body: n === 0 ? "כל המסמכים נקראו. עכשיו בודקים את כל המסמכים יחד מול דרישות הבקשה."
             : queuedOnly ? `${n === 1 ? "המסמך ממתין" : `${n} מסמכים ממתינים`} בתור לבדיקה. התוצאה תופיע כאן אוטומטית.`
               : r.counts.documents === 1 ? "המסמך נקרא ונבדק עכשיו. התוצאה תופיע כאן אוטומטית."
                 : `נבדקו ${r.counts.reviewed} מתוך ${r.counts.documents} מסמכים. התוצאה תופיע כאן אוטומטית.`,
@@ -129,8 +129,8 @@ export function DocumentCheckCard() {
       }
       case "REVALIDATING":
         return { tone: "info", title: "בודקים מחדש את המסמכים",
-          body: `${n === 0 ? "מעדכנים את בדיקת כל תלושי השכר בתיק לאחר השינוי האחרון."
-            : `בודקים ${n === 1 ? "את המסמך החדש" : `${n} מסמכים חדשים`} ומעדכנים את בדיקת כל תלושי השכר בתיק.`} התוצאה תופיע כאן אוטומטית.`,
+          body: `${n === 0 ? "מעדכנים את בדיקת כל המסמכים בתיק לאחר השינוי האחרון."
+            : `בודקים ${n === 1 ? "את המסמך החדש" : `${n} מסמכים חדשים`} ומעדכנים את בדיקת כל המסמכים בתיק.`} התוצאה תופיע כאן אוטומטית.`,
           primary: { label: "צפייה בבדיקה", run: go(progressTarget) },
           ask: { label: "מה המצב של המסמכים שהעליתי?", prompt: "מה המצב של המסמכים שהעליתי?" } };
       case "CORRECTION_REQUIRED": {
@@ -155,20 +155,22 @@ export function DocumentCheckCard() {
         const who = first(next?.params.borrower_id);
         const title = months.length === 1 ? `חסר תלוש ${monthHe(months[0])} של ${who}`
           : months.length ? `חסרים ${months.length} תלושים של ${who}`
-            : gaps.length ? `חסרים ${gaps.length} תלושי שכר`
-              : customer.find((f) => !f.document_id)?.title_he || "נדרש מסמך נוסף";
+            : next ? (next.detail_he || next.label_he)
+              : gaps.length ? `חסרים ${gaps.length} תלושי שכר`
+                : customer.find((f) => !f.document_id)?.title_he || "נדרש מסמך נוסף";
         const body = [months.length > 1 ? `החודשים: ${monthsHe(months)}.` : null, dupNote.trim() || null].filter(Boolean).join(" ");
+        const otherUploads = uploads.filter((a) => a !== next && a.params.missing_periods.length === 0).length;
         return { tone: "action", title, body: body || undefined,
           primary: next ? { label: next.label_he, run: go(uploadLink(next)), upload: true } : { label: "השלמת מסמכים", run: go(requirementsTarget) },
           ask: { label: "מה חסר כדי להתקדם?", prompt: "מה חסר כדי להתקדם?" },
-          more: moreLine(rest) };
+          more: moreLine(rest, 0, otherUploads) };
       }
       case "BANKER_REVIEW": {
         const inReview = reqs.reduce((sum, q) => sum + (q.in_review_months?.length || 0), 0);
-        return { tone: "info", title: verified >= required ? "תלושי השכר הושלמו · נדרש בירור בנקאי" : "כל התלושים התקבלו · חלקם בבדיקה בנקאית",
+        return { tone: "info", title: verified >= required ? "המסמכים התקבלו · נדרש בירור בנקאי" : "כל המסמכים התקבלו · חלקם בבדיקה בנקאית",
           body: `${banker.length === 1 ? `${banker[0].title_he}. הנושא ממתין לבירור של ${bankerName}.`
             : banker.length ? `${banker.length} נושאים ממתינים לבירור של ${bankerName}.`
-              : `${inReview === 1 ? "תלוש אחד ממתין" : `${inReview} תלושים ממתינים`} לבדיקה של ${bankerName}.`} אין צורך בפעולה מצדכם כרגע.`,
+              : `${inReview === 1 ? "מסמך אחד ממתין" : `${inReview || "כמה"} מסמכים ממתינים`} לבדיקה של ${bankerName}.`} אין צורך בפעולה מצדכם כרגע.`,
           primary: banker.length
             ? { label: detail ? "הסתרת הפרטים" : banker.length === 1 ? "צפייה בממצא" : "צפייה בממצאים", run: () => setDetail(!detail), expanded: detail }
             : { label: "צפייה במסמכים", run: go(uploadedTarget) },
@@ -176,26 +178,26 @@ export function DocumentCheckCard() {
             prompt: banker.length ? `אני רוצה לפנות ל${bankerName} לגבי: ${banker[0].title_he}` : `אני רוצה לפנות ל${bankerName} לגבי המסמכים שבבדיקה` } };
       }
       case "PREPARATION_CONFIRMED":
-        return { tone: "ok", title: "הכנת תלושי השכר אושרה",
-          body: `האישור ניתן על ידי ${bankerName} ומתייחס להכנת מסמכי השכר בלבד — זו אינה החלטה על המשכנתא.${banker.length
+        return { tone: "ok", title: "הכנת מסמכי הבקשה אושרה",
+          body: `האישור ניתן על ידי ${bankerName} ומתייחס להכנת המסמכים בלבד — זו אינה החלטה על ההלוואה.${banker.length
             ? ` ${banker.length === 1 ? "נושא אחד עדיין בבירור" : `${banker.length} נושאים עדיין בבירור`}.` : ""}`,
           primary: { label: "צפייה בסיכום", run: go("/customer/documents") },
           ask: { label: "מה השלב הבא?", prompt: "מה השלב הבא בתיק?" } };
       case "CHECKS_COMPLETE":
-        return { tone: "ok", title: "בדיקת תלושי השכר הושלמה",
-          body: `כל ${required} התלושים הנדרשים נמצאו תקינים בבדיקה האוטומטית. השלב הבא הוא עיון של ${bankerName}.`,
+        return { tone: "ok", title: "כל המסמכים הנדרשים הושלמו",
+          body: `כל המסמכים לבקשת ההלוואה נמצאו תקינים בבדיקה האוטומטית. התיק מוכן לבדיקה של ${bankerName} — זו אינה החלטה על ההלוואה.`,
           primary: { label: "צפייה בסיכום", run: go("/customer/documents") },
           ask: { label: "מה השלב הבא?", prompt: "מה השלב הבא בתיק?" } };
       case "ERROR": {
         const failed = docs.filter((d) => d.status === "failed");
         return { tone: "alert", title: "לא הצלחנו להשלים את הבדיקה",
           body: <>{r.counts.failed === 1 && failed.length === 1 ? <>הבדיקה של <span className="ltr">{failed[0].filename}</span> נעצרה בגלל תקלה.</>
-            : r.counts.failed ? `הבדיקה של ${r.counts.failed} מסמכים נעצרה בגלל תקלה.` : "בדיקת סט התלושים נעצרה בגלל תקלה."} אפשר לנסות שוב, ואם זה חוזר — נשמח לעזור.</>,
+            : r.counts.failed ? `הבדיקה של ${r.counts.failed} מסמכים נעצרה בגלל תקלה.` : "בדיקת סט המסמכים נעצרה בגלל תקלה."} אפשר לנסות שוב, ואם זה חוזר — נשמח לעזור.</>,
           primary: { label: "ניסיון חוזר", run: retry },
           ask: { label: "קבלת עזרה", prompt: "הבדיקה של המסמכים שלי לא הושלמה. מה אפשר לעשות?" } };
       }
       case "NO_PAYSLIPS_REQUIRED":
-        return { tone: "info", title: "אין תלושי שכר לבדיקה בתיק זה", body: "מסמכי התיק מטופלים ישירות מול הבנק.",
+        return { tone: "info", title: "אין מסמכים לבדיקה בתיק זה", body: "מסמכי התיק מטופלים ישירות מול הבנק.",
           primary: { label: "למסמכים", run: go("/customer/documents") },
           ask: { label: "אילו מסמכים נדרשים בתיק?", prompt: "אילו מסמכים נדרשים בתיק?" } };
       default:
@@ -205,14 +207,17 @@ export function DocumentCheckCard() {
   })();
 
   const acting = view.tone === "action" || view.tone === "alert";
-  const icon = status === "ERROR" ? <IAlert size={22} /> : acting ? <IDocs size={22} /> : view.tone === "ok" ? <ICheck size={22} /> : <IClock size={22} />;
+  const icon = status === "ERROR" ? <IAlert size={20} /> : acting ? <IDocs size={20} /> : view.tone === "ok" ? <ICheck size={20} /> : <IClock size={20} />;
   return (
     <section className={`ai-card tone-${view.tone}`} data-testid="ai-card" data-status={status || "UNKNOWN"} data-state={r.state}
       aria-labelledby="ai-card-heading">
       <div className="ai-top">
         <span className="ai-icon" aria-hidden>{icon}</span>
         <div className="grow">
-          <h2 className="ai-heading" id="ai-card-heading">{acting ? "מה צריך לעשות עכשיו?" : "מה קורה עכשיו?"}</h2>
+          <div className="ai-head">
+            <h2 className="ai-heading" id="ai-card-heading">{acting ? "מה צריך לעשות עכשיו?" : "מה קורה עכשיו?"}</h2>
+            <img className="ai-logo" src="/brand/jeen-logo.png" alt="JEEN" />
+          </div>
           <div className="ai-state" data-testid="readiness-state">{BUSY.includes(status) && <span className="spinner" />}{view.title}</div>
         </div>
       </div>
@@ -240,7 +245,7 @@ export function DocumentCheckCard() {
               <span>{view.more}</span>
               <button className="link" onClick={go(requirementsTarget)}>לכל המסמכים החסרים</button>
             </div>
-          ) : <span />}
+          ) : <span className="ai-by">מופעל על ידי JEEN</span>}
           <button className={`ai-ask${view.more ? " icon" : ""}`} data-testid="card-secondary" onClick={() => openAssistant(view.ask.prompt)}
             aria-label={view.ask.label} title={view.ask.label}><ISpark size={13} />{!view.more && view.ask.label}</button>
         </div>

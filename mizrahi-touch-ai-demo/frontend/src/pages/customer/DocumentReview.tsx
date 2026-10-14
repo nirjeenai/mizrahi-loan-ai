@@ -72,7 +72,7 @@ export function DocumentReview() {
         </div>
       )}
       {!asked && doc.banker_status && <div className="notice navy" style={{ marginBottom: 10 }} data-testid="document-banker-status">{doc.banker_status.status_he}.
-        {doc.banker_status.status === "ACCEPTED" ? " זו בדיקת מסמכים בלבד ואינה אישור המשכנתא." : ""}</div>}
+        {doc.banker_status.status === "ACCEPTED" ? " זו בדיקת מסמכים בלבד ואינה אישור ההלוואה." : ""}</div>}
       {r?.file_name_period && r.period && r.file_name_period !== r.period && (
         <div className="notice" style={{ marginBottom: 10 }}>שם הקובץ מציין <b>{monthHe(r.file_name_period)}</b>, אבל במסמך עצמו מודפס <b>{monthHe(r.period)}</b>. הבדיקה מסתמכת על התוכן.</div>
       )}
@@ -81,6 +81,7 @@ export function DocumentReview() {
         <div className="card" style={{ marginTop: 12 }}>
           <div className="row between"><div className="card-title">מה קראנו מהמסמך</div><span className="tiny muted">לחצו על שורה לסימון במסמך</span></div>
           <FactList facts={r.facts} focus={focus} onFocus={(f) => setFocus(focus === f ? null : f)} />
+          <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.png" alt="" />חולץ ונבדק באמצעות JEEN</div>
         </div>
         <div className="card">
           <div className="row between"><div className="card-title">הבדיקה לפי הרובריקה</div><span className="tiny muted ltr">{r.rubric_id}@{r.rubric_version}</span></div>
@@ -125,9 +126,7 @@ export function DocumentReview() {
       {r && (
         <details className="card small">
           <summary className="bold" style={{ cursor: "pointer", color: "var(--mz-ink)" }}>פרטי ההרצה והמגבלות</summary>
-          <div className="kv"><span>ספק הבדיקה</span><span className="ltr">{r.identity.provider} · {r.identity.mode}</span></div>
-          <div className="kv"><span>מודלים</span><span className="ltr" style={{ fontSize: 11 }}>{Object.entries(r.identity.models).map(([k, v]) => `${k}: ${v}`).join(" · ")}</span></div>
-          <div className="kv"><span>גרסת פרומפט</span><span className="ltr">{r.identity.prompt_version}</span></div>
+          <div className="kv"><span>עיבוד המסמך</span><span className="ltr">JEEN · {r.identity.mode}</span></div>
           <div className="kv"><span>מזהה הרצה</span><span className="ltr">{r.run_id}</span></div>
           <div className="kv"><span>הסתיים</span><span className="ltr">{timeHe(r.finished_at)}</span></div>
           <div className="kv"><span>קריאות מודל / טוקנים</span><span className="ltr">{r.usage.llm_calls} / {(r.usage.prompt_tokens || 0) + (r.usage.output_tokens || 0)}</span></div>

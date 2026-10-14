@@ -1,6 +1,10 @@
 """MockBankAdapter — the ONLY source of bank-side case data in this demo, and it is
 synthetic. Every value carries source=DEMO_BANK_ADAPTER and authoritative=false.
-The real adapter (P2) implements the same methods against bank-approved APIs."""
+The real adapter (P2) implements the same methods against bank-approved APIs.
+
+The product is a personal loan that needs documents (Mizrahi-Tefahot's "הלוואה לכל מטרה" publicly lists an ID,
+3 months of current-account statements, the last 3 payslips and proof of the loan's purpose). Which documents a case
+needs is NOT defined here: it comes from the published loan policy (workflow/requirements.py)."""
 from __future__ import annotations
 
 import copy
@@ -10,170 +14,148 @@ from typing import Any, Optional
 from ..config import settings
 
 SOURCE = {"source": "DEMO_BANK_ADAPTER", "authoritative": False}
+PRODUCT = "personal_loan.all_purpose"
 
-# Observed in a user-provided Tefahot Touch screenshot: a 5-step ring showing "2/5 קיבלנו החלטה".
-# Only that label is observed; the other four are demo assumptions, not a verified bank enum.
+# A demo assumption, not a verified bank enum: no public page lists Mizrahi's internal personal-loan stages.
 STAGE_DICTIONARY = [
-    {"index": 1, "code": "APPLICATION_SUBMITTED", "label_he": "הגשנו בקשה", "observed": False},
-    {"index": 2, "code": "DECISION_RECEIVED", "label_he": "קיבלנו החלטה", "observed": True},
-    {"index": 3, "code": "DOCUMENTS_AND_CHECKS", "label_he": "השלמת מסמכים ובדיקות", "observed": False},
-    {"index": 4, "code": "SIGNING", "label_he": "חתימה על מסמכי ההלוואה", "observed": False},
+    {"index": 1, "code": "APPLICATION_SUBMITTED", "label_he": "הגשת בקשה", "observed": False},
+    {"index": 2, "code": "DOCUMENTS_AND_CHECKS", "label_he": "השלמת מסמכים", "observed": False},
+    {"index": 3, "code": "BANKER_REVIEW", "label_he": "בדיקת בנקאי", "observed": False},
+    {"index": 4, "code": "SIGNING", "label_he": "חתימה על הסכם ההלוואה", "observed": False},
     {"index": 5, "code": "DISBURSEMENT", "label_he": "העמדת ההלוואה", "observed": False},
 ]
 
-# Demo staff directory. The banker console works on a staff session issued by app/auth.py (in demo mode, without a
-# login); the service then checks the case assignment. A real adapter would take identity from bank SSO.
+BANKER_CAPS = ["case.read", "case.write", "followup.override", "followup.manual_call"]
+# Demo staff directory. Capabilities are checked server-side (app/auth.py); a real adapter would take them from bank SSO.
 STAFF = {
-    "STAFF-DANA": {"staff_id": "STAFF-DANA", "name_he": "דנה כהן", "role_he": "מומחית משכנתאות"},
-    "STAFF-ORI": {"staff_id": "STAFF-ORI", "name_he": "אורי לוי", "role_he": "מומחה משכנתאות"},
+    "STAFF-DANA": {"staff_id": "STAFF-DANA", "name_he": "דנה כהן", "role_he": "בנקאית אשראי", "capabilities": BANKER_CAPS},
+    "STAFF-ORI": {"staff_id": "STAFF-ORI", "name_he": "אורי לוי", "role_he": "בנקאי אשראי", "capabilities": BANKER_CAPS},
+    "STAFF-MAYA": {"staff_id": "STAFF-MAYA", "name_he": "מאיה רוזן", "role_he": "מנהלת מדיניות תפעול",
+                   "capabilities": ["case.read", "policy.read", "policy.edit", "prompt.edit", "demo.simulate", "audit.read"]},
+    "STAFF-AVI": {"staff_id": "STAFF-AVI", "name_he": "אבי שגיא", "role_he": "ממונה ציות",
+                  "capabilities": ["case.read", "policy.read", "policy.publish", "prompt.publish", "audit.read",
+                                   "demo.simulate"]},
 }
 
-# The presenter golden set (fixtures/presenter/golden_set/CASE_PROFILE.json) prints these identities; its PDFs
-# are reviewed only in the two cases that carry them, so the Lavi cases above stay untouched.
+_DANA = {"name_he": "דנה כהן", "role_he": "הבנקאית שלך", "staff_id": "STAFF-DANA"}
+_CONTACT = {"consent_voice": True, "consent_message": True, "phone_ref": "TEST-LINE-01", "phone_masked": "050-•••-4471"}
+
+# The presenter golden set (fixtures/presenter/golden_set/CASE_PROFILE.json) prints these identities; its payslips
+# are reviewed only in the cases that carry them, so the Lavi cases stay untouched.
 _GOLDEN_SET_BORROWERS = [
     {"borrower_id": "BRW-A", "name_he": "עידו לוי", "first_name_he": "עידו", "national_id": "DEMO-ID-001",
-     "employment": "salaried", "employer_declared_he": "אביב מערכות דיגיטל בע״מ",
+     "employment": "salaried", "employer_declared_he": "אביב מערכות דיגיטל בע״מ", "role": "primary",
      "declared_net_monthly_ils": 14700, "declaration_note_he": "הוצהר בטופס הבקשה"},
     {"borrower_id": "BRW-B", "name_he": "נועה לוי", "first_name_he": "נועה", "national_id": "DEMO-ID-002",
-     "employment": "salaried", "employer_declared_he": "אורן פתרונות תוכנה בע״מ",
+     "employment": "salaried", "employer_declared_he": "אורן פתרונות תוכנה בע״מ", "role": "co_borrower",
      "declared_net_monthly_ils": 18500, "declaration_note_he": "הוצהר בטופס הבקשה"},
 ]
-
-_GOLDEN_SET_CASE = {
-    "stage_index": 2,
-    "preliminary_decision": {"label_he": "אישור עקרוני", "issued_on": "2026-10-05", "valid_until": "2027-01-03",
-                             "amount_ils": 1500000},
-    "requested_loan_ils": 1500000,
-    "property": {"purpose_he": "רכישת דירה יד שנייה", "city_he": "רמת גן", "price_ils": 2400000},
-    "submitted_at": "2026-10-02T10:00:00+03:00",
-    "banker": {"name_he": "דנה כהן", "role_he": "מומחית המשכנתאות שלך", "staff_id": "STAFF-DANA"},
-    "meeting": None,
-    "borrowers": _GOLDEN_SET_BORROWERS,
-}
-
-_CASES: dict[str, dict[str, Any]] = {
-    "DEMO-MTZ-2026-001": {
-        "case_id": "DEMO-MTZ-2026-001",
-        "display_number": "438838921",
-        "title_he": "קניית דירה יד שנייה",
-        "stage_index": 2,
-        "preliminary_decision": {"label_he": "אישור עקרוני", "issued_on": "2026-09-21", "valid_until": "2026-12-20",
-                                 "amount_ils": 1400000},
-        "requested_loan_ils": 1400000,
-        "property": {"purpose_he": "רכישת דירה יד שנייה", "city_he": "חיפה", "price_ils": 2000000},
-        "submitted_at": "2026-09-14T10:32:00+03:00",
-        "banker": {"name_he": "דנה כהן", "role_he": "מומחית המשכנתאות שלך", "staff_id": "STAFF-DANA"},
-        "meeting": {"date": "2026-10-20", "from": "10:00", "to": "11:00", "type_he": "פגישת חתימה בסניף חיפה"},
-        "borrowers": [
-            {"borrower_id": "BRW-A", "name_he": "עידו לביא", "first_name_he": "עידו", "national_id": "039812457",
-             "employment": "salaried", "employer_declared_he": "אופק לוגיסטיקה בע״מ",
-             "declared_net_monthly_ils": 13500, "declaration_note_he": "שכר קבוע"},
-            {"borrower_id": "BRW-B", "name_he": "נועה לביא", "first_name_he": "נועה", "national_id": "204376815",
-             "employment": "salaried", "employer_declared_he": "גלי טכנולוגיות בע״מ",
-             "declared_net_monthly_ils": 18500, "declaration_note_he": "ייתכנו רכיבים משתנים"},
-        ],
-    },
-    "DEMO-MTZ-2026-003": {
-        "case_id": "DEMO-MTZ-2026-003",
-        "display_number": "438838999",
-        "title_he": "תיק בדיקות QA — מסמכים בעייתיים",
-        "stage_index": 2,
-        "preliminary_decision": {"label_he": "אישור עקרוני", "issued_on": "2026-09-21", "valid_until": "2026-12-20",
-                                 "amount_ils": 1400000},
-        "requested_loan_ils": 1400000,
-        "property": {"purpose_he": "רכישת דירה יד שנייה", "city_he": "חיפה", "price_ils": 2000000},
-        "submitted_at": "2026-09-14T10:32:00+03:00",
-        "banker": {"name_he": "דנה כהן", "role_he": "מומחית המשכנתאות שלך", "staff_id": "STAFF-DANA"},
-        "meeting": None,
-        "borrowers": [
-            {"borrower_id": "BRW-A", "name_he": "עידו לביא", "first_name_he": "עידו", "national_id": "039812457",
-             "employment": "salaried", "employer_declared_he": "אופק לוגיסטיקה בע״מ",
-             "declared_net_monthly_ils": 13500, "declaration_note_he": "שכר קבוע"},
-            {"borrower_id": "BRW-B", "name_he": "נועה לביא", "first_name_he": "נועה", "national_id": "204376815",
-             "employment": "salaried", "employer_declared_he": "גלי טכנולוגיות בע״מ",
-             "declared_net_monthly_ils": 18500, "declaration_note_he": "ייתכנו רכיבים משתנים"},
-        ],
-    },
-    "DEMO-MTZ-2026-002": {
-        "case_id": "DEMO-MTZ-2026-002",
-        "display_number": "438840117",
-        "title_he": "מחזור משכנתא",
-        "stage_index": 1,
-        "preliminary_decision": None,
-        "requested_loan_ils": 600000,
-        "property": {"purpose_he": "מחזור משכנתא", "city_he": "רמת גן", "price_ils": 1650000},
-        "submitted_at": "2026-10-01T09:10:00+03:00",
-        "banker": {"name_he": "אורי לוי", "role_he": "מומחה המשכנתאות שלך", "staff_id": "STAFF-ORI"},
-        "meeting": None,
-        "borrowers": [
-            {"borrower_id": "BRW-C", "name_he": "מיכל ברק", "first_name_he": "מיכל", "national_id": "311204578",
-             "employment": "salaried", "employer_declared_he": "שחף הנדסה בע״מ",
-             "declared_net_monthly_ils": 21000, "declaration_note_he": "שכר קבוע"},
-        ],
-    },
-    "DEMO-MTZ-2026-004": {
-        "case_id": "DEMO-MTZ-2026-004",
-        "display_number": "438839004",
-        "title_he": "תרחישי בדיקה — דירה יד שנייה",
-        **_GOLDEN_SET_CASE,
-    },
-    "DEMO-MTZ-2026-005": {
-        "case_id": "DEMO-MTZ-2026-005",
-        "display_number": "438839005",
-        "title_he": "תרחישי בדיקה — תיק QA מבודד",
-        **_GOLDEN_SET_CASE,
-    },
-    # Executive demo: one borrower per case, so each featured scenario has its own case-wide status. The presenter
-    # manifest maps scenarios to these cases; nothing here says what a review of them should conclude.
-    "DEMO-MTZ-2026-006": {
-        "case_id": "DEMO-MTZ-2026-006",
-        "display_number": "438839006",
-        "title_he": "דירה יד שנייה · הדגמה א׳",
-        "executive_demo": True,
-        **{**_GOLDEN_SET_CASE, "borrowers": [_GOLDEN_SET_BORROWERS[0]]},
-    },
-    "DEMO-MTZ-2026-007": {
-        "case_id": "DEMO-MTZ-2026-007",
-        "display_number": "438839007",
-        "title_he": "דירה יד שנייה · הדגמה ב׳",
-        "executive_demo": True,
-        **{**_GOLDEN_SET_CASE, "borrowers": [_GOLDEN_SET_BORROWERS[1]]},
-    },
-    "DEMO-MTZ-2026-008": {
-        "case_id": "DEMO-MTZ-2026-008",
-        "display_number": "438839008",
-        "title_he": "דירה יד שנייה · הדגמה ג׳",
-        "executive_demo": True,
-        **{**_GOLDEN_SET_CASE, "borrowers": [_GOLDEN_SET_BORROWERS[0]]},
-    },
-}
-
-# Requirement inventory. Payslips are evaluated by the AI layer; the rest are listed with
-# their (mock) bank status and are explicitly NOT evaluated in this demo.
-_OTHER_REQUIREMENTS = [
-    {"code": "BANK_STATEMENTS:ALL", "title_he": "דפי תנועות עו״ש — 3 חודשים אחרונים, כל החשבונות", "family": "income"},
-    {"code": "LOAN_BALANCES:ALL", "title_he": "דוח ריכוז יתרות הלוואות", "family": "liabilities"},
-    {"code": "APPRAISAL", "title_he": "שמאות — מועברת ישירות מהשמאי לבנק", "family": "property"},
-    {"code": "LIFE_INSURANCE", "title_he": "פוליסת ביטוח חיים משועבדת לבנק", "family": "insurance"},
-    {"code": "PROPERTY_INSURANCE", "title_he": "פוליסת ביטוח נכס משועבדת לבנק", "family": "insurance"},
-    {"code": "SELLER_DOCUMENTS", "title_he": "מסמכי מוכר ובטוחות (התחייבות מוכר, הערת אזהרה, אישורי מיסים)", "family": "collateral"},
+_LAVI = [
+    {"borrower_id": "BRW-A", "name_he": "עידו לביא", "first_name_he": "עידו", "national_id": "039812457",
+     "employment": "salaried", "employer_declared_he": "אופק לוגיסטיקה בע״מ", "role": "primary",
+     "declared_net_monthly_ils": 13500, "declaration_note_he": "שכר קבוע"},
+    {"borrower_id": "BRW-B", "name_he": "נועה לביא", "first_name_he": "נועה", "national_id": "204376815",
+     "employment": "salaried", "employer_declared_he": "גלי טכנולוגיות בע״מ", "role": "co_borrower",
+     "declared_net_monthly_ils": 18500, "declaration_note_he": "ייתכנו רכיבים משתנים"},
 ]
+
+
+def _loan(purpose: str, purpose_he: str, amount: int, payments: int, note_he: str = "") -> dict:
+    return {"product": PRODUCT, "product_he": "הלוואה לכל מטרה", "purpose": purpose, "purpose_he": purpose_he,
+            "requested_amount_ils": amount, "payments": payments, "note_he": note_he}
+
+
+def _accounts(*holders: list[str], start: int = 1) -> list[dict]:
+    return [{"account_id": f"ACC-{start + i}", "label_he": f"חשבון עו״ש {start + i}", "bank_he": "מזרחי־טפחות",
+             "holders": h} for i, h in enumerate(holders)]
+
+
+def _case(case_id: str, number: str, title_he: str, borrowers: list[dict], loan: dict, accounts: list[dict],
+          **extra: Any) -> dict:
+    return {"case_id": case_id, "display_number": number, "title_he": title_he, "stage_index": 2,
+            "preliminary_decision": None, "requested_loan_ils": loan["requested_amount_ils"], "loan": loan,
+            "submitted_at": extra.pop("submitted_at", "2026-10-05T10:00:00+03:00"), "banker": dict(_DANA),
+            "meeting": extra.pop("meeting", None), "borrowers": borrowers, "accounts": accounts,
+            "contact": {**_CONTACT, **extra.pop("contact", {})}, **extra}
+
+
+_GOLDEN_CAR = _loan("car", "רכישת רכב", 120000, 60, "רכב משפחתי חדש")
+_CASES: dict[str, dict[str, Any]] = {
+    "DEMO-MTZ-2026-001": _case(
+        "DEMO-MTZ-2026-001", "438838921", "הלוואה לרכישת רכב", copy.deepcopy(_LAVI),
+        _loan("car", "רכישת רכב", 95000, 48, "רכב משפחתי"), _accounts(["BRW-A", "BRW-B"]),
+        submitted_at="2026-09-28T10:32:00+03:00",
+        meeting={"date": "2026-10-20", "from": "10:00", "to": "10:30", "type_he": "שיחת וידאו עם הבנקאית"}),
+    "DEMO-MTZ-2026-003": _case(
+        "DEMO-MTZ-2026-003", "438838999", "תיק בדיקות QA — מסמכים בעייתיים", copy.deepcopy(_LAVI),
+        _loan("car", "רכישת רכב", 95000, 48), _accounts(["BRW-A", "BRW-B"]), submitted_at="2026-09-28T10:32:00+03:00"),
+    "DEMO-MTZ-2026-002": {
+        **_case("DEMO-MTZ-2026-002", "438840117", "הלוואה לשיפוץ",
+                [{"borrower_id": "BRW-C", "name_he": "מיכל ברק", "first_name_he": "מיכל", "national_id": "311204578",
+                  "employment": "salaried", "employer_declared_he": "שחף הנדסה בע״מ", "role": "primary",
+                  "declared_net_monthly_ils": 21000, "declaration_note_he": "שכר קבוע"}],
+                _loan("renovation", "שיפוץ", 80000, 60), _accounts(["BRW-C"]), submitted_at="2026-10-01T09:10:00+03:00"),
+        "stage_index": 1, "banker": {"name_he": "אורי לוי", "role_he": "הבנקאי שלך", "staff_id": "STAFF-ORI"}},
+    # The presenter's test-scenario cases: one applicant (the golden identity), so each scenario's result is its own.
+    "DEMO-MTZ-2026-004": _case("DEMO-MTZ-2026-004", "438839004", "תרחישי בדיקה — הלוואה לרכב",
+                               [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"])),
+    "DEMO-MTZ-2026-005": _case("DEMO-MTZ-2026-005", "438839005", "תרחישי בדיקה — תיק QA מבודד",
+                               [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"])),
+    # Executive demo: one applicant per case, so each featured scenario has its own case-wide status. The presenter
+    # manifest maps scenarios to these cases; nothing here says what a review of them should conclude.
+    "DEMO-MTZ-2026-006": _case("DEMO-MTZ-2026-006", "438839006", "הלוואה לרכב · הדגמה א׳",
+                               [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
+                               executive_demo=True),
+    "DEMO-MTZ-2026-007": _case("DEMO-MTZ-2026-007", "438839007", "הלוואה לרכב · הדגמה ב׳",
+                               [{**copy.deepcopy(_GOLDEN_SET_BORROWERS[1]), "role": "primary"}], _GOLDEN_CAR,
+                               _accounts(["BRW-B"]), executive_demo=True),
+    "DEMO-MTZ-2026-008": _case("DEMO-MTZ-2026-008", "438839008", "הלוואה לרכב · הדגמה ג׳",
+                               [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
+                               executive_demo=True),
+    # The loan-completion journey: a full package, a wrong-month payslip, follow-up and a simulated JEEN Talk call.
+    "DEMO-MTZ-2026-009": _case("DEMO-MTZ-2026-009", "438839009", "השלמת מסמכים · הדגמה ד׳",
+                               [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
+                               executive_demo=True),
+    # Contact permission withheld: the policy must block every automatic contact and explain why.
+    "DEMO-MTZ-2026-010": _case("DEMO-MTZ-2026-010", "438839010", "ללא הרשאת קשר · הדגמה ה׳",
+                               [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
+                               executive_demo=True, contact={"consent_voice": False, "consent_message": False}),
+    # A complete, valid package whose payslips do not support the declared income: the banker's judgment (human review).
+    "DEMO-MTZ-2026-011": _case("DEMO-MTZ-2026-011", "438839011", "פער הכנסה · הדגמה ו׳",
+                               [{**copy.deepcopy(_GOLDEN_SET_BORROWERS[0]), "declared_net_monthly_ils": 16500,
+                                 "declaration_note_he": "הוצהר בטופס הבקשה — כולל בונוס צפוי"}],
+                               _GOLDEN_CAR, _accounts(["BRW-A"]), executive_demo=True),
+}
+
+
+def _applications() -> dict[str, dict]:
+    """Customer-started applications (synthetic, stored in DATA_DIR) — see workflow/intake.py."""
+    from .. import db
+    try:
+        rows = db.query("SELECT case_id, application FROM demo_applications ORDER BY created_at")
+    except Exception:                                   # the table may not exist before db.connect()
+        return {}
+    return {r["case_id"]: db.jload(r["application"]) for r in rows}
 
 
 class MockBankAdapter:
     name = "mock-bank"
 
+    def _all(self) -> dict[str, dict]:
+        return {**_CASES, **_applications()}
+
     def case_ids(self) -> list[str]:
-        return list(_CASES)
+        return list(self._all())
 
     def executive_demo_case_ids(self) -> list[str]:
         """The only cases the presenter's "start a new demo" control may wipe."""
         return [cid for cid, c in _CASES.items() if c.get("executive_demo")]
 
     def get_case(self, case_id: str) -> dict[str, Any]:
-        if case_id not in _CASES:
+        cases = _CASES if case_id in _CASES else self._all()
+        if case_id not in cases:
             raise KeyError(case_id)
-        case = copy.deepcopy(_CASES[case_id])
+        case = copy.deepcopy(cases[case_id])
         stage = STAGE_DICTIONARY[case["stage_index"] - 1]
         case["bank_stage"] = {**SOURCE, "index": stage["index"], "of": len(STAGE_DICTIONARY), "code": stage["code"],
                               "label_he": stage["label_he"], "label_observed_in_screenshot": stage["observed"]}
@@ -185,33 +167,36 @@ class MockBankAdapter:
     def staff(self, staff_id: str) -> Optional[dict[str, Any]]:
         return copy.deepcopy(STAFF.get(staff_id))
 
+    def staff_directory(self) -> list[dict[str, Any]]:
+        return copy.deepcopy(list(STAFF.values()))
+
     def customer_cases(self, national_id: str) -> list[str]:
         """The cases in which this person is a borrower (a data lookup; no credential is involved)."""
-        return [cid for cid, c in _CASES.items() if any(b["national_id"] == national_id for b in c["borrowers"])]
+        return [cid for cid, c in self._all().items() if any(b["national_id"] == national_id for b in c["borrowers"])]
 
     def stage_dictionary(self) -> dict[str, Any]:
         return {**SOURCE, "stages": STAGE_DICTIONARY,
-                "note_he": "מילון שלבים להדגמה. רק התווית ״קיבלנו החלטה״ נצפתה בצילום מסך של טפחות טאצ׳; שאר השלבים הם הנחת דמו."}
+                "note_he": "מילון שלבים להדגמה בלבד — אינו רשימת שלבים מאומתת של הבנק להלוואות."}
 
     def requirements(self, case_id: str) -> list[dict[str, Any]]:
-        case = self.get_case(case_id)
-        reqs = []
-        for b in case["borrowers"]:
-            if b["employment"] == "salaried":
-                reqs.append({"code": f"PAYSLIPS:{b['borrower_id']}", "family": "income", "borrower_id": b["borrower_id"],
-                             "title_he": f"3 תלושי שכר אחרונים — {b['first_name_he']}", "evaluated_by_ai": True,
-                             "bank_status": "awaiting_documents", **SOURCE})
-        for r in _OTHER_REQUIREMENTS:
-            reqs.append({**r, "borrower_id": None, "evaluated_by_ai": False, "bank_status": "awaiting_documents", **SOURCE})
-        return reqs
+        """Requirement instances of the case, from the loan policy version pinned to it."""
+        from ..workflow import requirements
+        return requirements.for_case(case_id)
 
     def case_context(self, case_id: str) -> dict[str, Any]:
         """What a review engine may know about the case: identities, declarations, dates."""
+        from ..workflow import requirements
         case = self.get_case(case_id)
         return {"case_id": case_id, "simulation_date": settings.simulation_date,
+                "payslip_months": requirements.payslip_months(case_id),
+                "loan_purpose_he": (case.get("loan") or {}).get("purpose_he"),
+                "requirements": [{k: r[k] for k in ("code", "family", "rules", "holders", "required", "title_he",
+                                                    "account_id", "borrower_id")}
+                                 for r in requirements.for_case(case_id)],
                 "borrowers": [{k: b[k] for k in ("borrower_id", "name_he", "national_id", "employment",
                                                  "employer_declared_he", "declared_net_monthly_ils",
                                                  "declaration_note_he", "declared_income_provenance")} for b in case["borrowers"]],
+                "accounts": [{"account_id": a["account_id"], "holders": a["holders"]} for a in case.get("accounts", [])],
                 "source": SOURCE}
 
 

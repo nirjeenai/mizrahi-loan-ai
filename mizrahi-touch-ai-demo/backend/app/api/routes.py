@@ -413,10 +413,12 @@ def presenter_scenarios():
         files[d["id"]] = {"available": bool(data), "bytes": len(data), "sha256_matches_manifest": sha256_bytes(data) == d["sha256"],
                           "pages": int(row["pages"]) if row.get("pages") else None, "input_mode": row.get("input_mode")}
     refs = sorted({s["expectedJson"] for s in manifest["scenarios"] if s.get("expectedJson")})
-    rubrics = sorted((PRESENTER / PRESENTER_RUBRICS).glob("*.json"))
+    # the engine's own rubrics (latest version per family) — what the app on the right actually checks against
+    engine = [rubrics.latest(rid) for rid in rubrics.FAMILY_RUBRIC.values() if any(
+        r["rubric_id"] == rid for r in rubrics.all_rubrics().values())]
     return {"manifest": manifest, "files": files, "expected": {ref: _presenter_json(ref) for ref in refs},
             "negative_tests": (_presenter_json(PRESENTER_NEGATIVE) or {}).get("tests", []),
-            "rubrics": [_presenter_json(f"{PRESENTER_RUBRICS}/{p.name}") for p in rubrics]}
+            "rubrics": [{**r, "document_type": r.get("family", "payslip")} for r in engine]}
 
 
 @router.get("/presenter/file")
@@ -435,7 +437,7 @@ def presenter_file(doc_id: str = Query(alias="id")):
 
 @router.post("/presenter/demo-reset")
 def presenter_demo_reset(request: Request):
-    """Presenter control "התחל דמו חדש": wipes the executive demo cases (006–008) and nothing else. Off with
+    """Presenter control "התחל דמו חדש": wipes the executive demo cases (006–011) and nothing else. Off with
     DEMO_RESET=0; needs any signed-in session (the presenter is signed in to the app on the right)."""
     if not settings.demo_reset:
         raise HTTPException(403, "איפוס תיקים כבוי בסביבה זו.")

@@ -22,7 +22,7 @@ function HubSide() {
       <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
         <img src="/brand/jeen-logo.png" alt="Jeen" /></div>
       <h1>טפחות טאצ׳ × JEEN</h1>
-      <p className="small hub-lead">בדיקת מסמכי משכנתא חכמה בתוך מסע טפחות טאצ׳: ה-AI קורא, מאמת ומנתב — הבנקאית מחליטה.</p>
+      <p className="small hub-lead">השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה — הבנקאית מחליטה.</p>
       <div className="notice small">נתונים סינתטיים בלבד · אין חיבור למערכות מזרחי־טפחות · אין החלטת אשראי אוטומטית.</div>
       <div className="hub-bar">
         <NewDemoButton />

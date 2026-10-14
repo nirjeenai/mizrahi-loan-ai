@@ -17,6 +17,7 @@ from app.util import new_id, now_iso
 from tests.test_review_desk import (CASE, DANA, FIX, ORI, OTHER, add_doc, anon, bearer, case_run, client, decide, finish_review,  # noqa: F401
                               fresh, ido_set, item, review, snapshot, workspace)
 
+pytestmark = pytest.mark.usefixtures("payslip_scope")    # the payslip workflow on its own (see conftest)
 ORI_CASE = "DEMO-MTZ-2026-002"
 LEVI = "DEMO-MTZ-2026-004"
 
@@ -48,7 +49,7 @@ def test_demo_session_is_bound_to_the_picked_case_and_extended_per_case():
     assert c.get(f"/api/cases/{CASE}").status_code == 401                         # no session, no data
     r = c.post("/api/session/demo/customer", json={"case_id": CASE})
     cookie = r.headers["set-cookie"]
-    assert r.status_code == 200 and cookie.startswith("mz_customer=") and "HttpOnly" in cookie and "SameSite=strict" in cookie
+    assert r.status_code == 200 and cookie.startswith("mzl_customer=") and "HttpOnly" in cookie and "SameSite=strict" in cookie
     assert [x["case_id"] for x in c.get("/api/session").json()["customer"]["cases"]] == [CASE]
     assert c.get(f"/api/cases/{CASE}").status_code == 200
     assert c.get(f"/api/cases/{ORI_CASE}").status_code == 403                     # another case needs its own pick

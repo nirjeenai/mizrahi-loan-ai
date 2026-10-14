@@ -87,7 +87,7 @@ def test_the_model_cannot_invent_or_duplicate_actions():
 def test_the_contract_rejects_unknown_types_and_malformed_params():
     with pytest.raises(ValidationError):
         actions.AppAction(action_id="x", type="NAVIGATE_TO_DOCUMENT_UPLOAD", case_id="C", label_he="x", priority=1,
-                          params={"borrower_id": "BRW-A", "requirement_code": "R", "document_type": "BANK_STATEMENT"})
+                          params={"borrower_id": "BRW-A", "requirement_code": "R", "document_type": "SELFIE"})
     with pytest.raises(ValidationError):
         actions.AppAction(action_id="x", type="VIEW_CASE_DETAILS", case_id="C", label_he="x", priority=1, params={"route": "/banker"})
     with pytest.raises(ValidationError):

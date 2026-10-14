@@ -27,7 +27,8 @@ from .bank.mock_bank import bank
 from .config import settings
 from .store import repo
 
-COOKIES = {"customer": "mz_customer", "staff": "mz_staff"}
+# Browsers scope cookies by host, not port: these names must differ from Mizrahi #1's (mz_*) on 127.0.0.1.
+COOKIES = {"customer": "mzl_customer", "staff": "mzl_staff"}
 NEED_CUSTOMER = "נדרש חיבור לתיק."
 NEED_STAFF = "נדרש חיבור של איש צוות הבנק."
 NOT_YOURS = "התיק אינו שייך לחיבור הנוכחי."

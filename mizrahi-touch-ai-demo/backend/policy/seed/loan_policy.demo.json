@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "scope": {"environment": "demo", "product": "personal_loan.all_purpose"},
+  "product": {
+    "label_he": "הלוואה לכל מטרה",
+    "purposes": {
+      "car": {"label_he": "רכישת רכב", "proof_he": "הצעת מחיר או חשבונית מהסוכנות"},
+      "renovation": {"label_he": "שיפוץ", "proof_he": "הצעת מחיר מקבלן"},
+      "celebration": {"label_he": "אירוע משפחתי", "proof_he": "הסכם או הצעת מחיר מאולם/ספק"},
+      "other": {"label_he": "מטרה אחרת", "proof_he": "אסמכתה שמתארת את מטרת ההלוואה"}
+    }
+  },
+  "document_requirements": [
+    {"id": "ID_CARD", "family": "id_document", "per": "applicant", "required": true, "label_he": "תעודת זהות",
+     "hint_he": "צילום ברור של תעודת הזהות, כולל הספח אם יש", "rules": {"check_expiry": true}},
+    {"id": "PAYSLIPS", "family": "payslip", "per": "applicant", "required": true, "label_he": "{months} תלושי שכר אחרונים",
+     "hint_he": "תלושי השכר של החודשים האחרונים, כפי שהתקבלו מהמעסיק", "condition": {"employment": ["salaried"]},
+     "rules": {"months": 3}},
+    {"id": "BANK_STATEMENTS", "family": "bank_statement", "per": "account", "required": true,
+     "label_he": "דפי עו״ש ל־3 החודשים האחרונים", "hint_he": "דף תנועות של כל חשבון שהוצהר, ברצף וללא פערים",
+     "rules": {"coverage_days": 90, "max_age_days": 30, "joint_satisfies_all": true}},
+    {"id": "PURPOSE_PROOF", "family": "purpose_proof", "per": "case", "required": true,
+     "label_he": "אסמכתה למטרת ההלוואה", "hint_he": "הצעת מחיר, חשבונית או הסכם שמתארים את מטרת ההלוואה",
+     "rules": {"max_age_days": 90}},
+    {"id": "TAX_ASSESSMENT", "family": "tax_form", "per": "applicant", "required": true,
+     "label_he": "שומת מס / אישור רו״ח", "hint_he": "לעצמאים: שומת המס האחרונה או אישור רו״ח עדכני",
+     "condition": {"employment": ["self_employed"]}, "rules": {"min_tax_year_offset": 1}}
+  ],
+  "validation": {"low_confidence_threshold": 0.6, "undetermined_route": "HUMAN_REVIEW"},
+  "customer_messages": {
+    "UNEXPECTED_DOCUMENT_TYPE": "המסמך שהעלית אינו מתאים לדרישה. נא להעלות את המסמך המבוקש.",
+    "PAYSLIP_WRONG_PERIOD": "התלוש שהעלית אינו לחודש הנדרש. נא להעלות את התלוש החסר."
+  },
+  "followup": {
+    "auto_followup_enabled": true,
+    "presence_ttl_seconds": 90,
+    "in_app_idle_nudge_minutes": 5,
+    "abandonment_grace_minutes": 20,
+    "unknown_presence_extra_minutes": 10,
+    "channel_order": ["in_app", "voice"],
+    "min_hours_between_calls": 24,
+    "max_attempts_per_case": 2,
+    "max_attempts_per_case_per_day": 1,
+    "max_attempts_per_customer_per_day": 2,
+    "call_window": {"timezone": "Asia/Jerusalem", "days": ["SUN", "MON", "TUE", "WED", "THU"], "from": "09:00", "to": "18:00"},
+    "holidays": ["2026-09-12", "2026-09-13", "2026-09-21", "2026-09-26", "2026-10-03"],
+    "on_exhausted_attempts": "HUMAN_REVIEW",
+    "statement_extends_grace_minutes": 30
+  },
+  "talk": {"mode": "simulation", "enabled": true, "link_ttl_minutes": 1440, "reconcile_after_minutes": 10, "max_provider_errors": 2},
+  "templates": {
+    "in_app_correction": "{{first_name}}, נדרש תיקון במסמכים: {{missing_documents}}. אפשר להעלות עכשיו מתוך האפליקציה.",
+    "link_message": "שלום {{first_name}}, זו הודעה ממזרחי־טפחות לגבי בקשת ההלוואה שלך. כדי להשלים: {{missing_documents}}. קישור מאובטח להעלאה: {{secure_upload_link}}",
+    "reminder": "{{first_name}}, תזכורת: להשלמת הבקשה חסר {{missing_documents}}.",
+    "completed": "{{first_name}}, כל המסמכים התקבלו ונבדקו. הבקשה הועברה לבדיקת הבנקאי — זו אינה החלטה על ההלוואה."
+  }
+}

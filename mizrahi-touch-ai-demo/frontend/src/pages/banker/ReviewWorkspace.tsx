@@ -59,7 +59,7 @@ export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnl
       <div className="desk-grid">
         <Queue ws={ws} byId={byId} current={current?.id} onSelect={onSelect} reload={reload} readOnly={readOnly} onToast={setToast} />
         <section className="desk-evidence" aria-label="המסמך והראיות" data-testid="evidence-pane">
-          {!current ? <div className="desk-empty">אין עדיין מסמכים בתיק. כשהלקוח יעלה תלושי שכר, הם יופיעו כאן.</div>
+          {!current ? <div className="desk-empty">אין עדיין מסמכים בתיק. כשהלקוח יעלה מסמכים לבקשת ההלוואה, הם יופיעו כאן.</div>
             : current.kind === "document" ? <DocumentEvidence item={current} focus={focus} setFocus={setFocus} onSelect={onSelect} ws={ws} />
               : current.kind === "missing" ? <MissingEvidence item={current} onSelect={onSelect} ws={ws} />
                 : <FindingEvidence item={current} focus={focus} setFocus={setFocus} ws={ws} />}
@@ -128,26 +128,63 @@ function SummaryHeader({ ws, onSelect }: { ws: Workspace; onSelect: (id: string)
       <div className="sum-stat">
         <b>{pending}</b>
         <span><span className="sum-label">ממתין ללקוח</span>
-          <span className="sum-sub">{[s.missing ? count(s.missing, "חודש חסר", "חודשים חסרים") : "", g.correction ? `${g.correction} לתיקון` : "",
+          <span className="sum-sub">{[s.missing ? count(s.missing, "חודש חסר", "חודשים חסרים") : "",
+            (g.missing || 0) > s.missing ? count((g.missing || 0) - s.missing, "מסמך חסר", "מסמכים חסרים") : "", g.correction ? `${g.correction} לתיקון` : "",
             asked ? count(asked, "בקשת הסבר", "בקשות הסבר") : ""].filter(Boolean).join(" · ") || "אין דרישות פתוחות"}</span></span>
       </div>
-      <div className="sum-stat">
+      {ws.progress && ws.progress.total > 0 && (
+        <div className="sum-stat" data-testid="requirements-progress">
+          <b className="ltr">{ws.progress.done}/{ws.progress.total}</b>
+          <span><span className="sum-label">דרישות מסמכים הושלמו</span>
+            <span className="sum-sub">{ws.case_status === "READY_FOR_BANKER" ? "מוכן לבדיקתך — לא החלטת אשראי" : `תלושים: ${s.payslips_verified}/${s.payslips_required}`}</span></span>
+        </div>
+      )}
+      {!ws.progress?.total && <div className="sum-stat">
         <b className="ltr">{s.payslips_verified}/{s.payslips_required}</b>
         <span><span className="sum-label">תלושים נדרשים מאומתים</span><span className="sum-sub">התקבלו על ידך: {s.payslips_accepted}</span></span>
-      </div>
+      </div>}
       <div className="sum-fact" title="נתון שלב הבקשה מגיע ממערכת הבנק (בהדגמה: מתאם דמו, לא סמכותי). פעולות בקונסולה אינן משנות אותו.">
         <span className="sum-label">שלב רשמי בבנק</span>
         <span className="sum-value" data-testid="bank-stage">{stage.label_he} ({stage.index}/{stage.of}) <span className="sum-demo">דמו</span></span>
       </div>
       <div className="sum-fact">
-        <span className="sum-label">בדיקת מסמכי השכר</span>
+        <span className="sum-label">בדיקת מסמכי הבקשה</span>
         <Chip tone={REVIEW_TONE[ws.review_state.state] || "neutral"} testId="banker-readiness">{ws.review_state.label_he}</Chip>
       </div>
       <button className="sum-toggle" onClick={() => setOpen(!open)} aria-expanded={open} data-testid="coverage-toggle">
-        פירוט חודשים והכנסה <span aria-hidden>{open ? "▴" : "▾"}</span></button>
+        פירוט דרישות, חודשים והכנסה <span aria-hidden>{open ? "▴" : "▾"}</span></button>
     </div>
+    {open && <RequirementMatrix ws={ws} onSelect={onSelect} />}
     {open && <BorrowerStrip ws={ws} onSelect={onSelect} />}
   </>);
+}
+
+const REQ_TONE: Record<string, string> = { extracted: "ok", preparation_confirmed: "ok", needs_banker_review: "navy", checking: "neutral",
+  required_missing: "miss", needs_customer_action: "warn" };
+
+/** Every requirement instance of the pinned loan policy, with its AI state; a click opens the document or the missing item. */
+function RequirementMatrix({ ws, onSelect }: { ws: Workspace; onSelect: (id: string) => void }) {
+  if (!ws.requirement_matrix?.length) return null;
+  const open = (code: string) => {
+    const doc = ws.items.find((i): i is DocItem => i.kind === "document" && i.requirement_code === code && i.banker.status !== "REPLACED");
+    const missing = ws.items.find((i) => i.id === `missing:${code}`);
+    if (missing) onSelect(missing.id);
+    else if (doc) onSelect(doc.id);
+  };
+  return (
+    <div className="req-matrix" data-testid="requirement-matrix">
+      <div className="tiny muted">דרישות לפי מדיניות {ws.requirement_matrix[0].policy_version || ""} (הוצמדה לתיק)</div>
+      <div className="req-matrix-rows">
+        {ws.requirement_matrix.map((r) => (
+          <button key={r.code} className={`mchip2 ${REQ_TONE[r.ai_state] || "neutral"}`} onClick={() => open(r.code)}
+            data-testid="requirement-row" data-code={r.code} data-state={r.ai_state} title={r.title_he}>
+            <span className="dot" aria-hidden /><span className="mchip2-month">{r.family_he}{r.borrower_he && r.family !== "purpose_proof" ? ` · ${r.borrower_he}` : ""}</span>
+            <span className="mchip2-state">{r.ai_state_he}{r.family === "payslip" ? ` · ${r.units}` : ""}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function BorrowerStrip({ ws, onSelect }: { ws: Workspace; onSelect: (id: string) => void }) {
@@ -227,7 +264,7 @@ const COLLAPSED = ["missing", "done"];
 
 function missingSummary(items: QueueItem[]): string {
   const by: Record<string, string[]> = {};
-  for (const it of items) if (it.kind === "missing") (by[it.borrower_he || ""] ||= []).push(it.period_he.split(" ")[0]);
+  for (const it of items) if (it.kind === "missing") (by[it.borrower_he || ""] ||= []).push(it.period_he ? it.period_he.split(" ")[0] : it.family_he || it.title_he);
   return Object.entries(by).map(([who, months]) => `${who}: ${months.join(", ")}`).join(" · ");
 }
 
@@ -264,14 +301,14 @@ function CaseStep({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: ()
     try {
       await api.confirmPreparation(ws.case_id, { note, request_id: rid });
       setRid(newRequestId());
-      onToast({ text: "הכנת מסמכי השכר אושרה ונשמרה עם חבילת הראיות. שלב הבקשה בבנק לא השתנה.", tone: "ok" });
+      onToast({ text: "הכנת מסמכי הבקשה אושרה ונשמרה עם חבילת הראיות. שלב הבקשה בבנק לא השתנה.", tone: "ok" });
       setOpen(false); reload();
     } catch (e) { onToast({ text: (e as Error).message, tone: "bad" }); } finally { setBusy(false); }
   };
   return (
     <div className="case-step" data-testid="case-step">
-      <div className="bold small">שלב תיק: אישור הכנת מסמכי השכר</div>
-      <div className="tiny muted">אישור שמסמכי השכר מוכנים לטיפולך. אינו החלטת אשראי ואינו משנה את שלב הבקשה בבנק.</div>
+      <div className="bold small">שלב תיק: אישור הכנת מסמכי הבקשה</div>
+      <div className="tiny muted">אישור שמסמכי בקשת ההלוואה מוכנים לטיפולך. אינו החלטת אשראי ואינו משנה את שלב הבקשה בבנק.</div>
       {!ws.preparation && ws.preparation_stale && <div className="tiny warn-text" data-testid="preparation-stale">
         האישור מ־<When at={ws.preparation_stale.confirmed_at} /> אינו בתוקף עוד: {ws.preparation_stale.reason_he}. יש לאשר שוב אחרי הבדיקה.</div>}
       {ws.preparation ? <div className="small ok-text">אושר <When at={ws.preparation.confirmed_at} />{ws.preparation.note ? ` · ${ws.preparation.note}` : ""}</div>
@@ -282,7 +319,7 @@ function CaseStep({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: ()
           <div className="stack" style={{ gap: 6 }}>
             {c.open_banker_items > 0 && <div className="tiny">{c.open_banker_items} ממצאים לשיקול דעתך יישארו פתוחים ויתועדו בחבילה.</div>}
             <textarea className="note" placeholder="הערה פנימית (רשות)" value={note} onChange={(e) => setNote(e.target.value)} />
-            <div className="row"><button className="btn btn-dark btn-sm" disabled={busy} onClick={confirm} data-testid="confirm-preparation-submit">אישור הכנת מסמכי השכר</button>
+            <div className="row"><button className="btn btn-dark btn-sm" disabled={busy} onClick={confirm} data-testid="confirm-preparation-submit">אישור הכנת מסמכי הבקשה</button>
               <button className="btn btn-soft btn-sm" onClick={() => setOpen(false)}>ביטול</button></div>
           </div>
         )}
@@ -297,17 +334,24 @@ const MORE_FIELDS = ["employee_id", "payment_date", "total_deductions"];
 
 /** The evidence to show first: the printed month when it contradicts the upload, otherwise the field an open finding cites,
  *  otherwise net pay. Every other box stays on the page, quiet but clickable. */
+/** For a non-payslip family: the decisive field shown first (a statement's period end, an ID's number, a quote's amount). */
+const FAMILY_FIRST = ["statement_to", "holder_id", "total_amount", "expiry_date", "tax_year", "holder_name"];
+
 function defaultField(item: DocItem): string | null {
   if (item.claimed_period && item.period && item.claimed_period !== item.period) return "salary_period";
   const cited = item.findings.find((f) => f.status === "open" && f.evidence[0]?.document_id === item.document_id)?.evidence[0]?.field;
   const fields = item.ai.facts.map((f) => f.field);
-  return cited && fields.includes(cited) ? cited : fields.includes("net_pay") ? "net_pay" : null;
+  if (cited && fields.includes(cited)) return cited;
+  if (fields.includes("net_pay")) return "net_pay";
+  return FAMILY_FIRST.find((f) => fields.includes(f)) || fields[0] || null;
 }
 
 function KeyFields({ item, field, onPick }: { item: DocItem; field: string | null; onPick: (f: string) => void }) {
   const [more, setMore] = useState(false);
   const facts = Object.fromEntries(item.ai.facts.map((f) => [f.field, f]));
-  const extra = MORE_FIELDS.filter((f) => facts[f]);
+  const payslip = !!(facts.salary_period || facts.net_pay || facts.employee_name);
+  const extra = payslip ? MORE_FIELDS.filter((f) => facts[f]) : [];
+  const keys: [string, string][] = payslip ? KEY_FIELDS : item.ai.facts.map((f) => [f.field, f.label_he]);
   const cell = (key: string, label: string) => {
     const f = facts[key];
     if (!f) return null;
@@ -322,7 +366,7 @@ function KeyFields({ item, field, onPick }: { item: DocItem; field: string | nul
   };
   return (
     <div className="key-fields" data-testid="key-fields">
-      <div className="kf-row">{KEY_FIELDS.map(([k, l]) => cell(k, l))}</div>
+      <div className="kf-row">{keys.map(([k, l]) => cell(k, l))}</div>
       {more && <div className="kf-row">{extra.map((k) => cell(k, item.ai.facts.find((f) => f.field === k)!.label_he))}</div>}
       {extra.length > 0 && <button className="link tiny subtle" onClick={() => setMore(!more)} data-testid="key-fields-more">
         {more ? "פחות נתונים" : `עוד ${extra.length} נתונים`}</button>}
@@ -349,7 +393,8 @@ function DocumentEvidence({ item, focus, setFocus, onSelect, ws }: { item: DocIt
           <div>
             <div className="ev-title" data-testid="evidence-title">{item.doc_type_he} · {borrower?.name_he || item.borrower_he}</div>
             <div className="ev-meta">
-              <span>חודש מודפס: <b>{item.period_he || "—"}</b></span>
+              {item.period_he || item.claimed_period ? <span>חודש מודפס: <b>{item.period_he || "—"}</b></span>
+                : <span>סוג: <b>{item.doc_type_he}</b></span>}
               {mismatch && <span className="warn-text">הועלה עבור: <b>{item.claimed_period_he}</b></span>}
               <span className="ltr">{timeHe(item.uploaded_at)}</span>
               {item.is_scanned && <span>סריקה</span>}
@@ -397,9 +442,11 @@ function MissingEvidence({ item, onSelect, ws }: { item: MissingItem; onSelect: 
     <div className="ev ev-missing" data-testid="missing-evidence">
       <div className="missing-card">
         <div className="missing-icon" aria-hidden>?</div>
-        <div className="ev-title">לא התקבל תלוש {item.period_he} של {borrower?.name_he}</div>
+        <div className="ev-title" data-testid="missing-title">{item.period_he ? `לא התקבל תלוש ${item.period_he} של ${borrower?.name_he}`
+          : `${item.status_he}: ${item.title_he}`}</div>
         <p className="small">{item.explanation_he}</p>
-        <p className="tiny muted">זהו חודש נדרש שלא הועלה — אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותו.</p>
+        <p className="tiny muted">{item.period_he ? "זהו חודש נדרש שלא הועלה — אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותו."
+          : "זו דרישה ממדיניות המסמכים של הבקשה שעדיין לא מולאה — אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותה."}</p>
         {item.related_documents.length > 0 && (
           <div className="missing-related">
             <div className="small bold">ייתכן שקשור:</div>

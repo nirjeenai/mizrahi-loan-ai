@@ -3,7 +3,7 @@
 Every operation is a persisted, validated state transition with actor, time, previous and new
 status, rationale and evidence references, written in one transaction with its audit event.
 None of them touches the bank stage, and accepting a document is a documentary decision only:
-it is not a credit decision and not an approval of the mortgage.
+it is not a credit decision and not an approval of the loan.
 
 Customer requests are in-app requests stored in the case. Nothing here sends an SMS, an e-mail
 or a push notification."""
@@ -21,7 +21,7 @@ from . import desk_state, engine, readiness
 
 MAX_MESSAGE = 600
 MAX_RATIONALE = 1000
-COVERAGE_CODES = ("REQUIRED_PERIOD_MISSING", "DUPLICATE_PERIOD")
+COVERAGE_CODES = ("REQUIRED_PERIOD_MISSING", "DUPLICATE_PERIOD", "REQUIRED_DOCUMENT_MISSING", "STATEMENT_PERIOD_GAP")
 TRANSITIONS = {
     "ACCEPT_DOCUMENT": ({"AWAITING_DECISION", "ESCALATED"}, "ACCEPTED"),
     "REQUEST_CORRECTION": ({"AWAITING_DECISION", "AWAITING_CUSTOMER_FIX", "ESCALATED", "FAILED"}, "CORRECTION_REQUESTED"),
@@ -33,7 +33,7 @@ ACTION_HE = {
     "RESOLVE_FINDING": "סגירת הבירור לאחר בדיקה", "DISMISS_FINDING": "דיווח על טעות בזיהוי ה-AI",
     "ESCALATE_FINDING": "העברה להמשך בירור", "REQUEST_EXPLANATION": "בקשת הסבר / אסמכתה",
     "REQUEST_DOCUMENT": "בקשת מסמך נוסף", "WITHDRAW_REQUEST": "ביטול בקשה ללקוח", "NOTE": "הערה פנימית",
-    "CONFIRM_PREPARATION": "אישור הכנת מסמכי השכר", "ACKNOWLEDGE_HANDOFF": "קבלת פניית הלקוח לטיפול",
+    "CONFIRM_PREPARATION": "אישור הכנת מסמכי הבקשה", "ACKNOWLEDGE_HANDOFF": "קבלת פניית הלקוח לטיפול",
 }
 REASON_HE = {
     "verified_with_documents": "אומת מול מסמכים בתיק", "explanation_supported": "הסבר הלקוח נתמך באסמכתה",
@@ -161,6 +161,19 @@ def _record(case_id: str, staff: dict, *, target_kind: str, action: str, previou
 # ---------------------------------------------------------------- customer message drafts (deterministic, editable)
 def draft_correction(case: dict, doc: dict, review: Optional[dict], open_findings: list[dict]) -> dict[str, Any]:
     """A short Hebrew message for the customer, built from verified review facts. The banker edits it before sending."""
+    from ..review.reason_codes import DOC_HE
+    from . import requirements
+    family = requirements.family_of(doc["requirement_code"], case["case_id"])
+    if family != "payslip":
+        first = _first(case, doc["borrower_id"])
+        hello = f"שלום {first}, " if first else "שלום, "
+        what = DOC_HE.get(family, "המסמך")
+        mine = [f for f in open_findings if f["document_id"] == doc["document_id"]]
+        explanation = mine[0]["message_he"] if mine else (f"עיבוד הקובץ {doc['filename']} לא הושלם." if review is None
+                                                         else f"נדרש {what} מתוקן.")
+        return {"explanation_he": explanation,
+                "message_he": f"{hello}נבקש להעלות {what} מתוקן במקום {doc['filename']}. " + (mine[0]["title_he"] + "." if mine else ""),
+                "requested_period": None, "requested_item_he": f"{what} מתוקן" + (f" — {first}" if first else "")}
     first = _first(case, doc["borrower_id"])
     printed = (review or {}).get("period")
     claimed = _claimed_period(doc, review)
@@ -285,16 +298,20 @@ def decide_document(case_id: str, document_id: str, staff: dict, action: str, ra
         if not customer_message:
             raise DeskError(422, "יש לכתוב ללקוח מה לתקן או להעלות.")
         period = requested_period or None
-        if period and period not in readiness.policy_months():
+        if period and period not in readiness.policy_months(case_id):
             raise DeskError(422, "החודש המבוקש אינו אחד מחודשי השכר הנדרשים.")
         if period and any(r["borrower_id"] == doc["borrower_id"] and r["period"] == period
                           for r in repo.customer_requests(case_id, status="OPEN")):
             raise DeskError(409, f"כבר נשלחה ללקוח בקשה פתוחה לתלוש {det.month_label_he(period)}.")
         first = _first(case, doc["borrower_id"])
+        from ..review.reason_codes import DOC_HE
+        from . import requirements
+        fam = requirements.family_of(doc["requirement_code"], case_id)
+        what = "תלוש" if fam == "payslip" else DOC_HE.get(fam, "מסמך")
         customer_request = {"kind": "correction", "borrower_id": doc["borrower_id"], "document_id": document_id,
                             "requirement_code": doc["requirement_code"], "period": period, "message_he": customer_message,
                             "title_he": (f"נדרש תלוש {det.month_label_he(period)} — {first}" if period
-                                         else f"נדרש תלוש מתוקן במקום {doc['filename']} — {first}")}
+                                         else f"נדרש {what} מתוקן במקום {doc['filename']}" + (f" — {first}" if first else ""))}
         finding_rows = [{**f, "status": "superseded", "resolution": "correction_requested_by_banker",
                          "resolution_note": rationale or None} for f in banker_findings]
     elif action == "ESCALATE":
@@ -328,7 +345,8 @@ def request_missing(case_id: str, staff: dict, borrower_id: str, period: str, cu
         raise DeskError(422, "יש לכתוב ללקוח מה להעלות.")
     if engine.pending_jobs(case_id):
         raise DeskError(409, "ה-AI עדיין בודק מסמכים בתיק, וייתכן שהחודש כבר הועלה. המתינו לסיום הבדיקה ורק אז בקשו את המסמך.")
-    req = next((r for r in readiness.compute(case_id)["requirements"] if r["evaluated_by_ai"] and r["borrower_id"] == borrower_id), None)
+    req = next((r for r in readiness.compute(case_id)["requirements"] if r["evaluated_by_ai"] and r["family"] == "payslip"
+                and r["borrower_id"] == borrower_id), None)
     missing = (req or {}).get("missing") or []
     if period not in missing:
         raise DeskError(409, f"{det.month_label_he(period) if period else 'החודש'} אינו חסר כרגע אצל {_first(case, borrower_id)}.")
@@ -348,6 +366,55 @@ def request_missing(case_id: str, staff: dict, borrower_id: str, period: str, cu
     return _result(decision, case_id)
 
 
+def draft_requirement(case: dict, req: dict, finding: Optional[dict]) -> dict[str, Any]:
+    first = _first(case, req.get("borrower_id"))
+    hello = f"שלום {first}, " if first else "שלום, "
+    if finding and finding["code"] == "STATEMENT_PERIOD_GAP":
+        message = f"{hello}{finding['message_he']}"
+    else:
+        message = f"{hello}כדי להשלים את בקשת ההלוואה נבקש להעלות: {req['title_he']}. {req.get('hint_he') or ''}".strip()
+    return {"message_he": message, "requested_item_he": req["title_he"]}
+
+
+@_serialized
+def request_requirement(case_id: str, staff: dict, requirement_code: str, customer_message: str, rationale: str = "",
+                        request_id: Optional[str] = None) -> dict:
+    """The banker asks the customer for a missing non-payslip document (an ID, a statement, proof of purpose)."""
+    from . import requirements
+    case = bank.get_case(case_id)
+    req = requirements.requirement(case_id, requirement_code)
+    if not req:
+        raise DeskError(404, "הדרישה אינה שייכת לתיק.")
+    if req["family"] == "payslip":
+        raise DeskError(409, "לתלוש חסר — בקשו את החודש החסר מתוך שורת החודש.")
+    prior = _replay(request_id, case_id)
+    if prior:
+        if prior["action"] != "REQUEST_MISSING_DOCUMENT" or prior["target_kind"] != "missing_requirement":
+            raise DeskError(409, "מזהה הבקשה כבר שימש לפעולה אחרת.")
+        return _result(prior, case_id, duplicate=True)
+    customer_message, rationale = _clean(customer_message, MAX_MESSAGE), _clean(rationale, MAX_RATIONALE)
+    if not customer_message:
+        raise DeskError(422, "יש לכתוב ללקוח מה להעלות.")
+    if engine.pending_jobs(case_id):
+        raise DeskError(409, "ה-AI עדיין בודק מסמכים בתיק. המתינו לסיום הבדיקה ורק אז בקשו את המסמך.")
+    state = next((r for r in readiness.compute(case_id)["requirements"] if r["code"] == requirement_code), {})
+    if state.get("ai_state") in ("extracted", "preparation_confirmed", "checking"):
+        raise DeskError(409, "הדרישה כבר מולאה או שמסמך עבורה בבדיקה.")
+    if any(r["requirement_code"] == requirement_code for r in repo.customer_requests(case_id, status="OPEN")):
+        raise DeskError(409, "כבר נשלחה ללקוח בקשה פתוחה לדרישה הזו.")
+    finding = next((f for f in repo.findings(case_id, status="open") if f["code"] in COVERAGE_CODES
+                    and (f.get("detail") or {}).get("requirement_code") == requirement_code), None)
+    decision = _record(case_id, staff, target_kind="missing_requirement", action="REQUEST_MISSING_DOCUMENT",
+                       previous="MISSING", new="REQUESTED", rationale=rationale, customer_message=customer_message,
+                       borrower_id=req["borrower_id"], finding_id=(finding or {}).get("finding_id"), request_id=request_id,
+                       customer_request={"kind": "missing_document", "borrower_id": req["borrower_id"],
+                                         "requirement_code": requirement_code, "message_he": customer_message,
+                                         "finding_id": (finding or {}).get("finding_id"),
+                                         "title_he": f"נדרש: {req['title_he']}"},
+                       audit_action="banker_requested_document", audit_extra={"requirement_code": requirement_code})
+    return _result(decision, case_id)
+
+
 # ---------------------------------------------------------------- findings
 FINDING_ACTIONS = {"resolve": "RESOLVE_FINDING", "dismiss": "DISMISS_FINDING", "escalate": "ESCALATE_FINDING",
                    "request_explanation": "REQUEST_EXPLANATION", "request_document": "REQUEST_DOCUMENT",
@@ -361,7 +428,7 @@ def finding_basis(f: dict) -> dict[str, Any]:
     """How complete the evidence behind a finding is. Only the declared-income comparison can rest on part of the months."""
     detail = f.get("detail") or {}
     compared = detail.get("months_compared") or (detail.get("stats") or {}).get("months_compared") or []
-    required = detail.get("months_required") or readiness.policy_months()
+    required = detail.get("months_required") or readiness.policy_months(f["case_id"])
     partial = f["code"] == "DECLARED_VS_DOCUMENT_INCOME_VARIANCE" and bool(compared) and len(compared) < len(required)
     return {"partial": partial, "months_compared": compared, "months_required": required,
             "months_missing": [m for m in required if m not in compared] if partial else []}
@@ -630,7 +697,16 @@ def link_upload(case_id: str, doc: dict, created: bool, customer_request_id: Opt
     disagree. A re-upload of a file already in the case answers nothing."""
     if not created:
         return None
-    open_requests = [r for r in repo.customer_requests(case_id, status="OPEN") if r["borrower_id"] == doc["borrower_id"]]
+    from . import requirements
+    family = requirements.family_of(doc["requirement_code"], case_id)
+
+    def same_requirement(r: dict) -> bool:
+        if r["requirement_code"]:
+            return r["requirement_code"] == doc["requirement_code"]
+        return family == "payslip"                       # a correction request without a code is about a payslip
+
+    open_requests = [r for r in repo.customer_requests(case_id, status="OPEN")
+                     if same_requirement(r) and (r["borrower_id"] == doc["borrower_id"] or not r["borrower_id"])]
     same_month = [r for r in open_requests if expected_period and r["period"] == expected_period]
     if customer_request_id:
         target = repo.customer_request(customer_request_id)

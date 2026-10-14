@@ -11,7 +11,7 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
     <>
       <div className="console-top">
         <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
-          <img className="jeen-logo-light" src="/brand/jeen-logo-light.png" alt="Jeen" /><span className="brand-title">קונסולת מומחי משכנתאות</span></div>
+          <img className="jeen-logo-light" src="/brand/jeen-logo-light.png" alt="Jeen" /><span className="brand-title">קונסולת בנקאי אשראי · הלוואות</span></div>
         {identity && <span className="staff-chip" title="הזהות נקבעת בשרת (חיבור הדגמה ללא סיסמה) ונרשמת בכל החלטה.">{identity}</span>}
         <nav>
           <Link to="/customer" className={active === "customer" ? "on" : ""}>אפליקציית לקוח</Link>

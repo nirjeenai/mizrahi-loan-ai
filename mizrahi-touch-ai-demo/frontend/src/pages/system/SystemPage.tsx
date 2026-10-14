@@ -29,7 +29,7 @@ export function SystemPage() {
                 <tbody>{m.llm.by_purpose.map((b: any) => <tr key={b.purpose}><td className="ltr">{b.purpose}</td><td>{b.calls}</td><td>{Math.round(b.avg_ms)}</td></tr>)}</tbody></table>
               <div className="tiny muted" style={{ marginTop: 6 }}>תקציב: {m.llm.calls_last_hour}/{m.llm.budget_per_hour} קריאות בשעה האחרונה.</div></>)}
           </div>
-          <div className="panel"><h3>שרת MCP של תיק המשכנתא — בדיקה חיה</h3>
+          <div className="panel"><h3>שרת MCP של תיק ההלוואה — בדיקה חיה</h3>
             <div className="small muted" style={{ marginBottom: 8 }}>השרת מריץ סבב MCP אמיתי מול ‎/mcp‎ (initialize → tools/list → tools/call) עם מפתח הקשור לתיק, ומשווה לתמונת המצב של האפליקציה.</div>
             <button className="btn btn-dark" disabled={mcpBusy} data-testid="mcp-selftest" onClick={async () => { setMcpBusy(true); setMcpError(null);
               try {
@@ -58,7 +58,7 @@ export function SystemPage() {
         </div>
         <div className="panel small"><h3>גבול האינטגרציה של VisionTrace</h3>
           <div>ספק בדיקת המסמכים נבחר בנקודה אחת (<span className="ltr">REVIEW_PROVIDER</span>). הספק הפעיל: <b className="ltr">{m?.provider}</b>.
-            VisionTraceReviewProvider ממומש מול אותו חוזה מלא (התחלת בדיקה, סטטוס, עובדות, קריטריונים, פסק דין, ראיות, עקביות בין מסמכים, בדיקה חוזרת) ויופעל רק אחרי שבדיקת משכנתא אמיתית תרוץ דרכו ותאומת.
+            VisionTraceReviewProvider ממומש מול אותו חוזה מלא (התחלת בדיקה, סטטוס, עובדות, קריטריונים, פסק דין, ראיות, עקביות בין מסמכים, בדיקה חוזרת) ויופעל רק אחרי שבדיקת מסמכים אמיתית תרוץ דרכו ותאומת.
             חיבור MCP שמציג רשימת תהליכים בלבד אינו אינטגרציה של בדיקת מסמכים.</div>
         </div>
       </main>

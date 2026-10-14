@@ -12,7 +12,7 @@ from pathlib import Path
 
 import httpx
 
-BASE = "http://127.0.0.1:8790"
+BASE = "http://127.0.0.1:8791"
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "e2e"))
 import demo_auth  # noqa: E402
 demo_auth.install(BASE)                                  # the service has no anonymous access

@@ -1,0 +1,64 @@
+{
+ "files": [
+  {
+   "file": "id_card_ido.pdf",
+   "family": "id_document",
+   "variant": "valid",
+   "sha256": "7e1784c23533a0399b43056bf721a3ac76ccb3a00a57d08848a32d2b6b66c12c"
+  },
+  {
+   "file": "id_card_ido_EXPIRED.pdf",
+   "family": "id_document",
+   "variant": "expired",
+   "sha256": "57455faab611969e6151eb195683119feb90d0a12a877c76891221c417afa4a3"
+  },
+  {
+   "file": "statement_ido_2026-07_09.pdf",
+   "family": "bank_statement",
+   "variant": "valid",
+   "sha256": "8b8f8aafa48abf31e6ef58e3f987f14733d8146c85247c0c3003e40f06a520c8"
+  },
+  {
+   "file": "statement_ido_2026-07.pdf",
+   "family": "bank_statement",
+   "variant": "partial",
+   "sha256": "ea4e5f58ac083d7991655142c85677ba487725d7ea322892ffeb9c5396fb7a62"
+  },
+  {
+   "file": "statement_ido_2026-08.pdf",
+   "family": "bank_statement",
+   "variant": "partial",
+   "sha256": "8a3df4916538952d027f374f2a5ed99b601416fecc7bb1743101846a46358e19"
+  },
+  {
+   "file": "statement_ido_2026-09.pdf",
+   "family": "bank_statement",
+   "variant": "partial",
+   "sha256": "7c20f94c0c08a8bbcf9fdd6171f8f9212480b22bec13a64a058538f9d9ee2ebe"
+  },
+  {
+   "file": "statement_ido_STALE_2026-04_06.pdf",
+   "family": "bank_statement",
+   "variant": "stale",
+   "sha256": "f620499e5d6e245e2c42895229e6a3c442ff9c4c63112a47d341cc37c4af4880"
+  },
+  {
+   "file": "car_quote_ido.pdf",
+   "family": "purpose_proof",
+   "variant": "valid",
+   "sha256": "662bde893e90c56cfdbc3d0963c5ba7dfee62a1c4afaae42be53d403bdfb7bdf"
+  },
+  {
+   "file": "car_quote_ido_OLD.pdf",
+   "family": "purpose_proof",
+   "variant": "stale",
+   "sha256": "694f321427607f0bee6803cd6af5e33809c040c6380ae9aeeec4cb9edf384815"
+  },
+  {
+   "file": "id_card_ido_UNREADABLE.pdf",
+   "family": "id_document",
+   "variant": "unreadable",
+   "sha256": "207e40a9e4d51163799c714d7bc3064aab4944acf568f9c291f80c34e77108c6"
+  }
+ ]
+}

@@ -3,7 +3,10 @@ import type { Fact } from "../api";
 import { WITNESS_HE } from "../api";
 import { ICheck, IAlert } from "./Icons";
 
-const MAIN = ["employee_name", "employee_id", "employer_name", "salary_period", "payment_date", "gross_pay", "total_deductions", "net_pay"];
+/** The decisive fields of every document family, in reading order (the backend's prompts.FAMILY_FIELDS). */
+export const MAIN = ["employee_name", "employee_id", "employer_name", "salary_period", "payment_date", "gross_pay", "total_deductions", "net_pay",
+  "holder_name", "holder_id", "date_of_birth", "expiry_date", "bank_name", "account_number", "statement_from", "statement_to",
+  "closing_balance", "issuer_name", "document_kind", "subject", "issue_date", "total_amount", "tax_year"];
 
 /** The original page with every extracted value boxed where the file prints it. Only verified
  * boxes are drawn solid; unverified boxes are labelled so. No box is invented on the client. */

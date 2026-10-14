@@ -28,10 +28,14 @@ class _Params(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+DOCUMENT_TYPE = {"payslip": "PAYSLIP", "id_document": "ID_CARD", "bank_statement": "BANK_STATEMENT",
+                 "purpose_proof": "PURPOSE_PROOF", "tax_form": "TAX_FORM"}
+
+
 class UploadParams(_Params):
-    borrower_id: str
+    borrower_id: Optional[str] = None             # None for a case-level requirement (proof of purpose)
     requirement_code: str
-    document_type: Literal["PAYSLIP"]
+    document_type: Literal["PAYSLIP", "ID_CARD", "BANK_STATEMENT", "PURPOSE_PROOF", "TAX_FORM"]
     period: Optional[str] = None                  # only when the month is unambiguous
     missing_periods: list[str] = []
     finding_ids: list[str] = []
@@ -111,13 +115,19 @@ def derive(case: dict, state: dict, open_findings: list[dict], documents: list[d
                              priority=priority, params=params))
 
     missing_total = 0
-    payslips = [r for r in state["requirements"] if r["evaluated_by_ai"] and r.get("borrower_id") in names]
+
+    def payslip_side(x: dict) -> bool:
+        return (x.get("detail") or {}).get("family", "payslip") == "payslip"
+
+    payslips = [r for r in state["requirements"] if r["evaluated_by_ai"] and r.get("family", "payslip") == "payslip"
+                and r.get("borrower_id") in names]
     for i, r in enumerate(payslips):
         bid, name = r["borrower_id"], names[r["borrower_id"]]
         # coverage exists only after the first case review; before it nothing has been verified yet
         missing = list(r.get("missing") or []) if r.get("requested_months") else list(requested)
-        fixes = [f for f in open_findings if f["borrower_id"] == bid and f["review_state"] == "CUSTOMER_ACTION_REQUIRED"]
-        asked = [q for q in requests if q["borrower_id"] == bid]
+        fixes = [f for f in open_findings if f["borrower_id"] == bid and f["review_state"] == "CUSTOMER_ACTION_REQUIRED"
+                 and payslip_side(f)]
+        asked = [q for q in requests if q["borrower_id"] == bid and (q.get("requirement_code") or r["code"]) == r["code"]]
         if not missing and not fixes and not asked:
             continue
         missing_total += len(missing)
@@ -135,6 +145,21 @@ def derive(case: dict, state: dict, open_findings: list[dict], documents: list[d
             detail += " · " + ("מסמך אחד בבדיקה" if checking == 1 else f"{checking} מסמכים בבדיקה")
         add(f"upload:{r['code']}", "NAVIGATE_TO_DOCUMENT_UPLOAD", label, detail, 10 + i, borrower_id=bid,
             requirement_code=r["code"], document_type="PAYSLIP", period=period, missing_periods=missing,
+            finding_ids=[f["finding_id"] for f in fixes])
+
+    others = [r for r in state["requirements"] if r["evaluated_by_ai"] and r.get("family", "payslip") != "payslip"
+              and r.get("ai_state") in ("required_missing", "needs_customer_action")]
+    for i, r in enumerate(others):
+        code = r["code"]
+        fixes = [f for f in open_findings if f["review_state"] == "CUSTOMER_ACTION_REQUIRED"
+                 and (f.get("detail") or {}).get("requirement_code") == code]
+        asked = [q for q in requests if q.get("requirement_code") == code]
+        who = names.get(r.get("borrower_id") or "")
+        verb = "העלאת" if r["ai_state"] == "required_missing" and not fixes else "העלאה מחדש:"
+        label = f"{verb} {r.get('family_he') or 'מסמך'}" + (f" ל{who}" if who and len(names) > 1 else "")
+        detail = asked[0]["title_he"] if asked else fixes[0]["title_he"] if fixes else r["title_he"]
+        add(f"upload:{code}", "NAVIGATE_TO_DOCUMENT_UPLOAD", label, detail, 15 + i, borrower_id=r.get("borrower_id"),
+            requirement_code=code, document_type=DOCUMENT_TYPE.get(r["family"], "PAYSLIP"), period=None, missing_periods=[],
             finding_ids=[f["finding_id"] for f in fixes])
 
     by_doc: dict[str, list[dict]] = {}
@@ -172,7 +197,7 @@ def derive(case: dict, state: dict, open_findings: list[dict], documents: list[d
 
 def available(case_id: str, state: Optional[dict] = None) -> list[AppAction]:
     return derive(bank.get_case(case_id), state or readiness.compute(case_id), repo.findings(case_id, status="open"),
-                  repo.documents(case_id), repo.handoffs(case_id), readiness.policy_months(),
+                  repo.documents(case_id), repo.handoffs(case_id), readiness.policy_months(case_id),
                   repo.customer_requests(case_id, status="OPEN"))
 
 

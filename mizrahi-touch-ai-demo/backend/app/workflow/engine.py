@@ -42,6 +42,14 @@ def submit_document(case_id: str, filename: str, mime: str, data: bytes, borrowe
     case = bank.get_case(case_id)
     if borrower_id and borrower_id not in {b["borrower_id"] for b in case["borrowers"]}:
         raise UploadRejected("borrower does not belong to this case")
+    if requirement_code:
+        from . import requirements
+        target = requirements.requirement(case_id, requirement_code)
+        if target is None:
+            raise UploadRejected("the requirement does not belong to this case")
+        if target["borrower_id"] and borrower_id and borrower_id not in (target.get("holders") or [target["borrower_id"]]):
+            raise UploadRejected("the requirement belongs to another applicant")
+        borrower_id = borrower_id or target["borrower_id"]
     if mime not in ALLOWED_MIMES:
         raise UploadRejected(f"unsupported file type {mime}; upload a PDF, PNG or JPEG")
     if not data or len(data) > MAX_BYTES:
@@ -157,7 +165,8 @@ def _run_document(job: dict) -> None:
         return
     provider = registry.active()
     ident = provider.identity()
-    rubric = rubrics.for_document(doc["requirement_code"])
+    from . import requirements
+    rubric = rubrics.for_document(doc["requirement_code"], requirements.family_of(doc["requirement_code"], doc["case_id"]))
     run_id = new_id("RUN")
     repo.start_run({"run_id": run_id, "case_id": doc["case_id"], "document_id": doc["document_id"], "scope": "document",
                     "provider": ident.provider, "models": db.jdump(ident.models), "rubric_id": rubric["rubric_id"],
@@ -254,7 +263,7 @@ def _run_case(job: dict) -> None:
                 "readiness": state["state"]})
 
 
-COVERAGE_CODES = ("REQUIRED_PERIOD_MISSING", "DUPLICATE_PERIOD")
+COVERAGE_CODES = ("REQUIRED_PERIOD_MISSING", "DUPLICATE_PERIOD", "REQUIRED_DOCUMENT_MISSING", "STATEMENT_PERIOD_GAP")
 BANKER_RULINGS = ("accepted_by_banker", "resolved_by_banker", "dismissed_by_banker", "correction_requested_by_banker")
 
 

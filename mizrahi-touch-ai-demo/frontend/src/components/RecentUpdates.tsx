@@ -23,7 +23,7 @@ function describe(e: AuditEvent, docs: DocView[], banker: string): { title: stri
         body: `${iso(doc?.filename)}: ${VERDICT_HE[e.detail?.verdict] || ""}${e.detail?.period ? ` · מודפס ${monthHe(e.detail.period)}` : ""}`,
         tone: e.detail?.verdict === "VALID" ? "ok" : "action" };
     }
-    case "case_reviewed": return { title: "תמונת המסמכים בתיק עודכנה", body: "בדקנו מחדש את כל סט מסמכי השכר מול הדרישות.", tone: "info" };
+    case "case_reviewed": return { title: "תמונת המסמכים בתיק עודכנה", body: "בדקנו מחדש את כל מסמכי הבקשה מול הדרישות.", tone: "info" };
     case "customer_statement_recorded": return { title: "ההסבר שלכם תועד", body: "ההסבר צורף לממצא והועבר לבנקאית. הוא אינו סוגר את הממצא.", tone: "ok" };
     case "banker_handoff_created": return { title: "התיק הועבר לבנקאית", body: "חבילת הממצאים והראיות ממתינה לבנקאית.", tone: "info" };
     case "banker_finding_decision":
@@ -35,13 +35,13 @@ function describe(e: AuditEvent, docs: DocView[], banker: string): { title: stri
     case "banker_handoff_acknowledged": return { title: `${banker} קיבלה את הפנייה שלכם`, body: "הפנייה בטיפול. אם יידרש משהו מצדכם — תופיע כאן בקשה.", tone: "ok" };
     case "banker_document_decision":
       if (e.detail?.action === "REQUEST_CORRECTION") return { title: `בקשה חדשה מ${banker}`, body: e.detail?.customer_message || "", tone: "action" };
-      if (e.detail?.action === "ACCEPT_DOCUMENT") return { title: "מסמך התקבל לבדיקת המסמכים", body: `${file} התקבל אצל ${banker}. זה אינו אישור המשכנתא.`, tone: "ok" };
+      if (e.detail?.action === "ACCEPT_DOCUMENT") return { title: "מסמך התקבל לבדיקת המסמכים", body: `${file} התקבל אצל ${banker}. זה אינו אישור ההלוואה.`, tone: "ok" };
       return { title: "מסמך בבירור נוסף", body: `${file} נבדק אצל ${banker}. אין צורך בפעולה מצדכם כרגע.`, tone: "info" };
     case "banker_requested_document": return { title: `בקשה חדשה מ${banker}`, body: e.detail?.customer_message || "", tone: "action" };
     case "customer_request_responded":
       return e.detail?.statement_id ? { title: "התשובה שלכם נשמרה", body: `ההסבר הועבר ל${banker}. הוא אינו סוגר את הבירור.`, tone: "ok" }
         : { title: "המסמך שהעליתם צורף לבקשה", body: "הוא נבדק בבדיקה החכמה ויחזור לבנקאי לעיון.", tone: "ok" };
-    case "banker_confirmed_preparation": return { title: "הבנקאית אישרה את הכנת מסמכי השכר", body: "זהו אישור הכנת מסמכים בלבד — לא החלטה על המשכנתא.", tone: "ok" };
+    case "banker_confirmed_preparation": return { title: "הבנקאית אישרה את הכנת מסמכי הבקשה", body: "זהו אישור הכנת מסמכים בלבד — לא החלטה על ההלוואה.", tone: "ok" };
     case "document_review_failed":
       // the worker retries a few times; only the last attempt (final) means it stopped
       return { title: "הבדיקה של מסמך נכשלה", tone: "bad", body: String(e.detail?.final) === "True" || e.detail?.final === true

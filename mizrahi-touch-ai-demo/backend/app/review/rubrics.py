@@ -41,8 +41,24 @@ def latest(rubric_id: str) -> dict[str, Any]:
     return sorted(versions, key=lambda r: tuple(int(x) for x in r["version"].split(".")))[-1]
 
 
-def for_document(requirement_code: str | None) -> dict[str, Any]:
-    return latest("payslip.il.salaried")
+# one document rubric per document family; a family without a rubric is listed but not reviewed by AI
+FAMILY_RUBRIC = {"payslip": "payslip.il.salaried", "id_document": "id_document.il", "bank_statement": "bank_statement.il",
+                 "purpose_proof": "purpose_proof.il", "tax_form": "tax_form.il"}
+
+
+def has_family(family: str) -> bool:
+    rid = FAMILY_RUBRIC.get(family)
+    return bool(rid) and any(r["rubric_id"] == rid for r in all_rubrics().values())
+
+
+def for_family(family: str) -> dict[str, Any]:
+    return latest(FAMILY_RUBRIC[family] if has_family(family) else FAMILY_RUBRIC["payslip"])
+
+
+def for_document(requirement_code: str | None, family: str | None = None) -> dict[str, Any]:
+    """The rubric a document is checked against: the family of the requirement it was uploaded for. The reviewer still
+    classifies the file blindly; a different document type fails the rubric's type criterion."""
+    return for_family(family or "payslip")
 
 
 def for_case() -> dict[str, Any]:

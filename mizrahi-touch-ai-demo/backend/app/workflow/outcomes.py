@@ -3,7 +3,7 @@
 Derived on every read by code from persisted facts: the review verdict, open findings, the banker's documentary status
 and the customer's status. Never stored and never set by a model. It sits next to the document verdict, the banker
 status and the readiness state machine without replacing any of them, and none of these outcomes is a credit decision:
-PASS means "ready for the banker's acceptance", ACCEPTED is a documentary acceptance, never a mortgage approval."""
+PASS means "ready for the banker's acceptance", ACCEPTED is a documentary acceptance, never a loan approval."""
 from __future__ import annotations
 
 from typing import Any, Optional
@@ -11,7 +11,7 @@ from typing import Any, Optional
 INCOME_CODE = "DECLARED_VS_DOCUMENT_INCOME_VARIANCE"
 OUTCOME_HE = {
     "PASS": "עבר בדיקת AI — ממתין לקבלת הבנקאי",
-    "ACCEPTED": "התקבל אצל הבנקאי — קבלת מסמך בלבד, לא אישור משכנתא",
+    "ACCEPTED": "התקבל אצל הבנקאי — קבלת מסמך בלבד, לא אישור הלוואה",
     "REVIEW": "נדרש בירור בנקאי",
     "BLOCKER": "המסמך אינו מתאים לדרישה — נא להעלות מסמך חלופי",
     "IN_PROGRESS": "בבדיקה",
@@ -19,7 +19,7 @@ OUTCOME_HE = {
     "REPLACED": "הוחלף במסמך חדש",
     "INCOMPLETE": "חסרים מסמכים",
     "AWAITING_UPLOAD": "ממתינים להעלאת מסמכים",
-    "CONFIRMED": "הבנקאי אישר את הכנת מסמכי השכר",
+    "CONFIRMED": "הבנקאי אישר את הכנת מסמכי הבקשה",
 }
 INCOME_REVIEW_HE = "נדרש בירור בנקאי — נמצא פער בהכנסה"
 # the borrower's payslip set, from readiness.customer_status (same precedence: a document to fix comes before a review)
@@ -74,10 +74,15 @@ def for_case(docs: list[dict], reviews: dict[str, Optional[dict]], statuses: dic
     documents = {d["document_id"]: document_outcome(d, reviews.get(d["document_id"]),
                                                     (statuses.get(d["document_id"]) or {}).get("status", ""), open_findings)
                  for d in docs}
-    borrowers = {}
+    borrowers, by_requirement = {}, {}
     for r in requirements:
-        if r.get("evaluated_by_ai") and r.get("borrower_id"):
+        if not r.get("evaluated_by_ai"):
+            continue
+        if r.get("family", "payslip") == "payslip" and r.get("borrower_id"):
             view = set_outcome(r.get("customer_status"), [f for f in open_findings if f["borrower_id"] == r["borrower_id"]])
             if view:
                 borrowers[r["borrower_id"]] = view
-    return {"documents": documents, "borrowers": borrowers}
+        view = set_outcome(r.get("customer_status"), [])
+        if view:
+            by_requirement[r["code"]] = view
+    return {"documents": documents, "borrowers": borrowers, "requirements": by_requirement}

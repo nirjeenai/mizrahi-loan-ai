@@ -4,19 +4,22 @@ import { AccessError, api, monthHe } from "../api";
 import { useCase } from "../caseContext";
 import { IAlert, ICheck, IChevronDown, IDownload, IX } from "./Icons";
 
-/* The three featured executive-demo scenarios and the "start a new demo" control. Everything shown comes from the
+/* The featured executive-demo scenarios and the "start a new demo" control. Everything shown comes from the
    presenter manifest (fixtures/presenter): the expected label is the JEEN routing expectation for golden-set facts,
    never a live result. Downloading a file changes nothing in the app; the presenter uploads it on the right. */
 
-export type Route = "PASS" | "REVIEW" | "BLOCKER";
+export type Route = "PASS" | "REVIEW" | "BLOCKER" | "CORRECTION";
 export interface FeaturedStep { file: string; borrower: string; period: string | null; role: "upload" | "setup" | "wrong" | "replacement"; optional?: boolean; noteHe?: string }
 export interface Featured {
   id: string; outcome: Route; badgeHe: string; titleHe: string; checksHe: string; expectHe: string; expectedLabelHe: string;
   caseId: string; caseDisplay: string; borrowerHe: string; destinationHe: string; steps: FeaturedStep[];
   appShowsHe: string[]; playbookHe: string[]; sayHe: string; avoidHe?: string;
+  /** a file uploaded into another requirement's card than its own (a wrong-slot scenario) */
+  uploadAs?: Record<string, string>;
 }
 export interface PresenterBundle {
-  manifest: { featured?: Featured[]; featuredNoteHe?: string; documents: { id: string; downloadPath: string; displayNameHe: string }[]; [k: string]: any };
+  manifest: { featured?: Featured[]; featuredNoteHe?: string;
+    documents: { id: string; downloadPath: string; displayNameHe: string; uploadAs?: string; category?: string }[]; [k: string]: any };
   files: Record<string, { available: boolean; sha256_matches_manifest: boolean }>;
   [k: string]: any;
 }
@@ -30,7 +33,7 @@ export function loadPresenterBundle(): Promise<PresenterBundle> {
 }
 
 const OPEN_KEY = "mz.presenter.featured.v1";
-const TONE: Record<Route, string> = { PASS: "ok", REVIEW: "warn", BLOCKER: "bad" };
+const TONE: Record<Route, string> = { PASS: "ok", REVIEW: "warn", BLOCKER: "bad", CORRECTION: "info" };
 const ROLE_HE: Record<FeaturedStep["role"], string> = { upload: "", setup: "הכנה", wrong: "הקובץ השגוי", replacement: "התיקון" };
 const fileName = (path: string) => path.split("/").pop() || path;
 const readOpen = (): string[] => { try { return JSON.parse(localStorage.getItem(OPEN_KEY) || "[]"); } catch { return []; } };
@@ -66,9 +69,16 @@ export function FeaturedScenarios() {
 }
 
 function FeaturedCard({ f, index, docs, isOpen, onToggle }: {
-  f: Featured; index: number; docs: Record<string, { id: string; downloadPath: string }>; isOpen: boolean; onToggle: () => void;
+  f: Featured; index: number; docs: Record<string, { id: string; downloadPath: string; uploadAs?: string; category?: string }>;
+  isOpen: boolean; onToggle: () => void;
 }) {
-  const { caseId, auth, openCase } = useCase();
+  const { caseId, auth, openCase, snap } = useCase();
+  /** the requirement card a file is uploaded through: its own family's, unless the scenario names another (a wrong slot) */
+  const slot = (file: string) => {
+    const code = f.uploadAs?.[file] || docs[file]?.uploadAs;
+    const r = snap && snap.case.case_id === f.caseId ? snap.readiness.requirements.find((q) => q.code === code) : undefined;
+    return r?.title_he || code || "";
+  };
   const nav = useNavigate();
   const here = caseId === f.caseId && auth.status === "signed-in" && !auth.wantCase;
   const files = f.steps.filter((s, i) => f.steps.findIndex((x) => x.file === s.file) === i);
@@ -112,8 +122,8 @@ function FeaturedCard({ f, index, docs, isOpen, onToggle }: {
             {f.steps.map((s, i) => (
               <li key={`${s.file}-${i}`} className={s.optional ? "optional" : ""}>
                 <span className="ltr feat-step-file">{fileName(s.file)}</span>
-                <span className="tiny muted">
-                  {[s.period ? `חודש ${monthHe(s.period)}` : null, s.noteHe].filter(Boolean).join(" · ")}
+                <span className="tiny muted" data-testid="featured-step-slot">
+                  {[slot(s.file) ? `כרטיס: ${slot(s.file)}` : null, s.period ? `חודש ${monthHe(s.period)}` : null, s.noteHe].filter(Boolean).join(" · ")}
                 </span>
               </li>
             ))}
@@ -169,7 +179,7 @@ export function NewDemoButton() {
       openCase(FIRST_DEMO_CASE);
       nav("/customer");
       reload();
-      setNote({ tone: "ok", text: "הדמו מוכן: שלושת תיקי הדמו ריקים, ותיק 438839006 פתוח מימין." });
+      setNote({ tone: "ok", text: "הדמו מוכן: תיקי הדמו ריקים, ותיק 438839006 פתוח מימין." });
     } catch (e) {
       setNote({ tone: "bad", text: e instanceof AccessError && e.status === 401
         ? "כדי להתחיל דמו חדש צריך להיות מחוברים לאפליקציה מימין."
@@ -188,8 +198,8 @@ export function NewDemoButton() {
         </button>
       ) : (
         <div className="new-demo-confirm" role="group" aria-label="התחל דמו חדש">
-          <div className="small">שלושת תיקי הדמו (<span className="ltr">438839006–008</span>) יחזרו למצב ריק: מסמכים, ממצאים, החלטות בנקאי ושיחות יימחקו.
-            תיקים אחרים, קבצי ה-Golden Set והרובריקות לא משתנים.</div>
+          <div className="small">תיקי הדמו (<span className="ltr">438839006–011</span>) יחזרו למצב ריק: מסמכים, ממצאים, החלטות בנקאי ושיחות יימחקו.
+            תיקים אחרים, קבצי ההדגמה, המדיניות והרובריקות לא משתנים.</div>
           <div className="row" style={{ gap: 6 }}>
             <button type="button" className="btn btn-orange scn-btn" disabled={busy} onClick={run} data-testid="new-demo-confirm">
               {busy ? <span className="spinner" /> : null}כן, להתחיל דמו חדש

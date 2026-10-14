@@ -11,8 +11,10 @@ const TOOL_HE: Record<string, string> = {
   get_review_history: "היסטוריית בדיקות", record_customer_statement: "תיעוד הסבר", request_banker_handoff: "העברה לבנקאית",
   request_revalidation: "בדיקה חוזרת",
 };
-const SUGGESTIONS = ["מה חסר כדי להתקדם?", "למה התלוש של ספטמבר לא נספר?", "יש בעיה בהכנסה של נועה?", "איך מעלים את התלוש החסר?", "אני רוצה לדבר עם הבנקאית"];
+const SUGGESTIONS = ["מה חסר כדי להתקדם בבקשת ההלוואה?", "למה התלוש של ספטמבר לא נספר?", "אילו דפי עו״ש צריך להעלות?", "איך מעלים את המסמך החסר?", "אני רוצה לדבר עם הבנקאית"];
 const CHANNEL_HE: Record<string, string> = { text: "צ׳אט", voice: "קול", app: "עדכון מהתיק" };
+/** The transcription engine id the server records ("gemini:<model>", "browser-webspeech-he-IL") is internal; customers see who transcribed. */
+const engineHe = (engine: string) => (engine.startsWith("browser") ? "הדפדפן" : "JEEN");
 
 function sourcesOf(t: Turn): string[] {
   if (t.role !== "assistant") return [];
@@ -82,7 +84,7 @@ export function AssistantSheet() {
         <div className="sheet-head">
           <div>
             <h3 className="row" style={{ gap: 8 }}><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" />עוזר המסמכים</h3>
-            <div className="tiny muted">עוזר של {snap?.case.banker.name_he || "מומחית המשכנתאות"} · עונה מנתוני התיק בלבד · לא מחליט על המשכנתא</div>
+            <div className="tiny muted">עוזר של {snap?.case.banker.name_he || "הבנקאית"} · עונה מנתוני התיק בלבד · לא מחליט על ההלוואה</div>
           </div>
           <button className="icon-btn" onClick={closeAssistant} aria-label="סגירה"><IClose /></button>
         </div>
@@ -104,7 +106,7 @@ export function AssistantSheet() {
                   <div className="bubble-meta">
                     <span>{CHANNEL_HE[t.channel] || "צ׳אט"}</span>
                     <span>{timeHe(t.created_at).split("|")[1]}</span>
-                    {t.role === "user" && t.provenance?.engine && <span>תמלול: {String(t.provenance.engine)}</span>}
+                    {t.role === "user" && t.provenance?.engine && <span>תמלול: {engineHe(String(t.provenance.engine))}</span>}
                     {t.role === "user" && t.provenance?.source === "app_action" && <span>נשלח מכפתור</span>}
                     {t.role === "assistant" && cap?.tts && <button className="link tiny" onClick={() => voice.speak(t.text)} aria-label="השמעה"><ISpeaker size={12} /></button>}
                   </div>
@@ -116,7 +118,7 @@ export function AssistantSheet() {
               <div className="chat-status" role="status" data-testid="chat-review-status">
                 <span className="spinner" />
                 {processing.length ? `בודקים ${processing.length === 1 ? processing[0].filename : `${processing.length} מסמכים`} · ${processing[0].stage_he || "בבדיקה"}`
-                  : "מעדכנים את תמונת מסמכי השכר בתיק…"}
+                  : "מעדכנים את תמונת המסמכים בתיק…"}
               </div>
             )}
             {(sending || partial) && <div className={`bubble ${partial && !sending ? "user" : "assistant"}`}>{partial && !sending ? partial : <span className="spinner" />}</div>}
@@ -125,7 +127,7 @@ export function AssistantSheet() {
             {SUGGESTIONS.map((sug) => <button key={sug} onClick={() => send(sug, "text")} disabled={sending}>{sug}</button>)}
           </div>
           <div className="voice-status">
-            {listening ? "מקשיב… דברו בעברית ולחצו שוב לסיום" : voiceNote || (cap ? `קול: ${cap.detail}` : "בודק יכולות קול…")} · {cap?.stt === "server" ? <span className="mode LIVE">VOICE: GEMINI STT</span> : <span className="mode LOCAL">VOICE: BROWSER</span>} <span className="mode BLOCKED">JEEN TALK</span>
+            {listening ? "מקשיב… דברו בעברית ולחצו שוב לסיום" : voiceNote || (cap ? `קול: ${cap.detail}` : "בודק יכולות קול…")} · {cap?.stt === "server" ? <span className="mode LIVE">VOICE: JEEN STT</span> : <span className="mode LOCAL">VOICE: BROWSER</span>} <span className="mode BLOCKED">JEEN TALK</span>
           </div>
           <div className="chat-input">
             <button className={`round mic ${listening ? "live" : ""}`} onClick={toggleMic} disabled={!cap || cap.stt === "none" || sending}

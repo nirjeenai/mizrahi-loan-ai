@@ -7,8 +7,14 @@ import { IChevron, IInfo, IPerson, ISpark, IUpload } from "./Icons";
 
 function rowLabel(q: Requirement): { text: string; tone: string } {
   const missing = q.missing || [];
+  const payslip = q.family === "payslip";
+  if (!payslip) {
+    if (q.ai_state === "required_missing") return { text: "טרם הועלה", tone: "" };
+    if (q.customer_status === "CHECKS_COMPLETE") return { text: "נמצא תקין", tone: "ok" };
+    if (q.customer_status === "MISSING_DOCUMENTS") return { text: q.open_customer_requests ? "בקשה מהבנק" : "חסרה תקופה", tone: "warn" };
+  }
   switch (q.customer_status) {
-    case "AWAITING_UPLOAD": return { text: "טרם הועלו תלושים", tone: "" };
+    case "AWAITING_UPLOAD": return { text: payslip ? "טרם הועלו תלושים" : "טרם הועלה", tone: "" };
     case "ERROR": return { text: "הבדיקה לא הושלמה", tone: "bad" };
     case "PROCESSING": case "REVALIDATING": return { text: "בבדיקה", tone: "info" };
     case "CORRECTION_REQUIRED": return { text: missing.length === 1 ? `נדרש תלוש ${monthName(missing[0])}` : "נדרש תיקון", tone: "bad" };
@@ -35,8 +41,8 @@ export function DocumentSummary() {
   const reqs = r.requirements.filter((q) => q.evaluated_by_ai);
   const people = Object.fromEntries(snap.case.borrowers.map((b) => [b.borrower_id, b]));
   const bankerName = snap.case.banker.name_he;
-  const required = r.payslips?.required ?? 0;
-  const verified = r.payslips?.verified ?? 0;
+  const required = r.progress?.total ?? r.payslips?.required ?? 0;
+  const verified = r.progress?.done ?? r.payslips?.verified ?? 0;
   const showProgress = !!status && status !== "NO_PAYSLIPS_REQUIRED" && required > 0;
   const c = r.counts;
 
@@ -45,12 +51,12 @@ export function DocumentSummary() {
   const uploads = (snap.available_actions || []).filter((a): a is UploadAction => a.type === "NAVIGATE_TO_DOCUMENT_UPLOAD");
   const asked = (snap.customer_requests || []).filter((q) => q.status === "OPEN");
   const covered = new Set<string>(asked.map((q) => q.borrower_id || "*"));
-  if (!asked.length && status === "MISSING_DOCUMENTS" && nextUpload(uploads)) covered.add(nextUpload(uploads).params.borrower_id);
+  if (!asked.length && status === "MISSING_DOCUMENTS" && nextUpload(uploads)) covered.add(nextUpload(uploads).params.requirement_code);
   if (!asked.length && status === "CORRECTION_REQUIRED")
     snap.findings.filter((f) => f.status === "open" && f.review_state === "CUSTOMER_ACTION_REQUIRED" && f.document_id)
       .forEach((f) => covered.add(f.borrower_id || "*"));
   const secondary = (status === "MISSING_DOCUMENTS" || status === "CORRECTION_REQUIRED") && !covered.has("*")
-    ? uploads.find((a) => !covered.has(a.params.borrower_id) && a.params.missing_periods.length > 0) : undefined;
+    ? uploads.find((a) => !covered.has(a.params.requirement_code) && !covered.has(a.params.borrower_id || "")) : undefined;
 
   // files, not months: uploaded → reviewed by the AI check → accepted by the banker (the fulfilled months are the total above)
   const bankerFirst = bankerName.split(" ")[0];
@@ -66,10 +72,10 @@ export function DocumentSummary() {
       <div className="sum-head">
         <span className="sum-ic" aria-hidden><ISpark size={18} /></span>
         <div className="grow">
-          <h2 className="sum-title" id="sum-heading">בדיקת המסמכים החכמה</h2>
+          <h2 className="sum-title with-brand" id="sum-heading">בדיקת מסמכים חכמה<img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="של JEEN" /></h2>
           {showProgress
-            ? <div className="sum-total" data-testid="card-total"><b>{verified} מתוך {required}</b> תלושי שכר נדרשים הושלמו</div>
-            : <div className="sum-total">{status === "NO_PAYSLIPS_REQUIRED" ? "אין תלושי שכר לבדיקה בתיק זה" : "טוען…"}</div>}
+            ? <div className="sum-total" data-testid="card-total"><b>{verified} מתוך {required}</b> דרישות מסמכים הושלמו</div>
+            : <div className="sum-total">{status === "NO_PAYSLIPS_REQUIRED" ? "אין מסמכים לבדיקה בתיק זה" : "טוען…"}</div>}
         </div>
         <button className="icon-btn sum-go" onClick={() => nav("/customer/documents")} aria-label="לכל המסמכים"><IChevron /></button>
       </div>
@@ -78,13 +84,16 @@ export function DocumentSummary() {
         <ul className="sum-rows">
           {reqs.map((q) => {
             const label = rowLabel(q);
-            const done = q.verified_months?.length ?? 0;
-            const of = q.required ?? 0;
-            const name = people[q.borrower_id || ""]?.first_name_he || "";
+            const done = q.units_verified ?? q.verified_months?.length ?? 0;
+            const of = q.units_required ?? q.required ?? 0;
+            const person = people[q.borrower_id || ""]?.first_name_he || "";
+            const kind = q.family_he || q.family;
+            const name = q.family === "payslip" ? `תלושי שכר${person ? ` · ${person}` : ""}`
+              : `${kind}${person && snap.case.borrowers.length > 1 ? ` · ${person}` : ""}`;
             return (
               <li key={q.code}>
-                <button className="sum-row pressable" data-testid="card-borrower" data-borrower={q.borrower_id || ""}
-                  onClick={() => nav(`/customer/documents?focus=${encodeURIComponent(q.code)}`)} aria-label={`${name}: ${done} מתוך ${of} תלושים הושלמו, ${label.text}`}>
+                <button className="sum-row pressable" data-testid="card-borrower" data-borrower={q.borrower_id || ""} data-requirement={q.code}
+                  onClick={() => nav(`/customer/documents?focus=${encodeURIComponent(q.code)}`)} aria-label={`${name}: ${done} מתוך ${of} הושלמו, ${label.text}`}>
                   <span className={`sum-person${label.tone === "ok" ? " ok" : ""}`} aria-hidden><IPerson size={18} /></span>
                   <span className="sum-who grow"><span className="who">{name}</span><span className={`what ${label.tone}`}>{label.text}</span></span>
                   <span className="sum-meter" aria-hidden><span style={{ width: `${of ? Math.round((done / of) * 100) : 0}%` }} /></span>
@@ -100,12 +109,12 @@ export function DocumentSummary() {
       <div className="sum-foot">
         <span className="sum-facts" data-testid="card-facts">{facts || "עוד לא הועלו קבצים"}</span>
         <button className="sum-how" onClick={() => setHow(!how)} aria-expanded={how} aria-controls="sum-how" data-testid="summary-how"
-          aria-label="איך סופרים את התלושים" title="איך סופרים את התלושים"><IInfo size={16} />
+          aria-label="איך סופרים את הדרישות" title="איך סופרים את הדרישות"><IInfo size={16} />
         </button>
       </div>
       {how && (
         <div className="sum-more" id="sum-how" data-testid="summary-how-detail">
-          {showProgress && <p>כל חודש נספר פעם אחת, ורק אחרי שהתלוש שלו נמצא תקין בבדיקה החכמה או התקבל אצל {bankerName}. קובץ שהועלה או נבדק עדיין לא משלים חודש.</p>}
+          {showProgress && <p>דרישה מושלמת רק כשכל המסמכים שלה נמצאו תקינים בבדיקה החכמה או התקבלו אצל {bankerName}: בתלושים — כל חודש נדרש נספר פעם אחת; בדפי עו״ש — התקופה כולה מכוסה. קובץ שהועלה או נבדק עדיין לא משלים דרישה.</p>}
           {others > 0 && (
             <button className="sum-others" onClick={() => nav("/customer/documents")}>
               <span>עוד {others} מסמכים בתיק מטופלים ישירות מול הבנק</span><IChevron size={14} />

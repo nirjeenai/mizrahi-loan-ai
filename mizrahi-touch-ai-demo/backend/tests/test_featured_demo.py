@@ -24,11 +24,14 @@ from app.review import case_review, registry
 from app.review.contract import DocumentReviewResult, ReviewHandle, ReviewStatus
 from app.store import repo
 from app.util import new_id, now_iso
-from app.workflow import engine, outcomes
+from app.workflow import engine, outcomes, requirements
 from tests.test_review_desk import DANA, add_doc, case_run, finish_review, review
 
+pytestmark = pytest.mark.usefixtures("payslip_scope")    # the payslip workflow on its own (see conftest)
 PASS_CASE, REVIEW_CASE, BLOCKER_CASE = "DEMO-MTZ-2026-006", "DEMO-MTZ-2026-007", "DEMO-MTZ-2026-008"
 DEMO = (PASS_CASE, REVIEW_CASE, BLOCKER_CASE)
+JOURNEY_CASE, NO_CONSENT_CASE, INCOME_CASE = "DEMO-MTZ-2026-009", "DEMO-MTZ-2026-010", "DEMO-MTZ-2026-011"
+EXECUTIVE = (*DEMO, JOURNEY_CASE, NO_CONSENT_CASE, INCOME_CASE)
 ROOT = Path(__file__).resolve().parents[2]
 GOLDEN = ROOT / "fixtures" / "presenter" / "golden_set"
 PRESENTER_MANIFEST = ROOT / "fixtures" / "presenter" / "presenter_scenarios_manifest.json"
@@ -127,7 +130,7 @@ def ido_months(case: str, months=(("2026-07", 14400), ("2026-08", 14700), ("2026
 
 # ---------------------------------------------------------------- the cases
 def test_three_isolated_single_borrower_cases_with_golden_identities():
-    assert bank.executive_demo_case_ids() == list(DEMO)
+    assert bank.executive_demo_case_ids() == list(EXECUTIVE)
     people = {cid: [(b["borrower_id"], b["name_he"], b["national_id"]) for b in bank.get_case(cid)["borrowers"]] for cid in DEMO}
     assert people[PASS_CASE] == people[BLOCKER_CASE] == [("BRW-A", "עידו לוי", "DEMO-ID-001")]
     assert people[REVIEW_CASE] == [("BRW-B", "נועה לוי", "DEMO-ID-002")]
@@ -159,10 +162,10 @@ def test_pass_valid_payslips_wait_for_the_bankers_acceptance_and_nothing_is_appr
         assert decide(PASS_CASE, d, "accept", acknowledged_finding_ids=[]).status_code == 200
     s = snap(ido, PASS_CASE)
     assert {s["outcomes"]["documents"][d]["outcome"] for d in docs} == {"ACCEPTED"}
-    assert all("לא אישור משכנתא" in s["outcomes"]["documents"][d]["label_he"] for d in docs)
+    assert all("לא אישור הלוואה" in s["outcomes"]["documents"][d]["label_he"] for d in docs)
     assert s["case"]["bank_stage"] == stage and s["readiness"]["state"] != "PREPARATION_CONFIRMED"
     assert s["readiness"]["counts"]["documents_accepted"] == 3
-    assert not re.search(r"המשכנתא אושרה|אישור המשכנתא ניתן", json.dumps(s, ensure_ascii=False))
+    assert not re.search(r"ההלוואה אושרה|אישור ההלוואה ניתן", json.dumps(s, ensure_ascii=False))
 
 
 # ---------------------------------------------------------------- REVIEW
@@ -356,8 +359,8 @@ def test_start_a_new_demo_wipes_only_cases_006_to_008_and_their_files():
     assert anon.post("/api/presenter/demo-reset").status_code == 401
     r = ido.post("/api/presenter/demo-reset")
     assert r.status_code == 200, r.text
-    assert r.json()["reset"] == list(DEMO)
-    for cid in DEMO:
+    assert r.json()["reset"] == list(EXECUTIVE)
+    for cid in EXECUTIVE:
         assert not any(_rows(cid).values()), cid
         assert not (settings.uploads_dir / cid).exists()
     assert _rows(other_case) == keep and db.one("SELECT COUNT(*) AS n FROM llm_calls")["n"] == ledger
@@ -365,7 +368,7 @@ def test_start_a_new_demo_wipes_only_cases_006_to_008_and_their_files():
     assert s["readiness"]["state"] == "NOT_CHECKED" and s["readiness"]["customer_status"] == "AWAITING_UPLOAD"
     assert not s["updates"] and not s["findings"] and s["outcomes"]["documents"] == {}
     record = db.one("SELECT * FROM audit WHERE action='executive_demo_reset' ORDER BY event_id DESC LIMIT 1")
-    assert record["case_id"] is None and json.loads(record["detail"])["cases"] == list(DEMO)
+    assert record["case_id"] is None and json.loads(record["detail"])["cases"] == list(EXECUTIVE)
 
 
 def test_start_a_new_demo_waits_for_a_running_review_and_can_be_switched_off(monkeypatch):
@@ -436,18 +439,26 @@ def test_the_review_pipeline_never_reads_the_golden_set_or_expected_outputs():
             assert not re.search(r"golden_set|05_EXPECTED|presenter_scenarios_manifest|expectedDocumentVerdict", text), py
 
 
-def test_featured_scenarios_point_at_real_unmodified_golden_files_and_the_demo_cases():
+def test_featured_loan_scenarios_point_at_real_unmodified_files_and_the_demo_cases(monkeypatch):
+    from app.policy import store
+    monkeypatch.setattr(requirements, "pin", lambda case_id: store.published("loan_policy")["version_id"])  # the product default
     manifest = json.loads(PRESENTER_MANIFEST.read_text(encoding="utf8"))
     docs = {d["id"]: d for d in manifest["documents"]}
     featured = manifest["featured"]
-    assert [f["outcome"] for f in featured] == ["PASS", "REVIEW", "BLOCKER"]
-    assert [f["caseId"] for f in featured] == list(DEMO)
+    assert [f["outcome"] for f in featured] == ["PASS", "REVIEW", "BLOCKER", "CORRECTION"]
+    assert [f["caseId"] for f in featured] == [PASS_CASE, INCOME_CASE, BLOCKER_CASE, JOURNEY_CASE]
     for f in featured:
         assert f["caseId"] in bank.executive_demo_case_ids()
+        codes = {r["code"] for r in requirements.for_case(f["caseId"])}
         for step in f["steps"]:
             d = docs[step["file"]]
             assert hashlib.sha256((GOLDEN.parent / d["downloadPath"]).read_bytes()).hexdigest() == d["sha256"]
             assert step["borrower"] in {b["borrower_id"] for b in bank.get_case(f["caseId"])["borrowers"]}
+            assert (f.get("uploadAs") or {}).get(step["file"], d["uploadAs"]) in codes      # a real card of that case
     bundle = TestClient(app).get("/api/presenter/scenarios").json()
-    assert len(bundle["manifest"]["scenarios"]) == 10 and len(bundle["manifest"]["documents"]) == 21
+    assert len(bundle["manifest"]["scenarios"]) == 10 and len(bundle["manifest"]["documents"]) == 14
     assert all(v["sha256_matches_manifest"] for v in bundle["files"].values())
+    assert {r["rubric_id"] for r in bundle["rubrics"]} >= {"payslip.il.salaried", "id_document.il", "bank_statement.il"}
+    # every golden-set payslip the scenarios use is the original, byte for byte
+    golden = [d for d in manifest["documents"] if d["downloadPath"].startswith("golden_set/")]
+    assert golden and all(hashlib.sha256((GOLDEN.parent / d["downloadPath"]).read_bytes()).hexdigest() == d["sha256"] for d in golden)

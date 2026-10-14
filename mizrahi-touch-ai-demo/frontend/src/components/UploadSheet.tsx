@@ -1,32 +1,48 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, monthHe, VERDICT_HE, type AppAction, type DocView, type UploadOutcome } from "../api";
+import { api, FAMILY_HE, monthHe, VERDICT_HE, type AppAction, type DocView, type Requirement, type UploadOutcome } from "../api";
 import { useCase } from "../caseContext";
 import { OUTCOME_TONE } from "../pages/customer/DocumentReview";
 import { ActionList } from "./AssistantActions";
 import { ICheck, IClose, IUpload } from "./Icons";
 
-const STAGES: [string, string][] = [["intake", "קליטה וזיהוי הקובץ"], ["extract", "קריאה וחילוץ (Gemini)"], ["verify_evidence", "אימות כל ערך מול הקובץ"],
+const STAGES: [string, string][] = [["intake", "קליטה וזיהוי הקובץ"], ["extract", "קריאה וחילוץ הנתונים"], ["verify_evidence", "אימות כל ערך מול הקובץ"],
   ["deterministic_checks", "בדיקות כללים"], ["judge", "שיפוט לפי רובריקה (LLM-as-a-Judge)"], ["done", "הבדיקה הושלמה"]];
 
 type UploadAction = Extract<AppAction, { type: "NAVIGATE_TO_DOCUMENT_UPLOAD" }>;
 
+/** The requirement an upload is for: the preset one, the banker request's, the person's payslips, or the first open one. */
+function initialRequirement(reqs: Requirement[], preset?: string, borrowerId?: string, asked?: string | null): string {
+  if (preset && reqs.some((r) => r.code === preset)) return preset;
+  if (asked && reqs.some((r) => r.code === asked)) return asked;
+  const open = (r: Requirement) => !["extracted", "preparation_confirmed"].includes(r.ai_state);
+  return (reqs.find((r) => r.family === "payslip" && r.borrower_id === borrowerId && open(r))
+    || reqs.find((r) => r.borrower_id === borrowerId && open(r)) || reqs.find(open) || reqs[0])?.code || "";
+}
+
 export function UploadSheet() {
   const { snap, docs, caseId, upload, closeUpload, reload, openAssistant, assistantOrigin } = useCase();
   const nav = useNavigate();
-  const target = (bid: string) => snap?.available_actions?.find((a): a is UploadAction =>
-    a.type === "NAVIGATE_TO_DOCUMENT_UPLOAD" && a.params.borrower_id === bid);
-  const monthsFor = (bid: string) => {
-    const t = target(bid);
-    return t ? (t.params.missing_periods.length ? t.params.missing_periods : t.params.period ? [t.params.period] : []) : [];
-  };
-  const firstBorrower = upload.borrowerId || snap?.case.borrowers[0]?.borrower_id || "";
+  const reqs = (snap?.readiness.requirements || []).filter((r) => r.evaluated_by_ai);
   const asked = snap?.customer_requests?.find((q) => q.customer_request_id === upload.customerRequestId && q.status === "OPEN");
-  const [borrower, setBorrower] = useState(firstBorrower);
+  const [code, setCode] = useState(() => initialRequirement(reqs, upload.requirementCode, upload.borrowerId, asked?.requirement_code));
+  const requirement = reqs.find((r) => r.code === code);
+  const target = (c: string) => snap?.available_actions?.find((a): a is UploadAction =>
+    a.type === "NAVIGATE_TO_DOCUMENT_UPLOAD" && a.params.requirement_code === c);
+  const monthsFor = (c: string) => {
+    const r = reqs.find((x) => x.code === c);
+    const t = target(c);
+    if (r?.family !== "payslip" || !t) return [];
+    return t.params.missing_periods.length ? t.params.missing_periods : t.params.period ? [t.params.period] : [];
+  };
+  const borrower = requirement?.borrower_id || "";
   const [period, setPeriod] = useState<string | null>(() => {
-    const months = monthsFor(firstBorrower);
+    const months = monthsFor(code);
     return upload.period && months.includes(upload.period) ? upload.period : months.length === 1 ? months[0] : null;
   });
+  // one chip per document kind; per-person kinds then offer the people who need it
+  const kinds = [...new Map(reqs.map((r) => [r.requirement_id || r.family, r])).values()];
+  const sameKind = requirement ? reqs.filter((r) => (r.requirement_id || r.family) === (requirement.requirement_id || requirement.family)) : [];
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +52,9 @@ export function UploadSheet() {
   const [outcome, setOutcome] = useState<UploadOutcome | null>(null);
   const [outcomeLost, setOutcomeLost] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-  const months = monthsFor(borrower);
-  const requirement = snap?.readiness.requirements.find((r) => r.evaluated_by_ai && r.borrower_id === borrower);
-  // a document the AI review sent back to this borrower: the new upload replaces it (the old one stays in the history)
-  const rejected = docs.filter((d) => d.borrower_id === borrower && snap?.outcomes?.documents[d.document_id]?.outcome === "BLOCKER"
+  const months = monthsFor(code);
+  // a document the AI review sent back for this requirement: the new upload replaces it (the old one stays in the history)
+  const rejected = docs.filter((d) => d.requirement_code === code && snap?.outcomes?.documents[d.document_id]?.outcome === "BLOCKER"
     && snap.outcomes.documents[d.document_id].by === "ai");
   const presetReplace = upload.replacesDocumentId && rejected.some((d) => d.document_id === upload.replacesDocumentId)
     ? upload.replacesDocumentId : undefined;
@@ -78,24 +93,29 @@ export function UploadSheet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc?.document_id, reviewed, outcome?.phase, outcomeLost, caseId]);
 
-  const choose = (bid: string) => {
-    setBorrower(bid);
-    const m = monthsFor(bid);
+  const choose = (next: string) => {
+    setCode(next);
+    const m = monthsFor(next);
     setPeriod(m.length === 1 ? m[0] : null);
   };
+  const chooseKind = (r: Requirement) => {
+    const id = r.requirement_id || r.family;
+    choose((reqs.find((x) => (x.requirement_id || x.family) === id && x.borrower_id === borrower) || r).code);
+  };
   const submit = async () => {
-    if (!file || !borrower) return;
+    if (!file || !requirement) return;
     setBusy(true); setError(null);
     try {
       const forRequest = asked && (!asked.borrower_id || asked.borrower_id === borrower) ? asked : undefined;
-      const r = await api.upload(caseId, file, borrower, { requirementCode: requirement?.code, expectedPeriod: period ?? forRequest?.period,
+      const r = await api.upload(caseId, file, borrower || null, { requirementCode: requirement.code, expectedPeriod: period ?? forRequest?.period,
         actionId: assistantOrigin?.actionId, originTurnId: assistantOrigin?.turnId, customerRequestId: forRequest?.customer_request_id,
         replacesDocumentId: !forRequest && replaceTarget && replaceOn ? replaceTarget.document_id : undefined });
       setDoc(r.document); setNote(r.note || null); setAnswered(!!r.answered_request); reload();
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   };
   const backToChat = () => { closeUpload(); openAssistant(); };
-  const another = () => { setDoc(null); setFile(null); setNote(null); setOutcome(null); setOutcomeLost(false); choose(borrower); };
+  const another = () => { setDoc(null); setFile(null); setNote(null); setOutcome(null); setOutcomeLost(false); choose(code); };
+  const holders = (requirement?.holders || []).map((h) => snap?.case.borrowers.find((b) => b.borrower_id === h)?.first_name_he).filter(Boolean);
   const stageIndex = doc ? STAGES.findIndex(([k]) => k === (doc.status === "reviewed" ? "done" : doc.stage)) : -1;
   const monthHint = months.length > 1
     ? (period ? "הבדיקה תסתמך על החודש שמודפס בתלוש, ותתריע אם הוא שונה מהחודש שבחרתם."
@@ -121,19 +141,44 @@ export function UploadSheet() {
                 <div className="tiny muted">הקובץ יצורף לבקשה של {asked.created_by_name || snap?.case.banker.name_he} וייבדק שוב.</div>
               </div>
             )}
-            <div className="small bold">עבור מי המסמך?</div>
-            <div className="choice">
-              {snap?.case.borrowers.map((b) => (
-                <label key={b.borrower_id} className={borrower === b.borrower_id ? "on" : ""}>
-                  <input type="radio" name="borrower" value={b.borrower_id} checked={borrower === b.borrower_id} onChange={() => choose(b.borrower_id)} />
-                  <span>{b.first_name_he}</span>
-                </label>
-              ))}
-            </div>
             <div className="upload-kind">
               <span className="small bold">סוג המסמך</span>
-              <span className="kind-chip" data-testid="upload-doc-type" data-requirement={requirement?.code}><ICheck size={12} />תלוש שכר</span>
+              {upload.requirementCode || asked || kinds.length < 2 ? (
+                <span className="kind-chip" data-testid="upload-doc-type" data-requirement={requirement?.code} data-family={requirement?.family}>
+                  <ICheck size={12} />{requirement?.family_he || FAMILY_HE[requirement?.family || ""] || "מסמך"}</span>
+              ) : (
+                <div className="choice wrap" role="radiogroup" aria-label="סוג המסמך" data-testid="upload-doc-type"
+                  data-requirement={requirement?.code} data-family={requirement?.family}>
+                  {kinds.map((k) => {
+                    const on = (k.requirement_id || k.family) === (requirement?.requirement_id || requirement?.family);
+                    return (
+                      <label key={k.code} className={on ? "on" : ""}>
+                        <input type="radio" name="kind" checked={on} onChange={() => chooseKind(k)} data-kind={k.family} />
+                        <span>{k.family_he || FAMILY_HE[k.family]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+            {requirement?.hint_he && <div className="tiny muted" data-testid="upload-hint">{requirement.hint_he}</div>}
+            {sameKind.length > 1 && requirement?.account_id == null && (<>
+              <div className="small bold">עבור מי המסמך?</div>
+              <div className="choice">
+                {sameKind.map((r) => {
+                  const b = snap?.case.borrowers.find((x) => x.borrower_id === r.borrower_id);
+                  return (
+                    <label key={r.code} className={code === r.code ? "on" : ""}>
+                      <input type="radio" name="borrower" value={r.borrower_id || ""} checked={code === r.code} onChange={() => choose(r.code)} />
+                      <span>{b?.first_name_he || r.title_he}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </>)}
+            {requirement?.account_id && holders.length > 0 && (
+              <div className="tiny muted" data-testid="upload-account">{requirement.title_he}</div>
+            )}
             {months.length > 0 && (
               <div className="stack" style={{ gap: 6 }}>
                 <div className="small bold">חודש השכר</div>
@@ -159,7 +204,7 @@ export function UploadSheet() {
                 onChange={(e) => setFile(e.target.files?.[0] || null)} data-testid="file-input" />
               <div style={{ color: "var(--mz-orange)" }}><IUpload size={26} /></div>
               <div className="bold" style={{ marginTop: 6 }}>{file ? file.name : "בחרו קובץ PDF או צילום"}</div>
-              <div className="tiny muted" style={{ marginTop: 4 }}>עדיף PDF מקורי מהמעסיק · עד 15MB · הבדיקה רצה מיד אחרי ההעלאה</div>
+              <div className="tiny muted" style={{ marginTop: 4 }}>עדיף PDF מקורי · עד 15MB · הבדיקה רצה מיד אחרי ההעלאה</div>
               <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => input.current?.click()}>בחירת קובץ</button>
             </div>
             {error && <div className="notice">{error}</div>}
@@ -167,7 +212,7 @@ export function UploadSheet() {
               {busy ? <span className="spinner" /> : null}העלאה ובדיקה חכמה
             </button>
             <div className="tiny muted" style={{ lineHeight: 1.6 }}>
-              המסמך נשמר בתיק ההדגמה בלבד ונבדק על ידי Gemini. התוצאה היא בדיקת מסמך אוטומטית — לא קבלת המסמך על ידי הבנק.
+              המסמך נשמר בתיק ההדגמה בלבד ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית — לא קבלת המסמך על ידי הבנק.
             </div>
           </>)}
           {doc && (<>
@@ -176,6 +221,7 @@ export function UploadSheet() {
               {note && <div className="notice" style={{ marginTop: 8 }}>{note}</div>}
               {answered && <div className="tiny" style={{ marginTop: 6, color: "var(--ok)", fontWeight: 700 }} data-testid="upload-answered">
                 הקובץ צורף לבקשה של {snap?.case.banker.name_he}. אחרי הבדיקה החכמה הוא יחזור אליה לבדיקה.</div>}
+              <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.png" alt="" />עיבוד מסמכים באמצעות JEEN</div>
               <div className="stage-list" data-testid="upload-stages">
                 {STAGES.map(([k, label], i) => (
                   <div key={k} className={`stage-item ${i < stageIndex || doc.status === "reviewed" ? "done" : i === stageIndex ? "now" : ""}`}>
@@ -183,7 +229,7 @@ export function UploadSheet() {
                   </div>
                 ))}
               </div>
-              {doc.status === "failed" && <div className="notice" style={{ marginTop: 8 }}>הבדיקה נכשלה: {doc.error}</div>}
+              {doc.status === "failed" && <div className="notice" style={{ marginTop: 8 }}>הבדיקה נכשלה בגלל תקלה זמנית בעיבוד המסמך. אפשר לנסות שוב בעוד רגע.</div>}
               {doc.review && (
                 <div className="row between" style={{ marginTop: 12 }}>
                   <span className={`badge ${doc.review.verdict}`}>{VERDICT_HE[doc.review.verdict]}</span>
@@ -192,7 +238,7 @@ export function UploadSheet() {
               )}
             </div>
             {reviewed && outcome?.phase !== "complete" && !outcomeLost && (
-              <div className="row small muted" data-testid="upload-rechecking"><span className="spinner" />מעדכנים את תמונת מסמכי השכר בתיק…</div>
+              <div className="row small muted" data-testid="upload-rechecking"><span className="spinner" />מעדכנים את תמונת המסמכים בתיק…</div>
             )}
             {outcomeLost && <div className="small muted">לא הצלחנו לקבל את סיכום הבדיקה כרגע. המצב המעודכן יופיע במסך המסמכים ובשיחה עם העוזר.</div>}
             {outcome?.phase === "complete" && snap?.outcomes?.documents[doc.document_id] && !snap.readiness.pending_jobs.length && (
