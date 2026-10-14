@@ -1,0 +1,34 @@
+{
+  "id": "S17",
+  "title_he": "שתי לשוניות / מכשירים — אחד פעיל",
+  "mandatory": true,
+  "ref": "PRD §8.9 · 03 §5 S17 · P17",
+  "now": "2026-10-13T08:00:00+00:00",
+  "context": {
+    "case_id": "DEMO-MTZ-2026-009",
+    "policy_version": "loan_policy@v1",
+    "consent_voice": true,
+    "open_tasks": [
+      {
+        "task_id": "TSK-PAY-09",
+        "requirement_code": "PAYSLIPS:BRW-A",
+        "reason_code": "REQUIRED_PERIOD_MISSING"
+      }
+    ],
+    "presence": "ACTIVE",
+    "last_activity_at": "2026-10-13T07:59:00+00:00",
+    "last_seen_at": "2026-10-13T07:30:00+00:00",
+    "plan_state": "WAITING",
+    "live_sessions": 2
+  },
+  "policy_overrides": {},
+  "expect": {
+    "action": "SUPPRESS",
+    "rule_ids_include": [
+      "HG-ACTIVE-SESSION"
+    ],
+    "blocked_by_include": [
+      "HG-ACTIVE-SESSION"
+    ]
+  }
+}
