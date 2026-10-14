@@ -11,6 +11,12 @@
   plus variants (`S06-gate`, `S10-no-redial`, `S11-shabbat`, `S11-holiday`, `S11-dst`, `S12-unverified`,
   `S24-allowed`). The 24 fixtures under S01–S18 are `mandatory`. Expectations were written by hand from 03 §5.
   `now` is Tuesday 2026-10-13 11:00 Israel time unless stated.
+- **Fixture pinning (Agent C's request):** the 18 timing-dependent fixtures pin the values their expectations depend
+  on (grace, nudge, unknown-presence extra, statement extension, spacing, caps, call window, holidays, reconcile
+  delay). Hard-guard fixtures pin nothing and run on the draft as edited. `merge_overrides` applies pins only on top
+  of a draft that is valid by itself, so pins never repair an invalid draft (it stays CFG-INVALID). Tests:
+  `test_fixtures_pin_only_timing_values`, `test_ordinary_edits_keep_every_scenario_green`,
+  `test_fixture_overrides_cannot_bypass_hard_guards`, `test_pins_never_repair_an_invalid_draft`.
 - Simulator recipe (what `test_followup_policy.py` does):
   `schema.parse("loan_policy", contract.merge_overrides(config, s.policy_overrides))`, where a `ValidationError`
   means `policy=None`, then `evaluate(s.context, policy, s.now)`, then `contract.matches(s.expect, d)`.

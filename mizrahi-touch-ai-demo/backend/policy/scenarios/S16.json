@@ -20,7 +20,31 @@
     "last_seen_at": "2026-10-13T07:35:00+00:00",
     "plan_state": "WAITING"
   },
-  "policy_overrides": {},
+  "policy_overrides": {
+    "followup": {
+      "abandonment_grace_minutes": 20,
+      "in_app_idle_nudge_minutes": 5,
+      "unknown_presence_extra_minutes": 10,
+      "statement_extends_grace_minutes": 30,
+      "min_hours_between_calls": 24,
+      "max_attempts_per_case": 2,
+      "max_attempts_per_case_per_day": 1,
+      "max_attempts_per_customer_per_day": 2,
+      "call_window": {
+        "timezone": "Asia/Jerusalem",
+        "days": [
+          "SUN",
+          "MON",
+          "TUE",
+          "WED",
+          "THU"
+        ],
+        "from": "09:00",
+        "to": "18:00"
+      },
+      "holidays": []
+    }
+  },
   "expect": {
     "action": "WAIT",
     "rule_ids_include": [

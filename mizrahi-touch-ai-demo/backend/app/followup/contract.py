@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Optional, Protocol, get_args
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from ..config import BACKEND_DIR
 from ..policy.schema import LoanPolicy
@@ -212,13 +212,25 @@ def matches(expect: Expectation, decision: Decision) -> bool:
             and (expect.next_eligible_at is None or decision.next_eligible_at == expect.next_eligible_at))
 
 
-def merge_overrides(config: dict, overrides: dict) -> dict:
-    """A scenario's `policy_overrides` over a configuration: dicts merge key by key, anything else (lists included)
-    replaces. Neither input is modified."""
-    out = dict(config)
+def _deep_merge(base: dict, overrides: dict) -> dict:
+    out = dict(base)
     for key, value in overrides.items():
-        out[key] = merge_overrides(out[key], value) if isinstance(value, dict) and isinstance(out.get(key), dict) else value
+        out[key] = _deep_merge(out[key], value) if isinstance(value, dict) and isinstance(out.get(key), dict) else value
     return out
+
+
+def merge_overrides(config: dict, overrides: dict) -> dict:
+    """A scenario's `policy_overrides` over a loan-policy configuration: dicts merge key by key, anything else (lists
+    included) replaces. Neither input is modified.
+
+    Overrides apply only on top of a configuration that is valid by itself. An invalid one comes back unchanged, so a
+    scenario's pins can never repair a draft that fails validation: it still evaluates as `policy=None` (CFG-INVALID)."""
+    if overrides:
+        try:
+            LoanPolicy.model_validate(config)
+        except ValidationError:
+            return dict(config)
+    return _deep_merge(config, overrides)
 
 
 def load_scenarios(directory: Path = SCENARIO_DIR) -> list[Scenario]:

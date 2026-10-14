@@ -62,6 +62,106 @@ def test_fixtures_cover_the_catalogue():
         assert contract.Scenario.model_validate(s.model_dump(mode="json")) == s
 
 
+# What a fixture may pin: the timing and limit values its expectation depends on. Never a safety switch (talk mode,
+# Talk on/off, auto follow-up, channel order): those always come from the draft under test.
+PINNABLE = {f"followup.{k}" for k in ("abandonment_grace_minutes", "in_app_idle_nudge_minutes",
+                                      "unknown_presence_extra_minutes", "statement_extends_grace_minutes",
+                                      "min_hours_between_calls", "max_attempts_per_case", "max_attempts_per_case_per_day",
+                                      "max_attempts_per_customer_per_day", "call_window", "holidays")} | {
+    "talk.reconcile_after_minutes"}
+
+
+def _paths(d: dict, prefix: str = "") -> set[str]:
+    out = set()
+    for k, v in d.items():
+        path = f"{prefix}{k}"
+        out |= {path} if not isinstance(v, dict) or path in PINNABLE else _paths(v, path + ".")
+    return out
+
+
+def test_fixtures_pin_only_timing_values():
+    for s in SCENARIOS:
+        assert _paths(s.policy_overrides) <= PINNABLE, (s.id, _paths(s.policy_overrides) - PINNABLE)
+
+
+def test_hard_guard_fixtures_run_against_the_draft_as_is():
+    """A hard-guard fixture with no time in its expectation pins nothing: it runs on the draft exactly as edited."""
+    for s in SCENARIOS:
+        hard = [r for r in s.expect.blocked_by_include if contract.RULES[r][0] == "HARD_GUARD" and r != "CFG-INVALID"]
+        if hard and s.expect.next_eligible_at is None:
+            assert s.policy_overrides == {}, s.id
+
+
+EDITS = {
+    "grace 20 → 30": {"followup": {"abandonment_grace_minutes": 30}},
+    "grace 20 → 5": {"followup": {"abandonment_grace_minutes": 5}},
+    "idle nudge 5 → 10": {"followup": {"in_app_idle_nudge_minutes": 10}},
+    "unknown presence extra 10 → 20": {"followup": {"unknown_presence_extra_minutes": 20}},
+    "window from 09:00 → 10:00": {"followup": {"call_window": {"from": "10:00"}}},
+    "window to 18:00 → 17:00": {"followup": {"call_window": {"to": "17:00"}}},
+    "window days SUN–WED": {"followup": {"call_window": {"days": ["SUN", "MON", "TUE", "WED"]}}},
+    "a new holiday": {"followup": {"holidays": ["2026-10-13", "2026-10-25"]}},
+    "max attempts 2 → 3": {"followup": {"max_attempts_per_case": 3}},
+    "spacing 24 → 48 h": {"followup": {"min_hours_between_calls": 48}},
+    "statement extension 30 → 60": {"followup": {"statement_extends_grace_minutes": 60}},
+}
+
+
+@pytest.mark.parametrize("edit", EDITS, ids=list(EDITS))
+def test_ordinary_edits_keep_every_scenario_green(edit):
+    """The publish gate runs the fixtures against the draft: a valid timing edit must not fail any of them."""
+    draft = contract.merge_overrides(SEED, EDITS[edit])
+    assert schema.parse("loan_policy", draft)
+    failed = []
+    for s in SCENARIOS:
+        try:
+            policy = schema.parse("loan_policy", contract.merge_overrides(draft, s.policy_overrides))
+        except ValidationError:
+            policy = None
+        if not contract.matches(s.expect, evaluate(s.context, policy, s.now)):
+            failed.append(s.id)
+    assert failed == [], (edit, failed)
+
+
+SAFETY_DRAFTS = {
+    "talk live": {"talk": {"mode": "live"}},
+    "talk off": {"talk": {"mode": "off"}},
+    "talk disabled": {"talk": {"enabled": False}},
+    "auto follow-up off": {"followup": {"auto_followup_enabled": False}},
+    "message channel too": {"followup": {"channel_order": ["in_app", "message", "voice"]}},
+}
+
+
+def test_pins_never_repair_an_invalid_draft():
+    """An invalid draft fails closed in every scenario, including those whose pins would overwrite the bad value."""
+    broken = contract.merge_overrides(SEED, {"followup": {"max_attempts_per_case": 99}})
+    for s in SCENARIOS:
+        d = evaluate(s.context, policy_for_draft(broken, s), s.now)
+        assert d.action == "BLOCK" and d.blocked_by == ("CFG-INVALID",), s.id
+
+
+def policy_for_draft(draft: dict, s):
+    try:
+        return schema.parse("loan_policy", contract.merge_overrides(draft, s.policy_overrides))
+    except ValidationError:
+        return None
+
+
+@pytest.mark.parametrize("draft", SAFETY_DRAFTS, ids=list(SAFETY_DRAFTS))
+def test_fixture_overrides_cannot_bypass_hard_guards(draft):
+    """Whatever a draft and a fixture's pins say, a hard-guard scenario never yields an outbound contact."""
+    base = contract.merge_overrides(SEED, SAFETY_DRAFTS[draft])
+    for s in SCENARIOS:
+        if not any(contract.RULES[r][0] == "HARD_GUARD" for r in s.expect.blocked_by_include):
+            continue
+        try:
+            policy = schema.parse("loan_policy", contract.merge_overrides(base, s.policy_overrides))
+        except ValidationError:
+            policy = None
+        d = evaluate(s.context, policy, s.now)
+        assert d.action not in CONTACT, (draft, s.id, d)
+
+
 def test_consolidation_covers_every_open_task():
     s = next(s for s in SCENARIOS if s.id == "S14")
     d = evaluate(s.context, SEED_POLICY, s.now)
