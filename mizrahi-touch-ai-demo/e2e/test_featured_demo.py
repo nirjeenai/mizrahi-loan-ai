@@ -119,8 +119,17 @@ def open_case(page: Page, route: str) -> None:
     expect(page.locator("[data-testid=ai-card]")).to_be_visible(timeout=15000)
 
 
+def open_row(page: Page, code: str) -> None:
+    """Requirement rows on the Documents screen start collapsed."""
+    head = page.locator(f"[data-testid='req-{code}'] .dl-head")
+    expect(head).to_be_visible(timeout=15000)
+    if head.get_attribute("aria-expanded") != "true":
+        head.click()
+
+
 def upload(page: Page, borrower: str, path: Path, period: str | None) -> None:
     page.goto(f"{BASE}/customer/documents")
+    open_row(page, f"PAYSLIPS:{borrower}")
     page.locator(f"[data-testid=upload-{borrower}]").click()
     sheet = page.locator("[data-testid=upload-sheet]")
     expect(sheet).to_be_visible()

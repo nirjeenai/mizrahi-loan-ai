@@ -374,7 +374,16 @@ def wait_settled(case: str, timeout: int = 480) -> dict:
     raise TimeoutError(f"{case} did not settle")
 
 
+def open_row(page: Page, code: str) -> None:
+    """Requirement rows on the Documents screen start collapsed."""
+    head = page.locator(f"[data-testid='req-{code}'] .dl-head")
+    expect(head).to_be_visible(timeout=15000)
+    if head.get_attribute("aria-expanded") != "true":
+        head.click()
+
+
 def upload(page: Page, borrower: str, path: Path) -> None:
+    open_row(page, f"PAYSLIPS:{borrower}")
     page.locator(f"[data-testid=upload-{borrower}]").click()
     page.locator("[data-testid=file-input]").set_input_files(str(path))
     page.locator("[data-testid=upload-submit]").click()

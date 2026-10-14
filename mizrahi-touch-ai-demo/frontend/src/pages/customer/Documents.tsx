@@ -15,10 +15,9 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
   const mineDocs = new Set(docs.filter((d) => d.requirement_code === r.code).map((d) => d.document_id));
   const findings = snap.findings.filter((f) => f.status === "open" && f.review_state === "CUSTOMER_ACTION_REQUIRED"
     && (mineDocs.has(f.document_id || "") || f.detail?.requirement_code === r.code));
-  const waiting = r.ai_state === "required_missing" || r.ai_state === "needs_customer_action";
   // a missing document or a gap in the period asks for a first upload, not for replacing an uploaded one
   const firstUpload = r.ai_state === "required_missing" || (findings.length > 0 && !findings.some((f) => f.document_id));
-  const isOpen = expanded[r.code] ?? (waiting || focused);
+  const isOpen = expanded[r.code] ?? focused;
   const [name, detail] = splitTitle(r.title_he);
   const tone = STATE_TONE[r.ai_state] || (r.ai_state === "required_missing" ? "bad" : "warn");
   return (
@@ -43,7 +42,7 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
               למידע נוסף<IChevron size={14} /></button>
             {!["extracted", "preparation_confirmed", "checking"].includes(r.ai_state) && (
               <button className="btn btn-dark req-upload" onClick={() => openUpload(r.borrower_id || undefined, { requirementCode: r.code })}
-                data-testid={`upload-${r.code}`}><IUpload size={17} />{firstUpload ? "להעלאה" : "העלאה מחדש"}</button>
+                data-testid={`upload-${r.code}`}><IUpload size={15} />{firstUpload ? "להעלאה" : "העלאה מחדש"}</button>
             )}
           </div>
           <div className="dl-bank"><IClock size={13} />ממתין לאישור הבנק</div>
@@ -81,10 +80,11 @@ function MonthChips({ r }: { r: Requirement }) {
       {(r.requested_months || []).map((m) => {
         const copies = r.duplicates?.[m];
         const covered = r.covered?.includes(m);
-        if (!covered) return <span key={m} className="mchip miss"><IX size={11} />{monthHe(m)} חסר</span>;
-        if (r.pending_review?.includes(m)) return <span key={m} className="mchip review"><IClock size={11} />{monthHe(m)} · בבדיקה</span>;
-        if (copies) return <span key={m} className="mchip dup"><ICheck size={11} />{monthHe(m)} ×{copies}</span>;
-        return <span key={m} className="mchip ok"><ICheck size={11} />{monthHe(m)}</span>;
+        const month = <span className="mchip-month">{monthHe(m)}</span>;
+        if (!covered) return <span key={m} className="mchip miss">{month} <span className="mchip-state"><IX size={11} />חסר</span></span>;
+        if (r.pending_review?.includes(m)) return <span key={m} className="mchip review">{month} <span className="mchip-state"><IClock size={11} />בבדיקה</span></span>;
+        if (copies) return <span key={m} className="mchip dup">{month} <span className="mchip-state"><ICheck size={11} />×{copies}</span></span>;
+        return <span key={m} className="mchip ok">{month} <span className="mchip-state"><ICheck size={11} /></span></span>;
       })}
     </div>
   );
@@ -263,8 +263,8 @@ export function Documents() {
                 const mine = customerFindings.filter((f) => f.borrower_id === r.borrower_id && (f.detail?.family ?? "payslip") === "payslip");
                 const open = r.ai_state === "required_missing" || (r.missing?.length ?? 0) > 0 || mine.length > 0;
                 const focused = focus === `req-${r.code}` || (focus === "sec-payslips" && open);
-                // rows that need the customer open by themselves; a deep link opens its row
-                const isOpen = expanded[r.code] ?? (open || focused);
+                // rows start collapsed; only a deep link to this requirement opens it
+                const isOpen = expanded[r.code] ?? focus === `req-${r.code}`;
                 const pill = payslipPill(r);
                 const name = borrowerName(r.borrower_id);
                 return (
@@ -289,7 +289,7 @@ export function Documents() {
                           <button className="link req-more" onClick={() => openAssistant(`מה בדיוק צריך להעלות עבור ${name}?`)}>
                             למידע נוסף<IChevron size={14} /></button>
                           <button className="btn btn-dark req-upload" onClick={() => openUpload(r.borrower_id || undefined, { requirementCode: r.code })}
-                            data-testid={`upload-${r.borrower_id}`}><IUpload size={17} />להעלאה</button>
+                            data-testid={`upload-${r.borrower_id}`}><IUpload size={15} />להעלאה</button>
                         </div>
                         <div className="dl-bank"><IClock size={13} />ממתין לאישור הבנק</div>
                       </div>

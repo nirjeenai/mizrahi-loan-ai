@@ -40,6 +40,17 @@ export function UploadSheet() {
     const months = monthsFor(code);
     return upload.period && months.includes(upload.period) ? upload.period : months.length === 1 ? months[0] : null;
   });
+  // the sheet can open before the case snapshot has arrived (a deep link, or the document page's own fetch winning the
+  // race): its requirement is resolved from the preset once the snapshot's requirements are there
+  const resolvable = reqs.some((r) => r.code === code);
+  useEffect(() => {
+    if (resolvable || !reqs.length) return;
+    const next = initialRequirement(reqs, upload.requirementCode, upload.borrowerId, asked?.requirement_code);
+    const months = monthsFor(next);
+    setCode(next);
+    setPeriod(upload.period && months.includes(upload.period) ? upload.period : months.length === 1 ? months[0] : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvable, reqs.length]);
   // one chip per document kind; per-person kinds then offer the people who need it
   const kinds = [...new Map(reqs.map((r) => [r.requirement_id || r.family, r])).values()];
   const sameKind = requirement ? reqs.filter((r) => (r.requirement_id || r.family) === (requirement.requirement_id || requirement.family)) : [];

@@ -388,6 +388,7 @@ def run(page: Page, banker: Page) -> None:
     page.goto(f"{BASE}/customer/documents")
     badge = page.locator("[data-testid=doc-card]", has_text=old_quote.name).locator("[data-testid=doc-verdict]")
     expect(badge).to_be_visible(timeout=15000)
+    page.locator(f"[data-testid='req-{PURPOSE}'] .dl-head").click()
     row_button = page.locator(f"[data-testid='upload-{PURPOSE}']")
     check("stale quote: the file badge, its requirement and its page all ask the customer for a newer document",
           s["outcomes"]["documents"][old]["outcome"] == "BLOCKER" and badge.inner_text() == "לא תקין — נדרש תיקון"
@@ -453,6 +454,7 @@ def mobile(page: Page) -> None:
     page.goto(f"{BASE}/customer/documents")
     expect(page.locator(f"[data-testid='req-{BANK}']")).to_be_visible(timeout=15000)
     wide["documents"] = overflow(page)
+    page.locator(f"[data-testid='req-{BANK}'] .dl-head").click()
     page.locator(f"[data-testid='upload-{BANK}']").click()
     sheet = page.locator("[data-testid=upload-sheet]")
     expect(sheet).to_be_visible()

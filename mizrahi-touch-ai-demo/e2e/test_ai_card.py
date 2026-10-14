@@ -263,6 +263,10 @@ def main_journey(browser: Browser) -> None:
     else:
         page.get_by_role("button", name="למסמכים", exact=True).click()
     page.wait_for_url(lambda u: "/customer/documents" in u)
+    head = page.locator("[data-testid='req-PAYSLIPS:BRW-A'] .dl-head")
+    expect(head).to_be_visible(timeout=10000)
+    if head.get_attribute("aria-expanded") != "true":
+        head.click()
     if AFTER:
         req = page.locator("[data-testid='req-PAYSLIPS:BRW-A']")
         expect(req).to_contain_text(f"{month_he(months[0])} חסר", timeout=10000)

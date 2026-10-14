@@ -54,7 +54,16 @@ def shot(page: Page, name: str) -> None:
     page.screenshot(path=str(ART / f"e2e-{name}.png"))
 
 
+def open_row(page: Page, code: str) -> None:
+    """Requirement rows on the Documents screen start collapsed."""
+    head = page.locator(f"[data-testid='req-{code}'] .dl-head")
+    expect(head).to_be_visible(timeout=15000)
+    if head.get_attribute("aria-expanded") != "true":
+        head.click()
+
+
 def upload(page: Page, borrower: str, path: Path) -> None:
+    open_row(page, f"PAYSLIPS:{borrower}")
     page.locator(f"[data-testid=upload-{borrower}]").click()
     page.locator("[data-testid=file-input]").set_input_files(str(path))
     page.locator("[data-testid=upload-submit]").click()
@@ -124,6 +133,7 @@ def main() -> int:
         check("cross-document discrepancies found", {"REQUIRED_PERIOD_MISSING:BRW-A:2026-09", "DUPLICATE_PERIOD:BRW-A:2026-08",
                                                      "DECLARED_VS_DOCUMENT_INCOME_VARIANCE"} <= keys, ", ".join(sorted(keys)))
         page.reload()
+        open_row(page, "PAYSLIPS:BRW-A")
         expect(page.locator("[data-testid='req-PAYSLIPS:BRW-A']")).to_contain_text("ספטמבר 2026 חסר")
         expect(page.locator("[data-testid='req-PAYSLIPS:BRW-A']")).to_contain_text("אוגוסט 2026 ×2")
         shot(page, "01-documents-gap")
