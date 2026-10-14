@@ -13,20 +13,8 @@ the parallel branches; Agent A's tree (`main`, uncommitted) never received it.
   network calls.
 - Shared refs:
   - `parallel/r12-snapshot` is Agent A's work at 10:00, verified blob-for-blob.
-  - `parallel/base` is the snapshot, plus the frozen contracts, plus the demo-first scope update (a docs-only
-    commit). Both agent branches contain it.
+  - `parallel/base` is the snapshot plus the frozen contracts. Both agent branches start from it.
   - `parallel/g1-evaluator` is set by Agent B at gate G1.
-
-## Demo-first scope (user decision, 2026-10-14 10:45)
-Mizrahi #2 is a sales demo. Rounds 3–4 build the working follow-up engine, the mock Talk recovery loop and a simple
-Admin Settings flow, and nothing for future production governance.
-- Access uses the existing sessions only.
-- One admin edits, tests and publishes.
-- Talk events are applied in-process, and the HTTP receiver is off until a secret is configured.
-- Links are reusable until they expire.
-- There is one scheduler `tick`.
-
-The details are at the top of `CONTRACTS.md` and in its §12 (deferred).
 
 ## Snapshot
 - Built with a private index (`.git/parallel-snapshot.index`, since deleted) after 60 s without writes in Agent A's
@@ -96,8 +84,6 @@ file outside the agent's scope. It must print `OK` before a merge.
 
 ## Gates
 - **G0 — base frozen (done).** `parallel/base` = snapshot + contracts; `test_parallel_contracts.py` passes (8 tests).
-  The demo-first scope update was then added as a docs-only commit. `parallel/base` was moved forward to it, and both
-  agent branches were fast-forwarded before either had any work of its own.
 - **G1 — evaluator final (B → C).** When G1 is done, Agent C runs `git merge --no-ff parallel/g1-evaluator` and
   only then builds the simulator, the publish gate's scenario check, `POST /policy/simulate` and the simulator tab.
   Agent B must have:
@@ -117,13 +103,12 @@ file outside the agent's scope. It must print `OK` before a merge.
 - **G4 — merge C.** `git merge --no-ff agent-c/round4-admin`, then the same checks plus an `/admin` browser check.
   Agent C's branch contains Agent B's G1 commits; merging B first keeps C's diff to C's own files.
 - **G5 — cross-boundary wiring on `main`, one owner at a time:**
-  - B: `orchestrator.tick(clock.now())` every few seconds in the existing worker loop (no new job kinds);
-    `on_event` after reviews and uploads; `get_followup_context` in `agent/tools.py` (MCP tool count 10 → 11 in
-    `e2e/test_mcp_sdk.py`); `/system` row.
+  - B: job kinds in `engine._claim`; triggers after reviews and uploads; `get_followup_context` in
+    `agent/tools.py` (MCP tool count 10 → 11 in `e2e/test_mcp_sdk.py`); `/system` row.
   - A: presence hook in `caseContext.tsx`; customer snooze / preference / handoff controls; banker Talk card,
-    timeline and overrides; presenter simulation controls (the demo routes already accept the customer session, so
-    no new permission is needed); an "הגדרות" link to `/admin` in the console.
-  - C (optional): `POST /prompts/test` through the agent loop.
+    timeline and overrides; presenter simulation controls; `demo.simulate` for the demo banker or presenter; a
+    separate demo staff session per console (the `/admin` personas and `/banker` share the `mzl_staff` cookie today).
+  - C: `POST /prompts/test` through the agent loop.
   - README and CODEMAP sections from each agent's NOTES file.
 - **G6 — Round 5.**
 

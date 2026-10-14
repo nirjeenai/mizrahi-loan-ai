@@ -35,9 +35,9 @@ Please keep to the following until integration.
 4. **Ports:** don't use 8796, 8797, 5857 or 5858. Yours stay 8791/5192 (+ 8798/5846/8801 for isolated stacks).
 5. **After Rounds 1–2 (gate G5),** you will own the Round 3 frontend against B's API: the presence hook in
    `caseContext.tsx`, the customer snooze / contact-preference / handoff controls, the banker Talk card, timeline and
-   overrides, and the presenter simulation controls, plus an "הגדרות" link to `/admin` in the console. (Demo-first
-   scope, 2026-10-14: no new permission or session work is needed. The demo routes accept the customer session in
-   demo mode, and `/admin` uses the same demo staff session as `/banker`.)
+   overrides, and the presenter simulation controls. You will also own two small shared fixes:
+   - `demo.simulate` for whoever drives the presenter;
+   - separate demo staff sessions for `/admin` and `/banker`.
 
    The full contract is in `docs/plans/parallel/CONTRACTS.md` on branch `parallel/base`. Read it with
    `git show parallel/base:mizrahi-touch-ai-demo/docs/plans/parallel/CONTRACTS.md`, which doesn't change your tree.
