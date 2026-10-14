@@ -5,14 +5,15 @@ listed below.
 
 - **Your worktree:** `/Users/nakash/Desktop/mizrahi2-agentC`
 - **Your branch:** `agent-c/round4-admin`
-- **Base:** `parallel/base`
+- **Base:** `parallel/base` (it includes the demo-first scope update of 2026-10-14)
 
 ## Before anything
 1. Open the worktree as your workspace. In every shell, run `. /Users/nakash/Desktop/mizrahi2-agentC/AGENT_ENV.sh`.
 2. Read these, in order:
    - `mizrahi-touch-ai-demo/docs/plans/parallel/README.md` (ownership, gates)
-   - `docs/plans/parallel/CONTRACTS.md` (frozen; you implement §2 store additions, §6 and §7)
-   - `docs/plans/04-target-architecture-contracts.md` §3, §8–§9
+   - `docs/plans/parallel/CONTRACTS.md`: frozen. Read the demo-first note at the top and §12 (deferred) first;
+     you implement the §2 store additions, §6 and §7.
+   - `docs/plans/04-target-architecture-contracts.md` §3 (configuration shape; its roles in §8–§9 are superseded)
    - `docs/plans/03-prd-gap-analysis.md` (A1–A13, S38–S40)
    - `CLAUDE.md`
 3. Check the baseline:
@@ -22,75 +23,74 @@ listed below.
    - `test_recorded_reviews.py` fails only because its recordings are excluded from the snapshot. Ignore it.
 
 ## Goal
-An authorized admin changes loan-completion behavior without touching code: a draft, then validate, then diff,
-simulate, publish (by a different approver), roll back, and audit. This all lives in a "הגדרות" (Settings) area at
-`/admin`, inside the existing console shell (`console-top`, `console-ribbon`, `desk-page` styles; Hebrew RTL), with
-five tabs:
+The demo admin changes loan-completion behavior without touching code, in one simple flow: edit, then test
+(validate + simulate), then save and publish, with version history and rollback. No approval step and no second
+person.
+
+This is a sales demo. Make it polished and persistent (real versions in `config_versions`, not frontend state), and
+build nothing for production governance. It lives in a "הגדרות" (Settings) area at `/admin`, inside the existing
+console shell (`console-top`, `console-ribbon`, `desk-page` styles; Hebrew RTL). It has four tabs:
 1. **מסמכים ותהליך** (documents and process): the `document_requirements`, `product.purposes` and `validation`
    editor.
 2. **מעקב והשלמה** (follow-up): a structured `followup` + `talk` form (FR-25). The locked hard guards
    (`followup.contract.LOCKED_RULES` + `RULES` labels) and the `ENVELOPE` are shown read-only with a lock and the
    reason. The kill switch lives here.
-3. **התאמת הנחיות** (Customize Prompt):
+3. **התאמת הנחיות ותבניות** (Customize Prompt and templates):
    - `talk_prompt` editing: `opening_locked` (AI disclosure) is read-only; `instructions` uses `{{variables}}` from
      `PROMPT_VARIABLES` only.
    - Lint: "התקשרו מיד", approval or credit promises ("ההלוואה אושרה"), threats, asking for ID numbers or document
      contents, unknown variables, a missing disclosure.
-   - Preview rendered with synthetic variables.
-   - A "test conversation" button that stays disabled until G5.
-4. **תבניות הודעה** (message templates): `templates` and `customer_messages`, with a variable checker and preview.
-5. **סימולציה וגרסאות** (simulator and versions): the version list with diff, publish, rollback, audit, and the
-   simulator run (built after G1).
+   - `templates` and `customer_messages` with the same variable checker.
+   - A preview rendered with synthetic variables.
+4. **בדיקה וגרסאות** (test and versions): the simulator run (after G1), validation and diff against the published
+   version, "שמירה והפעלה" (save and publish), the version list with rollback, and the audit list.
 
 Always show an environment banner ("סביבת הדגמה · נתונים סינתטיים") and the publish state of each kind.
 
-## Build this, in this order (all of it independent of Agent B until step 6)
-1. **`backend/app/policy/validate.py`:**
-   - Schema errors (from `store.validate`) plus envelope checks the schema can't express: grace ≥5 minutes outside
-     demo (`ENVELOPE`), `max_attempts_per_case ≤ 3`, call window inside 08:00–20:00, no Saturday (S39).
-   - `require_distinct_approver = True`. Sensitive paths are `followup.*`, `talk.*`, `templates.*` and every
-     `talk_prompt`; for those, the publisher must differ from the draft's `last_editor` and `author`.
-   - `classify(diff) -> {sensitive: bool, paths}`.
+## Build this, in this order (all of it independent of Agent B until step 5)
+1. **`backend/app/policy/validate.py`:** schema errors (from `store.validate`), plus envelope checks the schema can't
+   express: grace ≥5 minutes outside demo (`ENVELOPE`), `max_attempts_per_case ≤ 3`, call window inside
+   08:00–20:00, no Saturday (S39). No approver rules.
 2. **`backend/app/policy/prompts.py`:** `lint(prompt) -> [warnings{code, message_he, span}]` (S38: a warning, never a
    policy change), `render(text, variables)`, synthetic preview variables.
 3. **`backend/app/policy/store.py` additions only:**
-   - Events through `events.emit` (`settings.draft_saved.v1`, `settings.policy_published.v1`,
-     `settings.prompt_published.v1`, `settings.rollback_applied.v1`).
-   - The distinct-approver check, with the actor carried on publish.
+   - Events through `events.emit`: `settings.draft_saved.v1`, `settings.policy_published.v1`,
+     `settings.prompt_published.v1`, `settings.rollback_applied.v1`.
    - Don't change existing signatures or behavior: Agent A's tests and `requirements.pin` depend on them.
-4. **`backend/app/api/admin.py`:** every route in CONTRACTS §7, with `capabilities.require` per the table.
-   - `If-Match` on PUT, discard and publish: 428 when missing, 409 when stale.
-   - An `ETag` header on draft responses.
-   - Kill switch through `flags.put(flags.KILL_SWITCH, …)`.
-   - Audit from `events.recent(None, SETTINGS_EVENTS + ("settings.kill_switch_changed.v1",))` plus version history.
-5. **`backend/app/policy/proposal.py`:** a natural-language proposal, turned into a JSON patch over **allowed keys
-   only**.
-   - Use the existing `app/llm/gemini.py` client, read-only, through an injectable function so tests stub it.
-   - Gemini is disabled in your environment, so the route returns 503 "unavailable".
-   - Never save or publish: the admin applies the patch to a draft explicitly (AC 20).
-6. **After gate G1 only.** Wait until the user tells you G1 is reached, or until `git branch --list
+4. **`backend/app/api/admin.py`:** every route in CONTRACTS §7, each behind `auth.require_staff`.
+   - The `revision` goes in the request body; the store's `Conflict` becomes 409. No If-Match or ETag.
+   - The kill switch goes through `flags.put(flags.KILL_SWITCH, …)`.
+   - Audit is `events.recent(None, SETTINGS_EVENTS)` plus version history.
+   - `/prompts/test` → 501 "deferred".
+5. **After gate G1 only.** Wait until the user tells you G1 is reached, or until `git branch --list
    parallel/g1-evaluator` shows the ref. Then `git merge --no-ff parallel/g1-evaluator` and build:
-   - `backend/app/policy/simulator.py::simulate` exactly as CONTRACTS §6 (only `simulation_runs` + one event)
+   - `backend/app/policy/simulator.py::simulate`, exactly as CONTRACTS §6 (only `simulation_runs` + one event). Use
+     `contract.load_scenarios()` and `contract.matches`; if G1 ships a deep-merge helper in `contract.py`, use it.
    - `POST /policy/simulate`
    - the mandatory-scenario publish gate for `loan_policy`
-   - the simulator panel in tab 5: a scenario table with pass/fail, expected vs actual action, rule ids and Hebrew
+   - the simulator panel in tab 4: a scenario table with pass/fail, expected vs actual action, rule ids and Hebrew
      explanation
 
    Until then, show the panel as "ממתין למנוע המדיניות" (waiting for the policy engine), with no fake results. Do
    not write an evaluator or scenario fixtures yourself; those are Agent B's.
-7. **Frontend (can run in parallel with steps 1–5):**
+6. **Frontend (can run in parallel with steps 1–4):**
    - `frontend/src/pages/admin/*` (AdminPage + one component per tab), `frontend/src/adminApi.ts` (your own fetch
      helper modelled on `api.ts::http`, credentials `same-origin`), `frontend/src/admin.css` (imported by the admin
      page; reuse existing class names read-only).
    - Add exactly one import and one `<Route path="/admin" element={<AdminPage />} />` line to `frontend/src/App.tsx`.
-   - Personas: a switcher between STAFF-MAYA (editor) and STAFF-AVI (approver) through
-     `POST /api/session/demo/staff {"staff_id": …}`.
-   - Known G5 item: the staff cookie is shared with `/banker`, so switching persona affects the banker console in
-     the same browser. Show a one-line note; don't change `auth.py`.
+   - Session: the same demo staff session the banker console gets (`POST /api/session/demo/staff` with the default
+     staff id, when `GET /api/session` has none). No persona switcher, no login screen.
+
+**Not built (deferred, CONTRACTS §12):**
+- the distinct-approver rule, `classify()` and sensitive paths;
+- editor/approver personas;
+- If-Match, ETag and 428;
+- the NL policy proposal (`proposal.py`, `interpret-proposal`);
+- the agent-loop prompt test.
 
 ## Allowed files (relative to `mizrahi-touch-ai-demo/`)
 - `backend/app/api/admin.py` (already mounted in `main.py`)
-- `backend/app/policy/validate.py`, `prompts.py`, `proposal.py`, `simulator.py` (after G1); `store.py` additions only
+- `backend/app/policy/validate.py`, `prompts.py`, `simulator.py` (after G1); `store.py` additions only
 - `backend/app/events.py`: append to `SETTINGS_EVENTS` only
 - New tests: `backend/tests/test_admin_settings.py` (and other `test_admin_*.py`)
 - `frontend/src/pages/admin/**`, `frontend/src/adminApi.ts`, `frontend/src/admin.css`, the two lines in
@@ -115,24 +115,18 @@ Always show an environment banner ("סביבת הדגמה · נתונים סינ
 - Any live Gemini call, creating `backend/.env`, `pip`/`npm` installs, `git push/rebase/reset --hard/stash/checkout`,
   merging anything except `parallel/g1-evaluator`, and touching `main`.
 
-## Tests you must add (06-roadmap-traceability.md, AC 16–22, 25)
+## Tests you must add (06-roadmap-traceability.md, AC 16–19, 21, 25; AC 20 is deferred)
 **`test_admin_settings.py`:**
-- RBAC on every route:
-  - no session → 401;
-  - Dana → 403;
-  - Maya may edit but not publish;
-  - Avi may publish but not edit;
-  - kill switch for Maya or Avi only.
+- Access with the existing checks: no session → 401 on every route; a customer-only session → 401; the demo staff
+  session → 200.
 - A draft is inactive: the published version, `requirements.for_case` and the pinned cases are unchanged until
   publish (AC 17).
-- `If-Match` missing → 428, stale → 409, and two editors → one wins (AC 21).
-- Validation paths; envelope rejections (S39); the distinct approver (Maya edits a follow-up field, Maya can't
-  publish, Avi can).
+- A stale `revision` → 409, so of two edits from the same base, one wins (AC 21).
+- Validation paths and envelope rejections (S39).
 - Publish is atomic, leaving one PUBLISHED per kind; rollback creates a new version; audit lists each step with its
   actor (AC 25).
 - Prompt lint (S38) and preview; the locked opening can't be edited; unknown variable → error (AC 19).
-- NL proposal with a stubbed LLM: the patch only touches allowed keys, a disallowed key is dropped and reported,
-  and nothing is saved or published (AC 20).
+- The kill switch toggles, and `GET /settings` shows it.
 - **After G1:**
   - the simulator runs every fixture;
   - `side_effects` is false: row counts of every table other than `simulation_runs`/`case_events` are unchanged
@@ -140,17 +134,17 @@ Always show an environment banner ("סביבת הדגמה · נתונים סינ
   - a draft that breaks a mandatory scenario can't be published (AC 18).
 
 **Frontend:** `tsc` clean, `npm run build` OK. `e2e/test_admin_ui.py` covers:
-- Maya edits the grace period in tab 2 and saves a draft;
-- the diff shows;
-- Avi publishes;
-- the version list updates;
-- rollback;
-- the kill switch toggles;
+- edit the grace period in tab 2 and save;
+- the diff shows in tab 4;
+- run the simulator (after G1);
+- publish, and see the version list update;
+- roll back;
+- toggle the kill switch;
 - screenshots go to `e2e/artifacts/agent-c/`.
 
 ## Definition of done
-- [ ] Every CONTRACTS §7 route is implemented (`/prompts/test` returns 501 "deferred to G5"); the five tabs work in
-      the browser on your stack.
+- [ ] Every CONTRACTS §7 route is implemented (`/prompts/test` returns 501 "deferred"); the four tabs work in the
+      browser on your stack.
 - [ ] `pytest -q tests --ignore=tests/test_recorded_reviews.py` passes in full (121 baseline + yours); `tsc` is
       clean; `npm run build` succeeds (it writes your own `frontend/dist`).
 - [ ] G1 work done after merging `parallel/g1-evaluator`. If G1 hasn't happened by the time everything else is
