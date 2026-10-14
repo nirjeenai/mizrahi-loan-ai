@@ -7,7 +7,7 @@ Verified against the code on 2026-10-13. Update the entry in the same task when 
 ## Request flow in one picture
 ```
 UploadSheet.tsx → api.upload → POST /api/cases/{id}/documents            api/routes.py::upload
-  → review_desk.check_request_link → engine.submit_document               (mime, 15 MB, SHA-256 dedupe, file to DATA_DIR/uploads)
+  → review_desk.check_request_link → engine.submit_document               (mime, 15 MB, SHA-256 dedupe per document family, file to DATA_DIR/uploads)
   → review_desk.link_upload · continuation.record_intent                  (answers a banker request · upload intent, never sent to the reviewer)
   → worker engine._run_document → registry.active() → GeminiReviewProvider._review_document
        extract (blind Gemini) → _verify (evidence.py) → _deterministic (deterministic.py) → _judge (Gemini) → _merge (verdict by code)
@@ -19,6 +19,11 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 ## Backend (`backend/app/`)
 | Topic | Start here | Then |
 |---|---|---|
+| Loan policy (versioned config) | `policy/schema.py` (LoanPolicy, TalkPrompt, bank envelope bounds) · `policy/store.py` (seed, drafts, ETag revision, atomic publish, rollback-as-new-version, diff) | seed files `backend/policy/seed/*.json`; table `config_versions` |
+| Loan requirements | `workflow/requirements.py` (`pin`/`repin` → `case_profile`, `for_case` instances, `family_of`, `payslip_months`) | `bank.requirements()` and `bank.case_context()` delegate here |
+| Non-payslip families | `review/family_checks.py` (ID, statement, proof of purpose, tax form) | rubrics `backend/rubrics/{id_document,bank_statement,purpose_proof,tax_form}.il.v1.0.0.json`; dispatch `rubrics.for_family`; reason texts `review/reason_codes.py` |
+| Case coverage per family | `case_review._document_findings`, `_requirement_coverage` | coverage codes also in `engine.COVERAGE_CODES` / `review_desk.COVERAGE_CODES` |
+| Demo intake | `workflow/intake.py` ↔ `GET/POST /api/demo/applications` (`api/routes.py`) | stored in `demo_applications`, read by `MockBankAdapter._applications` |
 | App wiring | `main.py` (routers, SPA fallback, lifespan starts workers) | `config.py` (reads `backend/.env`, `DATA_DIR`, `SIMULATION_DATE`, MCP key→case map, `SESSION_*`, `DEMO_IDENTITY`, `DEMO_RESET`) |
 | Sessions and access | `auth.py` (signed sessions, `require_customer_case` / `require_reader` / `require_staff` / `require_assigned_staff`, `/api/session` + demo-session routes) | every route in `api/*.py` calls one of these; demo identity on/off: `DEMO_IDENTITY` |
 | Persistence | `store/repo.py` (all case data access) | `db.py` (13-table schema, `tx()`, `ADDED_COLUMNS`); job queue SQL in `workflow/engine.py`; LLM ledger in `llm/gemini.py` |
@@ -64,6 +69,7 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 | Banker console | `pages/banker/BankerConsole.tsx` (case bar; `?view=` review · conversation · technical), `ReviewWorkspace.tsx` (queue + evidence + confirmation), `DecisionPanel.tsx` (all decision forms), `deskUi.tsx` (`newRequestId`, shared UI); the console obtains its staff session itself (`BankerConsole.tsx`) |
 | System page | `pages/system/SystemPage.tsx` (integrations, MCP self-test, rubrics) |
 | Styles | `styles.css` (single stylesheet, `--mz-*` tokens, `.ltr` for IDs/numbers in RTL) |
+| Loan screens | `pages/customer/Documents.tsx::LoanDocRow` (one-document requirements), `pages/customer/Apply.tsx` (intake, `/customer/apply`), `UploadSheet.tsx` (`initialRequirement`, type chips), `ReviewWorkspace.tsx::RequirementMatrix`, `EvidenceViewer.MAIN` (all families' fields) |
 
 ## Change together
 - Backend response shape (routes, banker_package, readiness, tools) ↔ types and methods in `frontend/src/api.ts`.
@@ -96,6 +102,9 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 | `backend/tests/test_review_desk.py` | banker desk end-to-end through real routes (`TestClient`), seeding reviews via `repo` |
 | `backend/tests/test_integration_closure.py` | QA findings G-01…G-13: sessions and case isolation, staff-only data, projections, retry/reset gates, confirmation lapse, withdrawal, handoffs, missing-request guard, replaced payslip, atomic decision+audit |
 | `backend/tests/test_featured_demo.py` | cases 006–008, PASS/REVIEW/BLOCKER outcomes, customer replacement, uncertainty routing, demo reset, worker guards, golden-set independence |
-| `e2e/replay_backend.py` + `e2e/test_featured_demo.py` | REPLAY stack (Gemini transport only replaced) and the browser suite for the executive demo — zero Gemini calls |
+| `e2e/replay_backend.py` + `e2e/test_loan_journey.py` | REPLAY stack (Gemini transport only replaced; judge answers per rubric) and the loan browser suite — zero Gemini calls |
+| `backend/tests/test_loan_review.py`, `test_recorded_reviews.py`, `test_intake.py` | loan requirements, family checks, coverage gaps, wrong type, the real provider on recorded LIVE answers, intake |
+| `e2e/replay/record_live.py` | records LIVE Gemini answers for new fixtures (paid; only with the user's OK) |
+| `e2e/coexistence_check.py` | #2 (:8791/:5192) next to #1 (:8790): every request stays on #2's origin |
 | `e2e/*.py` | browser suites (real Chrome, mostly real Gemini) — ports, env vars and resets in `.claude/skills/run-stack/SKILL.md`; `e2e/demo_auth.py` gives their API calls sessions |
 | `backend/tests/live_journey.py` | not a test: uploads scenes to a running backend (real Gemini) |

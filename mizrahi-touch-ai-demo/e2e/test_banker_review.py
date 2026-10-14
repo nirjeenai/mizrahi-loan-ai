@@ -2,10 +2,16 @@
 inspects evidence, accepts one payslip and sends a mislabeled one back; the customer sees the request in
 the app and uploads a replacement from it; the replacement is re-reviewed and returns to the banker with
 its history. Also: refresh, duplicate submissions, invalid transitions, unauthorized calls, and the bank
-stage never moving. Resets case DEMO-MTZ-2026-001, so point it only at a backend with its own DATA_DIR:
+stage never moving.
+
+LEGACY (mortgage era, not yet adapted to loans): asserts the payslip-only mortgage cases and spends real Gemini
+calls. Kept for reference and later adaptation; the loan journey is covered by e2e/test_loan_journey.py (REPLAY).
+Never point it at :8791 (Mizrahi #2 main) or :8790 (Mizrahi #1): it uploads to cases and resets them.
+
+Resets case DEMO-MTZ-2026-001, so point it only at a backend with its own DATA_DIR:
 
     # from backend/
-    DATA_DIR=../e2e/artifacts/banker/data-e2e ./.venv/bin/uvicorn app.main:app --port 8796
+    DATA_DIR=../e2e/artifacts/banker/data-e2e ./.venv/bin/python -m uvicorn app.main:app --port 8796
     node e2e/serve_frontend.mjs e2e/artifacts/banker/web-e2e 5853 http://127.0.0.1:8796
     BANKER_E2E_BASE=http://127.0.0.1:5853 backend/.venv/bin/python e2e/test_banker_review.py
 """

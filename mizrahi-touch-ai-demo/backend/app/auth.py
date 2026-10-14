@@ -27,7 +27,8 @@ from .bank.mock_bank import bank
 from .config import settings
 from .store import repo
 
-COOKIES = {"customer": "mz_customer", "staff": "mz_staff"}
+# Browsers scope cookies by host, not port: these names must differ from Mizrahi #1's (mz_*) on 127.0.0.1.
+COOKIES = {"customer": "mzl_customer", "staff": "mzl_staff"}
 NEED_CUSTOMER = "נדרש חיבור לתיק."
 NEED_STAFF = "נדרש חיבור של איש צוות הבנק."
 NOT_YOURS = "התיק אינו שייך לחיבור הנוכחי."
@@ -163,6 +164,9 @@ class Logout(BaseModel):
 def _set(response: Response, role: str, token: str) -> None:
     response.set_cookie(COOKIES[role], token, max_age=60 * settings.session_ttl_minutes, httponly=True,
                         samesite="strict", path="/")
+
+
+set_session = _set
 
 
 def _case_rows(case_ids: list[str]) -> list[dict]:

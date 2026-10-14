@@ -1,0 +1,37 @@
+[
+ {
+  "check": "Mizrahi #1 is up on :8790 with its mortgage cases (read-only GET)",
+  "pass": true,
+  "detail": "קניית דירה יד שנייה"
+ },
+ {
+  "check": "Mizrahi #2 is up on :8791 with its loan cases",
+  "pass": true,
+  "detail": "הלוואה לרכישת רכב"
+ },
+ {
+  "check": "vite-5192: every API request stays on #2's own origin (localhost:5192)",
+  "pass": true,
+  "detail": "[\"localhost:5192\"]"
+ },
+ {
+  "check": "vite-5192: the app shows the loan journey, not the mortgage one",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "built-8791: every API request stays on #2's own origin (127.0.0.1:8791)",
+  "pass": true,
+  "detail": "[\"127.0.0.1:8791\"]"
+ },
+ {
+  "check": "built-8791: the app shows the loan journey, not the mortgage one",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "Mizrahi #1 unchanged after the checks (same case list)",
+  "pass": true,
+  "detail": ""
+ }
+]

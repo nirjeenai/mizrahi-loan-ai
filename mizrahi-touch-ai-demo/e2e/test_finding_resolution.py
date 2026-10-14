@@ -1,5 +1,9 @@
 """Resolving a banker finding, end to end in a real Chrome with real Gemini reviews.
 
+LEGACY (mortgage era, not yet adapted to loans): asserts the payslip-only mortgage cases and spends real Gemini
+calls. Kept for reference and later adaptation; the loan journey is covered by e2e/test_loan_journey.py (REPLAY).
+Never point it at :8791 (Mizrahi #2 main) or :8790 (Mizrahi #1): it uploads to cases and resets them.
+
 Noa declares ₪18,500 net and uploads only September (₪16,900). The banker sees a preliminary one-month comparison,
 asks for July and August and for an explanation, the customer answers in the app and uploads both months, Gemini
 re-reviews, and the banker closes the finding on documented evidence. The decision survives a refresh and a later
@@ -8,7 +12,7 @@ positive on another case is dismissed with an audit trail. Resets DEMO-MTZ-2026-
 backend with its own DATA_DIR:
 
     # from backend/
-    DATA_DIR=../e2e/artifacts/finding/data-after ./.venv/bin/uvicorn app.main:app --port 8798
+    DATA_DIR=../e2e/artifacts/finding/data-after ./.venv/bin/python -m uvicorn app.main:app --port 8798
     node e2e/serve_frontend.mjs e2e/artifacts/finding/web-after 5855 http://127.0.0.1:8798
     FINDING_E2E_BASE=http://127.0.0.1:5855 backend/.venv/bin/python e2e/test_finding_resolution.py
 """

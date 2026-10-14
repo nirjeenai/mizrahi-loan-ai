@@ -1,15 +1,19 @@
 """Browser QA for the home-screen document-check card ("בדיקת מסמכים חכמה").
 
+LEGACY (mortgage era, not yet adapted to loans): asserts the payslip-only mortgage cases and spends real Gemini
+calls. Kept for reference and later adaptation; the loan journey is covered by e2e/test_loan_journey.py (REPLAY).
+Never point it at :8791 (Mizrahi #2 main) or :8790 (Mizrahi #1): it uploads to cases and resets them.
+
 Walks the card through real case states on an ISOLATED Mortgage Case Service: real uploads, real
 Gemini reviews, real banker decisions. It records what the card says and where its buttons go. It
 resets every case it touches, so point it only at a backend that has its own DATA_DIR.
 
     # from backend/: the service under test, and a second one whose Gemini calls always fail
-    DATA_DIR=../e2e/artifacts/ai-card/data ./.venv/bin/uvicorn app.main:app --port 8791
-    DATA_DIR=../e2e/artifacts/ai-card/data-error GEMINI_MAX_CALLS_PER_HOUR=0 ./.venv/bin/uvicorn app.main:app --port 8792
+    DATA_DIR=../e2e/artifacts/ai-card/data ./.venv/bin/python -m uvicorn app.main:app --port 8793
+    DATA_DIR=../e2e/artifacts/ai-card/data-error GEMINI_MAX_CALLS_PER_HOUR=0 ./.venv/bin/python -m uvicorn app.main:app --port 8794
     # the customer app served against each of them
-    node e2e/serve_frontend.mjs e2e/artifacts/ai-card/web 5841 http://127.0.0.1:8791
-    node e2e/serve_frontend.mjs e2e/artifacts/ai-card/web-error 5842 http://127.0.0.1:8792
+    node e2e/serve_frontend.mjs e2e/artifacts/ai-card/web 5841 http://127.0.0.1:8793
+    node e2e/serve_frontend.mjs e2e/artifacts/ai-card/web-error 5842 http://127.0.0.1:8794
 
     CARD_QA_BASE=http://127.0.0.1:5841 CARD_QA_ERROR_BASE=http://127.0.0.1:5842 \
         backend/.venv/bin/python e2e/test_ai_card.py after

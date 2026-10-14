@@ -1,0 +1,177 @@
+{
+ "mode": "REPLAY",
+ "passed": 34,
+ "total": 34,
+ "results": [
+  {
+   "check": "presenter: four featured loan scenarios, PASS · REVIEW · BLOCKER · CORRECTION",
+   "pass": true,
+   "detail": "['featured-PASS', 'featured-REVIEW', 'featured-BLOCKER', 'featured-CORRECTION']"
+  },
+  {
+   "check": "presenter: each card shows title, what is checked, what is expected, files, borrower + case, expected label",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "presenter: split screen kept — presenter pane left, live app right, no horizontal scroll",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "presenter: the test-case library keeps its infrastructure — 10 loan scenarios, 14 checksum-verified files, engine rubrics",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "presenter: no mortgage wording left in the side pane",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "'התחל דמו חדש' empties the loan demo cases and opens 438839006",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "journey: the downloads are the manifest's exact files (SHA-256)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "documents screen lists the four loan requirements of the pinned policy",
+   "pass": true,
+   "detail": "[1, 1, 1, 1]"
+  },
+  {
+   "check": "AI validation: the September upload is read as an August payslip, said in the customer's words",
+   "pass": true,
+   "detail": "התלוש של עידו התקבל ונבדק: מודפס בו אוגוסט 2026, ולא ספטמבר 2026 כפי שבחרתם. נותרו להעלות: תלושים של עידו — ספטמבר 2026; דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (עידו); אסמכתה למטרת ההלוואה — רכישת רכב."
+  },
+  {
+   "check": "document findings: September missing, August duplicated, file name vs printed month — ID, statement and proof satisfied",
+   "pass": true,
+   "detail": "[\"DUPLICATE_PERIOD\", \"FILE_NAME_PERIOD_MISMATCH\", \"REQUIRED_PERIOD_MISSING\"]"
+  },
+  {
+   "check": "evidence: the printed month and the identity are verified against the PDF text layer (no invented identity mismatch)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "customer home: the next action is the missing September payslip; 3 of 4 requirements done",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "customer document page: the original page with evidence boxes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker: the requirement matrix shows the pinned policy's four requirements and their AI states",
+   "pass": true,
+   "detail": "{\"ID_CARD:BRW-A\": \"extracted\", \"PAYSLIPS:BRW-A\": \"needs_customer_action\", \"BANK_STATEMENTS:ACC-1\": \"extracted\", \"PURPOSE_PROOF\": \"extracted\"}"
+  },
+  {
+   "check": "banker evidence (ID card): the identity number is a verified key field with a box on the original page",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker: the original document opens (application/pdf)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker evidence (bank statement): the period end is focused and boxed on the page",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker evidence (proof of purpose): the amount is verified and boxed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker evidence (wrong month): opens on the printed month, marks 'uploaded for September'",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker: requests the missing September payslip from the customer (in-app request)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "correction: the September payslip answers the banker's request and completes the package — READY_FOR_BANKER",
+   "pass": true,
+   "detail": "READY_FOR_BANKER"
+  },
+  {
+   "check": "customer home: complete, and explicitly not a loan decision",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "banker: 4/4 requirements · 'ready for your review — not a credit decision'",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "wrong type: a payslip in the ID card is classified by the AI itself and sent back ('המסמך אינו תעודת זהות')",
+   "pass": true,
+   "detail": "{\"finding_id\": \"F-39D09649\", \"case_id\": \"DEMO-MTZ-2026-008\", \"key\": \"UNEXPECTED_DOCUMENT_TYPE:DOC-8B48F33E\", \"code\": \"UNEXPECTED_DOCUMENT_TYPE\", \"severity\": \"blocking\", \"review_state\": \"CUSTOMER_ACTIO"
+  },
+  {
+   "check": "wrong type: the banker cannot accept it as an ID card",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "first-upload wording: requirements never uploaded say 'העלאת …', only the returned ID card says 'העלאה מחדש'",
+   "pass": true,
+   "detail": "{\"PAYSLIPS:BRW-A\": \"העלאת תלושים לעידו\", \"ID_CARD:BRW-A\": \"העלאה מחדש: תעודת זהות\", \"BANK_STATEMENTS:ACC-1\": \"העלאת דף עו״ש\", \"PURPOSE_PROOF\": \"העלאת אסמכתה למטרה\"}"
+  },
+  {
+   "check": "re-filing: a file first put under the ID card can be uploaded under the payslips and counts for July",
+   "pass": true,
+   "detail": "התלוש של עידו ליולי 2026 התקבל ונבדק — נמצא תקין. נותרו להעלות: תלושים של עידו — אוגוסט וספטמבר 2026; דפי עו״ש ל־3 החודש"
+  },
+  {
+   "check": "document page: 'העלאת מסמך חלופי' opens the upload for the same requirement (ID card), replacing this file",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "replacement: the ID card replaces the rejected file (kept in history) and the ID requirement is satisfied",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "stale quote: the file badge, its requirement and its page all ask the customer for a newer document",
+   "pass": true,
+   "detail": "לא תקין — נדרש תיקון · העלאה מחדש"
+  },
+  {
+   "check": "loan wording: customer screens, banker console and system page carry no mortgage terminology",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "intake: a new self-employed renovation application opens with a tax assessment instead of payslips",
+   "pass": true,
+   "detail": "438862432 הלוואה לכל מטרה · שיפוץ"
+  },
+  {
+   "check": "REPLAY only: every model answer came from a recording (RECORDED_LIVE), no network call",
+   "pass": true,
+   "detail": "22 extract/judge answers · ['RECORDED_LIVE']"
+  },
+  {
+   "check": "mobile: no sideways scroll; the statement's upload opens for the statement with its button on screen",
+   "pass": true,
+   "detail": "{\"home\": 0, \"documents\": 0}"
+  }
+ ]
+}

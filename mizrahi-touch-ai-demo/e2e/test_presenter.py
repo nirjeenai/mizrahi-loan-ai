@@ -1,4 +1,8 @@
-"""Presenter "תרחישי בדיקה" pane — browser checks in a real Chrome against the running backend (:8790).
+"""Presenter "תרחישי בדיקה" pane — browser checks in a real Chrome against the running backend (:8791).
+
+LEGACY (mortgage era, not yet adapted to loans): asserts the 10 golden CASE-xx scenarios and 21 golden files; --live
+spends real Gemini calls. Kept for reference and later adaptation; the loan presenter pane is covered by
+e2e/test_loan_journey.py (REPLAY). Never point --live at :8791 (Mizrahi #2 main) or :8790 (Mizrahi #1): it resets cases.
 
     backend/.venv/bin/python e2e/test_presenter.py          # pane, all 21 downloads + SHA-256, RTL, marks, no regression
     backend/.venv/bin/python e2e/test_presenter.py --live   # + CASE-01 → CASE-02 uploaded through the real app (real Gemini)
@@ -21,7 +25,7 @@ from playwright.sync_api import Browser, Locator, Page, expect, sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
 import demo_auth  # noqa: E402  (e2e/ is on sys.path when a suite runs as a script)
 
-BASE = os.environ.get("PRESENTER_BASE", "http://127.0.0.1:8790")
+BASE = os.environ.get("PRESENTER_BASE", "http://127.0.0.1:8791")
 demo_auth.install(BASE)                   # the service has no anonymous access (see demo_auth.py)
 PRESENTER_CASE, QA_CASE = "DEMO-MTZ-2026-004", "DEMO-MTZ-2026-005"
 ROOT = Path(__file__).resolve().parent

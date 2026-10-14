@@ -18,13 +18,15 @@ from ..util import now_iso
 from . import case_review
 from . import deterministic as det
 from . import evidence as ev
+from . import family_checks
 from . import prompts as P
 from .contract import (CaseReviewRequest, CaseReviewResult, CriterionOutcome, DocumentReviewRequest,
                        DocumentReviewResult, EvidenceRef, ExtractedFact, ProgressFn, ProviderIdentity,
                        ReviewHandle, ReviewStatus)
 
 REREAD_FIELDS = ("employee_name", "employee_id", "salary_period", "gross_pay", "net_pay", "employer_name",
-                 "total_deductions", "payment_date")
+                 "total_deductions", "payment_date", "holder_name", "holder_id", "statement_from", "statement_to",
+                 "issuer_name", "total_amount", "issue_date", "expiry_date", "tax_year")
 
 
 class Usage:
@@ -50,12 +52,15 @@ def _normalize(name: str, f: dict) -> Any:
     raw, norm = f.get("value"), f.get("normalized")
     if name == "salary_period":
         return det.parse_month(norm) or det.parse_month(raw)
-    if name in ("gross_pay", "net_pay", "total_deductions"):
+    if name in P.MONEY_FIELDS:
         value = det.parse_amount(norm)
         return value if value is not None else det.parse_amount(raw)
-    if name in ("payment_date", "issue_date"):
+    if name in P.DATE_FIELDS:
         day = det.parse_day(norm) or det.parse_day(raw)
         return day.isoformat() if day else None
+    if name == "tax_year":
+        found = [d for d in (det.digits(norm), det.digits(raw)) if len(d) == 4 and 1990 <= int(d) <= 2100]
+        return found[0] if found else None
     return (raw or "").strip() or None
 
 
@@ -216,6 +221,18 @@ class GeminiReviewProvider:
         assigned = borrowers.get(req.assigned_borrower_id or "")
         val = lambda n: facts[n].value_raw if n in facts else None
         norm = lambda n: facts[n].value_normalized if n in facts else None
+        family = rubric.get("family", "payslip")
+        if family != "payslip":
+            return self._family_deterministic(family, req, scanned, ext, facts, borrowers, assigned, val, norm)
+        # A payslip may print the identity number under an employee-identifier label ("מזהה עובד"), which the extractor
+        # reads as employee_number. Only an exact, verified match with a case identity makes it the identity number.
+        number = facts.get("employee_number")
+        if "employee_id" not in facts and number and number.verified and any(
+                str(number.value_raw or "").strip() == b["national_id"] for b in borrowers.values()):
+            facts["employee_id"] = number.model_copy(update={
+                "field": "employee_id", "label_he": "מספר זהות (מודפס כ״מזהה עובד״)",
+                "evidence": number.evidence.model_copy(update={"evidence_id": f"{req.document_id}:employee_id",
+                                                               "field": "employee_id"})})
 
         matched = None
         for b in borrowers.values():
@@ -237,14 +254,7 @@ class GeminiReviewProvider:
             if abs(total - norm("gross_pay")) > tolerance:
                 arith = {"state": "fail", "detail": f"סכום שורות התשלומים {total:,.2f} שונה מהברוטו המודפס {norm('gross_pay'):,.2f}"}
 
-        text_layer = ""
-        if not scanned:
-            import pymupdf
-            doc = pymupdf.open(req.storage_path)
-            try:
-                text_layer = "\n".join(p.get_text() for p in doc)
-            finally:
-                doc.close()
+        text_layer = self._text_layer(req, scanned)
         hits = det.injection_hits(text_layer)
         hits += [s.get("quote", "") for s in ext.get("suspicious_content") or [] if s.get("kind") == "instruction_to_ai"]
         decisive = rubric.get("decisive_fields", [])
@@ -290,6 +300,40 @@ class GeminiReviewProvider:
                                         bool(paid and paid.verified), int(spec.get("PS-10", {}).get("payday_day_of_next_month", 9)))
         return out
 
+    @staticmethod
+    def _text_layer(req: DocumentReviewRequest, scanned: bool) -> str:
+        if scanned:
+            return ""
+        import pymupdf
+        doc = pymupdf.open(req.storage_path)
+        try:
+            return "\n".join(p.get_text() for p in doc)
+        finally:
+            doc.close()
+
+    def _family_deterministic(self, family: str, req: DocumentReviewRequest, scanned: bool, ext: dict,
+                              facts: dict[str, ExtractedFact], borrowers: dict, assigned: Optional[dict],
+                              val: Any, norm: Any) -> dict[str, Any]:
+        rubric = req.rubric
+        text_layer = self._text_layer(req, scanned)
+        hits = det.injection_hits(text_layer)
+        hits += [s.get("quote", "") for s in ext.get("suspicious_content") or [] if s.get("kind") == "instruction_to_ai"]
+        decisive = rubric.get("decisive_fields", [])
+        unverified = [n for n in decisive if n in facts and not facts[n].verified]
+        requirement = next((r for r in req.case_context.get("requirements") or []
+                            if r.get("code") == req.requirement_code), {})
+        matched = family_checks.match_holder(val("holder_name"), val("holder_id"), borrowers)
+        outcomes = family_checks.outcomes(
+            family, rubric, val=val, norm=norm, as_of=date.fromisoformat(req.case_context["simulation_date"]),
+            borrowers=borrowers, assigned=assigned, matched=matched, hits=hits, unverified=unverified,
+            present_decisive=[n for n in decisive if n in facts], rules=requirement.get("rules") or {},
+            allowed_holders=requirement.get("holders") if family == "bank_statement" else None, labels=P.FIELD_LABELS_HE)
+        demo = det.demo_marked(text_layer) or any(det.demo_marked(s.get("quote")) for s in ext.get("suspicious_content") or [])
+        return {"scanned": scanned, "demo_marked": demo, "matched_borrower_id": matched, "id_rel": None, "name_rel": None,
+                "period": None, "file_period": None, "arith": None, "injection_hits": hits, "unverified": unverified,
+                "unreadable": ext.get("legibility") == "unreadable" or ext.get("doc_type") == "unreadable",
+                "outcomes": outcomes}
+
     def _judge(self, req: DocumentReviewRequest, raw: bytes, model_mime: str, ext: dict,
                facts: dict[str, ExtractedFact], checks: dict, usage: Usage) -> dict:
         rubric = req.rubric
@@ -303,6 +347,8 @@ class GeminiReviewProvider:
             "classification": {"doc_type": ext.get("doc_type"), "reason": ext.get("doc_type_reason"),
                                "legibility": ext.get("legibility"), "scanned": checks["scanned"]},
             "assigned_borrower": {"name": assigned["name_he"], "national_id": assigned["national_id"]} if assigned else None,
+            **({"declared_loan_purpose": req.case_context.get("loan_purpose_he")}
+               if rubric.get("family") == "purpose_proof" else {}),
             "fields": [{"field": n, "value": f.value_raw, "normalized": f.value_normalized,
                         "evidence_witness": f.evidence.witness if f.evidence else "unavailable"} for n, f in facts.items()],
             "earnings": ext.get("earnings"), "deductions": ext.get("deductions"),
@@ -326,6 +372,7 @@ class GeminiReviewProvider:
     def _merge(self, rubric: dict, spec: dict, ext: dict, facts: dict[str, ExtractedFact], checks: dict,
                judged: dict) -> list[CriterionOutcome]:
         by_judge = {c.get("criterion_id"): c for c in judged.get("criteria") or []}
+        type_id, legible_id = rubric.get("type_criterion", "PS-01"), rubric.get("legibility_criterion", "PS-02")
         outcomes: list[CriterionOutcome] = []
         for c in rubric["criteria"]:
             cid, method = c["id"], c["method"]
@@ -345,14 +392,17 @@ class GeminiReviewProvider:
                     outcome, text, who = j["outcome"], j["explanation_he"], "code+judge"
                 else:
                     outcome, text, who = "NEEDS_REVIEW", (code[1] if code else "") or "לא הוכרע", "code"
-            if cid == "PS-02" and checks["unreadable"]:
+            if cid == legible_id and checks["unreadable"]:
                 outcome, text, who = "FAIL", "המסמך אינו קריא — לא ניתן לזהות את השדות המכריעים", "code+judge"
-            if cid == "PS-01" and checks["unreadable"] and outcome == "FAIL":
+            if cid == type_id and checks["unreadable"] and outcome == "FAIL":
                 outcome, text, who = "NEEDS_REVIEW", "לא ניתן לקבוע את סוג המסמך כי אינו קריא", "code+judge"
             needed = [n for n in c.get("required_fields", []) if n in rubric.get("decisive_fields", [])]
             unverified = [n for n in needed if n not in facts or not facts[n].verified]
+            reason = c.get("reason_code")
             if outcome == "PASS" and unverified:
                 outcome = "NEEDS_REVIEW"
+                # the doubt is about the evidence, not the criterion's own failure (e.g. not a borrower mismatch)
+                reason = "EVIDENCE_UNVERIFIED"
                 text = f"{text} · הראיה לא אומתה מול הקובץ המקורי: " + ", ".join(P.FIELD_LABELS_HE[n] for n in unverified)
             evidence_ids = [facts[n].evidence.evidence_id for n in c.get("required_fields", [])
                             if n in facts and facts[n].evidence and facts[n].verified]
@@ -361,7 +411,7 @@ class GeminiReviewProvider:
                                  if n in facts and facts[n].evidence and facts[n].verified
                                  and facts[n].evidence.evidence_id not in evidence_ids]
             outcomes.append(CriterionOutcome(criterion_id=cid, title_he=c["title_he"], method=method, outcome=outcome,
-                                             severity=c["severity"], reason_code=c.get("reason_code"),
+                                             severity=c["severity"], reason_code=reason,
                                              explanation_he=text, evidence_ids=evidence_ids, decided_by=who,
                                              escalation=c.get("escalation")))
         return outcomes

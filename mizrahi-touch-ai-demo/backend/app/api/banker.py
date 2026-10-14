@@ -113,6 +113,19 @@ def request_missing(case_id: str, body: MissingRequest, request: Request):
                                                      body.rationale, body.request_id))
 
 
+class RequirementRequest(BaseModel):
+    customer_message: str = Field("", max_length=2000)
+    rationale: str = Field("", max_length=2000)
+    request_id: Optional[str] = Field(None, max_length=80)
+
+
+@router.post("/cases/{case_id}/requirements/{requirement_code}/request")
+def request_requirement(case_id: str, requirement_code: str, body: RequirementRequest, request: Request):
+    staff = _staff(request, case_id)
+    return _desk(lambda: review_desk.request_requirement(case_id, staff, requirement_code, body.customer_message,
+                                                         body.rationale, body.request_id))
+
+
 class FindingDecision(BaseModel):
     action: Literal["resolve", "dismiss", "escalate", "request_explanation", "request_document", "accept_explanation"]
     rationale: str = Field("", max_length=2000)

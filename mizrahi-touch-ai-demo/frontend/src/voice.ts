@@ -77,7 +77,7 @@ export class BrowserVoice implements VoiceChannel {
     const server = !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
     this.sttMode = browser ? "browser" : server ? "server" : "none";
     const detail = this.sttMode === "browser" ? "זיהוי דיבור עברי של הדפדפן" :
-      this.sttMode === "server" ? "הקלטה ותמלול עברי בשרת (Gemini)" : "אין קלט קולי בדפדפן זה — אפשר להקליד";
+      this.sttMode === "server" ? "הקלטה ותמלול עברי בשרת JEEN" : "אין קלט קולי בדפדפן זה — אפשר להקליד";
     return { stt: this.sttMode, tts, detail: `${detail}${tts ? " · הקראה בקול עברי" : " · אין קול עברי להקראה"}` };
   }
 

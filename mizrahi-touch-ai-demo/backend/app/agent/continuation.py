@@ -21,7 +21,7 @@ MAX_DOCS_IN_MESSAGE = 3
 def record_intent(case_id: str, doc: dict, created: bool, expected_period: Optional[str], action_id: Optional[str],
                   origin_turn_id: Optional[str], replaces_document_id: Optional[str] = None) -> Optional[dict]:
     """What the customer meant to upload. Never passed to the review provider: the review stays blind."""
-    period = expected_period if expected_period in readiness.policy_months() else None
+    period = expected_period if expected_period in readiness.policy_months(case_id) else None
     turn = repo.turn(origin_turn_id) if origin_turn_id else None
     origin = turn if turn and turn["case_id"] == case_id and turn["role"] == "assistant" else None
     replaces = replaces_document_id if created else None
@@ -48,7 +48,7 @@ def outcome(case_id: str, document_id: str) -> dict:
         return {**base, "phase": "reviewing_document", "message_he": "הקובץ התקבל. בדיקת המסמך רצה כעת."}
     if engine.pending_jobs(case_id):
         return {**base, "phase": "rechecking_case",
-                "message_he": ("המסמך נבדק. " if doc["status"] == "reviewed" else "") + "מעדכנים את תמונת מסמכי השכר בתיק…"}
+                "message_he": ("המסמך נבדק. " if doc["status"] == "reviewed" else "") + "מעדכנים את תמונת המסמכים בתיק…"}
     message, next_actions, related = compose(case_id, [doc], {document_id: intent})
     review = repo.latest_document_result(document_id) if doc["status"] == "reviewed" else None
     return {**base, "phase": "complete", "verdict": (review or {}).get("verdict"), "printed_period": (review or {}).get("period"),
@@ -85,8 +85,13 @@ def _document_sentence(d: dict, review: Optional[dict], intent: dict, found: lis
     name = names.get(d["borrower_id"] or "", "")
     payslip = review.get("doc_type") == "payslip"
     someone_else = review.get("matched_borrower_id") not in (None, d["borrower_id"])
+    from ..review.reason_codes import DOC_HE
+    from ..workflow import requirements
+    family = requirements.family_of(d.get("requirement_code"), d.get("case_id"))
     if payslip and name and not someone_else:
         subject = f"התלוש של {name}"
+    elif family != "payslip" and review.get("doc_type") == family:
+        subject = DOC_HE[family] + (f" של {name}" if name else "")
     else:
         subject = f"המסמך שהועלה עבור {name}" if name else f"המסמך {d['filename']}"
     printed, chosen = review.get("period"), intent.get("expected_period")
@@ -111,21 +116,24 @@ def _document_sentence(d: dict, review: Optional[dict], intent: dict, found: lis
 
 def _remaining_sentence(state: dict, names: dict, open_f: list[dict]) -> str:
     gaps = [(names.get(r["borrower_id"], ""), r["missing"]) for r in state["requirements"]
-            if r["evaluated_by_ai"] and r.get("missing")]
-    if sum(len(months) for _, months in gaps) == 1:
+            if r["evaluated_by_ai"] and r.get("family", "payslip") == "payslip" and r.get("missing")]
+    others = [r["title_he"] for r in state["requirements"] if r["evaluated_by_ai"]
+              and r.get("family", "payslip") != "payslip" and r.get("ai_state") == "required_missing"]
+    if sum(len(months) for _, months in gaps) == 1 and not others:
         name, months = gaps[0]
         return f"נותר להעלות את תלוש {det.month_label_he(months[0])} של {name}."
-    if gaps:
-        return "נותרו להעלות: " + "; ".join(f"{name} — {actions.months_he(months)}" for name, months in gaps) + "."
+    if gaps or others:
+        return "נותרו להעלות: " + "; ".join([f"תלושים של {name} — {actions.months_he(months)}" for name, months in gaps]
+                                            + others) + "."
     customer = [f for f in open_f if f["review_state"] == "CUSTOMER_ACTION_REQUIRED"]
     if customer:
         return (f"נותר פריט אחד לטיפולכם: {customer[0]['title_he']}." if len(customer) == 1
                 else f"נותרו {len(customer)} פריטים לטיפולכם.")
     banker = [f for f in open_f if f["review_state"] == "NEEDS_BANKER_REVIEW"]
     if banker:
-        return "כל תלושי השכר הנדרשים התקבלו. " + ("פריט אחד ממתין לבדיקת הבנקאית." if len(banker) == 1
-                                                   else f"{len(banker)} פריטים ממתינים לבדיקת הבנקאית.")
-    return "כל תלושי השכר הנדרשים התקבלו ונבדקו."
+        return "כל המסמכים הנדרשים התקבלו. " + ("פריט אחד ממתין לבדיקת הבנקאית." if len(banker) == 1
+                                                 else f"{len(banker)} פריטים ממתינים לבדיקת הבנקאית.")
+    return "כל המסמכים הנדרשים התקבלו ונבדקו."
 
 
 def _next_actions(case_id: str, docs: list[dict], related: list[dict]) -> list[actions.AppAction]:

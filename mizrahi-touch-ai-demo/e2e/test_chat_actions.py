@@ -2,7 +2,11 @@
 real uploads through the existing upload sheet, real Gemini reviews, the follow-up in the same
 conversation, stale actions, a voice request, and refusals for another case.
 
-Run (backend serving the built frontend; E2E_BASE defaults to :8790):
+LEGACY (mortgage era, not yet adapted to loans): asserts the payslip-only mortgage cases and spends real Gemini
+calls. Kept for reference and later adaptation; the loan journey is covered by e2e/test_loan_journey.py (REPLAY).
+Never point it at :8791 (Mizrahi #2 main) or :8790 (Mizrahi #1): it uploads to cases and resets them.
+
+Run (backend serving the built frontend; E2E_BASE defaults to :8791):
     backend/.venv/bin/python e2e/test_chat_actions.py
 """
 from __future__ import annotations
@@ -18,7 +22,7 @@ import httpx
 from playwright.sync_api import Locator, Page, expect, sync_playwright
 import demo_auth  # noqa: E402  (e2e/ is on sys.path when a suite runs as a script)
 
-BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8790")
+BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8791")
 demo_auth.install(BASE)                   # the service has no anonymous access (see demo_auth.py)
 CASE, QA = "DEMO-MTZ-2026-001", "DEMO-MTZ-2026-003"
 ROOT = Path(__file__).resolve().parent

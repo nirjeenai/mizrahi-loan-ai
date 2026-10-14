@@ -14,7 +14,7 @@ from ..workflow import desk_state, engine, readiness, review_desk
 from . import actions
 
 APP_CHANNELS = ("text", "voice")
-NOTICE = "בדיקת מסמכים אוטומטית בלבד — לא החלטת אשראי ולא קבלת מסמך על ידי הבנק. מומחה המשכנתאות מחליט."
+NOTICE = "בדיקת מסמכים אוטומטית בלבד — לא החלטת אשראי ולא קבלת מסמך על ידי הבנק. הבנקאי מחליט."
 MODE = {"bank": "DEMO", "review_provider": "gemini (LIVE)", "data": "synthetic"}
 VERDICT_HE = {"VALID": "נמצא תקין בבדיקה האוטומטית", "INVALID": "לא תקין — נדרש תיקון", "NEEDS_REVIEW": "דורש בדיקה"}
 STAGE_HE = {"queued": "ממתין לבדיקה", "intake": "קליטה", "extract": "קריאה וחילוץ", "verify_evidence": "אימות ראיות",
@@ -60,13 +60,16 @@ def _app_actions(case_id: str, ctx: dict, keep: Callable[[actions.AppAction], bo
 def get_case_overview(case_id: str, args: dict, ctx: dict) -> dict:
     case = bank.get_case(case_id)
     state = readiness.compute(case_id)
-    reqs = [{"code": r["code"], "title_he": r["title_he"], "ai_state_he": r["ai_state_he"],
+    reqs = [{"code": r["code"], "title_he": r["title_he"], "document_type_he": r.get("family_he"),
+             "ai_state_he": r["ai_state_he"],
              "missing_months": [det.month_label_he(m) for m in r.get("missing", [])],
              "duplicate_months": [det.month_label_he(m) for m in r.get("duplicates", {})]}
             for r in state["requirements"] if r["evaluated_by_ai"]]
     stage = case["bank_stage"]
     requests = repo.customer_requests(case_id, status="OPEN")
-    spoken = (f"שלב הבקשה במערכת הבנק: {stage['label_he']}. מצב בדיקת מסמכי השכר: {state['state_he']}. "
+    progress = state.get("progress") or {}
+    spoken = (f"שלב הבקשה במערכת הבנק: {stage['label_he']}. מצב בדיקת מסמכי הבקשה: {state['state_he']} "
+              f"({progress.get('done', 0)} מתוך {progress.get('total', 0)} דרישות הושלמו). "
               f"פריטים לטיפולכם: {state['counts']['customer_actions'] + len(requests)}, "
               f"פריטים לבדיקת הבנקאי: {state['counts']['banker_items']}."
               + (f" הבנקאית ביקשה: {requests[0]['title_he']}." if requests else ""))
@@ -76,7 +79,8 @@ def get_case_overview(case_id: str, args: dict, ctx: dict) -> dict:
             "preliminary_decision": case.get("preliminary_decision"),
             "ai_document_readiness": {"state": state["state"], "state_he": state["state_he"]},
             "borrowers": [{"borrower_id": b["borrower_id"], "first_name_he": b["first_name_he"]} for b in case["borrowers"]],
-            "income_requirements": reqs, "counts": state["counts"],
+            "loan": {k: (case.get("loan") or {}).get(k) for k in ("product_he", "purpose_he", "requested_amount_ils", "payments")},
+            "document_requirements": reqs, "counts": state["counts"],
             "banker_requests": [_request_view(q) for q in requests],
             "not_evaluated_in_demo": state["not_evaluated"], "banker": case["banker"],
             "notice": NOTICE, "mode": MODE, **_app_actions(case_id, ctx)}
@@ -141,11 +145,14 @@ def get_upload_guidance(case_id: str, args: dict, ctx: dict) -> dict:
     if bid and bid not in borrowers:
         raise ToolError("הלווה אינו שייך לתיק")
     state = readiness.compute(case_id)
-    targets = [r for r in state["requirements"] if r["evaluated_by_ai"] and (not bid or r["borrower_id"] == bid)]
-    steps = ["פתחו את לשונית ״מסמכים״ באפליקציה.", "בכרטיס ״תלוש שכר״ של הלווה המתאים לחצו ״להעלאה״ ובחרו את הקובץ.",
-             "עדיף PDF מקורי מהמעסיק או מאתר השכר; אם מצלמים — צילום חד, ישר ומלא של כל העמוד.",
-             "ודאו שבמסמך מודפסים שם העובד, מספר הזהות וחודש השכר הנכון.", "אחרי ההעלאה הבדיקה רצה מחדש על כל סט המסמכים."]
-    need = [{"borrower": borrowers[r["borrower_id"]]["first_name_he"], "requirement_code": r["code"],
+    targets = [r for r in state["requirements"] if r["evaluated_by_ai"] and (not bid or r["borrower_id"] in (None, bid))
+               and r["ai_state"] not in ("extracted", "preparation_confirmed")]
+    steps = ["פתחו את לשונית ״מסמכים״ באפליקציה.", "בכרטיס הדרישה המתאימה (תעודת זהות, תלוש שכר, דף עו״ש או אסמכתה) לחצו ״להעלאה״.",
+             "עדיף PDF מקורי; אם מצלמים — צילום חד, ישר ומלא של כל העמוד.",
+             "ודאו שבמסמך מודפסים השם ומספר הזהות, והתקופה הנכונה (חודש התלוש או תקופת דף החשבון).",
+             "אחרי ההעלאה הבדיקה רצה מחדש על כל סט המסמכים."]
+    need = [{"borrower": borrowers[r["borrower_id"]]["first_name_he"] if r.get("borrower_id") in borrowers else None,
+             "requirement_code": r["code"], "title_he": r["title_he"], "hint_he": r.get("hint_he"),
              "missing_months": [det.month_label_he(m) for m in r.get("missing", [])]} for r in targets]
     uploads = _app_actions(case_id, ctx, lambda a: a.type in ("NAVIGATE_TO_DOCUMENT_UPLOAD", "VIEW_MISSING_DOCUMENTS")
                            and (not bid or a.params.get("borrower_id") in (None, bid)))
@@ -198,7 +205,7 @@ def request_banker_handoff(case_id: str, args: dict, ctx: dict) -> dict:
     repo.audit(case_id, ctx.get("actor", "customer"), "banker_handoff_created", row["package_id"],
                {"note": row["note"], "open_banker_items": len(package["findings_open_banker"])})
     return {"package_id": row["package_id"], "status": row["status"],
-            "spoken_he": f"העברתי את התיק עם הממצאים והראיות ל{banker}. היא תחזור אליכם; זו אינה החלטה על המשכנתא.",
+            "spoken_he": f"העברתי את התיק עם הממצאים והראיות ל{banker}. היא תחזור אליכם; זו אינה החלטה על ההלוואה.",
             "note": "נשמר בתור הבנקאי של ההדגמה — לא נשלח למערכות הבנק.", "notice": NOTICE}
 
 
@@ -240,8 +247,9 @@ def offer_app_actions(case_id: str, args: dict, ctx: dict) -> dict:
 # ---------------------------------------------------------------- registry
 TOOLS: dict[str, dict[str, Any]] = {
     "get_case_overview": {"handler": get_case_overview, "write": False,
-                          "description": "Current state of the customer's mortgage case: the bank stage (demo data, not authoritative), the AI "
-                                         "document-readiness state, income requirements with missing or duplicate months, and counts. "
+                          "description": "Current state of the customer's personal-loan application: the bank stage (demo data, not "
+                                         "authoritative), the AI document-readiness state, every document requirement (ID, payslips with "
+                                         "missing or duplicate months, bank statements, proof of purpose) and counts. "
                                          "Call this before answering any question about the case.",
                           "parameters": {"type": "object", "properties": {}}},
     "list_documents": {"handler": list_documents, "write": False,
@@ -273,7 +281,7 @@ TOOLS: dict[str, dict[str, Any]] = {
                                       "customer_confirmed": {"type": "boolean", "description": "true only if the customer explicitly agreed"}},
                                       "required": ["statement", "customer_confirmed"]}},
     "request_banker_handoff": {"handler": request_banker_handoff, "write": True,
-                               "description": "Send the case with its findings and evidence to the human mortgage expert. Only after the "
+                               "description": "Send the case with its findings and evidence to the human banker. Only after the "
                                               "customer explicitly asked for it or agreed.",
                                "parameters": {"type": "object", "properties": {
                                    "note": {"type": "string"},
@@ -284,7 +292,8 @@ TOOLS: dict[str, dict[str, Any]] = {
                              "parameters": {"type": "object", "properties": {"reason": {"type": "string"}}}},
     "offer_app_actions": {"handler": offer_app_actions, "write": False, "channels": APP_CHANNELS,
                           "description": "Show the customer tappable buttons under your reply that open the right place in the Tefahot "
-                                         "Touch app: a borrower's payslip upload with the borrower, document type and month preselected, "
+                                         "app: an upload for a requirement (ID, payslip, bank statement, proof of purpose) with the person, document type "
+                                         "and month preselected, "
                                          "the list of missing documents, a document's review with its evidence, and similar. Pass only "
                                          "action_id values from app_actions returned by the other tools in this turn; the server rejects "
                                          "anything else. Offer the 1-3 actions that match your answer. The app never navigates by itself: "

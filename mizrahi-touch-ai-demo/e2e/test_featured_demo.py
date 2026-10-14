@@ -1,5 +1,8 @@
 """Executive demo — PASS / REVIEW / BLOCKER end to end in a real Chrome, against a REPLAY backend (zero Gemini calls).
 
+LEGACY (mortgage era): superseded by e2e/test_loan_journey.py, which covers the four loan scenarios. This suite still
+asserts three mortgage scenarios and the 21 golden files, so it fails on the loan cases by design (2/6 on 2026-10-14).
+
 Every review in this run is REPLAY: the model's answers come from e2e/replay/recordings.json (recorded live answers
 for the golden payslips; one labelled AUTHORED answer for the bank statement), looked up by the uploaded file's
 SHA-256. Evidence verification, rules, verdicts, case review, findings, outcomes, the banker desk and the reset are the

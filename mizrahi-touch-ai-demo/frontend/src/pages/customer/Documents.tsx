@@ -1,8 +1,79 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { api, ils, monthHe, timeHe, VERDICT_HE, type Requirement } from "../../api";
+import { api, customerVerdict, FAMILY_HE, ils, monthHe, timeHe, type Requirement } from "../../api";
 import { useCase } from "../../caseContext";
-import { ICheck, IClock, IChevron, IX } from "../../components/Icons";
+import { IBag, IBank, IChart, ICheck, IChevron, IChevronDown, IClock, IDocs, IHouse, IPerson, IShield, ISpark, IUpload, IX } from "../../components/Icons";
+
+const LOAN_ICON: Record<string, ReactNode> = { id_document: <IPerson size={18} />, bank_statement: <IBank size={18} />,
+  purpose_proof: <IBag size={18} />, tax_form: <IChart size={18} /> };
+
+/** A one-document requirement of the loan (ID, a statement of one account, proof of purpose, tax form). */
+function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; focused: boolean;
+  expanded: Record<string, boolean>; setExpanded: (v: Record<string, boolean>) => void }) {
+  const { snap, docs, openUpload, openAssistant } = useCase();
+  if (!snap) return null;
+  const mineDocs = new Set(docs.filter((d) => d.requirement_code === r.code).map((d) => d.document_id));
+  const findings = snap.findings.filter((f) => f.status === "open" && f.review_state === "CUSTOMER_ACTION_REQUIRED"
+    && (mineDocs.has(f.document_id || "") || f.detail?.requirement_code === r.code));
+  const waiting = r.ai_state === "required_missing" || r.ai_state === "needs_customer_action";
+  // a missing document or a gap in the period asks for a first upload, not for replacing an uploaded one
+  const firstUpload = r.ai_state === "required_missing" || (findings.length > 0 && !findings.some((f) => f.document_id));
+  const isOpen = expanded[r.code] ?? (waiting || focused);
+  const [name, detail] = splitTitle(r.title_he);
+  const tone = STATE_TONE[r.ai_state] || (r.ai_state === "required_missing" ? "bad" : "warn");
+  return (
+    <li id={`req-${r.code}`} data-testid={`req-${r.code}`} data-family={r.family} data-state={r.ai_state}
+      data-focused={focused ? "true" : undefined} className={`dl-row${isOpen ? " open" : ""}${focused ? " focus" : ""}`}>
+      <button className="dl-head" onClick={() => setExpanded({ ...expanded, [r.code]: !isOpen })} aria-expanded={isOpen}>
+        <span className="dl-ic" aria-hidden>{LOAN_ICON[r.family] || <IDocs size={18} />}</span>
+        <span className="grow dl-text">
+          <span className="dl-name">{name}</span>
+          {detail && <span className="dl-detail" title={detail}>{detail}</span>}
+        </span>
+        <span className={`dl-pill ${tone}`}>{r.ai_state === "checking" && <span className="spinner" />}
+          {r.ai_state === "required_missing" ? "טרם הועלה" : r.ai_state_he}</span>
+        <span className="dl-chev" aria-hidden><IChevron size={16} /></span>
+      </button>
+      {isOpen && (
+        <div className="dl-body">
+          {r.hint_he && <p className="dl-note">{r.hint_he}</p>}
+          {findings.map((f) => <div key={f.finding_id} className="small" style={{ marginTop: 6, lineHeight: 1.55 }}>• {f.message_he}</div>)}
+          <div className="req-actions">
+            <button className="link req-more" onClick={() => openAssistant(`מה בדיוק צריך להעלות עבור ${name}?`)}>
+              למידע נוסף<IChevron size={14} /></button>
+            {!["extracted", "preparation_confirmed", "checking"].includes(r.ai_state) && (
+              <button className="btn btn-dark req-upload" onClick={() => openUpload(r.borrower_id || undefined, { requirementCode: r.code })}
+                data-testid={`upload-${r.code}`}><IUpload size={17} />{firstUpload ? "להעלאה" : "העלאה מחדש"}</button>
+            )}
+          </div>
+          <div className="dl-bank"><IClock size={13} />ממתין לאישור הבנק</div>
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** The bank's requirement titles carry their detail after a dash, in parentheses or as "משועבדת לבנק". */
+function splitTitle(title: string): [string, string] {
+  const dash = title.indexOf(" — ");
+  if (dash > 0) return [title.slice(0, dash), title.slice(dash + 3)];
+  const paren = title.match(/^(.+?)\s*\((.+)\)$/);
+  if (paren) return [paren[1], paren[2]];
+  const pledged = title.indexOf(" משועבדת");
+  return pledged > 0 ? [title.slice(0, pledged), title.slice(pledged + 1)] : [title, ""];
+}
+const FAMILY_ICON: Record<string, ReactNode> = {
+  income: <IBank size={18} />, liabilities: <IChart size={18} />, property: <IHouse size={18} />,
+  insurance: <IShield size={18} />, collateral: <IDocs size={18} />,
+};
+const STATE_TONE: Record<string, string> = { extracted: "ok", preparation_confirmed: "ok", needs_banker_review: "info", checking: "neutral" };
+
+/** The payslip row's pill: what is missing first, otherwise the requirement's AI state. */
+function payslipPill(r: Requirement): { text: string; tone: string } {
+  const n = r.missing?.length ?? 0;
+  if (n) return { text: n === 1 ? "חסר תלוש" : n === (r.required ?? n) ? "חסר" : `חסרים ${n}`, tone: "bad" };
+  return { text: r.ai_state_he, tone: STATE_TONE[r.ai_state] || "warn" };
+}
 
 function MonthChips({ r }: { r: Requirement }) {
   return (
@@ -30,6 +101,8 @@ export function Documents() {
   const [reply, setReply] = useState("");
   const [replyBusy, setReplyBusy] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
+  const [listOpen, setListOpen] = useState(true);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const loaded = !!snap;
   useEffect(() => {
     if (!snap) return;
@@ -58,24 +131,29 @@ export function Documents() {
       return;
     }
     if (!want) {
-      // focus=PAYSLIPS:<borrower> opens on that borrower's payslip card (home-screen summary rows)
+      // focus=<requirement code> opens on that requirement's card (home-screen summary rows)
       const one = section && snap.readiness.requirements.some((r) => r.code === section && r.evaluated_by_ai) ? `req-${section}` : null;
       setFocus(section === "uploaded" ? "sec-uploaded" : one || "sec-payslips");
       return;
     }
-    const req = snap.readiness.requirements.find((r) => r.code === want && r.evaluated_by_ai && r.borrower_id);
+    const req = snap.readiness.requirements.find((r) => r.code === want && r.evaluated_by_ai);
     if (!req) { setLinkNote("לא ניתן להעלות את סוג המסמך הזה באפליקציה."); return; }
     setFocus(`req-${req.code}`);
-    openUpload(req.borrower_id!, { requirementCode: req.code, period: params.get("period") });
+    openUpload(req.borrower_id || undefined, { requirementCode: req.code, period: params.get("period") });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params, loaded]);
   useEffect(() => {
-    if (focus) document.getElementById(focus)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!focus) return;
+    setListOpen(true);
+    // the list may have been collapsed: scroll after it renders again
+    requestAnimationFrame(() => document.getElementById(focus)?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, [focus]);
   if (!snap) return null;
   const reqs = snap.readiness.requirements;
-  const payslips = reqs.filter((r) => r.evaluated_by_ai);
+  const payslips = reqs.filter((r) => r.evaluated_by_ai && r.family === "payslip");
+  const loanDocs = reqs.filter((r) => r.evaluated_by_ai && r.family !== "payslip");
   const others = reqs.filter((r) => !r.evaluated_by_ai);
+  const progress = snap.readiness.progress;
   const reviewedValid = docs.filter((d) => d.review?.verdict === "VALID").length;
   const customerFindings = snap.findings.filter((f) => f.status === "open" && f.review_state === "CUSTOMER_ACTION_REQUIRED");
   const borrowerName = (id?: string | null) => snap.case.borrowers.find((b) => b.borrower_id === id)?.first_name_he || "";
@@ -83,11 +161,18 @@ export function Documents() {
   const requests = (snap.customer_requests || []).filter((q) => q.status === "OPEN" || !!q.responded_text
     || (q.responded_document_id && docStatus[q.responded_document_id]?.status !== "ACCEPTED"));
   const docName = (id?: string | null) => docs.find((d) => d.document_id === id)?.filename;
+  const familyOf = (code?: string | null) => {
+    const r = reqs.find((x) => x.code === code);
+    return r ? r.family_he || FAMILY_HE[r.family] : "";
+  };
+  const required = snap.readiness.payslips?.required ?? 0;
+  const verified = snap.readiness.payslips?.verified ?? 0;
+  const allVerified = required > 0 && verified >= required;
   return (
     <>
       <div className="page-title">מסמכים</div>
-      <p className="page-sub">ריכזנו עבורכם את רשימת המסמכים הנחוצים להשלמת תהליך קבלת המשכנתה. מסמכי השכר נבדקים בבדיקה חכמה מיד עם ההעלאה.</p>
-      <div className="segmented" role="tablist">
+      <p className="page-sub docs-sub">ריכזנו כאן את המסמכים הנדרשים לבקשת ההלוואה. כל מסמך נבדק בבדיקת המסמכים החכמה של JEEN מיד עם ההעלאה.</p>
+      <div className="segmented docs-tabs" role="tablist">
         <button className={tab === "list" ? "on" : ""} onClick={() => setTab("list")} role="tab">רשימת מסמכים</button>
         <button className={tab === "bank" ? "on" : ""} onClick={() => setTab("bank")} role="tab">אישורים מהבנק</button>
       </div>
@@ -143,49 +228,120 @@ export function Documents() {
             );
           })}
         </>)}
-        <div className="card card-row tight">
-          <span className="circle-icon small" style={{ background: "var(--ok)" }}><ICheck size={16} /></span>
-          <span className="grow bold" style={{ color: "var(--mz-ink)" }}>{reviewedValid} מסמכים נמצאו תקינים בבדיקה החכמה</span>
-          <span className="tiny muted">טרם אושרו בבנק</span>
-        </div>
-
-        <div className="section-label" id="sec-payslips">תלושי שכר — לטיפולכם</div>
-        {payslips.map((r) => {
-          const mine = customerFindings.filter((f) => f.borrower_id === r.borrower_id);
-          const open = r.ai_state === "required_missing" || (r.missing?.length ?? 0) > 0 || mine.length > 0;
-          const focused = focus === `req-${r.code}` || (focus === "sec-payslips" && open);
-          return (
-            <div className={`req-card${focused ? " focus" : ""}`} key={r.code} id={`req-${r.code}`} data-testid={`req-${r.code}`}
-              data-focused={focused ? "true" : undefined}>
-              <div className="req-body">
-                <div className="row between">
-                  <div><div className="req-title">{r.title_he}</div>{(r.missing?.length ?? 0) > 0 && <div className="req-new">חדש · חסר מסמך</div>}</div>
-                  <span className={`badge ${r.ai_state === "extracted" || r.ai_state === "preparation_confirmed" ? "ok" : r.ai_state === "needs_banker_review" ? "info" : r.ai_state === "checking" ? "neutral" : "warn"}`}>
-                    {r.ai_state === "checking" && <span className="spinner" />}{r.ai_state_he}
-                  </span>
-                </div>
-                <MonthChips r={r} />
-                {mine.map((f) => <div key={f.finding_id} className="small" style={{ marginTop: 6, lineHeight: 1.55 }}>• {f.message_he}</div>)}
-                <div className="req-actions">
-                  <button className="link" onClick={() => openAssistant(`מה בדיוק צריך להעלות עבור ${borrowerName(r.borrower_id)}?`)}>למידע נוסף</button>
-                  <button className="btn btn-dark" onClick={() => openUpload(r.borrower_id || undefined, { requirementCode: r.code })}
-                    data-testid={`upload-${r.borrower_id}`}>להעלאה</button>
-                </div>
-              </div>
-              <div className="bank-strip"><span className="row" style={{ gap: 6 }}><IClock size={13} />ממתין לאישור הבנק</span></div>
+        <section className="dx-jeen" data-testid="docs-jeen-summary" aria-labelledby="dx-jeen-title">
+          <div className="dx-jeen-main">
+            <span className={`dx-jeen-ic${allVerified ? " ok" : ""}`} aria-hidden>{allVerified ? <ICheck size={18} /> : <ISpark size={18} />}</span>
+            <div className="grow">
+              <h2 className="dx-jeen-title" id="dx-jeen-title">בדיקת מסמכים חכמה<img src="/brand/jeen-logo.png" alt="של JEEN" /></h2>
+              {progress && progress.total > 0 ? (<>
+                <div className="dx-jeen-progress" data-testid="docs-progress"><b>{progress.done} מתוך {progress.total}</b> דרישות הושלמו</div>
+                <span className="dx-meter" aria-hidden><span style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} /></span>
+              </>) : required > 0 && (<>
+                <div className="dx-jeen-progress"><b>{verified} מתוך {required}</b> תלושי שכר הושלמו</div>
+                <span className="dx-meter" aria-hidden><span style={{ width: `${Math.round((verified / required) * 100)}%` }} /></span>
+              </>)}
+              <div className="dx-jeen-text">{reviewedValid === 1 ? "מסמך אחד נמצא תקין" : `${reviewedValid} מסמכים נמצאו תקינים`} · טרם אושרו בבנק</div>
             </div>
-          );
-        })}
+          </div>
+          <div className="dx-jeen-note"><span>לאחר העלאת המסמכים נעדכן אתכם בתוצאות הבדיקה ובכל פעולה נדרשת.</span><IClock size={18} /></div>
+        </section>
 
-        <div className="section-label" id="sec-uploaded">מסמכים שהועלו ({docs.length})</div>
-        {docs.length === 0 && <div className="card small muted">עוד לא הועלו מסמכים. לחצו ״להעלאה״ באחד הכרטיסים.</div>}
+        <section className="dl-card" id="sec-payslips" aria-label="רשימת המסמכים הנדרשים" data-testid="required-docs">
+          <button className="dl-top" onClick={() => setListOpen(!listOpen)} aria-expanded={listOpen} aria-controls="dl-list">
+            <span className="dl-top-ic" aria-hidden><IDocs size={20} /></span>
+            <span className="grow dl-text">
+              <span className="dl-title">רשימת המסמכים הנדרשים</span>
+              <span className="dl-sub">לפי מדיניות המסמכים של הבקשה · נבדקים באופן חכם באמצעות JEEN.</span>
+            </span>
+            <span className={`dl-toggle${listOpen ? " open" : ""}`} aria-hidden><IChevronDown size={18} /></span>
+          </button>
+          {listOpen && (
+            <ul className="dl-list" id="dl-list">
+              {loanDocs.filter((r) => r.family === "id_document").map((r) => (
+                <LoanDocRow key={r.code} r={r} focused={focus === `req-${r.code}`} expanded={expanded} setExpanded={setExpanded} />))}
+              {payslips.map((r) => {
+                const mine = customerFindings.filter((f) => f.borrower_id === r.borrower_id && (f.detail?.family ?? "payslip") === "payslip");
+                const open = r.ai_state === "required_missing" || (r.missing?.length ?? 0) > 0 || mine.length > 0;
+                const focused = focus === `req-${r.code}` || (focus === "sec-payslips" && open);
+                // rows that need the customer open by themselves; a deep link opens its row
+                const isOpen = expanded[r.code] ?? (open || focused);
+                const pill = payslipPill(r);
+                const name = borrowerName(r.borrower_id);
+                return (
+                  <li key={r.code} id={`req-${r.code}`} data-testid={`req-${r.code}`} data-focused={focused ? "true" : undefined}
+                    className={`dl-row${isOpen ? " open" : ""}${focused ? " focus" : ""}`}>
+                    <button className="dl-head" onClick={() => setExpanded({ ...expanded, [r.code]: !isOpen })} aria-expanded={isOpen}>
+                      <span className="dl-ic" aria-hidden><IDocs size={18} /></span>
+                      <span className="grow dl-text">
+                        <span className="dl-name">{name ? `תלושי שכר — ${name}` : r.title_he}</span>
+                        <span className="dl-detail">{r.required ? `${r.required} החודשים האחרונים` : splitTitle(r.title_he)[1]}</span>
+                      </span>
+                      <span className={`dl-pill ${pill.tone}`}>{r.ai_state === "checking" && <span className="spinner" />}{pill.text}</span>
+                      <span className="dl-chev" aria-hidden><IChevron size={16} /></span>
+                    </button>
+                    {isOpen && (
+                      <div className="dl-body">
+                        {(r.missing?.length ?? 0) > 0 && <div className="req-new">
+                          {r.missing!.length === 1 ? `חסר תלוש ${monthHe(r.missing![0])}` : `חסרים ${r.missing!.length} תלושים`}</div>}
+                        <MonthChips r={r} />
+                        {mine.map((f) => <div key={f.finding_id} className="small" style={{ marginTop: 6, lineHeight: 1.55 }}>• {f.message_he}</div>)}
+                        <div className="req-actions">
+                          <button className="link req-more" onClick={() => openAssistant(`מה בדיוק צריך להעלות עבור ${name}?`)}>
+                            למידע נוסף<IChevron size={14} /></button>
+                          <button className="btn btn-dark req-upload" onClick={() => openUpload(r.borrower_id || undefined, { requirementCode: r.code })}
+                            data-testid={`upload-${r.borrower_id}`}><IUpload size={17} />להעלאה</button>
+                        </div>
+                        <div className="dl-bank"><IClock size={13} />ממתין לאישור הבנק</div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+              {loanDocs.filter((r) => r.family !== "id_document").map((r) => (
+                <LoanDocRow key={r.code} r={r} focused={focus === `req-${r.code}`} expanded={expanded} setExpanded={setExpanded} />))}
+              {others.map((r) => {
+                const [name, detail] = splitTitle(r.title_he);
+                const isOpen = !!expanded[r.code];
+                return (
+                  <li key={r.code} className={`dl-row${isOpen ? " open" : ""}`} data-code={r.code} data-testid="other-doc">
+                    <button className="dl-head" onClick={() => setExpanded({ ...expanded, [r.code]: !isOpen })} aria-expanded={isOpen}>
+                      <span className="dl-ic" aria-hidden>{FAMILY_ICON[r.family] || <IDocs size={18} />}</span>
+                      <span className="grow dl-text">
+                        <span className="dl-name">{name}</span>
+                        {detail && <span className="dl-detail" title={detail}>{detail}</span>}
+                      </span>
+                      <span className="dl-pill neutral">{r.bank_status === "awaiting_documents" ? "טרם הועלה" : "מול הבנק"}</span>
+                      <span className="dl-chev" aria-hidden><IChevron size={16} /></span>
+                    </button>
+                    {isOpen && (
+                      <div className="dl-body">
+                        <p className="dl-note">בהדגמה זו המסמך מטופל ישירות מול הבנק ואינו נבדק באפליקציה. בהמשך הבדיקה החכמה של JEEN תכסה גם אותו.</p>
+                        <button className="link req-more" onClick={() => openAssistant(`מה צריך לדעת על ${name}?`)}>שאלו את העוזר<IChevron size={14} /></button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        <div className="section-label dx-label" id="sec-uploaded">מסמכים שהועלו <span className="dx-count">{docs.length}</span></div>
+        {docs.length === 0 && (
+          <div className="dx-empty" data-testid="docs-empty">
+            <span className="dx-empty-ic" aria-hidden><IDocs size={22} /></span>
+            <div className="dx-empty-title">עוד לא הועלו מסמכים</div>
+            <div className="dx-empty-sub">לחצו ״להעלאה״ באחד הכרטיסים למעלה.</div>
+          </div>
+        )}
         {docs.map((d) => (
           <button key={d.document_id} className="doc-card pressable" onClick={() => nav(`/customer/documents/${d.document_id}`)} data-testid="doc-card">
             <span className="doc-icon">{d.mime === "application/pdf" ? "PDF" : "IMG"}</span>
             <span className="grow">
               <div className="doc-name">{d.filename}</div>
               <div className="doc-meta">
-                {borrowerName(d.borrower_id)}{d.review?.period ? ` · מודפס ${monthHe(d.review.period)}` : ""}{d.review?.is_scanned ? " · סרוק" : ""}
+                {[familyOf(d.requirement_code), borrowerName(d.borrower_id)].filter(Boolean).join(" · ")}
+                {d.review?.period ? ` · מודפס ${monthHe(d.review.period)}` : ""}{d.review?.is_scanned ? " · סרוק" : ""}
                 {d.review?.facts.find((f) => f.field === "net_pay") ? ` · נטו ${ils(Number(d.review.facts.find((f) => f.field === "net_pay")!.value_normalized))}` : ""}
               </div>
               {docStatus[d.document_id] && (
@@ -195,20 +351,16 @@ export function Documents() {
                 </div>
               )}
             </span>
-            {d.review ? <span className={`badge ${d.review.verdict}`} data-testid="doc-verdict">{VERDICT_HE[d.review.verdict]}</span>
+            {d.review ? (() => {
+              const v = customerVerdict(d.review.verdict, snap.outcomes?.documents[d.document_id]);
+              return <span className={`badge ${v.cls}`} data-testid="doc-verdict">{v.text}</span>;
+            })()
               : d.status === "failed" ? <span className="badge bad">נכשל</span>
                 : <span className="badge neutral"><span className="spinner" />{d.stage_he}</span>}
             <span className="chev"><IChevron size={16} /></span>
           </button>
         ))}
 
-        <div className="section-label">מסמכים נוספים בתיק</div>
-        {others.map((r) => (
-          <div key={r.code} className="card tight row between">
-            <span className="small" style={{ color: "var(--mz-ink)", fontWeight: 600 }}>{r.title_he}</span>
-            <span className="badge neutral">לא נבדק בהדגמה</span>
-          </div>
-        ))}
       </>)}
       {tab === "bank" && (<>
         {snap.case.preliminary_decision && (
@@ -221,8 +373,8 @@ export function Documents() {
           </div>
         )}
         {snap.readiness.banker_confirmation ? (
-          <div className="card"><div className="card-title">הבנקאית אישרה את הכנת מסמכי השכר</div>
-            <div className="small muted" style={{ marginTop: 4 }}>אישור הכנת מסמכים בלבד — לא החלטה על המשכנתא.</div></div>
+          <div className="card"><div className="card-title">הבנקאית אישרה את הכנת מסמכי הבקשה</div>
+            <div className="small muted" style={{ marginTop: 4 }}>אישור הכנת מסמכים בלבד — לא החלטה על ההלוואה.</div></div>
         ) : <div className="card small muted">אישורים נוספים מהבנק יופיעו כאן כשהבנק ינפיק אותם.</div>}
       </>)}
     </>

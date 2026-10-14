@@ -34,36 +34,47 @@ export interface Finding {
   title_he: string; message_he: string; detail: Record<string, any>; evidence: EvidenceRef[]; created_at: string; updated_at: string;
   resolution?: string | null; resolution_note?: string | null; history: { at: string; event: string; run_id?: string; note?: string; changes?: any }[];
 }
+/** Document families of the loan policy (backend/policy/seed/loan_policy.demo.json) */
+export type Family = "payslip" | "id_document" | "bank_statement" | "purpose_proof" | "tax_form";
 export interface Requirement {
-  code: string; title_he: string; family: string; borrower_id?: string | null; evaluated_by_ai: boolean; bank_status: string;
-  ai_state: string; ai_state_he: string; requested_months?: string[]; covered?: string[]; pending_review?: string[]; missing?: string[]; duplicates?: Record<string, number>;
+  code: string; title_he: string; family: Family | string; family_he?: string; hint_he?: string; requirement_id?: string;
+  borrower_id?: string | null; account_id?: string | null; holders?: string[]; evaluated_by_ai: boolean; bank_status: string;
+  policy_version?: string; ai_state: string; ai_state_he: string; requested_months?: string[]; covered?: string[]; pending_review?: string[]; missing?: string[]; duplicates?: Record<string, number>;
   open_customer_actions?: number; open_banker_items?: number; open_customer_requests?: number;
   required?: number; verified_months?: string[]; in_review_months?: string[]; documents?: number; customer_status?: CustomerStatus;
+  units_required?: number; units_verified?: number; document_ids?: string[];
 }
+export const FAMILY_HE: Record<string, string> = { payslip: "תלוש שכר", id_document: "תעודת זהות", bank_statement: "דף עו״ש",
+  purpose_proof: "אסמכתה למטרה", tax_form: "שומת מס / אישור רו״ח" };
 /** The customer's next step, computed by the backend (readiness.customer_status) with explicit precedence. */
 export type CustomerStatus = "NO_PAYSLIPS_REQUIRED" | "AWAITING_UPLOAD" | "ERROR" | "PROCESSING" | "REVALIDATING"
   | "CORRECTION_REQUIRED" | "MISSING_DOCUMENTS" | "PREPARATION_CONFIRMED" | "BANKER_REVIEW" | "CHECKS_COMPLETE";
 export interface Readiness {
   scope: string; state: string; state_he: string; requirements: Requirement[];
-  customer_status?: CustomerStatus; case_review_failed?: boolean;
+  customer_status?: CustomerStatus; case_review_failed?: boolean; case_status?: string;
+  progress?: { done: number; total: number; missing_units: number };
   payslips?: { required: number; verified: number; requested_months: string[] };
   counts: { documents: number; reviewed: number; processing: number; failed: number; customer_actions: number; banker_items: number; payslip_requirements_ready: number; payslip_requirements_total: number;
     customer_requests?: number; documents_accepted?: number };
   pending_jobs: { kind: string; document_id?: string }[]; not_evaluated: string[]; banker_confirmation?: { confirmed_at: string } | null;
 }
-export interface Borrower { borrower_id: string; name_he: string; first_name_he: string; national_id: string; employment: string; declared_net_monthly_ils: number; declaration_note_he: string; employer_declared_he: string }
+export interface Borrower { borrower_id: string; name_he: string; first_name_he: string; national_id: string; employment: string; declared_net_monthly_ils: number; declaration_note_he: string; employer_declared_he: string; role?: string }
+export interface LoanDetails { product: string; product_he: string; purpose: string; purpose_he: string; requested_amount_ils: number; payments: number; note_he?: string }
 export interface BankCase {
   case_id: string; display_number: string; title_he: string; requested_loan_ils: number; submitted_at: string;
   preliminary_decision?: { label_he: string; issued_on: string; valid_until: string; amount_ils: number } | null;
-  property: { purpose_he: string; city_he: string; price_ils: number }; banker: { name_he: string; role_he: string };
+  loan: LoanDetails; accounts?: { account_id: string; label_he: string; bank_he: string; holders: string[] }[];
+  contact?: { consent_voice: boolean; consent_message: boolean; phone_masked?: string };
+  banker: { name_he: string; role_he: string; staff_id?: string };
   meeting?: { date: string; from: string; to: string; type_he: string } | null; borrowers: Borrower[];
   bank_stage: { index: number; of: number; label_he: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
 }
 export interface AuditEvent { event_id: number; at: string; actor: string; action: string; target?: string; detail?: any }
-/** app_action.v1 — derived and validated by the Mortgage Case Service; the model only picks among them by id. */
+/** app_action.v1 — derived and validated by the Loan Case Service; the model only picks among them by id. */
 interface ActionBase { contract: "app_action.v1"; action_id: string; case_id: string; label_he: string; detail_he?: string | null; priority: number }
+export type DocumentType = "PAYSLIP" | "ID_CARD" | "BANK_STATEMENT" | "PURPOSE_PROOF" | "TAX_FORM";
 export type AppAction = ActionBase & (
-  | { type: "NAVIGATE_TO_DOCUMENT_UPLOAD"; params: { borrower_id: string; requirement_code: string; document_type: "PAYSLIP"; period: string | null; missing_periods: string[]; finding_ids: string[] } }
+  | { type: "NAVIGATE_TO_DOCUMENT_UPLOAD"; params: { borrower_id: string | null; requirement_code: string; document_type: DocumentType; period: string | null; missing_periods: string[]; finding_ids: string[] } }
   | { type: "VIEW_DOCUMENT_REVIEW"; params: { document_id: string; finding_ids: string[] } }
   | { type: "CONTACT_BANKER"; params: { message_he: string; finding_ids: string[] } }
   | { type: "VIEW_MISSING_DOCUMENTS" | "VIEW_REVIEW_STATUS" | "VIEW_CASE_DETAILS"; params: Record<string, never> }
@@ -95,7 +106,7 @@ export interface Snapshot {
   customer_requests?: CustomerRequest[];
   document_status?: Record<string, { status: string; status_he: string; replaced_by?: string | null; replaces?: string | null }>;
   /** PASS / REVIEW / BLOCKER, derived by the service on every read (workflow/outcomes.py) — never stored, never a credit decision */
-  outcomes?: { documents: Record<string, RoutedOutcome>; borrowers: Record<string, RoutedOutcome> };
+  outcomes?: { documents: Record<string, RoutedOutcome>; borrowers: Record<string, RoutedOutcome>; requirements?: Record<string, RoutedOutcome> };
 }
 export type RouteKey = "PASS" | "ACCEPTED" | "REVIEW" | "BLOCKER" | "IN_PROGRESS" | "NOT_COMPLETED" | "REPLACED" | "INCOMPLETE"
   | "AWAITING_UPLOAD" | "CONFIRMED";
@@ -125,6 +136,10 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 export interface SessionCase { case_id: string; display_number: string; title_he: string }
+export interface ApplicationOptions {
+  product_he: string; policy_version: string; purposes: { id: string; label_he: string; proof_he: string }[];
+  amount: { min: number; max: number }; payments: { min: number; max: number }; note_he: string;
+}
 /** The server sessions this browser holds (HttpOnly cookies). In demo mode they are obtained without a login. */
 export interface Session {
   customer: { cases: SessionCase[]; expires_at: number } | null;
@@ -144,12 +159,12 @@ export const api = {
     outcome?: RoutedOutcome | null }>(`/api/documents/${docId}`),
   conversation: (caseId: string) => http<Turn[]>(`/api/cases/${caseId}/conversation`),
   cases: () => http<{ case_id: string; display_number: string; title_he: string; borrowers: string[]; readiness: string }[]>(`/api/cases`),
-  upload: (caseId: string, file: File, borrowerId: string,
+  upload: (caseId: string, file: File, borrowerId: string | null | undefined,
     intent: { requirementCode?: string; expectedPeriod?: string | null; actionId?: string; originTurnId?: string; customerRequestId?: string;
       replacesDocumentId?: string } = {}) => {
     const body = new FormData();
     body.append("file", file);
-    body.append("borrower_id", borrowerId);
+    if (borrowerId) body.append("borrower_id", borrowerId);
     if (intent.requirementCode) body.append("requirement_code", intent.requirementCode);
     if (intent.expectedPeriod) body.append("expected_period", intent.expectedPeriod);
     if (intent.actionId) body.append("action_id", intent.actionId);
@@ -196,6 +211,11 @@ export const api = {
     http<DeskResult>(`/api/banker/cases/${caseId}/documents/${docId}/decision`, json(body)),
   requestMissing: (caseId: string, body: { borrower_id: string; period: string; customer_message: string; rationale?: string; request_id: string }) =>
     http<DeskResult>(`/api/banker/cases/${caseId}/missing-requests`, json(body)),
+  applicationOptions: () => http<ApplicationOptions>(`/api/demo/applications/options`),
+  createApplication: (body: Record<string, string | number>) =>
+    http<{ case_id: string; requirements: string[] }>(`/api/demo/applications`, json(body)),
+  requestRequirement: (caseId: string, code: string, body: { customer_message: string; rationale?: string; request_id: string }) =>
+    http<DeskResult>(`/api/banker/cases/${caseId}/requirements/${encodeURIComponent(code)}/request`, json(body)),
   decide: (caseId: string, findingId: string, body: {
     action: FindingAction; rationale?: string; customer_message?: string; request_id: string; reason_code?: string;
     evidence_document_ids?: string[]; acknowledge_partial?: boolean }) =>
@@ -248,6 +268,7 @@ interface ItemBase { id: string; group: string; attention: boolean; borrower_id?
   history: Decision[]; draft: Draft; requests: DeskRequest[] }
 export interface DocItem extends ItemBase {
   kind: "document"; document_id: string; filename: string; mime: string; pages: number; doc_type_he: string; period?: string | null;
+  requirement_code?: string | null; family?: string;
   period_he?: string | null; claimed_period?: string | null; claimed_period_he?: string | null; uploaded_at: string; is_scanned: boolean;
   ai: { status: string; stage?: string | null; verdict?: Verdict | null; verdict_he: string; tone: string; attention_he: string[]; summary_he: string;
     facts: (Fact & { verified: boolean })[]; criteria_failed: Criterion[]; criteria_uncertain: Criterion[]; criteria_passed: Criterion[];
@@ -259,10 +280,17 @@ export interface DocItem extends ItemBase {
   replaced_by?: { document_id: string; filename: string; status: string; by?: "customer" | "banker_request" } | null;
   outcome?: RoutedOutcome;
 }
+/** A missing payslip month (period set) or a missing non-payslip requirement (requirement_code set, period null). */
 export interface MissingItem extends ItemBase {
-  kind: "missing"; period: string; period_he: string; status_he: string; explanation_he: string;
+  kind: "missing"; period: string | null; period_he: string | null; status_he: string; explanation_he: string;
+  requirement_code?: string; family?: string; family_he?: string;
   related_documents: { document_id: string; filename: string; claimed_period: string; printed_period?: string | null; note_he: string }[];
-  duplicate_note_he?: string | null; finding?: DeskFinding | null; open_request?: DeskRequest | null; allowed_actions: "request_missing"[];
+  duplicate_note_he?: string | null; finding?: DeskFinding | null; open_request?: DeskRequest | null;
+  allowed_actions: ("request_missing" | "request_requirement")[];
+}
+export interface RequirementRow {
+  code: string; title_he: string; family: string; family_he?: string; ai_state: string; ai_state_he: string;
+  borrower_he?: string | null; satisfied: boolean; units: string; policy_version?: string;
 }
 export interface CaseFindingItem extends ItemBase {
   kind: "case_finding"; finding: DeskFinding; income?: IncomeBlock | null; open_request?: DeskRequest | null;
@@ -291,6 +319,7 @@ export interface Workspace {
     documents: number; processing: number; groups: Record<string, number> };
   borrowers: { borrower_id: string; name_he: string; first_name_he: string; verified: number; required: number; income: IncomeBlock;
     months: { period: string; label_he: string; state: string; state_he: string; documents: string[]; copies: number }[] }[];
+  requirement_matrix?: RequirementRow[]; progress?: Readiness["progress"]; case_status?: string;
   groups: { key: string; title_he: string; hint_he: string; items: string[] }[];
   items: QueueItem[]; info_findings: DeskFinding[]; unattached_statements: { statement_id: string; text: string; channel: string; created_at: string }[];
   customer_requests: DeskRequest[]; history: (Partial<Decision> & { at: string; kind: string; title_he?: string; filename?: string; document_id?: string })[];
@@ -358,6 +387,12 @@ export const timeHe = (iso?: string | null) => {
   return `${d.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "2-digit" })} | ${d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}`;
 };
 export const VERDICT_HE: Record<string, string> = { VALID: "נמצא תקין", INVALID: "לא תקין — נדרש תיקון", NEEDS_REVIEW: "דורש בדיקה" };
+/** The customer's badge for a reviewed file: a document the AI review sends back to the customer reads as one to fix,
+ *  also when the reviewer's verdict is NEEDS_REVIEW (unreadable, out of date) — the same thing its page and row say. */
+export function customerVerdict(verdict: string, outcome?: RoutedOutcome): { cls: string; text: string } {
+  if (verdict !== "VALID" && outcome?.outcome === "BLOCKER" && outcome.by === "ai") return { cls: "INVALID", text: VERDICT_HE.INVALID };
+  return { cls: verdict, text: VERDICT_HE[verdict] };
+}
 export const OUTCOME_HE: Record<string, string> = { PASS: "עבר", FAIL: "נכשל", NEEDS_REVIEW: "דורש בדיקה", NOT_APPLICABLE: "לא רלוונטי" };
 export const WITNESS_HE: Record<string, string> = {
   text_layer_exact: "אומת מול שכבת הטקסט של הקובץ", vision_reread_confirmed: "אומת בקריאה חוזרת של הסריקה",

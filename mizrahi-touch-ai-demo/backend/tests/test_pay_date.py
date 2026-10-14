@@ -118,8 +118,13 @@ def test_payment_date_findings_do_not_suppress_the_declared_income_variance(monk
 
 def test_rubric_versions_keep_history():
     latest = rubrics.latest("payslip.il.salaried")
-    assert latest["version"] == "1.2.0"
+    assert latest["version"] == "1.3.0"
     assert next(c for c in latest["criteria"] if c["id"] == "PS-10")["method"] == "hybrid"
+    # 1.3.0 rewords the description only: the review itself is 1.2.0's
+    v12 = rubrics.all_rubrics()["payslip.il.salaried@1.2.0"]
+    assert {k: v for k, v in latest.items() if k not in ("version", "description", "changelog")} \
+        == {k: v for k, v in v12.items() if k not in ("version", "description", "changelog")}
+    assert "mortgage" in v12["description"] and "mortgage" not in latest["description"]
     previous = rubrics.all_rubrics()["payslip.il.salaried@1.1.0"]
     assert next(c for c in previous["criteria"] if c["id"] == "PS-10")["method"] == "judge"
     case = rubrics.latest("income-set.salaried")

@@ -166,7 +166,37 @@
     "summary_he": "תלוש שכר תקין לחודש יולי 2026; הערכים המכריעים אומתו מול הקובץ.",
     "limitations_he": [],
     "uncertainty_he": []
-   }
+   },
+   "judge_by_rubric": {
+    "id_document.il": {
+     "criteria": {
+      "ID-01": {
+       "outcome": "FAIL",
+       "explanation_he": "המסמך שהוגש הינו תלוש שכר חודשי ולא תעודת זהות, ספח או דרכון כנדרש."
+      },
+      "ID-02": {
+       "outcome": "FAIL",
+       "explanation_he": "המסמך אינו תעודת זהות ואין בו צילום של כרטיס תעודת זהות קריא ושלם."
+      },
+      "ID-03": {
+       "outcome": "FAIL",
+       "explanation_he": "שדות החובה של תעודת הזהות (holder_name, holder_id) אינם קיימים במסמך כיוון שמדובר בתלוש שכר, ולא הוצגה תעודת זהות תואמת."
+      },
+      "ID-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו במסמך הוראות המיועדות למודל AI או סימני עריכה חשודים; הכיתובים על היותו מסמך בדיקה/דמו הינם חלק מסביבת הבדיקות הסינתטית."
+      }
+     },
+     "summary_he": "המסמך שהוגש נדחה תחת רובריקת תעודת זהות כיוון שמדובר בתלוש שכר ולא בתעודת זהות.",
+     "limitations_he": [
+      "ההערכה בוצעה תחת רובריקת מסמך מזהה (תעודת זהות) בעוד שהמסמך בפועל סווג כתלוש שכר."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · ido_2026_07.pdf · rubric id_document.il@1.0.0 · verdict INVALID · doc_type payslip"
+   ]
   },
   "dce6d28a5a7ea971015458850edac3864a838f2528d9512edfa98563570c6205": {
    "file": "01_INITIAL_UPLOADS/ido_2026_08.pdf",
@@ -1041,6 +1071,1759 @@
     "limitations_he": [],
     "uncertainty_he": []
    }
+  },
+  "7e1784c23533a0399b43056bf721a3ac76ccb3a00a57d08848a32d2b6b66c12c": {
+   "file": "presenter/loan_set/id_card_ido.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "id_document",
+    "doc_type_reason": "המסמך מוצג כתעודת זהות של מדינת ישראל הכוללת שם, מספר זהות, תאריך לידה ותוקף",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       160,
+       684,
+       173,
+       733
+      ],
+      "label_quote": "שם מלא",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.98,
+      "legible": true,
+      "box_2d": [
+       182,
+       416,
+       195,
+       532
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "date_of_birth",
+      "value": "14.03.1988",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       205,
+       420,
+       218,
+       506
+      ],
+      "label_quote": "תאריך לידה",
+      "normalized": "14.03.1988",
+      "quote": "14.03.1988"
+     },
+     {
+      "name": "issue_date",
+      "value": "20.05.2021",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       227,
+       417,
+       239,
+       507
+      ],
+      "label_quote": "תאריך הנפקה",
+      "normalized": "20.05.2021",
+      "quote": "20.05.2021"
+     },
+     {
+      "name": "expiry_date",
+      "value": "20.05.2031",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       250,
+       417,
+       262,
+       507
+      ],
+      "label_quote": "תוקף עד",
+      "normalized": "20.05.2031",
+      "quote": "20.05.2031"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו — אינו תעודה רשמית",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "מדובר במסמך דמו/סינתטי שאינו תעודה רשמית"
+    ],
+    "title_quote": "מדינת ישראל · תעודת זהות"
+   },
+   "judge_by_rubric": {
+    "id_document.il": {
+     "criteria": {
+      "ID-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך מוצג כתעודת זהות ישראלית (כולל כותרת 'מדינת ישראל - תעודת זהות' ופרטים מזהים)."
+      },
+      "ID-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא לחלוטין, לא חתוך וכל השדות הנדרשים (שם, תעודת זהות, תאריכים) ברורים."
+      },
+      "ID-03": {
+       "outcome": "PASS",
+       "explanation_he": "השם עידו לוי ומספר הזהות DEMO-ID-001 תואמים במדויק לנתוני המבקש, בהתאם לתוצאה הדטרמיניסטית."
+      },
+      "ID-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות חשודות, פניות ל-AI או סימני זיוף/עריכה. סימוני 'מסמך דמו' הינם חלק מובנה מסביבת הבדיקה הסינתטית."
+      }
+     },
+     "summary_he": "תעודת הזהות תקינה, קריאה, תואמת לפרטי המבקש ואינה מכילה תוכן חשוד מעבר לסימוני הדמו המכוונים.",
+     "limitations_he": [
+      "מדובר במסמך סינתטי הכולל מזהה דמו וסימוני דמו."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · id_card_ido.pdf · rubric id_document.il@1.0.0 · verdict VALID · doc_type id_document"
+   ]
+  },
+  "57455faab611969e6151eb195683119feb90d0a12a877c76891221c417afa4a3": {
+   "file": "presenter/loan_set/id_card_ido_EXPIRED.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "id_document",
+    "doc_type_reason": "המסמך מעוצב כתעודת זהות של מדינת ישראל וכולל שדות זיהוי כגון שם מלא, מספר זהות, תאריך לידה ותוקף",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       160,
+       685,
+       172,
+       734
+      ],
+      "label_quote": "שם מלא",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       184,
+       419,
+       194,
+       528
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "date_of_birth",
+      "value": "14.03.1988",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       206,
+       419,
+       216,
+       506
+      ],
+      "label_quote": "תאריך לידה",
+      "normalized": "14.03.1988",
+      "quote": "14.03.1988"
+     },
+     {
+      "name": "issue_date",
+      "value": "01.03.2015",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       228,
+       419,
+       238,
+       506
+      ],
+      "label_quote": "תאריך הנפקה",
+      "normalized": "01.03.2015",
+      "quote": "01.03.2015"
+     },
+     {
+      "name": "expiry_date",
+      "value": "01.03.2025",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       250,
+       419,
+       260,
+       506
+      ],
+      "label_quote": "תוקף עד",
+      "normalized": "01.03.2025",
+      "quote": "01.03.2025"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו — אינו תעודה רשמית",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [],
+    "title_quote": "מדינת ישראל · תעודת זהות"
+   },
+   "judge_by_rubric": {
+    "id_document.il": {
+     "criteria": {
+      "ID-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך מעוצב ומוגדר כתעודת זהות של מדינת ישראל."
+      },
+      "ID-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא ושלם, כל הפרטים (שם, מספר זהות, תאריכים) ברורים ואינם חתוכים."
+      },
+      "ID-03": {
+       "outcome": "PASS",
+       "explanation_he": "השם ומספר הזהות במסמך תואמים לחלוטין לפרטי המבקש שהוגדרו (עידו לוי, DEMO-ID-001)."
+      },
+      "ID-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא נמצאו הוראות חשודות או ניסיונות הזרקת הוראות ל-AI; סימוני ה-Demo הם חלק מובנה מסביבת הבדיקה הסינתטית."
+      }
+     },
+     "summary_he": "המסמך הוא תעודת זהות קריאה ושלמה, התואמת לפרטי המבקש, ללא סימני עריכה חשודים מעבר לסימוני הדמו הצפויים.",
+     "limitations_he": [
+      "מסמך דמו סינתטי לצורכי בדיקה בלבד"
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · id_card_ido_EXPIRED.pdf · rubric id_document.il@1.0.0 · verdict INVALID · doc_type id_document"
+   ]
+  },
+  "207e40a9e4d51163799c714d7bc3064aab4944acf568f9c291f80c34e77108c6": {
+   "file": "presenter/loan_set/id_card_ido_UNREADABLE.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "unreadable",
+    "doc_type_reason": "המסמך מטושטש לחלוטין (רזולוציה נמוכה וטשטוש כבד), לא ניתן לקרוא אף מילה או מספר או לזהות את סוג המסמך בוודאות.",
+    "legibility": "unreadable",
+    "is_scanned_or_photo": true,
+    "fields": [],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [],
+    "uncertainties": [
+     "המסמך מטושטש ואינו קריא כלל"
+    ],
+    "title_quote": null
+   },
+   "judge_by_rubric": {
+    "id_document.il": {
+     "criteria": {
+      "ID-01": {
+       "outcome": "NEEDS_REVIEW",
+       "explanation_he": "המסמך מטושטש לחלוטין ולא ניתן לזהות בוודאות את סוג המסמך, אף שצורתו הכללית מזכירה תעודת זהות."
+      },
+      "ID-02": {
+       "outcome": "FAIL",
+       "explanation_he": "המסמך אינו קריא כלל עקב טשטוש כבד ואיכות נמוכה ביותר. לא ניתן לקרוא שמות, מספר זהות או תאריכים."
+      },
+      "ID-03": {
+       "outcome": "NEEDS_REVIEW",
+       "explanation_he": "לא חולצו שדות שם ומספר זהות עקב חוסר קריאות מוחלט, ולכן לא ניתן להשוותם למבקש ההלוואה."
+      },
+      "ID-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו טקסטים חשודים, הוראות למערכת AI או סימני עריכה זדוניים."
+      }
+     },
+     "summary_he": "המסמך מטושטש לחלוטין ואינו קריא, ולכן לא ניתן לקרוא פרטים מזהים או לוודא התאמה ללווה.",
+     "limitations_he": [
+      "איכות התמונה ירודה ביותר ולא מאפשרת פענוח טקסטואלי כלל."
+     ],
+     "uncertainty_he": [
+      "לא ניתן לאמת האם מדובר אכן בתעודת זהות רשמית של המבקש."
+     ]
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · id_card_ido_UNREADABLE.pdf · rubric id_document.il@1.0.0 · verdict NEEDS_REVIEW · doc_type unreadable"
+   ]
+  },
+  "8b8f8aafa48abf31e6ef58e3f987f14733d8146c85247c0c3003e40f06a520c8": {
+   "file": "presenter/loan_set/statement_ido_2026-07_09.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "bank_statement",
+    "doc_type_reason": "המסמך כותרתו 'מזרחי־טפחות · דף תנועות בחשבון עו״ש' ומכיל פירוט תנועות עו״ש, יתרות, פרטי חשבון ותקופה.",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "bank_name",
+      "value": "מזרחי־טפחות",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       51,
+       778,
+       69,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "מזרחי־טפחות",
+      "quote": "מזרחי־טפחות"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       99,
+       581,
+       112,
+       631
+      ],
+      "label_quote": "שם בעל החשבון",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       121,
+       73,
+       135,
+       185
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "account_number",
+      "value": "12-345-678901",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       144,
+       74,
+       156,
+       194
+      ],
+      "label_quote": "בנק / סניף / חשבון",
+      "normalized": "12-345-678901",
+      "quote": "12-345-678901"
+     },
+     {
+      "name": "statement_from",
+      "value": "01.07.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       166,
+       74,
+       179,
+       164
+      ],
+      "label_quote": "תקופה מתאריך",
+      "normalized": "01.07.2026",
+      "quote": "01.07.2026"
+     },
+     {
+      "name": "statement_to",
+      "value": "30.09.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       189,
+       74,
+       201,
+       164
+      ],
+      "label_quote": "עד תאריך",
+      "normalized": "30.09.2026",
+      "quote": "30.09.2026"
+     },
+     {
+      "name": "closing_balance",
+      "value": "15,597.83",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       672,
+       74,
+       686,
+       153
+      ],
+      "label_quote": "יתרת סגירה",
+      "normalized": "15597.83",
+      "quote": "15,597.83"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי — אינו דף חשבון אמיתי",
+      "kind": "inconsistency",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "inconsistency",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "המסמך הינו מסמך דמו סינתטי לצורכי בדיקה."
+    ],
+    "title_quote": "מזרחי־טפחות · דף תנועות בחשבון עו״ש"
+   },
+   "judge_by_rubric": {
+    "bank_statement.il": {
+     "criteria": {
+      "BS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא דף תנועות בחשבון עו\"ש המפרט תנועות ויתרות לאורך תקופה."
+      },
+      "BS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא, ברור ושלם, כל שדות החשבון, היתרות ושורות התנועה נראים בבירור."
+      },
+      "BS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם בעל החשבון במסמך תואם במדויק לשם מבקש ההלוואה (עידו לוי)."
+      },
+      "BS-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות חשודות, עריכות גרפיות או פניות למערכת AI; סימוני הדמו הינם חלק מסביבת הבדיקה הסינתטית המאושרת."
+      }
+     },
+     "summary_he": "דף חשבון הבנק תקין, קריא ושלם. פרטי בעל החשבון תואמים למבקש ולא זוהו סימני עריכה או הנחיות חשודות מעבר לסימוני הדמו הצפויים.",
+     "limitations_he": [],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · statement_ido_2026-07_09.pdf · rubric bank_statement.il@1.0.0 · verdict VALID · doc_type bank_statement"
+   ]
+  },
+  "ea4e5f58ac083d7991655142c85677ba487725d7ea322892ffeb9c5396fb7a62": {
+   "file": "presenter/loan_set/statement_ido_2026-07.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "bank_statement",
+    "doc_type_reason": "הכותרת מציינת 'דף תנועות בחשבון עו״ש' ומכיל טבלת תנועות ויתרת סגירה",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "bank_name",
+      "value": "מזרחי־טפחות",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       53,
+       776,
+       70,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "מזרחי־טפחות",
+      "quote": "מזרחי־טפחות"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       99,
+       582,
+       112,
+       631
+      ],
+      "label_quote": "שם בעל החשבון",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.98,
+      "legible": true,
+      "box_2d": [
+       121,
+       75,
+       134,
+       185
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "account_number",
+      "value": "12-345-678901",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       144,
+       74,
+       156,
+       192
+      ],
+      "label_quote": "בנק / סניף / חשבון",
+      "normalized": "12-345-678901",
+      "quote": "12-345-678901"
+     },
+     {
+      "name": "statement_from",
+      "value": "01.07.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       166,
+       74,
+       178,
+       162
+      ],
+      "label_quote": "תקופה מתאריך",
+      "normalized": "01.07.2026",
+      "quote": "01.07.2026"
+     },
+     {
+      "name": "statement_to",
+      "value": "31.07.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       188,
+       74,
+       200,
+       163
+      ],
+      "label_quote": "עד תאריך",
+      "normalized": "31.07.2026",
+      "quote": "31.07.2026"
+     },
+     {
+      "name": "closing_balance",
+      "value": "11,259.96",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       405,
+       74,
+       417,
+       151
+      ],
+      "label_quote": "יתרת סגירה",
+      "normalized": "11259.96",
+      "quote": "11,259.96"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי — אינו דף חשבון אמיתי",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [],
+    "title_quote": "דף תנועות בחשבון עו״ש"
+   },
+   "judge_by_rubric": {
+    "bank_statement.il": {
+     "criteria": {
+      "BS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא דף תנועות בחשבון עו\"ש המפרט תנועות לתקופה מוגדרת וכולל יתרת סגירה."
+      },
+      "BS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא, מלא וברור, וכל פרטי החשבון, היתרות ופירוט התנועות נראים היטב."
+      },
+      "BS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם בעל החשבון ומספר הזהות תואמים באופן מלא לפרטי המבקש."
+      },
+      "BS-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא נמצאו הוראות מניפולטיביות למערכת או סימני שינוי ועריכה; סימוני הדמו הם חלק מובנה מסביבת הבדיקה הסינתטית."
+      }
+     },
+     "summary_he": "המסמך תקין, קריא ותואם למבקש בכל הקריטריונים שנבדקו (BS-01, BS-02, BS-03, BS-06).",
+     "limitations_he": [
+      "בדיקה של מסמך סינתטי/דמו בלבד."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · statement_ido_2026-07.pdf · rubric bank_statement.il@1.0.0 · verdict INVALID · doc_type bank_statement"
+   ]
+  },
+  "8a3df4916538952d027f374f2a5ed99b601416fecc7bb1743101846a46358e19": {
+   "file": "presenter/loan_set/statement_ido_2026-08.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "bank_statement",
+    "doc_type_reason": "דף תנועות בחשבון עו\"ש המציג פרטי חשבון, תנועות יתרה ויתרת סגירה",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "bank_name",
+      "value": "מזרחי־טפחות",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       51,
+       779,
+       69,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "מזרחי־טפחות",
+      "quote": "מזרחי־טפחות"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       99,
+       583,
+       111,
+       632
+      ],
+      "label_quote": "שם בעל החשבון",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.98,
+      "legible": true,
+      "box_2d": [
+       123,
+       75,
+       133,
+       184
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "account_number",
+      "value": "12-345-678901",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       146,
+       75,
+       156,
+       192
+      ],
+      "label_quote": "בנק / סניף / חשבון",
+      "normalized": "12-345-678901",
+      "quote": "12-345-678901"
+     },
+     {
+      "name": "statement_from",
+      "value": "01.08.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       169,
+       75,
+       178,
+       163
+      ],
+      "label_quote": "תקופה מתאריך",
+      "normalized": "01.08.2026",
+      "quote": "01.08.2026"
+     },
+     {
+      "name": "statement_to",
+      "value": "31.08.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       190,
+       75,
+       200,
+       163
+      ],
+      "label_quote": "עד תאריך",
+      "normalized": "31.08.2026",
+      "quote": "31.08.2026"
+     },
+     {
+      "name": "closing_balance",
+      "value": "10,388.35",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       407,
+       75,
+       418,
+       153
+      ],
+      "label_quote": "יתרת סגירה",
+      "normalized": "10388.35",
+      "quote": "10,388.35"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי — אינו דף חשבון אמיתי",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "DEMO-ID-001",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · Synthetic Test Corpus JEEN × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "המסמך מסומן כדמו סינתטי"
+    ],
+    "title_quote": "מזרחי־טפחות · דף תנועות בחשבון עו״ש"
+   },
+   "judge_by_rubric": {
+    "bank_statement.il": {
+     "criteria": {
+      "BS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא דף תנועות עו״ש של בנק מזרחי-טפחות הכולל פירוט תנועות לחודש אוגוסט 2026."
+      },
+      "BS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא, ברור ושלם, כל פרטי החשבון, התקופה, היתרות ושורות התנועה מוצגים במלואם."
+      },
+      "BS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם בעל החשבון במסמך ('עידו לוי') ומספר הזהות תואמים באופן מלא למבקש ההלוואה."
+      },
+      "BS-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות זדוניות למודל או סימני עריכה/זיוף; כיתובי הדמו הם סימוני סביבה סינתטית מותרים."
+      }
+     },
+     "summary_he": "דף חשבון הבנק תקין, קריא ותואם למבקש עידו לוי, ללא סימני עריכה חשודים מעבר לסימוני הדמו המוגדרים.",
+     "limitations_he": [
+      "מדובר במסמך בדיקה סינתטי המכיל מזהי דמו וסימני מים."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · statement_ido_2026-08.pdf · rubric bank_statement.il@1.0.0 · verdict INVALID · doc_type bank_statement"
+   ]
+  },
+  "7c20f94c0c08a8bbcf9fdd6171f8f9212480b22bec13a64a058538f9d9ee2ebe": {
+   "file": "presenter/loan_set/statement_ido_2026-09.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "bank_statement",
+    "doc_type_reason": "דף תנועות בחשבון עו״ש הכולל פירוט תנועות, יתרת סגירה ופרטי חשבון",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "bank_name",
+      "value": "מזרחי־טפחות",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       51,
+       781,
+       68,
+       934
+      ],
+      "label_quote": null,
+      "normalized": "מזרחי־טפחות",
+      "quote": "מזרחי־טפחות"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       101,
+       582,
+       112,
+       631
+      ],
+      "label_quote": "שם בעל החשבון",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       121,
+       74,
+       134,
+       184
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "account_number",
+      "value": "12-345-678901",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       144,
+       75,
+       155,
+       192
+      ],
+      "label_quote": "בנק / סניף / חשבון",
+      "normalized": "12-345-678901",
+      "quote": "12-345-678901"
+     },
+     {
+      "name": "statement_from",
+      "value": "01.09.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       167,
+       75,
+       178,
+       163
+      ],
+      "label_quote": "תקופה מתאריך",
+      "normalized": "01.09.2026",
+      "quote": "01.09.2026"
+     },
+     {
+      "name": "statement_to",
+      "value": "30.09.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       189,
+       74,
+       200,
+       163
+      ],
+      "label_quote": "עד תאריך",
+      "normalized": "30.09.2026",
+      "quote": "30.09.2026"
+     },
+     {
+      "name": "closing_balance",
+      "value": "10,469.81",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       405,
+       75,
+       417,
+       150
+      ],
+      "label_quote": "יתרת סגירה",
+      "normalized": "10469.81",
+      "quote": "10,469.81"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי — אינו דף חשבון אמיתי",
+      "kind": "inconsistency",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · JEEN · Corpus Test Synthetic × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "inconsistency",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו",
+      "kind": "inconsistency",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "מדובר במסמך דמו/סינתטי כפי שמצוין מפורשות על גבי המסמך"
+    ],
+    "title_quote": "מזרחי־טפחות · דף תנועות בחשבון עו״ש"
+   },
+   "judge_by_rubric": {
+    "bank_statement.il": {
+     "criteria": {
+      "BS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא דף תנועות חשבון עו״ש הכולל פירוט תנועות, תאריכים, סכומי חובה וזכות ויתרות."
+      },
+      "BS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך ברור וקריא במלואו, פרטי החשבון, התקופה, בעל החשבון והתנועות מוצגים באופן שלם וללא חיתוך."
+      },
+      "BS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם בעל החשבון (עידו לוי) ומספר הזהות תואמים באופן מלא לפרטי מבקש ההלוואה, כפי שאושר גם בתוצאה הדטרמיניסטית."
+      },
+      "BS-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות זדוניות, פניות למודל או סימני עריכה חשודים. כיתובי הדמו והסימן המים הם חלק מובנה מסביבת הבדיקה הסינתטית כמצוין בהנחיות."
+      }
+     },
+     "summary_he": "דף תנועות עו״ש תקין, קריא ושלם של בנק מזרחי-טפחות עבור עידו לוי, ללא סימני עריכה או תוכן חשוד.",
+     "limitations_he": [
+      "בדיקת המסמך בוצעה על גבי מסמך דמו סינתטי המיועד לבדיקות."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · statement_ido_2026-09.pdf · rubric bank_statement.il@1.0.0 · verdict VALID · doc_type bank_statement"
+   ]
+  },
+  "f620499e5d6e245e2c42895229e6a3c442ff9c4c63112a47d341cc37c4af4880": {
+   "file": "presenter/loan_set/statement_ido_STALE_2026-04_06.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "bank_statement",
+    "doc_type_reason": "דף תנועות בחשבון עו״ש הכולל פירוט יתרות ותנועות",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "bank_name",
+      "value": "מזרחי־טפחות",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       51,
+       777,
+       69,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "מזרחי־טפחות",
+      "quote": "מזרחי־טפחות"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       99,
+       580,
+       111,
+       631
+      ],
+      "label_quote": "שם בעל החשבון",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "holder_id",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       121,
+       74,
+       133,
+       184
+      ],
+      "label_quote": "מספר זהות",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "account_number",
+      "value": "12-345-678901",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       144,
+       75,
+       155,
+       192
+      ],
+      "label_quote": "בנק / סניף / חשבון",
+      "normalized": "12-345-678901",
+      "quote": "12-345-678901"
+     },
+     {
+      "name": "statement_from",
+      "value": "01.04.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       166,
+       74,
+       178,
+       162
+      ],
+      "label_quote": "תקופה מתאריך",
+      "normalized": "01.04.2026",
+      "quote": "01.04.2026"
+     },
+     {
+      "name": "statement_to",
+      "value": "30.06.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       188,
+       74,
+       200,
+       163
+      ],
+      "label_quote": "עד תאריך",
+      "normalized": "30.06.2026",
+      "quote": "30.06.2026"
+     },
+     {
+      "name": "closing_balance",
+      "value": "16,216.43",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       673,
+       76,
+       686,
+       154
+      ],
+      "label_quote": "יתרת סגירה",
+      "normalized": "16216.43",
+      "quote": "16,216.43"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי — אינו דף חשבון אמיתי",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "DEMO-ID-001",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · JEEN · Synthetic Test Corpus × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "מצוין על גבי המסמך כי מדובר במסמך דמו סינתטי שאינו מסמך אמיתי"
+    ],
+    "title_quote": "דף תנועות בחשבון עו״ש"
+   },
+   "judge_by_rubric": {
+    "bank_statement.il": {
+     "criteria": {
+      "BS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא דף תנועות עו״ש בנקאי המציג פירוט תנועות לחשבון על פני תקופה."
+      },
+      "BS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך שלם, קריא וברור, וכל הפרטים החיוניים מופיעים ללא טשטוש או חיתוך."
+      },
+      "BS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם בעל החשבון המופיע במסמך תואם במדויק לשם המבקש."
+      },
+      "BS-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות חשודות הממוענות למערכת ה-AI או שינויים בלתי מורשים. הכיתובים וסימני המים הינם חלק מסביבת ההדגמה הסינתטית כמצופה."
+      }
+     },
+     "summary_he": "המסמך נבדק בהצלחה תחת קריטריוני הבדיקה שהוקצו; הוא מהווה דף תנועות עו״ש קריא, שלם ותואם למבקש ללא אינדיקציות לעריכה זדונית.",
+     "limitations_he": [
+      "המסמך נושא סימוני דמו סינתטיים מובנים של סביבת הבדיקה."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · statement_ido_STALE_2026-04_06.pdf · rubric bank_statement.il@1.0.0 · verdict INVALID · doc_type bank_statement"
+   ]
+  },
+  "662bde893e90c56cfdbc3d0963c5ba7dfee62a1c4afaae42be53d403bdfb7bdf": {
+   "file": "presenter/loan_set/car_quote_ido.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "purpose_proof",
+    "doc_type_reason": "המסמך הינו הצעת מחיר לרכישת רכב חדש מחברת אוטו־דמו יבואנים בע״מ, המשמש כהוכחת מטרת הלוואה.",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "issuer_name",
+      "value": "אוטו־דמו יבואנים בע״מ",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       53,
+       676,
+       66,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "אוטו־דמו יבואנים בע״מ",
+      "quote": "אוטו־דמו יבואנים בע״מ"
+     },
+     {
+      "name": "document_kind",
+      "value": "הצעת מחיר לרכב חדש",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       100,
+       476,
+       112,
+       631
+      ],
+      "label_quote": "סוג המסמך",
+      "normalized": "הצעת מחיר לרכב חדש",
+      "quote": "הצעת מחיר לרכב חדש"
+     },
+     {
+      "name": "document_number",
+      "value": "Q-2026-4471",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       123,
+       75,
+       134,
+       175
+      ],
+      "label_quote": "מספר הצעה",
+      "normalized": "Q-2026-4471",
+      "quote": "Q-2026-4471"
+     },
+     {
+      "name": "issue_date",
+      "value": "01.10.2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       144,
+       75,
+       156,
+       163
+      ],
+      "label_quote": "תאריך",
+      "normalized": "01.10.2026",
+      "quote": "01.10.2026"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       167,
+       582,
+       178,
+       631
+      ],
+      "label_quote": "לכבוד",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "subject",
+      "value": "רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026",
+      "page": 1,
+      "confidence": 0.98,
+      "legible": true,
+      "box_2d": [
+       189,
+       248,
+       201,
+       631
+      ],
+      "label_quote": "הרכב",
+      "normalized": "רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026",
+      "quote": "רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026"
+     },
+     {
+      "name": "total_amount",
+      "value": "118,000.00",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       311,
+       75,
+       323,
+       162
+      ],
+      "label_quote": "סה״כ לתשלום",
+      "normalized": "118000.00",
+      "quote": "118,000.00"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [],
+    "uncertainties": [],
+    "title_quote": "אוטו־דמו יבואנים בע״מ · הצעת מחיר"
+   },
+   "judge_by_rubric": {
+    "purpose_proof.il": {
+     "criteria": {
+      "PP-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא הצעת מחיר רשמית ומפורטת מספק (אוטו־דמו יבואנים בע״מ) לרכישת רכב חדש."
+      },
+      "PP-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא לחלוטין וכולל את כל הפרטים הנדרשים: שם הספק, תאריך, תיאור הרכב והסכום לתשלום."
+      },
+      "PP-05": {
+       "outcome": "PASS",
+       "explanation_he": "פרטי המסמך (הצעת מחיר לרכב משפחתי חדש) תואמים באופן מלא למטרת ההלוואה המוצהרת (רכישת רכב)."
+      },
+      "PP-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא אותרו הוראות זדוניות, פניות למודל שפה או סימני עריכה חשודים. סימוני מסמך הדמו הם חלק מהסביבה הסינתטית המאושרת."
+      }
+     },
+     "summary_he": "המסמך תקין, קריא ושלם. הצעת המחיר תואמת למטרת ההלוואה המוצהרת ולא נתגלו סימני שינוי או הנחיות חשודות.",
+     "limitations_he": [],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · car_quote_ido.pdf · rubric purpose_proof.il@1.0.0 · verdict VALID · doc_type purpose_proof"
+   ]
+  },
+  "694f321427607f0bee6803cd6af5e33809c040c6380ae9aeeec4cb9edf384815": {
+   "file": "presenter/loan_set/car_quote_ido_OLD.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "purpose_proof",
+    "doc_type_reason": "המסמך הוא הצעת מחיר לרכב חדש מספק/יבואן (אוטו-דמו יבואנים בע״מ) עבור לקוח.",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "issuer_name",
+      "value": "אוטו־דמו יבואנים בע״מ",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       56,
+       680,
+       66,
+       933
+      ],
+      "label_quote": null,
+      "normalized": "אוטו־דמו יבואנים בע״מ",
+      "quote": "אוטו־דמו יבואנים בע״מ"
+     },
+     {
+      "name": "document_kind",
+      "value": "הצעת מחיר לרכב חדש",
+      "page": 1,
+      "confidence": 0.98,
+      "legible": true,
+      "box_2d": [
+       101,
+       476,
+       111,
+       631
+      ],
+      "label_quote": "סוג המסמך",
+      "normalized": "הצעת מחיר לרכב חדש",
+      "quote": "הצעת מחיר לרכב חדש"
+     },
+     {
+      "name": "holder_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       167,
+       584,
+       178,
+       631
+      ],
+      "label_quote": "לכבוד",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "subject",
+      "value": "רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026",
+      "page": 1,
+      "confidence": 0.98,
+      "legible": true,
+      "box_2d": [
+       190,
+       249,
+       201,
+       631
+      ],
+      "label_quote": "הרכב",
+      "normalized": "רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026",
+      "quote": "רכב משפחתי חדש, דגם דמו 1.5 טורבו, שנת ייצור 2026"
+     },
+     {
+      "name": "issue_date",
+      "value": "15.03.2026",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       146,
+       75,
+       155,
+       163
+      ],
+      "label_quote": "תאריך",
+      "normalized": "15.03.2026",
+      "quote": "15.03.2026"
+     },
+     {
+      "name": "total_amount",
+      "value": "112,000.00",
+      "page": 1,
+      "confidence": 0.99,
+      "legible": true,
+      "box_2d": [
+       310,
+       75,
+       321,
+       162
+      ],
+      "label_quote": "סה״כ לתשלום",
+      "normalized": "112000.00",
+      "quote": "112,000.00"
+     }
+    ],
+    "earnings": [],
+    "deductions": [],
+    "suspicious_content": [
+     {
+      "quote": "מסמך דמו סינתטי",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "Synthetic Test Corpus · JEEN · מסמך דמו × מזרחי־טפחות — אינו מסמך אמיתי",
+      "kind": "other",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו",
+      "kind": "other",
+      "page": 1
+     }
+    ],
+    "uncertainties": [],
+    "title_quote": "אוטו־דמו יבואנים בע״מ · הצעת מחיר"
+   },
+   "judge_by_rubric": {
+    "purpose_proof.il": {
+     "criteria": {
+      "PP-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך הוא הצעת מחיר לרכב חדש שהונפקה על ידי ספק/יבואן (אוטו־דמו יבואנים בע״מ)."
+      },
+      "PP-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך קריא ושלם; פרטי הספק, התאריך, תיאור הרכב והסכומים ברורים לחלוטין."
+      },
+      "PP-05": {
+       "outcome": "PASS",
+       "explanation_he": "קיים תיאום מלא בין הצעת המחיר לרכישת רכב לבין מטרת ההלוואה המוצהרת (רכישת רכב)."
+      },
+      "PP-06": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו הוראות חשודות, פניות למערכת AI או סימני עריכה/זיוף; כיתובי הדמו הם חלק מובנה ממאגר הבדיקה הסינתטי."
+      }
+     },
+     "summary_he": "המסמך נבדק בהצלחה תחת הקריטריונים שהוקצו: מדובר בהצעת מחיר קריאה ותקינה התואמת את מטרת ההלוואה המוצהרת, ללא אינדיקציה לשיבוש או פניות חשודות.",
+     "limitations_he": [],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · car_quote_ido_OLD.pdf · rubric purpose_proof.il@1.0.0 · verdict NEEDS_REVIEW · doc_type purpose_proof"
+   ]
+  },
+  "cf48d4c089c69723a58be0aa5484c9575786443af68bd31cfb112ad70b064a8f": {
+   "file": "presenter/golden_set/01_INITIAL_UPLOADS/ido_2026_09.pdf",
+   "provenance": "RECORDED_LIVE",
+   "extract": {
+    "doc_type": "payslip",
+    "doc_type_reason": "כותרת המסמך היא 'תלוש שכר חודשי' והוא כולל רכיבי שכר, ניכויים, שכר ברוטו ונטו.",
+    "legibility": "good",
+    "is_scanned_or_photo": false,
+    "fields": [
+     {
+      "name": "employee_name",
+      "value": "עידו לוי",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       270,
+       836,
+       281,
+       897
+      ],
+      "label_quote": "שם העובד",
+      "normalized": "עידו לוי",
+      "quote": "עידו לוי"
+     },
+     {
+      "name": "employee_number",
+      "value": "DEMO-ID-001",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       269,
+       105,
+       280,
+       214
+      ],
+      "label_quote": "מזהה עובד (דמו)",
+      "normalized": "DEMO-ID-001",
+      "quote": "DEMO-ID-001"
+     },
+     {
+      "name": "employer_name",
+      "value": "אביב מערכות דיגיטל בע״מ",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       332,
+       692,
+       343,
+       896
+      ],
+      "label_quote": "מעסיק",
+      "normalized": "אביב מערכות דיגיטל בע״מ",
+      "quote": "אביב מערכות דיגיטל בע״מ"
+     },
+     {
+      "name": "salary_period",
+      "value": "אוגוסט 2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       394,
+       796,
+       405,
+       896
+      ],
+      "label_quote": "חודש שכר",
+      "normalized": "2026-08",
+      "quote": "אוגוסט 2026"
+     },
+     {
+      "name": "issue_date",
+      "value": "08.09.2026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       394,
+       105,
+       405,
+       192
+      ],
+      "label_quote": "תאריך הפקה",
+      "normalized": "08.09.2026",
+      "quote": "08.09.2026"
+     },
+     {
+      "name": "gross_pay",
+      "value": "21,100",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       707,
+       523,
+       718,
+       577
+      ],
+      "label_quote": "שכר ברוטו (₪)",
+      "normalized": "21100.00",
+      "quote": "21,100"
+     },
+     {
+      "name": "total_deductions",
+      "value": "6,400",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       707,
+       105,
+       718,
+       148
+      ],
+      "label_quote": "ניכויים (₪)",
+      "normalized": "6400.00",
+      "quote": "6,400"
+     },
+     {
+      "name": "net_pay",
+      "value": "14,700",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       769,
+       523,
+       780,
+       577
+      ],
+      "label_quote": "שכר נטו להעברה (₪)",
+      "normalized": "14700.00",
+      "quote": "14,700"
+     },
+     {
+      "name": "document_number",
+      "value": "SYN-IDO-08-08092026",
+      "page": 1,
+      "confidence": 1.0,
+      "legible": true,
+      "box_2d": [
+       769,
+       105,
+       780,
+       287
+      ],
+      "label_quote": "מספר אסמכתת שכר",
+      "normalized": "SYN-IDO-08-08092026",
+      "quote": "SYN-IDO-08-08092026"
+     }
+    ],
+    "earnings": [
+     {
+      "label": "שכר יסוד",
+      "amount": "19,600",
+      "page": 1
+     },
+     {
+      "label": "תוספת / שעות נוספות",
+      "amount": "1,500",
+      "page": 1
+     }
+    ],
+    "deductions": [
+     {
+      "label": "מס הכנסה",
+      "amount": "3,840",
+      "page": 1
+     },
+     {
+      "label": "ביטוח לאומי ובריאות",
+      "amount": "2,560",
+      "page": 1
+     }
+    ],
+    "suspicious_content": [
+     {
+      "quote": "TEST DATA / NOT VALID",
+      "kind": "inconsistency",
+      "page": 1
+     },
+     {
+      "quote": "מסמך סינתטי לצורכי בדיקות QA בלבד",
+      "kind": "inconsistency",
+      "page": 1
+     },
+     {
+      "quote": "נתוני דוגמה בלבד · אינו אישור בנקאי, תלוש שכר אמיתי, מסמך זכויות או מסמך משפטי תקף.",
+      "kind": "inconsistency",
+      "page": 1
+     },
+     {
+      "quote": "מסמך דמו · לא לשימוש",
+      "kind": "inconsistency",
+      "page": 1
+     }
+    ],
+    "uncertainties": [
+     "מדובר במסמך בדיקה/דמו פיקטיבי שאינו תלוש אמיתי"
+    ],
+    "title_quote": "תלוש שכר חודשי"
+   },
+   "judge_by_rubric": {
+    "payslip.il.salaried": {
+     "criteria": {
+      "PS-01": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך מוגדר כתלוש שכר חודשי, וכולל פרטי עובד, מעסיק, תקופת שכר, פירוט רכיבי שכר, ניכויים וסכומי ברוטו ונטו."
+      },
+      "PS-02": {
+       "outcome": "PASS",
+       "explanation_he": "המסמך שלם וקריא לחלוטין. כל השדות המרכזיים ברורים וללא חיתוכים או טשטוש."
+      },
+      "PS-03": {
+       "outcome": "PASS",
+       "explanation_he": "שם העובד ומספר הזיהוי בתלוש תואמים באופן מלא לפרטי הלווה המשויך."
+      },
+      "PS-08": {
+       "outcome": "PASS",
+       "explanation_he": "לא זוהו במסמך הוראות המיועדות למערכת AI, ניסיונות הזרקת הנחיות או סימני עריכה וזיוף. הטקסטים וסימני המים הינם חלק מובנה ממאגר הבדיקות הסינתטי המורשה בסביבה זו."
+      },
+      "PS-10": {
+       "outcome": "PASS",
+       "explanation_he": "לא מודפס תאריך תשלום בתלוש (תאריך ההפקה 08.09.2026 אינו מהווה תאריך תשלום). בהתאם לכללים ולתוצאה הדטרמיניסטית, בהיעדר תאריך תשלום מודפס הקריטריון אינו מעכב."
+      }
+     },
+     "summary_he": "תלוש השכר של עידו לוי עבור חודש אוגוסט 2026 עבר בהצלחה את כל הבדיקות שהוקצו. המסמך קריא, שלם, תואם לפרטי הלווה ואינו מכיל סימני מניפולציה.",
+     "limitations_he": [
+      "מדובר במסמך בדיקה סינתטי מתוך מאגר הדגמה."
+     ],
+     "uncertainty_he": []
+    }
+   },
+   "sources": [
+    "live Gemini review 2026-10-14 · ido_2026_09.pdf · rubric payslip.il.salaried@1.2.0 · verdict NEEDS_REVIEW · doc_type payslip"
+   ]
   }
  }
 }

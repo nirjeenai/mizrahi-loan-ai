@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ils } from "../../api";
 import { useCase } from "../../caseContext";
@@ -28,6 +29,16 @@ function HomeArt() {
 
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("");
 
+/** Synthetic demo portraits of the fictional bankers; anyone else (or a portrait that fails to load) gets initials. */
+const PORTRAITS: Record<string, string> = { "STAFF-DANA": "/people/dana-cohen.jpg" };
+
+function BankerAvatar({ banker }: { banker: { name_he: string; staff_id?: string } }) {
+  const [failed, setFailed] = useState(false);
+  const src = banker.staff_id ? PORTRAITS[banker.staff_id] : undefined;
+  if (src && !failed) return <span className="avatar photo" aria-hidden><img src={src} alt="" onError={() => setFailed(true)} /></span>;
+  return <span className="avatar initials" aria-hidden>{initials(banker.name_he)}</span>;
+}
+
 export function Home() {
   const { snap, error, stale, updatedAt, reload, openAssistant } = useCase();
   const nav = useNavigate();
@@ -46,7 +57,7 @@ export function Home() {
       <div className="greeting">
         <HomeArt />
         <h1>שלום {names}</h1>
-        <p>מה קורה בתיק המשכנתא שלכם</p>
+        <p>מה קורה בבקשת ההלוואה שלכם</p>
       </div>
 
       {stale && (
@@ -61,7 +72,8 @@ export function Home() {
         <span className="grow">
           <span className="stage-of">שלב <span className="ltr">{stage.index}</span> מתוך <span className="ltr">{stage.of}</span> · במערכת הבנק</span>
           <span className="stage-label">{stage.label_he}</span>
-          <span className="card-sub">{c.preliminary_decision ? `${c.preliminary_decision.label_he} · אינו אישור סופי` : "שלב הבקשה במערכת הבנק"}</span>
+          <span className="card-sub">{c.preliminary_decision ? `${c.preliminary_decision.label_he} · אינו אישור סופי`
+            : `${c.loan?.product_he || "הלוואה"} · ${c.loan?.purpose_he || ""}`}</span>
         </span>
         <StageRing step={stage.index} of={stage.of} label={stage.label_he} compact />
         <span className="chev"><IChevron /></span>
@@ -71,7 +83,7 @@ export function Home() {
 
       <section className="card banker-box" aria-label={`${c.banker.role_he}: ${c.banker.name_he}`} data-testid="banker-card">
         <div className="banker-top">
-          <span className="avatar initials" aria-hidden>{initials(c.banker.name_he)}</span>
+          <BankerAvatar key={c.banker.staff_id || c.banker.name_he} banker={c.banker} />
           <span className="grow"><div className="card-title">{c.banker.name_he}</div><div className="card-sub">{c.banker.role_he}</div></span>
           <button className="banker-write" onClick={() => openAssistant(`אני רוצה לפנות ל${c.banker.name_he}`)}><IChat size={16} />כתיבת פנייה</button>
         </div>
@@ -90,7 +102,8 @@ export function Home() {
 
       <button className="card card-row pressable" style={{ width: "100%", border: "none", textAlign: "right" }} onClick={() => nav("/customer/request")}>
         <span className="circle-icon"><IBag /></span>
-        <span className="grow"><div className="card-title">פרטי הבקשה שלנו</div><div className="card-sub ltr">{ils(c.requested_loan_ils)}</div></span>
+        <span className="grow"><div className="card-title">פרטי בקשת ההלוואה</div>
+          <div className="card-sub"><span className="ltr">{ils(c.requested_loan_ils)}</span>{c.loan ? ` · ${c.loan.payments} תשלומים` : ""}</div></span>
         <span className="chev"><IChevron /></span>
       </button>
     </>

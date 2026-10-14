@@ -23,6 +23,6 @@ Locations: `mizrahi-touch-ai-demo/docs/CODEMAP.md` → Frontend.
 
 ## Verify a frontend change
 1. `cd mizrahi-touch-ai-demo/frontend && ./node_modules/.bin/tsc --noEmit -p .`
-2. `npm run build` — :8790 serves `frontend/dist`, so without a build the running app shows the old UI.
+2. `npm run build` — :8791 serves `frontend/dist`, so without a build the running app shows the old UI.
 3. Look at it in a browser: customer app at phone width (~390 px) and on desktop ≥ 901 px (presenter pane),
    plus `/banker` if touched. For flows, use the `run-stack` skill (isolated backend).

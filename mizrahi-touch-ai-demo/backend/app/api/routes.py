@@ -24,7 +24,7 @@ from ..review import evidence as ev
 from ..review import registry, rubrics
 from ..store import repo
 from ..util import sha256_bytes
-from ..workflow import demo, desk_state, engine, outcomes, readiness, review_desk
+from ..workflow import demo, desk_state, engine, intake, outcomes, readiness, review_desk
 
 router = APIRouter(prefix="/api")
 
@@ -357,6 +357,31 @@ def stage_dictionary():
     return bank.stage_dictionary()
 
 
+# ---------------------------------------------------------------- customer-started applications (demo intake)
+@router.get("/demo/applications/options")
+def application_options():
+    if not settings.demo_identity:
+        raise HTTPException(404, "demo intake is switched off")
+    return intake.options()
+
+
+@router.post("/demo/applications", status_code=201)
+def create_application(body: intake.Application, request: Request, response: Response):
+    """A new synthetic loan application; the browser's customer session is extended to it (demo identity only)."""
+    if not settings.demo_identity:
+        raise HTTPException(404, "demo intake is switched off")
+    try:
+        case_id = intake.create(body)
+    except intake.IntakeRefused as exc:
+        raise HTTPException(422, str(exc)) from None
+    held = (auth.customer(request) or {}).get("cases", [])
+    token = auth.issue("customer", list(dict.fromkeys([case_id] + held))[:auth.MAX_CASES])
+    auth.set_session(response, "customer", token)
+    repo.audit(case_id, "customer", "loan_application_started", case_id,
+               {"purpose": body.purpose, "employment": body.employment, "payments": body.payments})
+    return {"case_id": case_id, "requirements": [r["title_he"] for r in bank.requirements(case_id)]}
+
+
 FIXTURES = settings.frontend_dist.parent.parent / "fixtures" / "out"
 FIXTURE_NOTES = {"digital_reissued": "שם הקובץ: ספטמבר · התוכן: אוגוסט", "scan": "סריקה ללא שכבת טקסט", "unreadable": "סריקה לא קריאה",
                  "injection": "מכיל הוראה למערכת", "contradictory": "סכומים סותרים"}
@@ -413,10 +438,12 @@ def presenter_scenarios():
         files[d["id"]] = {"available": bool(data), "bytes": len(data), "sha256_matches_manifest": sha256_bytes(data) == d["sha256"],
                           "pages": int(row["pages"]) if row.get("pages") else None, "input_mode": row.get("input_mode")}
     refs = sorted({s["expectedJson"] for s in manifest["scenarios"] if s.get("expectedJson")})
-    rubrics = sorted((PRESENTER / PRESENTER_RUBRICS).glob("*.json"))
+    # the engine's own rubrics (latest version per family) — what the app on the right actually checks against
+    engine = [rubrics.latest(rid) for rid in rubrics.FAMILY_RUBRIC.values() if any(
+        r["rubric_id"] == rid for r in rubrics.all_rubrics().values())]
     return {"manifest": manifest, "files": files, "expected": {ref: _presenter_json(ref) for ref in refs},
             "negative_tests": (_presenter_json(PRESENTER_NEGATIVE) or {}).get("tests", []),
-            "rubrics": [_presenter_json(f"{PRESENTER_RUBRICS}/{p.name}") for p in rubrics]}
+            "rubrics": [{**r, "document_type": r.get("family", "payslip")} for r in engine]}
 
 
 @router.get("/presenter/file")
@@ -435,7 +462,7 @@ def presenter_file(doc_id: str = Query(alias="id")):
 
 @router.post("/presenter/demo-reset")
 def presenter_demo_reset(request: Request):
-    """Presenter control "התחל דמו חדש": wipes the executive demo cases (006–008) and nothing else. Off with
+    """Presenter control "התחל דמו חדש": wipes the executive demo cases (006–011) and nothing else. Off with
     DEMO_RESET=0; needs any signed-in session (the presenter is signed in to the app on the right)."""
     if not settings.demo_reset:
         raise HTTPException(403, "איפוס תיקים כבוי בסביבה זו.")
@@ -524,9 +551,9 @@ def integrations():
                    + ("none yet" if not last else "ok" if str(last.get("ok")) == "1" else "failed")},
         {"component": "Deterministic validation, evidence verification, rubric policy", "state": "LOCAL",
          "detail": "PyMuPDF text layer · crop re-read for scans · versioned rubrics on disk"},
-        {"component": "Mortgage Case Service (state, workflow, findings lifecycle, audit)", "state": "LOCAL",
+        {"component": "Loan Case Service (state, workflow, findings lifecycle, audit)", "state": "LOCAL",
          "detail": f"SQLite at {settings.db_path.name} · durable jobs with retry"},
-        {"component": "Mortgage Case MCP server", "state": "LOCAL",
+        {"component": "Loan Case MCP server", "state": "LOCAL",
          "detail": "POST /mcp · Streamable HTTP · case-bound bearer keys"},
         {"component": "Voice — browser speech (STT/TTS) on the same agent", "state": "LOCAL",
          "detail": "Web Speech he-IL when available; Gemini transcription fallback; system Hebrew voice for answers"},

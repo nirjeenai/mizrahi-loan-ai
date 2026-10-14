@@ -20,7 +20,10 @@ from app.store import repo
 from app.util import new_id, now_iso
 from app.workflow import engine
 
+pytestmark = pytest.mark.usefixtures("payslip_scope")    # the payslip workflow on its own (see conftest)
 CASE, OTHER = "DEMO-MTZ-2026-001", "DEMO-MTZ-2026-003"
+
+
 def bearer(role: str, subject) -> dict:
     return {"Authorization": f"Bearer {auth.issue(role, subject)}"}
 
@@ -194,7 +197,7 @@ def test_workspace_groups_missing_months_apart_from_uploaded_documents():
     assert missing["related_documents"][0]["document_id"] == docs["ido09"]
     assert ws["summary"]["missing"] == 1 and ws["summary"]["payslips_required"] == 6
     assert ws["summary"]["payslips_verified"] == 5                         # the September copy is a valid August
-    assert ws["bank_stage"]["label_he"] == "קיבלנו החלטה" and ws["bank_stage"]["authoritative"] is False
+    assert ws["bank_stage"]["label_he"] == "השלמת מסמכים" and ws["bank_stage"]["authoritative"] is False
     assert ws["can_confirm"]["allowed"] is False and "חסר תלוש אחד" in ws["can_confirm"]["reason_he"]
 
 

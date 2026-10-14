@@ -1,4 +1,4 @@
-"""The mortgage assistant — Gemini with real function calling over the shared case tools.
+"""The loan-application assistant — Gemini with real function calling over the shared case tools.
 One brain for chat and voice: every turn (typed or spoken) lands in the same persisted
 conversation and is answered from live case state. An output guard blocks approval-style
 claims; if Gemini is unavailable the reply falls back to tool output, never to invention."""
@@ -18,14 +18,14 @@ from . import actions, continuation, tools
 log = logging.getLogger("agent")
 MAX_STEPS = 6
 
-SYSTEM = """אתה העוזר הדיגיטלי של מומחי המשכנתאות בטפחות טאצ׳ — הדגמת קונספט של JEEN עם נתונים סינתטיים.
-אתה עובד בשביל המומחית האנושית {banker} ואינך מחליף אותה. התפקיד: לעזור ל{names} להבין מה מצב מסמכי ההכנסה שהעלו,
-מה חסר, מה צריך לתקן ואיך — ולהעביר לבנקאית כל מה שדורש החלטה אנושית.
+SYSTEM = """אתה העוזר הדיגיטלי של בקשות ההלוואה במזרחי־טפחות — הדגמת קונספט של JEEN עם נתונים סינתטיים.
+אתה עובד בשביל הבנקאית האנושית {banker} ואינך מחליף אותה. התפקיד: לעזור ל{names} להבין מה מצב המסמכים שהעלו לבקשת
+ההלוואה (תעודת זהות, תלושי שכר, דפי עו״ש, אסמכתה למטרה), מה חסר, מה צריך לתקן ואיך — ולהעביר לבנקאית כל מה שדורש החלטה אנושית.
 
 כללים מחייבים:
 1. כל עובדה על התיק, המסמכים, הממצאים והסטטוסים — רק מתוך תוצאות הכלים בשיחה הזו. לפני תשובה על התיק הפעל כלי.
    אם כלי נכשל — אמור שאינך יכול לבדוק כרגע. לעולם אל תנחש.
-2. לעולם אל תאמר שהמשכנתא אושרה, שהתיק הושלם או שהבנק קיבל מסמך, ואל תמסור ריבית, סכום מאושר או תנאים.
+2. לעולם אל תאמר שההלוואה אושרה, שהתיק הושלם או שהבנק קיבל מסמך, ואל תמסור ריבית, סכום מאושר או תנאים.
    את שלב הבקשה במערכת הבנק מסור רק כפי שהכלי מחזיר אותו, בלי להסיק ממנו החלטה. ״נמצא תקין״ הוא תוצאת בדיקת מסמך אוטומטית בלבד.
 3. הסבר של לקוח אינו ראיה. תעד הסבר (record_customer_statement) רק אחרי שהלקוח אישר במפורש שיתועד, וציין שהוא
    מועבר לבנקאית ואינו סוגר את הממצא.
@@ -53,7 +53,7 @@ _BLOCK = [
     re.compile(r"הבנק\s+(?:אישר|קיבל)\s+את\s+המסמך"),
 ]
 SAFE_REPLY = ("אני יכול למסור רק את תוצאות בדיקת המסמכים האוטומטית ומה עוד חסר. "
-              "החלטה על המשכנתא מתקבלת אצל מומחית המשכנתאות בלבד — אפשר להעביר אליה את השאלה.")
+              "החלטה על ההלוואה מתקבלת אצל הבנקאית בלבד — אפשר להעביר אליה את השאלה.")
 
 
 def guard_reply(text: str) -> tuple[str, dict]:
@@ -135,7 +135,7 @@ def respond(case_id: str, text: str, channel: str = "text", provenance: Optional
                 responses.append({"functionResponse": response})
             contents.append({"role": "user", "parts": responses})
         if not reply:
-            reply = "לא הצלחתי להשלים את הבדיקה כרגע. אפשר לנסות שוב או לפנות למומחית המשכנתאות."
+            reply = "לא הצלחתי להשלים את הבדיקה כרגע. אפשר לנסות שוב או לפנות לבנקאית."
     except g.GeminiError as exc:
         log.warning("agent fallback: %s", exc)
         fallback = True

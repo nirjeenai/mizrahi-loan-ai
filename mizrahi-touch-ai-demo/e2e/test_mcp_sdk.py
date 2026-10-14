@@ -2,7 +2,7 @@
 handshake, tool catalog, MCP-vs-app consistency, write guard, case binding, and HTTP-level refusals.
 Read-only against the case except for one write attempt that the server must refuse.
 
-Run (backend on :8790, ideally after e2e/test_journey.py so the case has documents and findings):
+Run (backend on :8791, ideally after e2e/test_journey.py so the case has documents and findings):
     backend/.venv/bin/python e2e/test_mcp_sdk.py
 """
 from __future__ import annotations
@@ -18,7 +18,7 @@ from mcp import ClientSession
 from mcp.client.streamable_http import create_mcp_http_client, streamable_http_client
 import demo_auth  # noqa: E402  (e2e/ is on sys.path when a suite runs as a script)
 
-BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8790")
+BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8791")
 demo_auth.install(BASE)                   # the service has no anonymous access (see demo_auth.py)
 CASE, OTHER = "DEMO-MTZ-2026-001", "DEMO-MTZ-2026-002"
 ROOT = Path(__file__).resolve().parent

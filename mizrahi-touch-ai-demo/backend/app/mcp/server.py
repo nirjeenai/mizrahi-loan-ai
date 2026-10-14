@@ -18,7 +18,7 @@ from ..store import repo
 router = APIRouter(tags=["mcp"])
 PROTOCOL_VERSIONS = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"]
 SERVER_INFO = {"name": "mizrahi-touch-mortgage-case", "version": "0.1.0"}
-INSTRUCTIONS = ("Mortgage Case Service of the Mizrahi Tefahot Touch × JEEN concept demo (synthetic data). Read the case "
+INSTRUCTIONS = ("Personal-loan document case service of the Mizrahi Tefahot Touch × JEEN concept demo (synthetic data). Read the case "
                 "state, document reviews and open items of the ONE case your key is bound to; record a customer statement "
                 "or a banker handoff only with explicit customer confirmation. " + tools.NOTICE)
 BUDGET = 3800
@@ -103,7 +103,7 @@ async def mcp_post(request: Request):
     token = auth[7:].strip() if auth.lower().startswith("bearer ") else ""
     case_id = settings.mcp_keys.get(token)
     if not case_id:
-        return _deny(401, "A valid Mortgage Case MCP key is required.")
+        return _deny(401, "A valid case MCP key is required.")
     try:
         message = json.loads(await request.body())
     except ValueError:

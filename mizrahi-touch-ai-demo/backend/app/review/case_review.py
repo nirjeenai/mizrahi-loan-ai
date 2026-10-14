@@ -6,7 +6,7 @@ comparable, is a difference grounded) and never sees a customer explanation as p
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, timedelta
 from statistics import mean
 from typing import Any
 
@@ -15,6 +15,8 @@ from ..llm import gemini as g
 from ..util import now_iso, stable_hash
 from . import deterministic as det
 from . import prompts as P
+from . import reason_codes as RC
+from . import rubrics as R
 from .contract import CaseReviewRequest, CaseReviewResult, CriterionOutcome, DesiredFinding, EvidenceRef, ProgressFn, ProviderIdentity
 
 _SEMANTIC_CACHE: dict[str, dict] = {}
@@ -65,14 +67,118 @@ def income_comparable(review: dict, policy: dict) -> bool:
     return review["verdict"] != "INVALID" and all(outcomes.get(cid) == "PASS" for cid in required)
 
 
+def _rubric_of(review: dict) -> dict:
+    return R.all_rubrics().get(f"{review['rubric_id']}@{review['rubric_version']}") or {}
+
+
+def _document_findings(d: dict, family: str) -> list[DesiredFinding]:
+    """A non-payslip document's failed or undecided checks. One root cause per document, as for payslips: a doubt
+    about the type or the legibility explains every downstream gap."""
+    r = d["review"]
+    rubric = _rubric_of(r)
+    by_id = {c["criterion_id"]: c for c in r["criteria"]}
+    type_id, legible_id = rubric.get("type_criterion"), rubric.get("legibility_criterion")
+    type_outcome = by_id.get(type_id, {}).get("outcome")
+    # a legible document of another type (a payslip in the ID card) is "not an ID card", even when the judge also found
+    # the ID fields "illegible"; a file that could not be read at all is reported as unreadable
+    if type_outcome == "FAIL" and r.get("doc_type") not in ("unreadable", None) and r.get("legibility") != "unreadable":
+        reported = [by_id[type_id]]
+    elif by_id.get(legible_id, {}).get("outcome") in ("FAIL", "NEEDS_REVIEW"):
+        reported = [by_id[legible_id]]
+    elif type_outcome in ("FAIL", "NEEDS_REVIEW"):
+        reported = [by_id[type_id]]
+    else:
+        reported = r["criteria"]
+    out = []
+    for c in reported:
+        if c["outcome"] not in ("FAIL", "NEEDS_REVIEW") or not c.get("reason_code"):
+            continue
+        code = c["reason_code"]
+        state = STATE_BY_ESCALATION.get(c.get("escalation") or "banker", "NEEDS_BANKER_REVIEW")
+        uncertain = state == "CUSTOMER_ACTION_REQUIRED" and c["outcome"] != "FAIL"
+        if uncertain:
+            state = "NEEDS_BANKER_REVIEW"                # an undecided check goes to a person, never back to the customer
+        title, message = RC.document_text(code, family, d["filename"], c["explanation_he"], uncertain, c["title_he"])
+        out.append(DesiredFinding(
+            key=f"{code}:{d['document_id']}", code=code, severity=c["severity"], review_state=state,
+            borrower_id=d["borrower_id"], document_id=d["document_id"], period=None, title_he=title, message_he=message,
+            detail={"criterion_id": c["criterion_id"], "document_verdict": r["verdict"], "run_id": r["run_id"],
+                    "requirement_code": d.get("requirement_code"), "family": family},
+            evidence=[e for fid in c.get("evidence_ids", []) for e in _evidence(d, fid.split(":", 1)[1])]))
+    return out
+
+
+def _requirement_coverage(ctx: dict, documents: list[dict], as_of: date, findings: list[DesiredFinding],
+                          criteria: list[CriterionOutcome]) -> dict[str, Any]:
+    """Non-payslip requirements: is there a document for each, and do the statements of an account cover the window."""
+    out: dict[str, Any] = {}
+    names = {b["borrower_id"]: b["name_he"].split()[0] for b in ctx["borrowers"]}
+    for q in ctx.get("requirements") or []:
+        if q["family"] == "payslip" or not q.get("required", True):
+            continue
+        code = q["code"]
+        mine = [d for d in documents if d.get("requirement_code") == code]
+        reviewed = [d for d in mine if d.get("review")]
+        entry: dict[str, Any] = {"documents": [d["document_id"] for d in mine], "gaps": []}
+        if not mine:
+            findings.append(DesiredFinding(
+                key=f"{RC.REQUIRED_DOCUMENT_MISSING}:{code}", code=RC.REQUIRED_DOCUMENT_MISSING, severity="blocking",
+                review_state="CUSTOMER_ACTION_REQUIRED", borrower_id=q.get("borrower_id"),
+                title_he=f"חסר: {q['title_he']}", message_he=f"כדי להשלים את בקשת ההלוואה חסר: {q['title_he']}.",
+                detail={"requirement_code": code, "family": q["family"]}))
+        if q["family"] == "bank_statement" and reviewed:
+            ranges = []
+            for d in reviewed:
+                facts = {f["field"]: f for f in d["review"]["facts"]}
+                start = (facts.get("statement_from") or {}).get("value_normalized")
+                end = (facts.get("statement_to") or {}).get("value_normalized")
+                types_ok = d["review"]["doc_type"] == "bank_statement" and d["review"]["verdict"] != "INVALID"
+                if start and end and types_ok:
+                    ranges.append((date.fromisoformat(start), date.fromisoformat(end)))
+            days = int((q.get("rules") or {}).get("coverage_days", 90))
+            max_age = int((q.get("rules") or {}).get("max_age_days", 30))
+            if ranges:
+                # the window ends at the latest statement, or at the oldest acceptable end date when that is later
+                latest = max(max(b for _, b in ranges), as_of - timedelta(days=max_age))
+                lo, hi = det.window(latest, days)
+                gaps = det.coverage_gaps(ranges, lo, hi)
+                entry.update({"window": [lo.isoformat(), hi.isoformat()],
+                              "covered": [[a.isoformat(), b.isoformat()] for a, b in sorted(ranges)],
+                              "gaps": [[a.isoformat(), b.isoformat()] for a, b in gaps]})
+                if gaps:
+                    listed = ", ".join(f"{det.day_he(a)}–{det.day_he(b)}" for a, b in gaps)
+                    holders = " ו".join(names.get(h, h) for h in q.get("holders") or [])
+                    findings.append(DesiredFinding(
+                        key=f"{RC.STATEMENT_PERIOD_GAP}:{code}", code=RC.STATEMENT_PERIOD_GAP, severity="blocking",
+                        review_state="CUSTOMER_ACTION_REQUIRED", borrower_id=q.get("borrower_id"),
+                        title_he=f"חסרה תקופה בדפי העו״ש — {holders}",
+                        message_he=(f"דפי העו״ש שהועלו לחשבון אינם מכסים את {days} הימים האחרונים. חסרה התקופה: {listed}. "
+                                    "נא להעלות דף תנועות שמכסה אותה."),
+                        detail={"requirement_code": code, "family": q["family"], "gaps": entry["gaps"], "window": entry["window"]}))
+        satisfied = bool(mine) and not entry["gaps"]
+        criteria.append(CriterionOutcome(criterion_id=f"RQ:{code}", title_he=q["title_he"], method="deterministic",
+                                         outcome="PASS" if satisfied else "FAIL", severity="blocking",
+                                         reason_code=RC.STATEMENT_PERIOD_GAP if entry["gaps"] else RC.REQUIRED_DOCUMENT_MISSING,
+                                         explanation_he=("הועלה מסמך" if satisfied else
+                                                         "חסרה תקופה" if entry["gaps"] else "טרם הועלה מסמך")))
+        out[code] = entry
+    return out
+
+
 def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn) -> CaseReviewResult:
     started = now_iso()
     rubric = req.rubric
     policy = rubric["policy"]
     ctx = req.case_context
     as_of = date.fromisoformat(ctx["simulation_date"])
-    requested = det.requested_months(as_of, policy["requested_months"], policy["payday_day_of_next_month"])
+    requested = det.requested_months(as_of, ctx.get("payslip_months") or policy["requested_months"],
+                                     policy["payday_day_of_next_month"])
     borrowers = {b["borrower_id"]: b for b in ctx["borrowers"]}
+    family_by_code = {q["code"]: q["family"] for q in ctx.get("requirements") or []}
+
+    def family(d: dict) -> str:
+        return family_by_code.get(d.get("requirement_code") or "", "payslip")
+
     reviewed = [d for d in req.documents if d.get("review")]
     findings: list[DesiredFinding] = []
     criteria: list[CriterionOutcome] = []
@@ -82,6 +188,9 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
     progress("case_coverage")
     for d in reviewed:                                    # document-level outcomes become findings
         r = d["review"]
+        if family(d) != "payslip":
+            findings += _document_findings(d, family(d))
+            continue
         if r.get("file_name_period") and r.get("period") and r["file_name_period"] != r["period"]:
             findings.append(DesiredFinding(
                 key=f"FILE_NAME_PERIOD_MISMATCH:{d['document_id']}", code="FILE_NAME_PERIOD_MISMATCH", severity="info",
@@ -119,8 +228,9 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
                 detail={"criterion_id": c["criterion_id"], "document_verdict": r["verdict"], "run_id": r["run_id"]},
                 evidence=[e for fid in c.get("evidence_ids", []) for e in _evidence(d, fid.split(":", 1)[1])]))
 
+    requirement_coverage = _requirement_coverage(ctx, req.documents, as_of, findings, criteria)
     for bid, b in borrowers.items():
-        assigned = [d for d in reviewed if d["borrower_id"] == bid]
+        assigned = [d for d in reviewed if d["borrower_id"] == bid and family(d) == "payslip"]
         counting, mismatched = [], []
         for d in assigned:
             r = d["review"]
@@ -274,11 +384,11 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
                 detail={"semantic": s}))
     return CaseReviewResult(run_id=req.run_id, case_id=req.case_id, identity=identity, rubric_id=rubric["rubric_id"],
                             rubric_version=rubric["version"], started_at=started, finished_at=now_iso(),
-                            coverage={"requested": requested, "by_borrower": coverage}, income=income,
-                            semantic=semantic.get("borrowers", []), criteria=criteria, findings=findings,
+                            coverage={"requested": requested, "by_borrower": coverage, "by_requirement": requirement_coverage},
+                            income=income, semantic=semantic.get("borrowers", []), criteria=criteria, findings=findings,
                             limitations_he=list(semantic.get("limitations_he") or []) + [
-                                "נבדקו מסמכי שכר בלבד. דפי חשבון, שמאות, ביטוחים ומסמכי מוכר ובטוחות אינם נבדקים בהדגמה זו.",
-                                "החודשים הנדרשים מחושבים לפי תאריך הסימולציה ומדיניות ניתנת להגדרה — אינם מדיניות בנקאית מאומתת."],
+                                "הדרישות נגזרות ממדיניות המסמכים שהוצמדה לתיק (נתוני הדגמה) — אינן רשימה מאומתת של הבנק.",
+                                "החודשים והתקופות הנדרשים מחושבים לפי תאריך הסימולציה ומדיניות ניתנת להגדרה."],
                             usage={"semantic_cached": semantic.get("_cached", False),
                                    "semantic_source_run": semantic.get("_source_run")})
 

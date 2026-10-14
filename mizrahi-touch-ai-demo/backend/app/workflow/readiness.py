@@ -24,7 +24,7 @@ STATE_HE = {
     "ACTION_REQUIRED": "נדרשת השלמה מצדכם",
     "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDINGS": "מוכן לבדיקת הבנקאי — עם ממצאים פתוחים",
     "READY_FOR_HUMAN_REVIEW": "מוכן לבדיקת הבנקאי",
-    "PREPARATION_CONFIRMED": "הבנקאי אישר את הכנת מסמכי השכר",
+    "PREPARATION_CONFIRMED": "הבנקאי אישר את הכנת מסמכי הבקשה",
     "ERROR": "תקלה בבדיקה — נדרש טיפול",
 }
 # the same states as the banker reads them; STATE_HE above speaks to the customer
@@ -35,7 +35,7 @@ STATE_HE_BANKER = {
     "ACTION_REQUIRED": "ממתין להשלמות מהלקוח",
     "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDINGS": "ממתין לבדיקתך · יש ממצאים פתוחים",
     "READY_FOR_HUMAN_REVIEW": "ממתין לבדיקתך",
-    "PREPARATION_CONFIRMED": "הכנת מסמכי השכר אושרה",
+    "PREPARATION_CONFIRMED": "הכנת מסמכי הבקשה אושרה",
     "ERROR": "תקלה בעיבוד — נדרש טיפול",
 }
 REQ_STATE_HE = {
@@ -73,14 +73,76 @@ def customer_status(*, required: int, documents: int, failed: int, review_failed
     return "CHECKS_COMPLETE"
 
 
-def policy_months() -> list[str]:
-    """The salary months the case rubric requires as of the simulation date — known before any review."""
+def policy_months(case_id: str | None = None) -> list[str]:
+    """The salary months required as of the simulation date — known before any review. The count comes from the loan
+    policy pinned to the case (the case rubric's count when no case is given); the payday rule from the case rubric."""
+    from . import requirements
     policy = rubrics.for_case()["policy"]
-    return det.requested_months(date.fromisoformat(settings.simulation_date), policy["requested_months"],
-                                policy["payday_day_of_next_month"])
+    count = requirements.payslip_months(case_id) if case_id else policy["requested_months"]
+    return det.requested_months(date.fromisoformat(settings.simulation_date), count, policy["payday_day_of_next_month"])
 
 
 REOPENING = ("REQUEST_CORRECTION", "REQUEST_MISSING_DOCUMENT", "REQUEST_EXPLANATION", "REQUEST_DOCUMENT")
+
+# The PRD's CaseStatus, derived from AI readiness (follow-up refines NEEDS_COMPLETION in followup/orchestrator.py).
+CASE_STATUS = {"NOT_CHECKED": "AWAITING_DOCUMENTS", "CHECKING": "ANALYZING", "RECHECKING": "ANALYZING",
+               "ACTION_REQUIRED": "NEEDS_COMPLETION", "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDINGS": "HUMAN_REVIEW",
+               "READY_FOR_HUMAN_REVIEW": "READY_FOR_BANKER", "PREPARATION_CONFIRMED": "PREPARATION_CONFIRMED",
+               "ERROR": "ERROR"}
+CASE_STATUS_HE = {"AWAITING_DOCUMENTS": "ממתין למסמכים", "ANALYZING": "בבדיקת מסמכים", "NEEDS_COMPLETION": "נדרשת השלמה",
+                  "FOLLOWUP_IN_PROGRESS": "טיפול יזום בהשלמה", "AWAITING_CUSTOMER": "ממתין לפעולת הלקוח",
+                  "HUMAN_REVIEW": "נדרש בירור בנקאי", "READY_FOR_BANKER": "מוכן לבדיקת בנקאי",
+                  "PREPARATION_CONFIRMED": "הבנקאי אישר את הכנת התיק", "ERROR": "תקלה בבדיקה"}
+
+
+def case_status(state: str) -> str:
+    return CASE_STATUS[state]
+
+
+def _document_requirement(r: dict, docs: list[dict], open_f: list[dict], open_requests: list[dict], statuses: dict,
+                          replaced_ids: set, confirmed: Any, case_review_failed: bool, case_job_pending: bool,
+                          reviewed_before: bool, counts: Any) -> dict:
+    """A one-document requirement (ID, a statement of one account, proof of purpose, tax form)."""
+    code = r["code"]
+    mine = [d for d in docs if d["requirement_code"] == code and d["document_id"] not in replaced_ids]
+    ids = {d["document_id"] for d in mine}
+    related = [f for f in open_f if f["document_id"] in ids or (f.get("detail") or {}).get("requirement_code") == code]
+    customer = [f for f in related if f["review_state"] == "CUSTOMER_ACTION_REQUIRED"]
+    banker = [f for f in related if f["review_state"] == "NEEDS_BANKER_REVIEW"]
+    asked = [q for q in open_requests if q["requirement_code"] == code]
+    asked_fix = [q for q in asked if q["kind"] == "correction"]
+    gap = [f for f in customer if not f["document_id"]]
+    good = [d for d in mine if d["status"] == "reviewed" and counts(
+        {"document_id": d["document_id"], "verdict": (repo.latest_document_result(d["document_id"]) or {}).get("verdict")})]
+    busy = any(d["status"] in ("queued", "processing") for d in mine)
+    if busy:
+        state = "checking"
+    elif not mine and not asked:
+        state = "required_missing"
+    elif customer or asked:
+        state = "needs_customer_action"
+    elif banker:
+        state = "needs_banker_review"
+    elif good and not gap:
+        state = "extracted"
+    else:
+        state = "needs_customer_action"
+    if confirmed and state in ("extracted", "needs_banker_review") and not customer:
+        state = "preparation_confirmed"
+    satisfied = state in ("extracted", "preparation_confirmed")
+    correction = [f for f in customer if f["document_id"]]
+    return {**r, "ai_state": state, "ai_state_he": REQ_STATE_HE[state], "documents": len(mine),
+            "document_ids": sorted(ids), "accepted_document_ids": [d["document_id"] for d in good],
+            "open_customer_actions": len(customer), "open_banker_items": len(banker), "open_customer_requests": len(asked),
+            "requested_months": [], "covered": [], "pending_review": [], "missing": [], "duplicates": {},
+            "verified_months": [], "in_review_months": [], "required": 1, "units_required": 1,
+            "units_verified": 1 if satisfied else 0, "coverage_gaps": [f["detail"].get("gaps") for f in gap if f.get("detail")],
+            "customer_status": customer_status(
+                required=1, documents=len(mine), failed=sum(d["status"] == "failed" for d in mine),
+                review_failed=case_review_failed, reviewed_before=reviewed_before,
+                busy=busy or (case_job_pending and bool(mine)), correction=len(correction) + len(asked_fix),
+                missing=(1 if state == "required_missing" else 0) + len(gap) + len(asked) - len(asked_fix),
+                confirmed=confirmed is not None, banker=len(banker), verified=1 if satisfied else 0)}
 
 
 def confirmation(case_id: str, docs: list[dict]) -> tuple[dict | None, dict | None]:
@@ -116,7 +178,7 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
     confirmed, stale_confirmation = confirmation(case_id, docs)
     latest_case_run = (repo.case_state(case_id) or {}).get("last_case_run_id")
     coverage = (latest_case or {}).get("coverage", {}).get("by_borrower", {})
-    requested_default = (latest_case or {}).get("coverage", {}).get("requested") or policy_months()
+    requested_default = (latest_case or {}).get("coverage", {}).get("requested") or policy_months(case_id)
     statuses = desk_state.document_statuses(case_id, docs, open_f)
     open_requests = repo.customer_requests(case_id, status="OPEN")
 
@@ -124,15 +186,32 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
         return desk_state.counts_toward_coverage(x["verdict"], statuses.get(x["document_id"], {}).get("status"))
 
     requirements = []
-    for r in bank.requirements(case_id):
+    replaced_ids = {did for did, s in statuses.items() if s.get("status") == "REPLACED"}
+    case_reqs = bank.requirements(case_id)
+    family_by_code = {r["code"]: r["family"] for r in case_reqs}
+    payslip_doc = {d["document_id"] for d in docs if family_by_code.get(d["requirement_code"] or "", "payslip") == "payslip"}
+
+    def payslip_side(f: dict) -> bool:
+        """A finding about the payslip set (a payslip, a month, the income comparison) — not another family's."""
+        if f["document_id"]:
+            return f["document_id"] in payslip_doc
+        return family_by_code.get((f.get("detail") or {}).get("requirement_code") or "", "payslip") == "payslip"
+
+    for r in case_reqs:
         if not r["evaluated_by_ai"]:
-            requirements.append({**r, "ai_state": "not_evaluated_in_demo", "ai_state_he": REQ_STATE_HE["not_evaluated_in_demo"]})
+            requirements.append({**r, "ai_state": "not_evaluated_in_demo", "ai_state_he": REQ_STATE_HE["not_evaluated_in_demo"],
+                                 "units_required": 0, "units_verified": 0})
+            continue
+        if r["family"] != "payslip":
+            requirements.append(_document_requirement(r, docs, open_f, open_requests, statuses, replaced_ids, confirmed,
+                                                      case_review_failed, case_job_pending, latest_case is not None, counts))
             continue
         bid = r["borrower_id"]
-        mine = [d for d in docs if d["borrower_id"] == bid]
-        customer = [f for f in open_f if f["borrower_id"] == bid and f["review_state"] == "CUSTOMER_ACTION_REQUIRED"]
-        banker = [f for f in open_f if f["borrower_id"] == bid and f["review_state"] == "NEEDS_BANKER_REVIEW"]
-        asked = [q for q in open_requests if q["borrower_id"] == bid]
+        mine = [d for d in docs if d["borrower_id"] == bid and d["document_id"] in payslip_doc]
+        customer = [f for f in open_f if f["borrower_id"] == bid and f["review_state"] == "CUSTOMER_ACTION_REQUIRED" and payslip_side(f)]
+        banker = [f for f in open_f if f["borrower_id"] == bid and f["review_state"] == "NEEDS_BANKER_REVIEW" and payslip_side(f)]
+        asked = [q for q in open_requests if q["borrower_id"] == bid
+                 and family_by_code.get(q["requirement_code"] or "", "payslip") == "payslip"]
         asked_fix = [q for q in asked if q["kind"] == "correction"]
         cov = coverage.get(bid, {})
         if any(d["status"] in ("queued", "processing") for d in mine):
@@ -165,7 +244,7 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
                              "open_customer_requests": len(asked),
                              "required": len(requested), "verified_months": verified_months,
                              "in_review_months": [m for m in requested if m in cov.get("distinct", []) and m not in verified],
-                             "documents": len(mine),
+                             "documents": len(mine), "units_required": len(requested), "units_verified": len(verified_months),
                              "customer_status": customer_status(
                                  required=len(requested), documents=len(mine),
                                  failed=sum(d["status"] == "failed" for d in mine),
@@ -191,21 +270,26 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
         state = "READY_FOR_HUMAN_REVIEW"
     if confirmed and not customer_actions and not open_requests and not pending and not failed and not case_review_failed:
         state = "PREPARATION_CONFIRMED"
-    payslip_reqs = [r for r in requirements if r["evaluated_by_ai"]]
-    required = sum(r["required"] for r in payslip_reqs)
-    verified_total = sum(len(r["verified_months"]) for r in payslip_reqs)
+    payslip_reqs = [r for r in requirements if r["evaluated_by_ai"] and r["family"] == "payslip"]
+    ai_reqs = [r for r in requirements if r["evaluated_by_ai"]]
+    required = sum(r["units_required"] for r in ai_reqs)
+    verified_total = sum(r["units_verified"] for r in ai_reqs)
     correction = [f for f in customer_actions if f["document_id"]]
     asked_fix = [q for q in open_requests if q["kind"] == "correction"]
+    missing_units = sum(len(r["missing"]) for r in payslip_reqs) + sum(
+        1 for r in ai_reqs if r["family"] != "payslip" and r["ai_state"] == "required_missing")
     status = customer_status(
         required=required, documents=len(docs), failed=len(failed), review_failed=case_review_failed, busy=busy,
         reviewed_before=latest_case is not None, correction=len(correction) + len(asked_fix),
-        missing=sum(len(r["missing"]) for r in payslip_reqs) + len(customer_actions) - len(correction)
-        + len(open_requests) - len(asked_fix),
+        missing=missing_units + len(customer_actions) - len(correction) + len(open_requests) - len(asked_fix),
         confirmed=confirmed is not None, banker=len(banker_items), verified=verified_total)
+    done = [r for r in ai_reqs if r["ai_state"] in ("extracted", "preparation_confirmed")]
     return {
-        "scope": "income_documents.payslips", "state": state, "state_he": STATE_HE[state], "state_he_banker": STATE_HE_BANKER[state],
-        "customer_status": status, "case_review_failed": case_review_failed,
-        "payslips": {"required": required, "verified": verified_total, "requested_months": requested_default},
+        "scope": "loan_documents", "state": state, "state_he": STATE_HE[state], "state_he_banker": STATE_HE_BANKER[state],
+        "case_status": case_status(state), "customer_status": status, "case_review_failed": case_review_failed,
+        "payslips": {"required": sum(r["units_required"] for r in payslip_reqs),
+                     "verified": sum(r["units_verified"] for r in payslip_reqs), "requested_months": requested_default},
+        "progress": {"done": len(done), "total": len(ai_reqs), "missing_units": missing_units},
         "requirements": requirements,
         "counts": {"documents": len(docs), "reviewed": sum(d["status"] == "reviewed" for d in docs),
                    "processing": sum(d["status"] in ("queued", "processing") for d in docs), "failed": len(failed),

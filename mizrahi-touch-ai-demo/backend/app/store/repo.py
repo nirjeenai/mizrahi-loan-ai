@@ -35,8 +35,8 @@ def document(document_id: str) -> Optional[dict]:
     return db.one("SELECT * FROM documents WHERE document_id=?", (document_id,))
 
 
-def document_by_sha(case_id: str, sha: str) -> Optional[dict]:
-    return db.one("SELECT * FROM documents WHERE case_id=? AND sha256=?", (case_id, sha))
+def documents_by_sha(case_id: str, sha: str) -> list[dict]:
+    return db.query("SELECT * FROM documents WHERE case_id=? AND sha256=? ORDER BY uploaded_at", (case_id, sha))
 
 
 def documents(case_id: str) -> list[dict]:
@@ -319,7 +319,9 @@ def save_case_state(case_id: str, readiness: dict, last_case_run_id: Optional[st
 
 
 CASE_TABLES = ("documents", "review_runs", "findings", "statements", "turns", "audit", "jobs", "handoffs", "case_state",
-               "upload_intents", "banker_decisions", "customer_requests")
+               "upload_intents", "banker_decisions", "customer_requests", "case_profile", "completion_tasks",
+               "contact_plans", "contact_attempts", "policy_decisions", "customer_presence", "contact_preferences",
+               "case_events", "case_overrides", "upload_links")
 
 
 def reset_case(case_id: str) -> None:

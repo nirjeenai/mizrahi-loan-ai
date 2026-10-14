@@ -77,6 +77,8 @@ function Drawer({ caseId, onPick, onClose }: { caseId: string; onPick: (id: stri
             {c.display_number} · {c.title_he}
           </button>
         ))}
+        <Link to="/customer/apply" onClick={onClose} data-testid="drawer-apply" style={{ color: "var(--mz-orange)", fontWeight: 700 }}>
+          + בקשת הלוואה חדשה</Link>
         <div className="small muted" style={{ marginTop: 14 }}>הדגמה</div>
         <Link to="/banker" onClick={onClose}>תצוגת בנקאי — חבילת ראיות</Link>
         <Link to="/system" onClick={onClose}>מטריצת אינטגרציות, MCP ורובריקות</Link>

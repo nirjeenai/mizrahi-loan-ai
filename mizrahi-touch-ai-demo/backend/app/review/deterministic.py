@@ -20,6 +20,7 @@ HEBREW_MONTH_NAMES = {v: k for k, v in HEBREW_MONTHS.items() if k != "מרס"}
 _ISO = re.compile(r"^\s*(\d{4})\s*[-/.]\s*(\d{1,2})\s*$")
 _MY = re.compile(r"^\s*(\d{1,2})\s*[/.\-]\s*(\d{4})\s*$")
 _DAY = re.compile(r"(\d{1,2})[./\-](\d{1,2})[./\-](\d{4})")
+_ISO_DAY = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
 _NAMED_NUMERIC = re.compile(r"(?<!\d)(\d{4})[\s._\-](\d{1,2})(?!\d)|(?<!\d)(\d{1,2})[\s._\-](\d{4})(?!\d)")
 
 
@@ -71,10 +72,11 @@ def parse_amount(text: Optional[str]) -> Optional[float]:
 
 def parse_day(text: Optional[str]) -> Optional[date]:
     m = _DAY.search(str(text or ""))
-    if not m:
-        return None
     try:
-        return date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        if m:
+            return date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        m = _ISO_DAY.search(str(text or ""))
+        return date(int(m.group(1)), int(m.group(2)), int(m.group(3))) if m else None
     except ValueError:
         return None
 
@@ -180,10 +182,65 @@ def id_relation(printed: Optional[str], expected: Optional[str]) -> str:
     return "same" if p.lstrip("0") == e.lstrip("0") else "different"
 
 
+_SYNTHETIC_ID = re.compile(r"^\s*DEMO-ID-\d{3}\s*$")
+
+
+def israeli_id_check(printed: Optional[str]) -> str:
+    """valid · invalid · synthetic (a demo identifier) · unknown. The Israeli check digit: digits weighted 1,2,1,2…,
+    two-digit products reduced by 9, the sum divisible by 10."""
+    if printed and _SYNTHETIC_ID.match(str(printed)):
+        return "synthetic"
+    d = digits(printed)
+    if not d or len(d) > 9:
+        return "unknown" if not d else "invalid"
+    total = 0
+    for i, ch in enumerate(d.zfill(9)):
+        n = int(ch) * (1 if i % 2 == 0 else 2)
+        total += n - 9 if n > 9 else n
+    return "valid" if total % 10 == 0 else "invalid"
+
+
+def window(as_of: date, days: int) -> tuple[date, date]:
+    """The trailing window of `days` days that ends on `as_of`."""
+    return as_of - timedelta(days=days - 1), as_of
+
+
+def coverage_gaps(ranges: Iterable[tuple[date, date]], start: date, end: date, slack_days: int = 3) -> list[tuple[date, date]]:
+    """Parts of [start, end] that no range covers. Gaps up to `slack_days` (weekends, statement cut-off days) are ignored."""
+    gaps, cursor = [], start
+    for a, b in sorted(r for r in ranges if r[0] and r[1]):
+        if b < cursor:
+            continue
+        if a > cursor + timedelta(days=slack_days):
+            gaps.append((cursor, a - timedelta(days=1)))
+        cursor = max(cursor, b + timedelta(days=1))
+        if cursor > end:
+            break
+    if cursor <= end - timedelta(days=slack_days):
+        gaps.append((cursor, end))
+    return gaps
+
+
+def day_he(d: date) -> str:
+    return d.strftime("%d.%m.%Y")
+
+
+def holder_relation(printed: Optional[str], name: Optional[str]) -> str:
+    """Like name_relation, but a joint holder line ("עידו לוי ונועה לוי") matches each of its names."""
+    rel = name_relation(printed, name)
+    if rel != "different":
+        return rel
+    parts = [p for p in re.split(r"\s+ו(?=\S)|,|/|&|\s+and\s+", str(printed or "")) if p.strip()]
+    if len(parts) > 1 and any(name_relation(p, name) in ("same", "variant") for p in parts):
+        return "same"
+    return rel
+
+
 _INJECTION = [
     r"ignore (all |any )?(previous|prior|the) (instructions|rules)",
     r"\bsystem\s*:", r"approve (the )?(mortgage|loan|credit)", r"mark (this|the) document (as )?valid",
-    r"התעלם מ", r"אשר את המשכנתא", r"סמן (את )?(המסמך|מסמך זה) כתקין", r"הוראה למערכת", r"למערכת הבינה המלאכותית",
+    r"התעלם מ", r"אשר את המשכנתא", r"אשר את ההלוואה", r"סמן (את )?(המסמך|מסמך זה) כתקין", r"הוראה למערכת",
+    r"למערכת הבינה המלאכותית",
 ]
 _INJECTION_RE = re.compile("|".join(_INJECTION), re.IGNORECASE)
 

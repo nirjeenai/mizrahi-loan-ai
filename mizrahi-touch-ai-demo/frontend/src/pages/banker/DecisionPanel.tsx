@@ -65,7 +65,8 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
   const b = item.banker;
   const can = (a: DocAction) => b.allowed_actions.includes(a) && !readOnly;
   const borrower = ws.case.borrowers.find((x) => x.borrower_id === item.borrower_id);
-  const periods = ws.borrowers.find((x) => x.borrower_id === item.borrower_id)?.months.map((m) => m.period) || [];
+  const payslip = (item.family || "payslip") === "payslip";
+  const periods = payslip ? ws.borrowers.find((x) => x.borrower_id === item.borrower_id)?.months.map((m) => m.period) || [] : undefined;
   const run = (action: DocAction, body: Record<string, unknown>): Submit => (rid) =>
     api.decideDocument(ws.case_id, item.document_id, { action, request_id: rid, ...body });
   const primary = primaryDocAction(item);
@@ -103,7 +104,8 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
           submit={(rationale) => run("accept", { rationale, acknowledged_finding_ids: b.acknowledge_finding_ids })}
           onDone={(r) => finish(r, "המסמך התקבל לשלב בדיקת המסמכים. זו אינה החלטת אשראי ואינה משנה את שלב הבקשה בבנק.")} />}
         {mode === "request_correction" && <CustomerRequestForm from={ws.case.banker.name_he} draft={item.draft} periods={periods} onCancel={() => setMode(null)}
-          title={(p) => p ? `נדרש תלוש ${monthHe(p)} — ${borrower?.first_name_he || ""}` : `נדרש תלוש מתוקן במקום ${item.filename} — ${borrower?.first_name_he || ""}`}
+          title={(p) => p ? `נדרש תלוש ${monthHe(p)} — ${borrower?.first_name_he || ""}`
+            : `נדרש ${payslip ? "תלוש" : item.doc_type_he} מתוקן במקום ${item.filename}${borrower ? ` — ${borrower.first_name_he}` : ""}`}
           submitLabel="שמירה והצגה ללקוח באפליקציה" testId="correction-form"
           submit={(message, period, rationale) => run("request_correction", { customer_message: message, requested_period: period || null, rationale })}
           onDone={(r) => finish(r, NOT_SENT)} />}
@@ -194,7 +196,7 @@ function BulkAccept({ item, ws, finish }: { item: DocItem; ws: Workspace; finish
           ))}
           <label className="dp-field">נימוק פנימי {clean ? <span className="muted">(רשות)</span> : <span className="warn-text">(חובה — נרשם בכל אחד מהמסמכים)</span>}
             <textarea className="note" value={rationale} onChange={(e) => setRationale(e.target.value)} data-testid="bulk-rationale" /></label>
-          <div className="dp-disclaimer">כל מסמך נרשם כהחלטה נפרדת עם הנימוק, הזהות והשעה. זו קבלה לשלב בדיקת המסמכים בלבד — אינה אישור משכנתא ואינה משנה את שלב הבקשה בבנק.</div>
+          <div className="dp-disclaimer">כל מסמך נרשם כהחלטה נפרדת עם הנימוק, הזהות והשעה. זו קבלה לשלב בדיקת המסמכים בלבד — אינה אישור הלוואה ואינה משנה את שלב הבקשה בבנק.</div>
           {error && <div className="dp-err" role="alert">{error}</div>}
           <div className="row"><button className="btn btn-dark btn-sm" disabled={busy || !picked.size || (!clean && !rationale.trim())} onClick={go}
             data-testid="bulk-submit">{busy && <span className="spinner" />}קבלת {picked.size} המסמכים</button>
@@ -212,7 +214,7 @@ function DocumentStatus({ item }: { item: DocItem }) {
     case "ACCEPTED":
       return <div className="dp-state ok" data-testid="document-state">התקבל על ידי {d?.actor_name} <When at={d?.created_at} />
         {d?.rationale && <div className="tiny muted">נימוק פנימי: {d.rationale}</div>}
-        <div className="tiny muted">בשלב בדיקת המסמכים בלבד — אינו אישור משכנתא.</div></div>;
+        <div className="tiny muted">בשלב בדיקת המסמכים בלבד — אינו אישור הלוואה.</div></div>;
     case "CORRECTION_REQUESTED":
       return <div className="dp-state warn" data-testid="document-state">הוחזר לתיקון · ממתין ללקוח <When at={d?.created_at} by={d?.actor_name} />
         {open && <blockquote className="dp-quote">{open.message_he}</blockquote>}</div>;
@@ -308,18 +310,21 @@ function MissingPanel({ item, ws, staff, readOnly, finish }: Ctx<MissingItem>) {
   return (<>
     <section className="dp-sec">
       <div className="dp-label">מסמך חסר</div>
-      <div className="row wrap"><Chip tone={item.open_request ? "warn" : "neutral"} testId="missing-status">{item.status_he}</Chip><Chip>{borrower?.name_he}</Chip></div>
+      <div className="row wrap"><Chip tone={item.open_request ? "warn" : "neutral"} testId="missing-status">{item.status_he}</Chip>
+        {item.family_he && <Chip>{item.family_he}</Chip>}{borrower && <Chip>{borrower.name_he}</Chip>}</div>
       <p className="small">{item.explanation_he}</p>
     </section>
     {item.open_request && <OpenRequest r={item.open_request} ws={ws} staff={staff} readOnly={readOnly} finish={finish} />}
-    {item.allowed_actions.includes("request_missing") && !readOnly && (
+    {(item.allowed_actions.includes("request_missing") || item.allowed_actions.includes("request_requirement")) && !readOnly && (
       <section className="dp-sec dp-decide" data-testid="decision-actions">
         <div className="dp-label">הפעולה שלך</div>
         {!open ? <button className="act-primary" onClick={() => setOpen(true)} data-testid="action-request-missing">בקשת השלמת מסמך</button>
-          : <CustomerRequestForm from={ws.case.banker.name_he} draft={item.draft} onCancel={() => setOpen(false)} title={() => `נדרש תלוש ${item.period_he} — ${borrower?.first_name_he || ""}`}
+          : <CustomerRequestForm from={ws.case.banker.name_he} draft={item.draft} onCancel={() => setOpen(false)}
+            title={() => item.period_he ? `נדרש תלוש ${item.period_he} — ${borrower?.first_name_he || ""}` : `נדרש: ${item.title_he}`}
             submitLabel="שמירה והצגה ללקוח באפליקציה" testId="missing-form"
-            submit={(message, _p, rationale) => (rid) => api.requestMissing(ws.case_id, { borrower_id: item.borrower_id!, period: item.period,
-              customer_message: message, rationale, request_id: rid })}
+            submit={(message, _p, rationale) => (rid) => item.period
+              ? api.requestMissing(ws.case_id, { borrower_id: item.borrower_id!, period: item.period, customer_message: message, rationale, request_id: rid })
+              : api.requestRequirement(ws.case_id, item.requirement_code!, { customer_message: message, rationale, request_id: rid })}
             onDone={(r) => finish(r, NOT_SENT)} />}
       </section>
     )}
@@ -601,7 +606,7 @@ function AcceptForm({ item, submit, onCancel, onDone }: { item: DocItem; submit:
         <ul className="dp-list">{ack.map((f) => <li key={f.finding_id}>{f.title_he}</li>)}</ul></div>}
       <label className="dp-field">נימוק פנימי {required ? <span className="warn-text">(חובה — {ack.length ? "יש ממצאים פתוחים" : "ה-AI לא מצא את המסמך תקין"})</span> : <span className="muted">(רשות)</span>}
         <textarea className="note" value={rationale} onChange={(e) => setRationale(e.target.value)} data-testid="accept-rationale" /></label>
-      <div className="dp-disclaimer">קבלת המסמך מסמנת אותו כנבדק בשלב בדיקת המסמכים בלבד. זו אינה החלטת אשראי, אינה אישור המשכנתא ואינה משנה את שלב הבקשה בבנק.</div>
+      <div className="dp-disclaimer">קבלת המסמך מסמנת אותו כנבדק בשלב בדיקת המסמכים בלבד. זו אינה החלטת אשראי, אינה אישור ההלוואה ואינה משנה את שלב הבקשה בבנק.</div>
       {s.error && <div className="dp-err" role="alert">{s.error}</div>}
       <div className="row"><button className="btn btn-dark btn-sm" disabled={s.busy || (required && !rationale.trim())} onClick={() => s.go(submit(rationale.trim()))}
         data-testid="confirm-accept">{s.busy && <span className="spinner" />}אישור קבלת המסמך</button>

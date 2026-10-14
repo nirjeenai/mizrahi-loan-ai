@@ -13,17 +13,17 @@ interface PresenterDoc {
   id: string; downloadPath: string; displayNameHe: string; category: string; uploadGuidanceHe: string;
   expectedDocumentVerdict: DocVerdict; expectedBorrower: "IDO" | "NOA" | "OTHER" | null; expectedPrintedPeriod: string | null;
   expectedNetILS: number | null; expectedGrossILS: number | null; expectedNoteHe: string; expectedRequiredFollowup: string | null;
-  isSynthetic: boolean; sha256: string;
+  isSynthetic: boolean; sha256: string; uploadAs?: string;
 }
 interface PresenterScenario {
-  id: string; titleHe: string; goalHe: string; state?: string; dependsOn?: string; files: string[];
+  id: string; titleHe: string; goalHe: string; state?: string; dependsOn?: string; files: string[]; uploadAs?: Record<string, string>;
   expectedCaseHe: string[]; expectedReasonCodes?: string[]; expectedJson?: string;
   declaredIncome?: { source: string; provenance: string; verified: boolean; noteHe: string };
 }
 interface ExpectedFinding { id: string; reason_code: string; state: string; owner?: string; period?: string; evidence_refs?: string[]; resolved_by?: string }
 interface NegativeTest { test_id: string; input: string; condition: string; expected_reason_codes: string[]; expected_verdict: string; safety: string }
 interface FileInfo { available: boolean; bytes: number; sha256_matches_manifest: boolean; pages: number | null; input_mode: string | null }
-interface Rubric { rubric_id: string; version: string; document_type: string; parameters?: { threshold_ils?: number }; criteria: { id: string }[] }
+interface Rubric { rubric_id: string; version: string; document_type: string; family?: string; parameters?: { threshold_ils?: number }; criteria: { id: string }[] }
 interface Bundle {
   manifest: { titleHe: string; disclosureHe: string; caseContext: { borrowers: string[] }; documents: PresenterDoc[]; scenarios: PresenterScenario[]; notesHe: string[] };
   files: Record<string, FileInfo>;
@@ -46,9 +46,11 @@ const SUPPLEMENTARY = "SUPPLEMENTARY";
 const APP_BORROWER: Record<string, string> = { IDO: "BRW-A", NOA: "BRW-B" };
 
 const DOC_TYPE_HE: Record<string, string> = {
-  PAYSLIP: "תלוש שכר", BANK_STATEMENT: "דפי חשבון בנק", LOAN_BALANCES: "דוח יתרות הלוואות", PURCHASE_AGREEMENT: "חוזה רכישה",
-  PROPERTY_REFERENCE: "נתוני נכס", EMPLOYER_LETTER: "אישור מעסיק", APPLICATION_DECLARATION: "הצהרות בקשה",
+  PAYSLIP: "תלוש שכר", BANK_STATEMENT: "דף עו״ש", ID_CARD: "תעודת זהות", PURPOSE_PROOF: "אסמכתה למטרת ההלוואה",
+  TAX_FORM: "שומת מס / אישור רו״ח", LOAN_BALANCES: "דוח יתרות הלוואות", EMPLOYER_LETTER: "אישור מעסיק",
 };
+const CATEGORY_FAMILY: Record<string, string> = { PAYSLIP: "payslip", BANK_STATEMENT: "bank_statement", ID_CARD: "id_document",
+  PURPOSE_PROOF: "purpose_proof", TAX_FORM: "tax_form" };
 const VERDICT: Record<DocVerdict, { he: string; tone: string }> = {
   VALID: { he: "מסמך תקין לפי קריטריון", tone: "ok" }, NEEDS_REVIEW: { he: "נדרש בירור", tone: "warn" },
   INVALID: { he: "לא תקין", tone: "bad" }, DUPLICATE: { he: "כפול", tone: "info" },
@@ -61,7 +63,9 @@ const CODE_HE: Record<string, string> = {
   FILENAME_CONTENT_PERIOD_MISMATCH: "שם הקובץ סותר את החודש המודפס", DECLARED_NET_INCOME_VARIANCE: "פער בין נטו מוצהר לנטו בתלושים",
   BORROWER_IDENTITY_MISMATCH: "המסמך שייך ללווה אחר", ACCOUNT_OWNER_MISMATCH: "בעל החשבון אינו לווה בתיק",
   DOCUMENT_UNREADABLE: "המסמך אינו קריא", EXACT_FILE_DUPLICATE: "אותו קובץ בדיוק הועלה שוב",
-  PROPERTY_IDENTIFIER_MISMATCH: "סתירה בפרטי זיהוי הנכס", OFFICIAL_PROPERTY_EVIDENCE_NOT_PROVIDED: "לא הוצג מסמך זכויות רשמי",
+  FILE_NAME_PERIOD_MISMATCH: "שם הקובץ סותר את החודש המודפס", REQUIRED_DOCUMENT_MISSING: "מסמך נדרש טרם הועלה",
+  STATEMENT_PERIOD_GAP: "חסרה תקופה בדפי העו״ש", UNEXPECTED_DOCUMENT_TYPE: "סוג המסמך אינו מתאים לדרישה",
+  ID_EXPIRED: "תוקף תעודת הזהות פג", DOCUMENT_STALE: "המסמך אינו עדכני", DECLARED_VS_DOCUMENT_INCOME_VARIANCE: "פער בין נטו מוצהר לנטו בתלושים",
 };
 const STATE_HE: Record<string, string> = { OPEN: "פתוח", RESOLVED: "נסגר", SUPERSEDED: "הוחלף · נשמר בהיסטוריה", READY_FOR_BANKER: "ממתין לבנקאי" };
 const OWNER_HE: Record<string, string> = { CUSTOMER: "באחריות הלקוח", BANKER: "באחריות הבנקאי" };
@@ -172,7 +176,7 @@ export function ScenarioPresenter() {
 
   return (
     <section className="scn-section" data-testid="scenario-presenter" aria-label="כל תרחישי הבדיקה">
-      <div className="small muted">10 תרחישי Golden Set לבדיקות ול-QA: מורידים קובץ, מעלים אותו באפליקציה מימין ומשווים לתוצאה הצפויה.</div>
+      <div className="small muted">{scenarios.length} תרחישי בדיקה לבקשת הלוואה, לבדיקות ול-QA: מורידים קובץ, מעלים אותו באפליקציה מימין ומשווים לתוצאה הצפויה.</div>
       <div className="notice small scn-disclosure" data-testid="scn-disclosure"><b>נתוני הדגמה בלבד.</b> {bundle.manifest.disclosureHe}</div>
       <div className="scn-toolbar">
         <span className="small" data-testid="scn-progress">סומנו כהועלו: <b className="ltr">{done}/{slots.length}</b> מסמכים</span>
@@ -308,7 +312,10 @@ function FileCard({ doc, index, scenario, ctx }: { doc: PresenterDoc; index: num
     : doc.expectedBorrower === "OTHER" ? "לווה אחר — לא בתיק" : null;
   const appBorrower = APP_BORROWER[doc.expectedBorrower ?? ""] ?? "BRW-A";
   const uploadAs = (appBorrower === "BRW-B" ? golden[1] : golden[0]).split(" ")[0];
-  const cardTitle = snap?.readiness.requirements.find((r) => r.code === `PAYSLIPS:${appBorrower}`)?.title_he ?? `תלושי השכר של ${uploadAs}`;
+  // the card a file goes through: the scenario may name another one on purpose (a wrong-slot test)
+  const slotCode = scenario?.uploadAs?.[doc.id] || doc.uploadAs || `PAYSLIPS:${appBorrower}`;
+  const wrongSlot = !!scenario?.uploadAs?.[doc.id];
+  const cardTitle = snap?.readiness.requirements.find((r) => r.code === slotCode)?.title_he ?? DOC_TYPE_HE[doc.category] ?? slotCode;
   const uploadNote = doc.expectedBorrower === "OTHER"
     ? (doc.category === "PAYSLIP" ? `מעלים בכוונה תחת ${uploadAs} — בודקים שהמערכת מזהה שהתלוש אינו שלו.` : `אין בתיק לווה מתאים — מעלים תחת ${uploadAs}.`)
     : doc.expectedBorrower ? null : `ללא לווה ייעודי — מעלים דרך הכרטיס של ${uploadAs}.`;
@@ -345,10 +352,8 @@ function FileCard({ doc, index, scenario, ctx }: { doc: PresenterDoc; index: num
         {scenario ? (
           <>
             <span className="scn-k">להעלאה מימין:</span> מסמכים ← ״{cardTitle}״ ← להעלאה
+            {wrongSlot && <div className="tiny warn-text" data-testid="scn-wrong-slot">בכוונה בכרטיס הלא נכון — בודקים שה-AI מזהה את סוג המסמך בעצמו.</div>}
             {uploadNote && <div className="tiny muted">{uploadNote}</div>}
-            {doc.category !== "PAYSLIP" && (
-              <div className="tiny muted">יעד מתוכנן: {doc.uploadGuidanceHe}. באפליקציה עדיין אין כרטיס העלאה לסוג מסמך זה, וכל העלאה נבדקת מול רובריקת תלוש שכר.</div>
-            )}
           </>
         ) : <span className="tiny muted">קובץ רפרנס — אינו חלק מתרחיש ואין צורך להעלות אותו.</span>}
       </div>
@@ -397,8 +402,7 @@ function StatusLines({ exp }: { exp: any }) {
   const value = (code?: string | null) => (code ? <><b>{READINESS_HE[code] ?? code}</b> <code className="ltr">{code}</code></> : <b>—</b>);
   return (
     <div className="scn-status">
-      <div>מסמכי השכר: {value(exp.salary_documents_readiness)}</div>
-      <div>תיק המשכנתא כולו: {value(exp.whole_mortgage_case_readiness)}</div>
+      <div>מסמכי הבקשה: {value(exp.salary_documents_readiness)}</div>
       <div>החלטת בנק: <b>{exp.bank_decision ? String(exp.bank_decision) : "אין — רק הבנקאי מחליט"}</b></div>
       {exp.bank_stage && (
         <div>שלב בבנק: <code className="ltr">{exp.bank_stage.value}</code> · <code className="ltr">{exp.bank_stage.source}</code>
@@ -426,10 +430,9 @@ function TechDetails({ s, ctx, links }: { s: PresenterScenario; ctx: Ctx; links:
   const exp = s.expectedJson ? ctx.bundle.expected[s.expectedJson] : undefined;
   const tests = ctx.bundle.negative_tests.filter((t) => s.files.includes(t.input));
   const codes = links.map((l) => l.code);
-  const categories = new Set(s.files.map((id) => ctx.docs[id]?.category));
-  const rubrics = ctx.bundle.rubrics.filter((r) => categories.has(r.document_type)
-    || (r.document_type === "DOCUMENT_SET" && codes.some((c) => COVERAGE_CODES.includes(c)))
-    || (r.document_type === "CROSS_DOCUMENT" && codes.includes("DECLARED_NET_INCOME_VARIANCE")));
+  const families = new Set(s.files.map((id) => CATEGORY_FAMILY[ctx.docs[id]?.category ?? ""]));
+  const rubrics = ctx.bundle.rubrics.filter((r) => families.has(r.family || r.document_type)
+    || (r.document_type === "DOCUMENT_SET" && codes.some((c) => COVERAGE_CODES.includes(c))));
   const income = exp?.income_check;
   const golden = ctx.bundle.manifest.caseContext.borrowers;
   return (
@@ -473,7 +476,7 @@ function TechDetails({ s, ctx, links }: { s: PresenterScenario; ctx: Ctx; links:
         )}
         {rubrics.length > 0 && (
           <>
-            <div className="scn-label">Rubrics של ה-Golden Set</div>
+            <div className="scn-label">הרובריקות שהמנוע בודק מולן</div>
             {rubrics.map((r) => (
               <div key={r.rubric_id} className="tiny"><code className="ltr">{r.rubric_id}@{r.version}</code> · <span className="ltr">{r.criteria.map((c) => c.id).join(", ")}</span></div>
             ))}

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Mizrahi Tefahot Touch × JEEN — concept demo on synthetic data.
 #   ./run.sh setup   install backend + frontend, build the app, generate fixtures, create backend/.env
-#   ./run.sh start   serve API + MCP + built app on http://127.0.0.1:8790 (default)
-#   ./run.sh dev     Vite dev server on :5190 (proxies /api and /mcp) + backend on :8790
+#   ./run.sh start   serve API + MCP + built app on http://127.0.0.1:8791 (default)
+#   ./run.sh dev     Vite dev server on :5192 (proxies /api and /mcp) + backend on :8791
 #   ./run.sh test    unit tests, browser end-to-end journey (real Gemini), MCP SDK checks, presenter pane checks — backend must be running
 #   ./run.sh reset   clear the demo case and the QA case back to "not checked"
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-PORT="${PORT:-8790}"
+PORT="${PORT:-8791}"
 PY="$ROOT/backend/.venv/bin/python"
 
 setup() {
@@ -29,13 +29,14 @@ EOF
 }
 
 start() {
-  cd "$ROOT/backend" && exec ./.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port "$PORT"
+  # python -m: the venv was copied from Mizrahi #1 and its console-script shebangs still point at #1's interpreter
+  cd "$ROOT/backend" && exec ./.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port "$PORT"
 }
 
 dev() {
   trap 'trap - EXIT; kill 0' EXIT INT TERM
   (cd "$ROOT/frontend" && npm run dev) &
-  cd "$ROOT/backend" && ./.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port "$PORT" --reload
+  cd "$ROOT/backend" && ./.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port "$PORT" --reload
 }
 
 run_tests() {

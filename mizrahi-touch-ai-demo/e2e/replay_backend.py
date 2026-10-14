@@ -22,6 +22,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -112,10 +113,15 @@ class _Transport:
                 answer = rec["extract"]
             else:
                 ids = body["generationConfig"]["responseSchema"]["properties"]["criteria"]["items"]["properties"]["criterion_id"]["enum"]
-                answer = {"criteria": [{"criterion_id": cid, "outcome": rec["judge"]["criteria"][cid]["outcome"],
-                                        "explanation_he": rec["judge"]["criteria"][cid]["explanation_he"], "cited_fields": [],
-                                        "confidence": 0.9} for cid in ids if cid in rec["judge"]["criteria"]],
-                          **{k: rec["judge"][k] for k in ("summary_he", "limitations_he", "uncertainty_he")}}
+                m = re.search(r"RUBRIC ([\w.\-]+)@", _prompt(body))
+                judge = (rec.get("judge_by_rubric") or {}).get(m.group(1) if m else "") or rec.get("judge")
+                if not judge or not any(cid in judge["criteria"] for cid in ids):
+                    _log({"purpose": purpose, "sha256": sha, "served": False, "reason": "no judge answer for this rubric"})
+                    return _Resp(404, {"error": {"message": "no REPLAY judge recording for this file and rubric"}})
+                answer = {"criteria": [{"criterion_id": cid, "outcome": judge["criteria"][cid]["outcome"],
+                                        "explanation_he": judge["criteria"][cid]["explanation_he"], "cited_fields": [],
+                                        "confidence": 0.9} for cid in ids if cid in judge["criteria"]],
+                          **{k: judge[k] for k in ("summary_he", "limitations_he", "uncertainty_he")}}
             _log({"purpose": purpose, "sha256": sha, "file": rec["file"], "provenance": rec["provenance"], "served": True})
             return _answer(answer)
         if purpose == "semantic_review":

@@ -1,7 +1,11 @@
 """Browser end-to-end journey in a real Chrome — real uploads, real Gemini reviews, real agent and
 voice turns, banker decision and MCP consistency. Prints a PASS/FAIL line per acceptance check.
 
-Run (backend on :8790 serving the built frontend):
+LEGACY (mortgage era, not yet adapted to loans): asserts the payslip-only mortgage cases and spends real Gemini
+calls. Kept for reference and later adaptation; the loan journey is covered by e2e/test_loan_journey.py (REPLAY).
+Never point it at :8791 (Mizrahi #2 main) or :8790 (Mizrahi #1): it uploads to cases and resets them.
+
+Run (backend on :8791 serving the built frontend):
     backend/.venv/bin/python e2e/test_journey.py
 """
 from __future__ import annotations
@@ -17,7 +21,7 @@ import httpx
 from playwright.sync_api import Page, expect, sync_playwright
 import demo_auth  # noqa: E402  (e2e/ is on sys.path when a suite runs as a script)
 
-BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8790")
+BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8791")
 demo_auth.install(BASE)                   # the service has no anonymous access (see demo_auth.py)
 CASE, QA = "DEMO-MTZ-2026-001", "DEMO-MTZ-2026-003"
 ROOT = Path(__file__).resolve().parent

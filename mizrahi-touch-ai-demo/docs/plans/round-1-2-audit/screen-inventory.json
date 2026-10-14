@@ -1,0 +1,561 @@
+[
+ {
+  "screen": "c009-wrong-month-home",
+  "url": "/customer",
+  "upload_entry_points": [
+   "העלאת תלוש ספטמבר לעידו"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c009-wrong-month-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c009-wrong-month-documents-bottom",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c009-wrong-month-document-review",
+  "url": "/customer/documents/DOC-10B88FD3",
+  "upload_entry_points": [
+   "להעלאת מסמך מתוקן"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "ido_2026_08.pdf"
+  ]
+ },
+ {
+  "screen": "c008-wrong-type-home",
+  "url": "/customer",
+  "upload_entry_points": [
+   "העלאת מסמך חלופי",
+   "העלאת אסמכתה למטרה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c008-wrong-type-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "העלאה מחדש",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c008-wrong-type-documents-bottom",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "העלאה מחדש",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c008-wrong-type-document-review",
+  "url": "/customer/documents/DOC-B32A8FCB",
+  "upload_entry_points": [
+   "העלאת מסמך חלופי"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "ido_2026_07.pdf"
+  ]
+ },
+ {
+  "screen": "c006-complete-home",
+  "url": "/customer",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה קורה עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c006-complete-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c006-complete-documents-bottom",
+  "url": "/customer/documents",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c006-complete-document-review",
+  "url": "/customer/documents/DOC-957F5082",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "ido_2026_08.pdf"
+  ]
+ },
+ {
+  "screen": "c011-income-home",
+  "url": "/customer",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה קורה עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c011-income-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c011-income-documents-bottom",
+  "url": "/customer/documents",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c011-income-document-review",
+  "url": "/customer/documents/DOC-04E327F0",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "ido_2026_08.pdf"
+  ]
+ },
+ {
+  "screen": "c005-gap-stale-expired-home",
+  "url": "/customer",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c005-gap-stale-expired-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "העלאה מחדש",
+   "להעלאה",
+   "להעלאה",
+   "העלאה מחדש"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c005-gap-stale-expired-documents-bottom",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "העלאה מחדש",
+   "להעלאה",
+   "להעלאה",
+   "העלאה מחדש"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c005-gap-stale-expired-document-review",
+  "url": "/customer/documents/DOC-78B6BAF1",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "statement_ido_2026-07.pdf"
+  ]
+ },
+ {
+  "screen": "c001-two-applicants-empty-home",
+  "url": "/customer",
+  "upload_entry_points": [
+   "העלאת מסמכים"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו ונועה",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c001-two-applicants-empty-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c001-two-applicants-empty-documents-bottom",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה",
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c009-entry-home-card",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה",
+   "העלאה ובדיקה חכמה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c009-entry-payslip-row",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה",
+   "העלאה ובדיקה חכמה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c009-chat",
+  "url": "/customer",
+  "upload_entry_points": [
+   "העלאת תלוש ספטמבר לעידו",
+   "העלאת תלוש ספטמבר לעידו חסר תלוש ספטמבר 2026"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "c009-entry-chat-action",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה",
+   "העלאה ובדיקה חכמה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה"
+  ]
+ },
+ {
+  "screen": "c009-request-details",
+  "url": "/customer/request",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "פרטי בקשת ההלוואה"
+  ]
+ },
+ {
+  "screen": "c009-stages",
+  "url": "/customer/stages",
+  "upload_entry_points": [
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלבים",
+   "שלב הבקשה בבנק",
+   "בדיקת המסמכים החכמה"
+  ]
+ },
+ {
+  "screen": "c009-meetings",
+  "url": "/customer/meetings",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "פגישות"
+  ]
+ },
+ {
+  "screen": "c009-tools",
+  "url": "/customer/tools",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "כלים"
+  ]
+ },
+ {
+  "screen": "c009-apply",
+  "url": "/customer/apply",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "בקשת הלוואה חדשה"
+  ]
+ },
+ {
+  "screen": "c009-drawer",
+  "url": "/customer",
+  "upload_entry_points": [
+   "העלאת תלוש ספטמבר לעידו"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים"
+  ]
+ },
+ {
+  "screen": "presenter-top",
+  "url": "/customer",
+  "upload_entry_points": [],
+  "mortgage_terms": [
+   "Golden Set",
+   "לביא"
+  ],
+  "headings": [
+   "טפחות טאצ׳ × JEEN",
+   "תרחישים מומלצים לדמו"
+  ]
+ },
+ {
+  "screen": "presenter-scenarios",
+  "url": "/customer",
+  "upload_entry_points": [],
+  "mortgage_terms": [
+   "Golden Set",
+   "לביא"
+  ],
+  "headings": [
+   "טפחות טאצ׳ × JEEN",
+   "תרחישים מומלצים לדמו"
+  ]
+ },
+ {
+  "screen": "presenter-bottom",
+  "url": "/customer",
+  "upload_entry_points": [],
+  "mortgage_terms": [
+   "Golden Set",
+   "לביא"
+  ],
+  "headings": [
+   "טפחות טאצ׳ × JEEN",
+   "תרחישים מומלצים לדמו"
+  ]
+ },
+ {
+  "screen": "banker-c009-review",
+  "url": "/banker?case=DEMO-MTZ-2026-009",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c008-review",
+  "url": "/banker?case=DEMO-MTZ-2026-008",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c011-review",
+  "url": "/banker?case=DEMO-MTZ-2026-011",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c005-review",
+  "url": "/banker?case=DEMO-MTZ-2026-005",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c006-review",
+  "url": "/banker?case=DEMO-MTZ-2026-006",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c006-matrix",
+  "url": "/banker?case=DEMO-MTZ-2026-006",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c009-conversation",
+  "url": "/banker?case=DEMO-MTZ-2026-009&view=conversation",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "banker-c009-technical",
+  "url": "/banker?case=DEMO-MTZ-2026-009&view=technical",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ },
+ {
+  "screen": "system",
+  "url": "/system",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": [
+   "מטריצת אינטגרציות — מה אמיתי, מה מקומי, מה נתוני הדגמה ומה ח"
+  ]
+ },
+ {
+  "screen": "mobile-home",
+  "url": "/customer",
+  "upload_entry_points": [
+   "העלאת תלוש ספטמבר לעידו"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "שלום עידו",
+   "מה צריך לעשות עכשיו?",
+   "בדיקת מסמכים חכמה",
+   "עדכונים אחרונים",
+   "טפחות טאצ׳ × JEEN",
+   "תרחישים מומלצים לדמו"
+  ]
+ },
+ {
+  "screen": "mobile-documents",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה",
+   "טפחות טאצ׳ × JEEN",
+   "תרחישים מומלצים לדמו"
+  ]
+ },
+ {
+  "screen": "mobile-upload-sheet",
+  "url": "/customer/documents",
+  "upload_entry_points": [
+   "להעלאה",
+   "העלאה ובדיקה חכמה"
+  ],
+  "mortgage_terms": [],
+  "headings": [
+   "מסמכים",
+   "בדיקת מסמכים חכמה",
+   "טפחות טאצ׳ × JEEN",
+   "תרחישים מומלצים לדמו"
+  ]
+ },
+ {
+  "screen": "mobile-banker",
+  "url": "/banker?case=DEMO-MTZ-2026-009",
+  "upload_entry_points": [],
+  "mortgage_terms": [],
+  "headings": []
+ }
+]

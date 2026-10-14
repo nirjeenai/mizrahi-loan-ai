@@ -1,6 +1,6 @@
 ---
 name: run-stack
-description: Start, smoke-test and stop the Mizrahi Touch demo app — the user's main instance on :8790 or an isolated backend+frontend pair with its own DATA_DIR — and run the browser E2E suites (mizrahi-touch-ai-demo/e2e/*.py) against it. Use to run or launch the app, verify a UI or workflow change in the real app, run an E2E suite, or debug an E2E failure.
+description: Start, smoke-test and stop the Mizrahi Touch demo app — the user's main instance on :8791 or an isolated backend+frontend pair with its own DATA_DIR — and run the browser E2E suites (mizrahi-touch-ai-demo/e2e/*.py) against it. Use to run or launch the app, verify a UI or workflow change in the real app, run an E2E suite, or debug an E2E failure.
 ---
 
 # Run the stack and E2E suites
@@ -8,15 +8,15 @@ description: Start, smoke-test and stop the Mizrahi Touch demo app — the user'
 All paths are relative to `mizrahi-touch-ai-demo/`.
 
 ## Ground rules
-- The server on :8790 holds the user's demo data. Never stop or reset it, and never point a suite that resets or
+- The server on :8791 holds the user's demo data. Never stop or reset it, and never point a suite that resets or
   uploads at it, unless the user asks. Verify on an isolated stack instead.
 - Suites marked "Gemini" make real, paid calls. Name the suite and the rough call count and get the user's OK first
   (`.claude/settings.json` asks before any `e2e/test_*.py`).
 - Run servers with `run_in_background`, note their PIDs, and stop exactly what you started.
 - Report results only from the suite's own output or results file. Say which checks you did not run.
 
-## 1. Main instance (:8790)
-- Up? `curl -s http://127.0.0.1:8790/api/health`
+## 1. Main instance (:8791)
+- Up? `curl -s http://127.0.0.1:8791/api/health`
 - Start (only if it isn't running and the user wants it): `./run.sh start` in the background.
 - Read-only endpoints: `/api/health`, `/api/cases`, `/api/cases/{id}`, `/api/cases/{id}/documents`, `/api/system/rubrics`,
   `/api/system/llm`, `/api/fixtures`, `/api/presenter/scenarios`, `/api/banker/cases/{id}/workspace`.
@@ -29,10 +29,12 @@ All paths are relative to `mizrahi-touch-ai-demo/`.
   (`e2e/demo_auth.py`). The browser apps obtain their own sessions.
 
 ## 2. Isolated stack (default for verification)
-Pick free ports (`lsof -nP -iTCP:<port> -sTCP:LISTEN` prints nothing): backend 8791–8799, frontend 5841–5860.
+Pick free ports (`lsof -nP -iTCP:<port> -sTCP:LISTEN` prints nothing): backend 8792–8799, frontend 5841–5860.
+Reserved, never use for a throw-away stack: 8790 / 5190 (Mizrahi #1, mortgage) and 8791 / 5192 (this app's main instance).
 ```bash
 # backend — from backend/, in the background. A fresh DATA_DIR starts with every case empty.
-DATA_DIR=../e2e/artifacts/<suite>/data-<tag> ./.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port <BPORT>
+DATA_DIR=../e2e/artifacts/<suite>/data-<tag> ./.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port <BPORT>
+# (python -m, never .venv/bin/uvicorn: the copied venv's console scripts point at Mizrahi #1's interpreter)
 # no-cost variant for smoke tests: prefix  GEMINI_API_KEY= GEMINI_MAX_CALLS_PER_HOUR=0
 # (environment variables win over backend/.env, which the isolated backend otherwise reads for its keys)
 
@@ -50,19 +52,19 @@ node e2e/serve_frontend.mjs e2e/artifacts/<suite>/web-<tag> <FPORT> http://127.0
 ## 3. Suites (run from mizrahi-touch-ai-demo/: `backend/.venv/bin/python e2e/<suite>`)
 | Suite | Target env var (default) | Gemini | Resets / writes | Time |
 |---|---|---|---|---|
-| `test_presenter.py` | `PRESENTER_BASE` (:8790) | no | resets case 005 via the pane | ~25 s |
+| `test_presenter.py` | `PRESENTER_BASE` (:8791) | no | resets case 005 via the pane | ~25 s |
 | `test_featured_demo.py` | `FEATURED_E2E_BASE` (:5846) + `FEATURED_DATA` | no (REPLAY backend) | resets 006–008 via "התחל דמו חדש", uploads | ~40 s |
-| `test_presenter.py --live` | `PRESENTER_BASE` (:8790) | yes | resets 004 and 005, uploads | ~2 min |
-| `test_journey.py` | `E2E_BASE` (:8790) | ~37 calls | resets 001 and 003, uploads | ~4 min (voice step needs macOS `say`/`afconvert`) |
-| `test_mcp_sdk.py` | `E2E_BASE` (:8790) | no | audit rows only; run after the journey; reads MCP keys from `backend/.env` | <1 min |
-| `test_chat_actions.py` | `E2E_BASE` (:8790) | ~26 calls | resets 001 and 003, uploads | ~3 min |
+| `test_presenter.py --live` | `PRESENTER_BASE` (:8791) | yes | resets 004 and 005, uploads | ~2 min |
+| `test_journey.py` | `E2E_BASE` (:8791) | ~37 calls | resets 001 and 003, uploads | ~4 min (voice step needs macOS `say`/`afconvert`) |
+| `test_mcp_sdk.py` | `E2E_BASE` (:8791) | no | audit rows only; run after the journey; reads MCP keys from `backend/.env` | <1 min |
+| `test_chat_actions.py` | `E2E_BASE` (:8791) | ~26 calls | resets 001 and 003, uploads | ~3 min |
 | `test_banker_review.py` | `BANKER_E2E_BASE` (:5853) | yes | resets 001 | ~80 s |
 | `test_finding_resolution.py` | `FINDING_E2E_BASE` (:5855) | yes | resets 001 and 004 | ~75 s |
 | `test_ai_card.py after` | `CARD_QA_BASE` (:5841) + `CARD_QA_ERROR_BASE` (:5842, backend with `GEMINI_MAX_CALLS_PER_HOUR=0`) | yes | resets every case it uses | see docstring |
-| `screens.py`, `banker_screens.py`, `banker_visual.py` | fixed :8790 / `BANKER_SHOTS_BASE` / `BANKER_VISUAL_BASE` | no | none (screenshots) | short |
+| `screens.py`, `banker_screens.py`, `banker_visual.py` | fixed :8791 / `BANKER_SHOTS_BASE` / `BANKER_VISUAL_BASE` | no | none (screenshots) | short |
 
 Each suite's docstring has its exact command; follow it when it differs from this table.
-`./run.sh test` runs pytest, `test_journey`, `test_mcp_sdk` and `test_presenter` against :8790 — it resets 001, 003 and 005.
+`./run.sh test` runs pytest, `test_journey`, `test_mcp_sdk` and `test_presenter` against :8791 — it resets 001, 003 and 005.
 
 ## 4. Evidence and debugging
 - Results and screenshots land in `e2e/artifacts/` (gitignored): `e2e-results.json` (journey), `mcp-sdk-results.json`,

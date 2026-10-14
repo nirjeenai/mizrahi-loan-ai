@@ -2,6 +2,8 @@ type P = { size?: number; color?: string };
 const s = (size = 22) => ({ width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
 
 export const IHome = ({ size }: P) => (<svg {...s(size)}><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" fill="currentColor" stroke="none" opacity="0.92" /></svg>);
+export const IBank = ({ size }: P) => (<svg {...s(size)}><path d="M3 9.5 12 4l9 5.5" /><path d="M5.5 10v8M10 10v8M14 10v8M18.5 10v8" /><path d="M3.5 20h17" /></svg>);
+export const IChart = ({ size }: P) => (<svg {...s(size)}><path d="M5 20v-5M10 20v-9M15 20v-6M20 20V5" /></svg>);
 export const IDocs = ({ size }: P) => (<svg {...s(size)}><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /><path d="M10 13h6M10 17h6" /></svg>);
 export const ICalendar = ({ size }: P) => (<svg {...s(size)}><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M8 3v4M16 3v4M3.5 10h17" /><path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" /></svg>);
 export const IStages = ({ size }: P) => (<svg {...s(size)}><path d="M20 12a8 8 0 1 1-3-6.2" /><path d="M20 4v4h-4" /></svg>);
