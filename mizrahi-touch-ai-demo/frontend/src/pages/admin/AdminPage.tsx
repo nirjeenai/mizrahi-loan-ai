@@ -5,6 +5,7 @@ import { AdminError, adminApi, KIND_HE, type Json, type Kind, type Report, type 
 import { Chip, Toast } from "../banker/deskUi";
 import { DocumentsTab } from "./DocumentsTab";
 import { FollowupTab } from "./FollowupTab";
+import { DashSwitch, InsightsDashboards } from "./InsightsDashboards";
 import { PromptTab } from "./PromptTab";
 import { ActionBar } from "./ui";
 import { VersionsTab } from "./VersionsTab";
@@ -17,7 +18,7 @@ export interface Work {
 export type Edit = (update: (config: Json) => Json) => void;
 export interface KindProps { work: Work; edit: Edit; bar: JSX.Element }
 
-const TABS = [["documents", "מסמכים ותהליך"], ["followup", "מעקב והשלמה"], ["prompt", "התאמת הנחיות ותבניות"],
+const TABS = [["insights", "ביצועים ותובנות"], ["documents", "מסמכים ותהליך"], ["followup", "מעקב והשלמה"], ["prompt", "התאמת הנחיות ותבניות"],
   ["versions", "בדיקה וגרסאות"]] as const;
 type Tab = typeof TABS[number][0];
 const KINDS: Kind[] = ["loan_policy", "talk_prompt"];
@@ -178,6 +179,7 @@ export function AdminPage() {
               {settings.drafts[k] ? ` · טיוטה v${settings.drafts[k]!.number}` : ""}</span>
           ))}
         </div>
+        {tab === "insights" && <DashSwitch />}
         <nav className="view-tabs" aria-label="לשוניות הגדרות">
           {TABS.map(([k, label]) => (
             <button key={k} className={tab === k ? "on" : ""} aria-current={tab === k ? "page" : undefined} data-testid={`tab-${k}`}
@@ -186,6 +188,8 @@ export function AdminPage() {
         </nav>
       </div>
       <main className="desk-page adm-page">
+        {tab === "insights" && <InsightsDashboards activeGrace={settings.published.loan_policy.config?.followup?.abandonment_grace_minutes}
+          activeVersion={settings.published.loan_policy.number} />}
         {tab === "documents" && <DocumentsTab {...props("loan_policy")} settings={settings} />}
         {tab === "followup" && <FollowupTab {...props("loan_policy")} settings={settings} onKillSwitch={async (paused, reason) => {
           try {

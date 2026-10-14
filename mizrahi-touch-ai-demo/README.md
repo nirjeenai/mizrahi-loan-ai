@@ -177,7 +177,10 @@ or block. It decides in code, with rule ids and a Hebrew reason (`followup/polic
     applications, the customers who returned, the packages ready for banker review, and three follow-up variants that
     differ only in grace period (5 / 20 / 60 min). All of it comes from a fixed synthetic dataset
     (`pages/admin/insightsData.ts`) and is labelled as illustration. No API, engine or simulator output feeds it; the
-    only live values are the active policy's grace period and version number, shown as a chip;
+    only live values are the active policy's grace period and version number, shown as a chip.
+    It has two presentations of the same data, switched in the Admin bar ("תצוגת הלוח"; a floating pill below
+    1240 px) without a reload: V1 — מקורי (default) and V2 — חדש (`&dash=v2`). The switch is display-only and
+    never touches policy versions;
   - documents and process (the default tab);
   - follow-up and completion (with the envelope bounds and the kill switch);
   - prompt and templates;
