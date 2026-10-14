@@ -35,8 +35,9 @@ result, never a credit decision; the human banker decides.
   `fixtures/presenter/golden_set/06_RUBRICS/` is golden-set reference data shown in the presenter pane, not used by the engine.
 - Ground truth: `fixtures/world.json` (generates `fixtures/out/`); `fixtures/presenter/golden_set/` is an
   unmodified copy of golden set v1.1 — never edit it.
-- Demo cases and staff: `backend/app/bank/mock_bank.py` (cases DEMO-MTZ-2026-001…008; banker STAFF-DANA). 006–008 are the
- executive demo (PASS / REVIEW / BLOCKER) and the only cases the presenter's "התחל דמו חדש" wipes.
+- Demo cases and staff: `backend/app/bank/mock_bank.py` (cases DEMO-MTZ-2026-001…011 and 101…106; banker STAFF-DANA).
+ 006–011 (executive demo) and 101–106 (the six use cases UC-01…06 ↔ presenter TC-01…06) are the only cases the
+ presenter's "התחל דמו חדש" wipes. Which documents a case needs comes from the loan policy (`workflow/requirements.compose`).
 
 ## Commands (from `mizrahi-touch-ai-demo/`)
 Safe — no Gemini, no change to demo data:

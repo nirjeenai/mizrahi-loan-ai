@@ -170,7 +170,14 @@ set_session = _set
 
 
 def _case_rows(case_ids: list[str]) -> list[dict]:
-    return [{k: bank.get_case(cid)[k] for k in ("case_id", "display_number", "title_he")} for cid in case_ids]
+    rows = []
+    for cid in case_ids:
+        c = bank.get_case(cid)
+        rows.append({**{k: c[k] for k in ("case_id", "display_number", "title_he")}, "persona_id": c.get("persona_id"),
+                     "qa": bool(c.get("qa")), "use_case": c.get("use_case"),
+                     "applicants_he": [b["name_he"] for b in c["borrowers"]],
+                     "company_he": (c.get("company") or {}).get("name_he")})
+    return rows
 
 
 def _demo_only() -> None:

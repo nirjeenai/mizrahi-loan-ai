@@ -198,6 +198,88 @@ FEATURED = [
      "sayHe": "בלי מרדף ידני: הלקוח רואה בדיוק מה חסר ולמה, מתקן במקום — והבנקאית מקבלת תיק שלם."},
 ]
 
+# The six primary demo use cases (UC) and their presenter test cases (TC), one to one. Each opens its own prepared case
+# (backend/app/bank/mock_bank.py). The expected requirements are what the published demo loan policy must compose for
+# that profile — checked against the engine by backend/tests/test_document_profiles.py, never fed into the app.
+# Round 1 ships the mapping and the checklists; the synthetic PDF packs and AI outcomes are Round 2 (no downloads yet).
+def req(code: str, title: str, owner: str, intake: str = "ai_review") -> dict:
+    return {"code": code, "titleHe": title, "ownerHe": owner, "intake": intake}
+
+
+H = "human_review"
+USE_CASES = [
+    {"id": "TC-01", "useCaseId": "UC-01", "badgeHe": "שכירה", "titleHe": "שכירה — הלוואה לרכישת רכב",
+     "personaHe": "מיכל ברק", "profileHe": "שכירה · שחף הנדסה בע״מ", "caseId": "DEMO-MTZ-2026-101", "caseDisplay": "438839101",
+     "loanHe": "רכישת רכב · ₪90,000 · 60 תשלומים",
+     "demonstratesHe": "פרופיל הבסיס: שכירה עם חשבון אחד — תעודת זהות, שלושה תלושים, דפי עו״ש ל־3 חודשים והצעת מחיר לרכב.",
+     "requirements": [req("ID_CARD:BRW-C", "תעודת זהות — מיכל", "מיכל ברק"),
+                      req("PAYSLIPS:BRW-C", "3 תלושי שכר אחרונים — מיכל", "מיכל ברק"),
+                      req("BANK_STATEMENTS:ACC-1", "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (מיכל)", "מיכל ברק"),
+                      req("PURPOSE_PROOF", "אסמכתה למטרת ההלוואה — רכישת רכב", "מיכל ברק")],
+     "notRequiredHe": ["מסמכי עסק (שומה, אישור עוסק)"],
+     "noteHe": "אותה לקוחה כמו בתיק השיפוץ 438840117 — ״התיקים שלי״ מציג את שתי הבקשות שלה."},
+    {"id": "TC-02", "useCaseId": "UC-02", "badgeHe": "עוסק פטור", "titleHe": "עוסק פטור — הלוואה לרכישת רכב",
+     "personaHe": "יואב כרמי", "profileHe": "עצמאי · עוסק פטור · כרמי צילום", "caseId": "DEMO-MTZ-2026-102",
+     "caseDisplay": "438839102", "loanHe": "רכישת רכב · ₪60,000 · 48 תשלומים",
+     "demonstratesHe": "במקום תלושים: שומת מס או אישור רו״ח, ואישור עוסק פטור. מעוסק פטור לא נדרשים דוחות מע״מ.",
+     "requirements": [req("ID_CARD:BRW-A", "תעודת זהות — יואב", "יואב כרמי"),
+                      req("BANK_STATEMENTS:ACC-1", "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (יואב)", "יואב כרמי"),
+                      req("PURPOSE_PROOF", "אסמכתה למטרת ההלוואה — רכישת רכב", "יואב כרמי"),
+                      req("TAX_ASSESSMENT:BRW-A", "שומת מס / אישור רו״ח — יואב", "יואב כרמי"),
+                      req("VAT_EXEMPT_CERT:BRW-A", "אישור עוסק פטור — יואב", "יואב כרמי", H)],
+     "notRequiredHe": ["תלושי שכר", "דוחות מע״מ תקופתיים", "דוח רווח והפסד"]},
+    {"id": "TC-03", "useCaseId": "UC-03", "badgeHe": "עוסק מורשה", "titleHe": "עוסקת מורשית — הלוואה לרכישת רכב",
+     "personaHe": "שירן אזולאי", "profileHe": "עצמאית · עוסק מורשה · אזולאי עיצוב פנים", "caseId": "DEMO-MTZ-2026-103",
+     "caseDisplay": "438839103", "loanHe": "רכישת רכב · ₪140,000 · 60 תשלומים",
+     "demonstratesHe": "עוסק מורשה: שומה או אישור רו״ח, תעודת עוסק מורשה ודוח רווח והפסד עדכני — דוחות מע״מ הם חלופה מקובלת לדוח.",
+     "requirements": [req("ID_CARD:BRW-A", "תעודת זהות — שירן", "שירן אזולאי"),
+                      req("BANK_STATEMENTS:ACC-1", "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (שירן)", "שירן אזולאי"),
+                      req("PURPOSE_PROOF", "אסמכתה למטרת ההלוואה — רכישת רכב", "שירן אזולאי"),
+                      req("TAX_ASSESSMENT:BRW-A", "שומת מס / אישור רו״ח — שירן", "שירן אזולאי"),
+                      req("VAT_DEALER_CERT:BRW-A", "תעודת עוסק מורשה — שירן", "שירן אזולאי", H),
+                      req("PNL_STATEMENT:BRW-A", "דוח רווח והפסד עדכני — שירן", "שירן אזולאי", H)],
+     "notRequiredHe": ["תלושי שכר", "אישור עוסק פטור"]},
+    {"id": "TC-04", "useCaseId": "UC-04", "badgeHe": "שכיר + עצמאי", "titleHe": "שכיר וגם עצמאי — הלוואה לרכישת רכב",
+     "personaHe": "אלון פרידמן", "profileHe": "שכיר בנתיב תוכנה + עוסק פטור (פרידמן הדרכות)", "caseId": "DEMO-MTZ-2026-104",
+     "caseDisplay": "438839104", "loanHe": "רכישת רכב · ₪110,000 · 60 תשלומים",
+     "demonstratesHe": "שילוב: תלושים בגלל המשכורת ומסמכי עוסק פטור בגלל העסק — תעודת הזהות ודפי העו״ש פעם אחת בלבד.",
+     "requirements": [req("ID_CARD:BRW-A", "תעודת זהות — אלון", "אלון פרידמן"),
+                      req("PAYSLIPS:BRW-A", "3 תלושי שכר אחרונים — אלון", "אלון פרידמן"),
+                      req("BANK_STATEMENTS:ACC-1", "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (אלון)", "אלון פרידמן"),
+                      req("PURPOSE_PROOF", "אסמכתה למטרת ההלוואה — רכישת רכב", "אלון פרידמן"),
+                      req("TAX_ASSESSMENT:BRW-A", "שומת מס / אישור רו״ח — אלון", "אלון פרידמן"),
+                      req("VAT_EXEMPT_CERT:BRW-A", "אישור עוסק פטור — אלון", "אלון פרידמן", H)],
+     "notRequiredHe": ["תעודת זהות או דפי עו״ש כפולים"]},
+    {"id": "TC-05", "useCaseId": "UC-05", "badgeHe": "שני לווים", "titleHe": "בקשה משותפת — שכיר ועוסקת מורשית",
+     "personaHe": "רועי ומאיה שטרן", "profileHe": "רועי: שכיר · מאיה: עוסקת מורשית", "caseId": "DEMO-MTZ-2026-105",
+     "caseDisplay": "438839105", "loanHe": "שיפוץ · ₪150,000 · 84 תשלומים",
+     "demonstratesHe": "לכל לווה תעודה ומסמכי הכנסה משלו; דף עו״ש אחד לחשבון המשותף. רחל, שותפה בחשבון של רועי, אינה לווה — ולא נדרש ממנה דבר.",
+     "requirements": [req("ID_CARD:BRW-A", "תעודת זהות — רועי", "רועי שטרן"),
+                      req("ID_CARD:BRW-B", "תעודת זהות — מאיה", "מאיה שטרן"),
+                      req("PAYSLIPS:BRW-A", "3 תלושי שכר אחרונים — רועי", "רועי שטרן"),
+                      req("BANK_STATEMENTS:ACC-1", "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש משותף (רועי ומאיה)", "רועי שטרן ומאיה שטרן"),
+                      req("BANK_STATEMENTS:ACC-2", "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש של רועי ואמו (רועי)", "רועי שטרן"),
+                      req("PURPOSE_PROOF", "אסמכתה למטרת ההלוואה — שיפוץ", "רועי שטרן ומאיה שטרן"),
+                      req("TAX_ASSESSMENT:BRW-B", "שומת מס / אישור רו״ח — מאיה", "מאיה שטרן"),
+                      req("VAT_DEALER_CERT:BRW-B", "תעודת עוסק מורשה — מאיה", "מאיה שטרן", H),
+                      req("PNL_STATEMENT:BRW-B", "דוח רווח והפסד עדכני — מאיה", "מאיה שטרן", H)],
+     "notRequiredHe": ["תלושים ממאיה", "מסמכי עסק מרועי", "מסמכים מרחל (בעלת חשבון, לא לווה)"]},
+    {"id": "TC-06", "useCaseId": "UC-06", "badgeHe": "חברה בע״מ", "titleHe": "חברה בע״מ — פנייה למימון ציוד",
+     "personaHe": "גלעד ששון · ש.ג. מערכות מיזוג בע״מ", "profileHe": "חברה בע״מ · מורשה חתימה: גלעד ששון",
+     "caseId": "DEMO-MTZ-2026-106", "caseDisplay": "438839106", "loanHe": "מימון ציוד לעסק · ₪300,000 · 60 תשלומים",
+     "demonstratesHe": "מסלול עסקי מוגבל: זיהוי החברה ומורשה החתימה, רשימת מסמכים פיננסיים מייצגת וקליטת מסמכים — הבנקאית מלווה. אין חיתום עסקי ואין כללי הלוואה צרכנית.",
+     "requirements": [req("ID_CARD:BRW-A", "תעודת זהות — גלעד", "גלעד ששון"),
+                      req("COMPANY_EXTRACT", "נסח חברה עדכני", "ש.ג. מערכות מיזוג בע״מ", H),
+                      req("SIGNATORY_AUTHORITY", "פרוטוקול מורשי חתימה", "ש.ג. מערכות מיזוג בע״מ", H),
+                      req("COMPANY_FINANCIALS", "דוחות כספיים מבוקרים", "ש.ג. מערכות מיזוג בע״מ", H),
+                      req("COMPANY_INTERIM", "דוח רווח והפסד לתקופה השוטפת", "ש.ג. מערכות מיזוג בע״מ", H),
+                      req("BUSINESS_STATEMENTS:ACC-1", "דפי עו״ש עסקי ל־6 החודשים האחרונים — חשבון עסקי של החברה",
+                          "ש.ג. מערכות מיזוג בע״מ", H)],
+     "notRequiredHe": ["תלושי שכר", "אסמכתה צרכנית למטרה", "דפי עו״ש פרטיים"], "bankerAssisted": True},
+]
+for _uc in USE_CASES:
+    _uc.update({"packStatus": "ROUND_2", "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."})
+
 QA, CLEAN, JOINT = "DEMO-MTZ-2026-005", "DEMO-MTZ-2026-004", "DEMO-MTZ-2026-003"
 # id, title, goal, instruction, banker, case, state, files (file or (file, requirement)), expected, codes, final status, verification
 SCENARIOS = [
@@ -319,7 +401,10 @@ def main() -> None:
                           **({"uploadAs": upload_as} if upload_as else {}),
                           **({"verification": verification[0]} if verification else {})})
     manifest = {
-        "schemaVersion": "2.1", "titleHe": "ספריית תרחישי בדיקה — השלמת מסמכים להלוואה · Mizrahi × JEEN",
+        "schemaVersion": "2.2", "titleHe": "ספריית תרחישי בדיקה — השלמת מסמכים להלוואה · Mizrahi × JEEN",
+        "useCasesNoteHe": "שישה פרופילי לקוח, כל אחד בתיק משלו. הרשימה נגזרת ממדיניות המסמכים להדגמה (מבוססת פרקטיקה ציבורית) — "
+                          "אינה רשימת דרישות מאושרת של מזרחי־טפחות. ״בדיקת הבנקאי״ = אין בדיקת AI לסוג המסמך.",
+        "useCases": USE_CASES,
         "disclosureHe": "כל המסמכים והנתונים סינתטיים. התוצאה הצפויה היא הניתוב שהתרחיש בנוי להראות — לא תוצאת AI בפועל ולא החלטת אשראי.",
         "caseContext": {"id": "LOAN-DEMO-2026", "borrowers": [IDO], "bankStage": "DOCUMENTS_AND_CHECKS (MOCK)",
                         "reviewScope": "Document Review בלבד"},
@@ -336,7 +421,8 @@ def main() -> None:
                     "מוקלטים — התוצאה שלהם נבדקת בהרצה חיה בלבד."],
     }
     OUT.write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n", encoding="utf8")
-    print(f"wrote {OUT} · {len(FEATURED)} featured · {len(scenarios)} scenarios · {len(documents)} documents")
+    print(f"wrote {OUT} · {len(USE_CASES)} use cases · {len(FEATURED)} featured · {len(scenarios)} scenarios · "
+          f"{len(documents)} documents")
 
 
 if __name__ == "__main__":

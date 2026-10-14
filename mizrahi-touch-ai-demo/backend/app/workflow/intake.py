@@ -43,7 +43,8 @@ class IntakeRefused(ValueError):
 def options() -> dict:
     pol, row = store.policy()
     return {"product_he": pol.product.label_he, "policy_version": row["label"],
-            "purposes": [{"id": k, "label_he": p.label_he, "proof_he": p.proof_he} for k, p in pol.product.purposes.items()],
+            "purposes": [{"id": k, "label_he": p.label_he, "proof_he": p.proof_he} for k, p in pol.product.purposes.items()
+                         if p.entity == "individual"],
             "amount": {"min": 5000, "max": 250000}, "payments": {"min": 2, "max": 120},
             "note_he": "פרטי הבקשה משמשים רק לקביעת המסמכים הנדרשים. הם אינם בדיקת זכאות ואינם הצעת אשראי."}
 
@@ -51,7 +52,7 @@ def options() -> dict:
 def create(app: Application) -> str:
     pol, _ = store.policy()
     purpose = pol.product.purposes.get(app.purpose)
-    if purpose is None:
+    if purpose is None or purpose.entity != "individual":
         raise IntakeRefused("מטרת ההלוואה אינה אחת מהמטרות של המסלול")
     count = (db.one("SELECT COUNT(*) AS n FROM demo_applications") or {"n": 0})["n"]
     if count >= 200:
@@ -63,7 +64,8 @@ def create(app: Application) -> str:
                 "declared_net_monthly_ils": app.declared_net_monthly_ils, "declaration_note_he": "הוצהר בבקשה המקוונת"}
     case = mock_bank._case(case_id, f"4388{secrets.randbelow(90000) + 10000}", f"{pol.product.label_he} · {purpose.label_he}",
                            [borrower], mock_bank._loan(app.purpose, purpose.label_he, app.requested_amount_ils, app.payments),
-                           mock_bank._accounts(["BRW-A"]), submitted_at=now_iso(), customer_started=True)
+                           mock_bank._accounts(["BRW-A"]), submitted_at=now_iso(), customer_started=True,
+                           persona_id=f"PRS-NEW-{case_id[-4:]}", applicant_type="individual")
     case["stage_index"] = 1
     with db.tx() as c:
         c.execute("INSERT INTO demo_applications(case_id, created_at, application) VALUES (?,?,?)",

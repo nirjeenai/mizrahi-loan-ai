@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AccessError, api, monthHe } from "../api";
 import { useCase } from "../caseContext";
 import { IAlert, ICheck, IChevronDown, IDownload, IX } from "./Icons";
+import type { UseCase } from "./UseCaseScenarios";
 
 /* The featured executive-demo scenarios and the "start a new demo" control. Everything shown comes from the
    presenter manifest (fixtures/presenter): the expected label is the JEEN routing expectation for golden-set facts,
@@ -25,7 +26,8 @@ export interface FixtureDoc {
   ownerHe?: string | null; periodHe?: string | null; slotHe?: string; issueHe?: string | null; casesHe?: string | null;
 }
 export interface PresenterBundle {
-  manifest: { featured?: Featured[]; featuredNoteHe?: string; documents: FixtureDoc[]; [k: string]: any };
+  manifest: { featured?: Featured[]; featuredNoteHe?: string; documents: FixtureDoc[]; useCases?: UseCase[]; useCasesNoteHe?: string;
+    [k: string]: any };
   files: Record<string, { available: boolean; sha256_matches_manifest: boolean }>;
   [k: string]: any;
 }
@@ -157,10 +159,11 @@ function FeaturedCard({ f, index, docs, isOpen, onToggle }: {
 }
 
 export const DEMO_RESET_EVENT = "mz-demo-reset";
-const FIRST_DEMO_CASE = "DEMO-MTZ-2026-006";
+/** TC-01 ↔ UC-01, the first of the six use cases (fixtures/presenter manifest `useCases`) */
+const FIRST_DEMO_CASE = "DEMO-MTZ-2026-101";
 
-/** "התחל דמו חדש": wipes the executive demo cases on the server (only 006–008), then returns the app on the right to
- *  the first scenario's case. A review still running makes the server answer 409; the control waits and retries. */
+/** "התחל דמו חדש": wipes the executive demo cases on the server (006–011 and the six use-case cases 101–106), then returns
+ *  the app on the right to the first use case. A review still running makes the server answer 409; the control waits and retries. */
 export function NewDemoButton() {
   const { openCase, closeUpload, closeAssistant, reload } = useCase();
   const nav = useNavigate();
@@ -193,7 +196,7 @@ export function NewDemoButton() {
       openCase(FIRST_DEMO_CASE);
       nav("/customer");
       reload();
-      setNote({ tone: "ok", text: "הדמו מוכן: תיקי הדמו ריקים, ותיק 438839006 פתוח מימין." });
+      setNote({ tone: "ok", text: "הדמו מוכן: תיקי הדמו ריקים, ותיק 438839101 (TC-01) פתוח מימין." });
     } catch (e) {
       setNote({ tone: "bad", text: e instanceof AccessError && e.status === 401
         ? "כדי להתחיל דמו חדש צריך להיות מחוברים לאפליקציה מימין."
@@ -212,7 +215,8 @@ export function NewDemoButton() {
         </button>
       ) : (
         <div className="new-demo-confirm" role="group" aria-label="התחל דמו חדש">
-          <div className="small">תיקי הדמו (<span className="ltr">438839006–011</span>) יחזרו למצב ריק: מסמכים, ממצאים, החלטות בנקאי ושיחות יימחקו.
+          <div className="small">תיקי הדמו (<span className="ltr">438839006–011</span> ושישת תיקי הפרופילים <span className="ltr">438839101–106</span>)
+            יחזרו למצב ריק: מסמכים, ממצאים, החלטות בנקאי ושיחות יימחקו.
             תיקים אחרים, קבצי ההדגמה, המדיניות והרובריקות לא משתנים.</div>
           <div className="row" style={{ gap: 6 }}>
             <button type="button" className="btn btn-orange scn-btn" disabled={busy} onClick={run} data-testid="new-demo-confirm">

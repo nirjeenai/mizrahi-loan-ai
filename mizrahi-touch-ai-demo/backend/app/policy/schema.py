@@ -9,7 +9,11 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-Family = Literal["id_document", "payslip", "bank_statement", "purpose_proof", "tax_form"]
+# The last six families have no review rubric: an upload is stored for the banker's review, never marked valid by AI.
+Family = Literal["id_document", "payslip", "bank_statement", "purpose_proof", "tax_form", "business_registration",
+                 "pnl_statement", "company_registry", "signatory_authority", "financial_statements",
+                 "business_bank_statement"]
+Entity = Literal["individual", "company"]
 Day = Literal["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 Channel = Literal["in_app", "message", "voice"]
 PROMPT_VARIABLES = ("first_name", "missing_documents", "secure_upload_link", "next_step")
@@ -21,7 +25,11 @@ class _Strict(BaseModel):
 
 
 class Condition(_Strict):
+    """All given keys must hold. `employment` matches when ANY of the applicant's income sources is listed, so a salaried
+    and self-employed applicant gets both sets once; `registration` is the applicant's VAT registration."""
     employment: Optional[list[Literal["salaried", "self_employed", "allowance"]]] = None
+    registration: Optional[list[Literal["vat_exempt", "vat_registered"]]] = None
+    entity: Optional[list[Entity]] = None
     purposes: Optional[list[str]] = None
 
 
@@ -41,13 +49,23 @@ class DocumentRequirement(_Strict):
     required: bool = True
     label_he: str = Field(..., min_length=2, max_length=80)
     hint_he: str = Field("", max_length=300)
+    why_he: str = Field("", max_length=300)
+    alternatives_he: list[str] = Field(default_factory=list, max_length=6)
     condition: Optional[Condition] = None
     rules: RequirementRules = RequirementRules()
+
+    @field_validator("alternatives_he")
+    @classmethod
+    def _alternatives(cls, v: list[str]) -> list[str]:
+        if any(not 2 <= len(x) <= 120 for x in v):
+            raise ValueError("מסמך חלופי חייב להכיל 2–120 תווים")
+        return v
 
 
 class Purpose(_Strict):
     label_he: str = Field(..., max_length=60)
     proof_he: str = Field(..., max_length=120)
+    entity: Entity = "individual"
 
 
 class Product(_Strict):

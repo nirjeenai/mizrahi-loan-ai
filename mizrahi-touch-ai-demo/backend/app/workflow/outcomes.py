@@ -20,6 +20,7 @@ OUTCOME_HE = {
     "INCOMPLETE": "חסרים מסמכים",
     "AWAITING_UPLOAD": "ממתינים להעלאת מסמכים",
     "CONFIRMED": "הבנקאי אישר את הכנת מסמכי הבקשה",
+    "HUMAN_REVIEW_PENDING": "התקבל — ממתין לבדיקת הבנקאי (אין בדיקת AI לסוג מסמך זה)",
 }
 INCOME_REVIEW_HE = "נדרש בירור בנקאי — נמצא פער בהכנסה"
 # the borrower's payslip set, from readiness.customer_status (same precedence: a document to fix comes before a review)
@@ -52,6 +53,8 @@ def document_outcome(doc: dict, review: Optional[dict], banker_status: str, open
         return _view("ACCEPTED", by="banker")
     if banker_status == "AWAITING_CUSTOMER_FIX":
         return _view("BLOCKER", by="ai")
+    if doc["status"] == "stored":
+        return _view("HUMAN_REVIEW_PENDING", by="banker")
     banker = [f for f in open_findings if f["review_state"] == "NEEDS_BANKER_REVIEW" and _cites(f, did)]
     if banker_status == "ESCALATED" or banker or (review or {}).get("verdict") != "VALID":
         income = any(f["code"] == INCOME_CODE for f in banker)

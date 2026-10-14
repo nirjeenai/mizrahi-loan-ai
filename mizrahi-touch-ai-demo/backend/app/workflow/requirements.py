@@ -19,7 +19,16 @@ from ..util import now_iso
 FAMILY_CODE = {"payslip": "PAYSLIPS", "id_document": "ID_CARD", "bank_statement": "BANK_STATEMENTS",
                "purpose_proof": "PURPOSE_PROOF", "tax_form": "TAX_ASSESSMENT"}
 FAMILY_HE = {"payslip": "תלוש שכר", "id_document": "תעודת זהות", "bank_statement": "דף עו״ש",
-             "purpose_proof": "אסמכתה למטרה", "tax_form": "שומת מס / אישור רו״ח"}
+             "purpose_proof": "אסמכתה למטרה", "tax_form": "שומת מס / אישור רו״ח",
+             "business_registration": "אישור רישום עוסק", "pnl_statement": "דוח רווח והפסד",
+             "company_registry": "נסח חברה", "signatory_authority": "מורשי חתימה",
+             "financial_statements": "דוחות כספיים", "business_bank_statement": "דפי עו״ש עסקי"}
+ENTITY_HE = {"individual": "הלוואה פרטית", "company": "מימון לחברה בע״מ"}
+INCOME_HE = {"salaried": "שכיר/ה", "self_employed": "עצמאי/ת", "allowance": "מקבל/ת קצבה"}
+REGISTRATION_HE = {"vat_exempt": "עוסק פטור", "vat_registered": "עוסק מורשה"}
+ROLE_HE = {"primary": "לווה ראשי", "co_borrower": "לווה נוסף", "authorized_signatory": "מורשה חתימה"}
+POLICY_DISCLAIMER_HE = ("מדיניות מסמכים להדגמה, המבוססת על פרקטיקה בנקאית ומיסויית ציבורית — אינה רשימת הדרישות "
+                        "המאושרת של מזרחי־טפחות.")
 
 
 def pin(case_id: str) -> str:
@@ -48,15 +57,56 @@ def case_policy(case_id: str) -> tuple[schema.LoanPolicy, dict]:
     return store.policy(pin(case_id))
 
 
+def income_sources(applicant: dict) -> list[str]:
+    """An applicant's income sources: the explicit list, or the single legacy `employment` value."""
+    if applicant.get("income_sources") is not None:
+        return list(applicant["income_sources"])
+    return [applicant["employment"]] if applicant.get("employment") in INCOME_HE else []
+
+
+def entity_of(case: dict) -> str:
+    return case.get("applicant_type") or "individual"
+
+
 def _matches(cond: Optional[schema.Condition], case: dict, applicant: Optional[dict]) -> bool:
     if cond is None:
         return True
+    if cond.entity is not None and entity_of(case) not in cond.entity:
+        return False
     if cond.employment is not None:
-        if applicant is None or applicant.get("employment") not in cond.employment:
+        if applicant is None or not set(income_sources(applicant)) & set(cond.employment):
+            return False
+    if cond.registration is not None:
+        if applicant is None or applicant.get("business_registration") not in cond.registration:
             return False
     if cond.purposes is not None and (case.get("loan") or {}).get("purpose") not in cond.purposes:
         return False
     return True
+
+
+def applicant_profile_he(applicant: dict) -> str:
+    """'שכיר/ה · עצמאי/ת (עוסק פטור)' — the income profile the policy composes from."""
+    parts = []
+    for src in income_sources(applicant):
+        reg = REGISTRATION_HE.get(applicant.get("business_registration") or "") if src == "self_employed" else None
+        parts.append(f"{INCOME_HE[src]} ({reg})" if reg else INCOME_HE[src])
+    return " · ".join(parts) or ROLE_HE.get(applicant.get("role") or "", "")
+
+
+def profile(case: dict) -> dict[str, Any]:
+    """The structured document profile of a case: the inputs the policy composition reads, in display form."""
+    company = case.get("company")
+    return {"entity": entity_of(case), "entity_he": ENTITY_HE[entity_of(case)],
+            "purpose": (case.get("loan") or {}).get("purpose"), "purpose_he": (case.get("loan") or {}).get("purpose_he"),
+            "company": company, "banker_assisted": bool(case.get("banker_assisted")),
+            "use_case": case.get("use_case"), "profile_label_he": case.get("profile_label_he"),
+            "applicants": [{"borrower_id": b["borrower_id"], "name_he": b["name_he"], "role": b.get("role"),
+                            "role_he": ROLE_HE.get(b.get("role") or "", ""), "income_sources": income_sources(b),
+                            "business_registration": b.get("business_registration"),
+                            "profile_he": applicant_profile_he(b)} for b in case["borrowers"]],
+            "accounts": [{"account_id": a["account_id"], "label_he": a["label_he"], "holders": a["holders"],
+                          "other_holders_he": a.get("other_holders_he") or []} for a in case.get("accounts", [])],
+            "disclaimer_he": POLICY_DISCLAIMER_HE}
 
 
 def evaluated_by_ai(family: str) -> bool:
@@ -72,41 +122,65 @@ def payslip_months(case_id: str) -> int:
     return (rule.rules.months if rule and rule.rules.months else rubrics.for_case()["policy"]["requested_months"])
 
 
-def for_case(case_id: str) -> list[dict[str, Any]]:
-    case = bank.get_case(case_id)
-    pol, row = case_policy(case_id)
-    label = row["label"]
+def compose(case: dict, pol: schema.LoanPolicy, label: str) -> list[dict[str, Any]]:
+    """The requirement instances of a case under one policy version — deterministic, from the case's profile only.
+
+    One instance per applicant / account / case as the rule says, so a requirement shared by several people (an ID per
+    person, one statement per account, one purpose proof) is never listed twice. An account holder who is not a
+    borrower gets nothing. Every instance names its owner, why it is asked for and the documents accepted instead."""
     out: list[dict[str, Any]] = []
+    company = (case.get("company") or {}).get("name_he")
     for rule in pol.document_requirements:
         title = rule.label_he.replace("{months}", str(rule.rules.months or 3))
+        ai = evaluated_by_ai(rule.family)
         base = {"requirement_id": rule.id, "family": rule.family, "family_he": FAMILY_HE[rule.family],
                 "required": rule.required, "rules": rule.rules.model_dump(exclude_none=True), "hint_he": rule.hint_he,
-                "evaluated_by_ai": evaluated_by_ai(rule.family), "bank_status": "awaiting_documents",
+                "why_he": rule.why_he, "alternatives_he": list(rule.alternatives_he),
+                "evaluated_by_ai": ai, "intake": "ai_review" if ai else "human_review", "bank_status": "awaiting_documents",
                 "policy_version": label, "family_code": FAMILY_CODE.get(rule.family, rule.id), **SOURCE}
         if rule.per == "applicant":
             for b in case["borrowers"]:
                 if not _matches(rule.condition, case, b):
                     continue
                 out.append({**base, "code": f"{rule.id}:{b['borrower_id']}", "borrower_id": b["borrower_id"],
-                            "account_id": None, "holders": [b["borrower_id"]], "title_he": f"{title} — {b['first_name_he']}"})
+                            "account_id": None, "holders": [b["borrower_id"]], "title_he": f"{title} — {b['first_name_he']}",
+                            "owner_type": "applicant", "owner_he": b["name_he"]})
         elif rule.per == "account":
             if not _matches(rule.condition, case, None):
                 continue
             names = {b["borrower_id"]: b["first_name_he"] for b in case["borrowers"]}
+            full = {b["borrower_id"]: b["name_he"] for b in case["borrowers"]}
             for a in case.get("accounts", []):
                 holders = [h for h in a["holders"] if h in names]
+                who = " ו".join(names[h] for h in holders)
                 out.append({**base, "code": f"{rule.id}:{a['account_id']}", "borrower_id": holders[0] if holders else None,
                             "account_id": a["account_id"], "holders": holders,
-                            "title_he": f"{title} — {a['label_he']} ({' ו'.join(names[h] for h in holders)})"})
+                            "title_he": f"{title} — {a['label_he']}" + (f" ({who})" if who else ""),
+                            "owner_type": "account",
+                            "owner_he": " ו".join(full[h] for h in holders) or company or a["label_he"]})
         else:
             if not _matches(rule.condition, case, None):
                 continue
             purpose = pol.product.purposes.get((case.get("loan") or {}).get("purpose") or "")
+            purpose_proof = rule.family == "purpose_proof"
             out.append({**base, "code": rule.id, "borrower_id": None, "account_id": None,
                         "holders": [b["borrower_id"] for b in case["borrowers"]],
-                        "title_he": title + (f" — {purpose.label_he}" if purpose else ""),
-                        "hint_he": (purpose.proof_he if purpose else "") or rule.hint_he})
+                        "title_he": title + (f" — {purpose.label_he}" if purpose and purpose_proof else ""),
+                        "hint_he": ((purpose.proof_he if purpose and purpose_proof else "") or rule.hint_he),
+                        "owner_type": "company" if company else "case",
+                        "owner_he": company or " ו".join(b["name_he"] for b in case["borrowers"])})
     return out
+
+
+def for_case(case_id: str) -> list[dict[str, Any]]:
+    pol, row = case_policy(case_id)
+    return compose(bank.get_case(case_id), pol, row["label"])
+
+
+def preview(case: dict) -> tuple[list[dict[str, Any]], str]:
+    """The requirements a not-yet-created case would get under the published policy (the onboarding summary)."""
+    pol, row = store.policy()
+    return compose(case, pol, row["label"]), row["label"]
 
 
 def family_of(requirement_code: Optional[str], case_id: Optional[str] = None) -> str:

@@ -25,7 +25,8 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   needs every mandatory requirement satisfied and nothing open.
 - **Customer app.** Documents lists every requirement with its state; the upload sheet takes its document type from the
   requirement; the home card and summary count requirements ("3 מתוך 4 דרישות"); a new application can be started from
-  the menu ("בקשת הלוואה חדשה"), and its answers only decide which documents are required.
+  the menu ("בקשת הלוואה חדשה"), and its answers only decide which documents are required (since Round 1 of Mizrahi #2:
+  the JEEN questionnaire, see "Smart document profiling").
 - **Banker desk.** Same queue, Evidence Viewer and decision panel; a requirement matrix under "פירוט דרישות", per-family key
   fields over the original page, missing-requirement items with "בקשת השלמת מסמך".
 - **Presenter pane.** Four featured loan scenarios (cases 006, 011, 008, 009) and eleven test scenarios (cases 004/005,
@@ -62,6 +63,74 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   suite. `e2e/test_mcp_sdk.py` needs no adaptation (9/9 on a REPLAY stack with its keys: `E2E_MCP_KEY=replay-mcp-key-001
   E2E_MCP_KEY_2=replay-mcp-key-002`). Sections below this one describe the
   shared architecture and still use mortgage examples where they were written for #1.
+
+## Smart document profiling (Mizrahi #2 Round 1): six use cases and new-customer onboarding
+- **One composition engine.** `workflow/requirements.compose(case, policy)` turns a case's profile into requirement
+  instances. The profile is the entity (`applicant_type`: individual / company), the loan purpose, each applicant's
+  `income_sources` (salaried, self-employed, or both), their VAT registration (`business_registration`: vat_exempt /
+  vat_registered), and the accounts with their holders. Both the prepared cases and the questionnaire preview call
+  `compose`, so they cannot drift apart. Every instance carries:
+  - an owner (`owner_type`, `owner_he`);
+  - why it is required (`why_he`) and the documents accepted instead (`alternatives_he`);
+  - its intake (`ai_review`, or `human_review` when no rubric covers the family);
+  - the pinned policy version.
+- **Demo policy, not bank policy.** The rules live in `backend/policy/seed/loan_policy.demo.json` and are editable in
+  Admin → מסמכים: condition chips for registration and entity, and "למה" and "חלופות" fields. Conditions are
+  `employment` (matches any income source), `registration`, `entity` and `purposes`. A data directory created before this
+  round gets the new requirements as a new published version (`store.upgrade_from_seed`, additive; cases already pinned
+  keep their version, and a requirement the Admin removed is not brought back). These are demonstration rules based on
+  public banking and tax practice, not certified Mizrahi-Tefahot requirements.
+
+  | Profile | ID | Payslips | Statements | Purpose | Tax / CPA | VAT-exempt cert | VAT-dealer cert | P&L | Company docs |
+  |---|---|---|---|---|---|---|---|---|---|
+  | Salaried | per person | ✓ | per account | ✓ | | | | | |
+  | Self-employed, עוסק פטור | per person | | per account | ✓ | ✓ | ✓ (human) | | | |
+  | Self-employed, עוסק מורשה | per person | | per account | ✓ | ✓ | | ✓ (human) | ✓ (human) | |
+  | Salaried + self-employed | once | ✓ | once per account | ✓ | ✓ | by registration | by registration | by registration | |
+  | Joint applicants | one each | per salaried borrower | one per account; a non-borrower holder gets nothing | once | per self-employed borrower | | | | |
+  | Company (חברה בע״מ) | signatory | | | | | | | | extract, signatories, audited FS, interim P&L, business statements (all human) |
+
+  No VAT returns are asked of a VAT-exempt dealer. For a VAT-registered dealer, periodic VAT returns are one accepted
+  alternative to the P&L.
+- **No rubric, no verdict.** An upload for a family without a rubric (`business_registration`, `pnl_statement`,
+  `company_registry`, `signatory_authority`, `financial_statements`, `business_bank_statement`) is stored with status
+  `stored` and no review job. It gets the outcome `HUMAN_REVIEW_PENDING`, and the requirement moves from "טרם הועלה" to
+  "התקבל · ממתין לבדיקת הבנקאי", then to "התקבל אצל הבנקאי" once the banker accepts it. It is never marked valid. The
+  case review still counts it for coverage, so a missing one is a `REQUIRED_DOCUMENT_MISSING` finding.
+- **Six prepared use cases ↔ six presenter test cases.** Cases `DEMO-MTZ-2026-101…106` (`mock_bank._USE_CASES`, flag
+  `executive_demo`, so "התחל דמו חדש" also empties them and then opens TC-01). The mapping lives in the presenter
+  manifest's `useCases`, built by `fixtures/loan/build_manifest.py`. Each entry holds TC-0n ↔ UC-0n, the case, the
+  persona, and the expected checklist; `backend/tests/test_document_profiles.py` asserts that checklist against the engine.
+
+  | TC | UC | Case | Persona | Profile |
+  |---|---|---|---|---|
+  | TC-01 | UC-01 | 438839101 | מיכל ברק (the seeded identity of case 002) | salaried, car |
+  | TC-02 | UC-02 | 438839102 | יואב כרמי | עוסק פטור, car |
+  | TC-03 | UC-03 | 438839103 | שירן אזולאי | עוסק מורשה, car |
+  | TC-04 | UC-04 | 438839104 | אלון פרידמן | salaried + עוסק פטור, car |
+  | TC-05 | UC-05 | 438839105 | רועי ומאיה שטרן | salaried + עוסקת מורשית, renovation; רחל is a holder on account 2 but not a borrower |
+  | TC-06 | UC-06 | 438839106 | ש.ג. מערכות מיזוג בע״מ · גלעד ששון | company, equipment financing (limited, banker-assisted) |
+
+  The presenter shows the six cards first. The 4 featured and 11 library scenarios are unchanged and sit under the
+  collapsed "בדיקות נוספות". Round 1 cards offer no downloads (`packStatus: ROUND_2`).
+- **Personas and "התיקים שלי".** Every case has a `persona_id` (QA cases 003–005 have none and are flagged `qa`). The
+  drawer lists the open case's persona's applications. Every other case stays reachable under a collapsed "תיקי הדגמה
+  ובדיקות של לקוחות אחרים". The Lavi and Levy families are separate personas.
+- **New customers (`/customer/apply`).** A deterministic JEEN questionnaire (`workflow/onboarding.py`, no model) asks
+  about the entity, name, purpose, income sources, VAT registration if self-employed, a co-borrower (with their income
+  and a joint or separate account), and the amount and payments. A company path asks for the company name, the
+  signatory and the business purpose. The draft is stored server-side and resumable (`mz.onboarding.draft.v1`). Every
+  answer can be changed before confirmation; hidden dependent answers are kept. The summary shows the profile and the
+  composed checklist. Confirming creates one case, however many times or however concurrently it is clicked, extends
+  the session to it, and opens Documents. A draft is not a case: it gets no requirement, follow-up or review.
+  API: `POST /api/demo/onboarding`, `GET …/{draft}`, `POST …/{draft}/answers`, `POST …/{draft}/confirm` (demo identity only).
+- **Business path.** The company case is limited by design: identification, a representative financial checklist,
+  intake, and a banker-assisted marker in the app and the banker console. Consumer rules carry
+  `entity: ["individual"]`, so none of them apply to a company, and there is no business underwriting.
+- **Tests.** `backend/tests/test_document_profiles.py` (14). The browser suite `e2e/check_document_profiles.py` runs on a
+  REPLAY stack (51 checks: six profiles, the presenter mapping, personas, the drawer, the banker view, a human-review
+  upload, and onboarding for salaried, self-employed, a mixed correction, joint and company; the double-click
+  confirmation creates one case).
 
 ## Follow-up engine and Admin Settings (Rounds 3–4, integrated at G3–G5)
 When a customer leaves a correction unfinished, the server decides whether to wait, nudge in the app, schedule a call
@@ -103,8 +172,13 @@ or block. It decides in code, with rule ids and a Hebrew reason (`followup/polic
 - **`/system`:** a "Follow-up engine" row and a "JEEN Talk (outbound follow-up calls)" row: DEMO, SIMULATION.
 
 **Admin Settings (`/admin`, "הגדרות" in the console bar)**
-- Four tabs:
-  - documents and process;
+- Five tabs:
+  - performance and insights ("ביצועים ותובנות", `?tab=insights`): a frontend-only concept view. It shows interrupted
+    applications, the customers who returned, the packages ready for banker review, and three follow-up variants that
+    differ only in grace period (5 / 20 / 60 min). All of it comes from a fixed synthetic dataset
+    (`pages/admin/insightsData.ts`) and is labelled as illustration. No API, engine or simulator output feeds it; the
+    only live values are the active policy's grace period and version number, shown as a chip;
+  - documents and process (the default tab);
   - follow-up and completion (with the envelope bounds and the kill switch);
   - prompt and templates;
   - simulation and versions.

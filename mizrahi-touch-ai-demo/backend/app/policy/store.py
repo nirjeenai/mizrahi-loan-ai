@@ -64,6 +64,49 @@ def ensure_seeded() -> None:
                        "גרסת פתיחה מתוך קובץ הזרע (נתוני הדגמה)", "system:seed"))
 
 
+UPGRADE_REASON = "הרחבת מדיניות המסמכים מקובץ הזרע: פרופילי מסמכים (עצמאים, לווים משותפים, חברה)"
+
+
+def upgrade_from_seed() -> Optional[dict]:
+    """Publish a new loan-policy version when the published one lacks requirements or purposes the seed defines.
+
+    Additive only: requirements and purposes that no version ever had are appended (one the Admin removed stays removed),
+    an existing requirement gains only the seed's entity condition and its reason/alternative texts when it has none.
+    Nothing the Admin set is overwritten, and cases pinned to the previous version keep it. Returns the new version, or
+    None when nothing was missing."""
+    current = published("loan_policy")
+    seed = schema.parse("loan_policy", seed_config("loan_policy")).model_dump(by_alias=True)
+    config = json.loads(json.dumps(current["config"]))
+    history = versions("loan_policy")
+    ever_ids = {r["id"] for v in history for r in v["config"].get("document_requirements", [])}
+    ever_purposes = {k for v in history for k in (v["config"].get("product") or {}).get("purposes", {})}
+    have = {r["id"]: r for r in config["document_requirements"]}
+    changed = False
+    for s in seed["document_requirements"]:
+        r = have.get(s["id"])
+        if r is None:
+            if s["id"] not in ever_ids:
+                config["document_requirements"].append(s)
+                changed = True
+            continue
+        entity = (s.get("condition") or {}).get("entity")
+        if entity and not (r.get("condition") or {}).get("entity"):
+            r["condition"] = {**(r.get("condition") or {}), "entity": entity}
+            changed = True
+        for key in ("why_he", "alternatives_he"):
+            if s.get(key) and not r.get(key):
+                r[key] = s[key]
+                changed = True
+    for key, purpose in seed["product"]["purposes"].items():
+        if key not in config["product"]["purposes"] and key not in ever_purposes:
+            config["product"]["purposes"][key] = purpose
+            changed = True
+    if not changed or validate("loan_policy", config):
+        return None
+    draft = create_draft("loan_policy", "system:seed", config=config, reason=UPGRADE_REASON)
+    return publish(draft["version_id"], draft["revision"], "system:seed")
+
+
 def published(kind: str) -> dict:
     row = _row(db.one("SELECT * FROM config_versions WHERE kind=? AND scope=? AND status='PUBLISHED'", (kind, SCOPE)))
     if row is None:

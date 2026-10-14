@@ -51,7 +51,8 @@ def build_package(case_id: str) -> dict[str, Any]:
                       for b in case["borrowers"]],
         "ai_readiness": {"state": state["state"], "state_he": state["state_he"], "state_he_banker": state["state_he_banker"],
                          "counts": state["counts"]},
-        "requirements": [r for r in state["requirements"] if r["evaluated_by_ai"]],
+        "requirements": state["requirements"],
+        "document_profile": case.get("document_profile"),
         "policy_version": next((r.get("policy_version") for r in state["requirements"]), None),
         "documents": docs,
         "findings_open_customer": [f for f in open_f if f["review_state"] == "CUSTOMER_ACTION_REQUIRED"],
@@ -426,7 +427,7 @@ def build_workspace(case_id: str, light: bool = False) -> dict[str, Any]:
             })
 
     for r in state["requirements"]:
-        if not r["evaluated_by_ai"] or r["family"] == "payslip":
+        if r["family"] == "payslip":
             continue
         code = r["code"]
         about = [f for f in open_f if f["code"] in COVERAGE_CODES and (f.get("detail") or {}).get("requirement_code") == code]
@@ -514,7 +515,7 @@ def build_workspace(case_id: str, light: bool = False) -> dict[str, Any]:
     open_requests = [q for q in requests if q["status"] == "OPEN"]
     accepted_months = sum(1 for row in borrower_rows for m in row["months"] if m["state"] == "accepted")
     missing_total = sum(len(r.get("missing") or []) for r in state["requirements"] if r["evaluated_by_ai"])
-    missing_requirements = [r for r in state["requirements"] if r["evaluated_by_ai"] and r["family"] != "payslip"
+    missing_requirements = [r for r in state["requirements"] if r["family"] != "payslip" and r["required"]
                             and r["ai_state"] == "required_missing"]
     confirmation = state.get("banker_confirmation")
     handoffs = review_desk.open_handoffs(case_id)
@@ -567,8 +568,10 @@ def build_workspace(case_id: str, light: bool = False) -> dict[str, Any]:
                                 "borrower_he": names.get(r.get("borrower_id") or "", {}).get("first_name_he"),
                                 "satisfied": r["ai_state"] in ("extracted", "preparation_confirmed"),
                                 "units": f"{r.get('units_verified', 0)}/{r.get('units_required', 0)}",
-                                "policy_version": r.get("policy_version")}
-                               for r in state["requirements"] if r["evaluated_by_ai"]],
+                                "policy_version": r.get("policy_version"), "intake": r.get("intake"),
+                                "owner_he": r.get("owner_he")}
+                               for r in state["requirements"]],
+        "document_profile": case.get("document_profile"),
         "progress": state.get("progress"), "case_status": state.get("case_status"),
         "groups": groups,
         "items": items,

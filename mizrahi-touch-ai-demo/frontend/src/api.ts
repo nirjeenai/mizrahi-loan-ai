@@ -43,16 +43,39 @@ export interface Requirement {
   open_customer_actions?: number; open_banker_items?: number; open_customer_requests?: number;
   required?: number; verified_months?: string[]; in_review_months?: string[]; documents?: number; customer_status?: CustomerStatus;
   units_required?: number; units_verified?: number; document_ids?: string[];
+  /** ai_review: a rubric checks the upload · human_review: no rubric — the upload is stored for the banker, never "valid by AI" */
+  intake?: "ai_review" | "human_review"; owner_type?: "applicant" | "account" | "case" | "company"; owner_he?: string;
+  why_he?: string; alternatives_he?: string[];
 }
 export const FAMILY_HE: Record<string, string> = { payslip: "תלוש שכר", id_document: "תעודת זהות", bank_statement: "דף עו״ש",
-  purpose_proof: "אסמכתה למטרה", tax_form: "שומת מס / אישור רו״ח" };
+  purpose_proof: "אסמכתה למטרה", tax_form: "שומת מס / אישור רו״ח", business_registration: "אישור רישום עוסק",
+  pnl_statement: "דוח רווח והפסד", company_registry: "נסח חברה", signatory_authority: "מורשי חתימה",
+  financial_statements: "דוחות כספיים", business_bank_statement: "דפי עו״ש עסקי" };
+/** The structured profile the document policy composed the checklist from (workflow/requirements.profile). */
+export interface DocumentProfile {
+  entity: "individual" | "company"; entity_he: string; purpose?: string; purpose_he?: string; banker_assisted: boolean;
+  use_case?: string | null; profile_label_he?: string | null; disclaimer_he: string;
+  company?: { name_he: string; company_number: string; signatory_he: string; signatory_role_he: string } | null;
+  applicants: { borrower_id: string; name_he: string; role?: string; role_he: string; income_sources: string[];
+    business_registration?: string | null; profile_he: string }[];
+  accounts: { account_id: string; label_he: string; holders: string[]; other_holders_he: string[] }[];
+}
+export interface OnboardingOption { value: string | number; label_he: string }
+export interface OnboardingQuestion { question_id: string; kind: "choice" | "multi" | "name" | "text" | "number"; prompt_he: string; options: OnboardingOption[] }
+export interface OnboardingDraft {
+  draft_id: string; status: "draft" | "confirmed"; case_id: string | null; note_he: string;
+  asked: { question_id: string; prompt_he: string; kind: string; answer: unknown; answer_he: string }[];
+  next: OnboardingQuestion | null;
+  summary: null | { profile: DocumentProfile; policy_version: string; title_he: string; loan: LoanDetails;
+    requirements: Pick<Requirement, "code" | "title_he" | "family" | "family_he" | "owner_he" | "owner_type" | "why_he" | "alternatives_he" | "intake" | "required">[] };
+}
 /** The customer's next step, computed by the backend (readiness.customer_status) with explicit precedence. */
 export type CustomerStatus = "NO_PAYSLIPS_REQUIRED" | "AWAITING_UPLOAD" | "ERROR" | "PROCESSING" | "REVALIDATING"
   | "CORRECTION_REQUIRED" | "MISSING_DOCUMENTS" | "PREPARATION_CONFIRMED" | "BANKER_REVIEW" | "CHECKS_COMPLETE";
 export interface Readiness {
   scope: string; state: string; state_he: string; requirements: Requirement[];
   customer_status?: CustomerStatus; case_review_failed?: boolean; case_status?: string;
-  progress?: { done: number; total: number; missing_units: number };
+  progress?: { done: number; total: number; missing_units: number; human_review_total?: number; human_review_received?: number };
   payslips?: { required: number; verified: number; requested_months: string[] };
   counts: { documents: number; reviewed: number; processing: number; failed: number; customer_actions: number; banker_items: number; payslip_requirements_ready: number; payslip_requirements_total: number;
     customer_requests?: number; documents_accepted?: number };
@@ -67,6 +90,8 @@ export interface BankCase {
   contact?: { consent_voice: boolean; consent_message: boolean; phone_masked?: string };
   banker: { name_he: string; role_he: string; staff_id?: string };
   meeting?: { date: string; from: string; to: string; type_he: string } | null; borrowers: Borrower[];
+  persona_id?: string | null; use_case?: string | null; applicant_type?: "individual" | "company"; banker_assisted?: boolean;
+  document_profile?: DocumentProfile;
   bank_stage: { index: number; of: number; label_he: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
 }
 export interface AuditEvent { event_id: number; at: string; actor: string; action: string; target?: string; detail?: any }
@@ -109,7 +134,7 @@ export interface Snapshot {
   outcomes?: { documents: Record<string, RoutedOutcome>; borrowers: Record<string, RoutedOutcome>; requirements?: Record<string, RoutedOutcome> };
 }
 export type RouteKey = "PASS" | "ACCEPTED" | "REVIEW" | "BLOCKER" | "IN_PROGRESS" | "NOT_COMPLETED" | "REPLACED" | "INCOMPLETE"
-  | "AWAITING_UPLOAD" | "CONFIRMED";
+  | "AWAITING_UPLOAD" | "CONFIRMED" | "HUMAN_REVIEW_PENDING";
 export interface RoutedOutcome { outcome: RouteKey; label_he: string; by?: "ai" | "banker" }
 export interface Turn { turn_id: string; channel: string; role: "user" | "assistant"; text: string; provenance?: any; tool_calls?: { name: string; args: any; ok: boolean }[] | null; actions?: AppAction[]; created_at: string }
 
@@ -135,7 +160,11 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
 
 const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
-export interface SessionCase { case_id: string; display_number: string; title_he: string }
+export interface SessionCase {
+  case_id: string; display_number: string; title_he: string;
+  /** the demonstrated customer ("התיקים שלי" lists one persona's cases); QA cases have none */
+  persona_id?: string | null; qa?: boolean; use_case?: string | null; applicants_he?: string[]; company_he?: string | null;
+}
 export interface ApplicationOptions {
   product_he: string; policy_version: string; purposes: { id: string; label_he: string; proof_he: string }[];
   amount: { min: number; max: number }; payments: { min: number; max: number }; note_he: string;
@@ -214,6 +243,12 @@ export const api = {
   applicationOptions: () => http<ApplicationOptions>(`/api/demo/applications/options`),
   createApplication: (body: Record<string, string | number>) =>
     http<{ case_id: string; requirements: string[] }>(`/api/demo/applications`, json(body)),
+  onboardingStart: () => http<OnboardingDraft>(`/api/demo/onboarding`, { method: "POST" }),
+  onboarding: (draftId: string) => http<OnboardingDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}`),
+  onboardingAnswer: (draftId: string, questionId: string, value: unknown) =>
+    http<OnboardingDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/answers`, json({ question_id: questionId, value })),
+  onboardingConfirm: (draftId: string) =>
+    http<{ case_id: string; created: boolean }>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/confirm`, { method: "POST" }),
   requestRequirement: (caseId: string, code: string, body: { customer_message: string; rationale?: string; request_id: string }) =>
     http<DeskResult>(`/api/banker/cases/${caseId}/requirements/${encodeURIComponent(code)}/request`, json(body)),
   decide: (caseId: string, findingId: string, body: {
@@ -324,6 +359,7 @@ export interface Workspace {
   items: QueueItem[]; info_findings: DeskFinding[]; unattached_statements: { statement_id: string; text: string; channel: string; created_at: string }[];
   customer_requests: DeskRequest[]; history: (Partial<Decision> & { at: string; kind: string; title_he?: string; filename?: string; document_id?: string })[];
   not_evaluated: string[]; disclaimers_he: string[];
+  document_profile?: DocumentProfile;
 }
 export interface DeskResult { ok: boolean; duplicate: boolean; decision: Decision; customer_request?: DeskRequest | null }
 

@@ -6,9 +6,15 @@ import { FieldErrors, Lock, NumberField, Toggle } from "./ui";
 
 const FAMILY_HE: Record<string, string> = {
   id_document: "תעודת זהות", payslip: "תלושי שכר", bank_statement: "דפי עו״ש", purpose_proof: "אסמכתה למטרה", tax_form: "שומת מס / אישור רו״ח",
+  business_registration: "אישור רישום עוסק", pnl_statement: "דוח רווח והפסד", company_registry: "נסח חברה",
+  signatory_authority: "מורשי חתימה", financial_statements: "דוחות כספיים", business_bank_statement: "דפי עו״ש עסקי",
 };
 const PER_HE: Record<string, string> = { applicant: "לכל לווה", account: "לכל חשבון", case: "פעם אחת לתיק" };
 const EMPLOYMENT_HE: Record<string, string> = { salaried: "שכירים", self_employed: "עצמאים", allowance: "מקבלי קצבה" };
+const REGISTRATION_HE: Record<string, string> = { vat_exempt: "עוסק פטור", vat_registered: "עוסק מורשה" };
+const ENTITY_HE: Record<string, string> = { individual: "הלוואה פרטית", company: "חברה בע״מ" };
+// families without a review rubric (backend/rubrics): uploads are stored for the banker
+const AI_FAMILIES = ["id_document", "payslip", "bank_statement", "purpose_proof", "tax_form"];
 // the rule fields each document family uses, with the schema's bounds
 const RULE_FIELDS: Record<string, { key: string; label: string; min?: number; max?: number; unit?: string; bool?: boolean }[]> = {
   id_document: [{ key: "check_expiry", label: "בדיקת תוקף התעודה", bool: true }],
@@ -57,6 +63,9 @@ export function DocumentsTab({ work, edit, bar, settings }: KindProps & { settin
                   <span className="row" style={{ gap: 4 }}>
                     <Chip>{PER_HE[source.per]}</Chip>
                     {source.condition?.employment && <Chip tone="info">רק ל{source.condition.employment.map((e: string) => EMPLOYMENT_HE[e] || e).join(" / ")}</Chip>}
+                    {source.condition?.registration && <Chip tone="info">{source.condition.registration.map((e: string) => REGISTRATION_HE[e] || e).join(" / ")}</Chip>}
+                    {source.condition?.entity && <Chip tone="info">{source.condition.entity.map((e: string) => ENTITY_HE[e] || e).join(" / ")}</Chip>}
+                    {!AI_FAMILIES.includes(source.family) && <Chip>בדיקת בנקאי · ללא AI</Chip>}
                     {r && <Chip tone={r.required ? "navy" : "neutral"}>{r.required ? "חובה" : "רשות"}</Chip>}
                   </span>
                 </div>
@@ -68,6 +77,15 @@ export function DocumentsTab({ work, edit, bar, settings }: KindProps & { settin
                     </label>
                     <label className="adm-field wide"><span className="adm-label">הסבר קצר</span>
                       <input value={r.hint_he || ""} maxLength={300} onChange={(e) => updateReq(id, (x) => ({ ...x, hint_he: e.target.value }))} />
+                    </label>
+                    <label className="adm-field wide"><span className="adm-label">למה המסמך נדרש</span>
+                      <input value={r.why_he || ""} maxLength={300} onChange={(e) => updateReq(id, (x) => ({ ...x, why_he: e.target.value }))}
+                        data-testid={`req-why-${id}`} />
+                    </label>
+                    <label className="adm-field wide"><span className="adm-label">מסמכים חלופיים מקובלים (מופרדים ב־״;״)</span>
+                      <input value={(r.alternatives_he || []).join("; ")} maxLength={700}
+                        onChange={(e) => updateReq(id, (x) => ({ ...x, alternatives_he: e.target.value ? e.target.value.split(";").map((s) => s.trimStart()) : [] }))}
+                        data-testid={`req-alternatives-${id}`} />
                     </label>
                     <Toggle label="מסמך חובה" checked={!!r.required} onChange={(v) => updateReq(id, (x) => ({ ...x, required: v }))}
                       hint="מסמך רשות מוצג ללקוח אך אינו מעכב את השלמת הבקשה" />

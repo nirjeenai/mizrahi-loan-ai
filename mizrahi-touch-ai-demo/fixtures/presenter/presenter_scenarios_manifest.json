@@ -1,6 +1,348 @@
 {
- "schemaVersion": "2.1",
+ "schemaVersion": "2.2",
  "titleHe": "ספריית תרחישי בדיקה — השלמת מסמכים להלוואה · Mizrahi × JEEN",
+ "useCasesNoteHe": "שישה פרופילי לקוח, כל אחד בתיק משלו. הרשימה נגזרת ממדיניות המסמכים להדגמה (מבוססת פרקטיקה ציבורית) — אינה רשימת דרישות מאושרת של מזרחי־טפחות. ״בדיקת הבנקאי״ = אין בדיקת AI לסוג המסמך.",
+ "useCases": [
+  {
+   "id": "TC-01",
+   "useCaseId": "UC-01",
+   "badgeHe": "שכירה",
+   "titleHe": "שכירה — הלוואה לרכישת רכב",
+   "personaHe": "מיכל ברק",
+   "profileHe": "שכירה · שחף הנדסה בע״מ",
+   "caseId": "DEMO-MTZ-2026-101",
+   "caseDisplay": "438839101",
+   "loanHe": "רכישת רכב · ₪90,000 · 60 תשלומים",
+   "demonstratesHe": "פרופיל הבסיס: שכירה עם חשבון אחד — תעודת זהות, שלושה תלושים, דפי עו״ש ל־3 חודשים והצעת מחיר לרכב.",
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-C",
+     "titleHe": "תעודת זהות — מיכל",
+     "ownerHe": "מיכל ברק",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PAYSLIPS:BRW-C",
+     "titleHe": "3 תלושי שכר אחרונים — מיכל",
+     "ownerHe": "מיכל ברק",
+     "intake": "ai_review"
+    },
+    {
+     "code": "BANK_STATEMENTS:ACC-1",
+     "titleHe": "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (מיכל)",
+     "ownerHe": "מיכל ברק",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PURPOSE_PROOF",
+     "titleHe": "אסמכתה למטרת ההלוואה — רכישת רכב",
+     "ownerHe": "מיכל ברק",
+     "intake": "ai_review"
+    }
+   ],
+   "notRequiredHe": [
+    "מסמכי עסק (שומה, אישור עוסק)"
+   ],
+   "noteHe": "אותה לקוחה כמו בתיק השיפוץ 438840117 — ״התיקים שלי״ מציג את שתי הבקשות שלה.",
+   "packStatus": "ROUND_2",
+   "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."
+  },
+  {
+   "id": "TC-02",
+   "useCaseId": "UC-02",
+   "badgeHe": "עוסק פטור",
+   "titleHe": "עוסק פטור — הלוואה לרכישת רכב",
+   "personaHe": "יואב כרמי",
+   "profileHe": "עצמאי · עוסק פטור · כרמי צילום",
+   "caseId": "DEMO-MTZ-2026-102",
+   "caseDisplay": "438839102",
+   "loanHe": "רכישת רכב · ₪60,000 · 48 תשלומים",
+   "demonstratesHe": "במקום תלושים: שומת מס או אישור רו״ח, ואישור עוסק פטור. מעוסק פטור לא נדרשים דוחות מע״מ.",
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-A",
+     "titleHe": "תעודת זהות — יואב",
+     "ownerHe": "יואב כרמי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "BANK_STATEMENTS:ACC-1",
+     "titleHe": "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (יואב)",
+     "ownerHe": "יואב כרמי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PURPOSE_PROOF",
+     "titleHe": "אסמכתה למטרת ההלוואה — רכישת רכב",
+     "ownerHe": "יואב כרמי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "TAX_ASSESSMENT:BRW-A",
+     "titleHe": "שומת מס / אישור רו״ח — יואב",
+     "ownerHe": "יואב כרמי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "VAT_EXEMPT_CERT:BRW-A",
+     "titleHe": "אישור עוסק פטור — יואב",
+     "ownerHe": "יואב כרמי",
+     "intake": "human_review"
+    }
+   ],
+   "notRequiredHe": [
+    "תלושי שכר",
+    "דוחות מע״מ תקופתיים",
+    "דוח רווח והפסד"
+   ],
+   "packStatus": "ROUND_2",
+   "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."
+  },
+  {
+   "id": "TC-03",
+   "useCaseId": "UC-03",
+   "badgeHe": "עוסק מורשה",
+   "titleHe": "עוסקת מורשית — הלוואה לרכישת רכב",
+   "personaHe": "שירן אזולאי",
+   "profileHe": "עצמאית · עוסק מורשה · אזולאי עיצוב פנים",
+   "caseId": "DEMO-MTZ-2026-103",
+   "caseDisplay": "438839103",
+   "loanHe": "רכישת רכב · ₪140,000 · 60 תשלומים",
+   "demonstratesHe": "עוסק מורשה: שומה או אישור רו״ח, תעודת עוסק מורשה ודוח רווח והפסד עדכני — דוחות מע״מ הם חלופה מקובלת לדוח.",
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-A",
+     "titleHe": "תעודת זהות — שירן",
+     "ownerHe": "שירן אזולאי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "BANK_STATEMENTS:ACC-1",
+     "titleHe": "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (שירן)",
+     "ownerHe": "שירן אזולאי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PURPOSE_PROOF",
+     "titleHe": "אסמכתה למטרת ההלוואה — רכישת רכב",
+     "ownerHe": "שירן אזולאי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "TAX_ASSESSMENT:BRW-A",
+     "titleHe": "שומת מס / אישור רו״ח — שירן",
+     "ownerHe": "שירן אזולאי",
+     "intake": "ai_review"
+    },
+    {
+     "code": "VAT_DEALER_CERT:BRW-A",
+     "titleHe": "תעודת עוסק מורשה — שירן",
+     "ownerHe": "שירן אזולאי",
+     "intake": "human_review"
+    },
+    {
+     "code": "PNL_STATEMENT:BRW-A",
+     "titleHe": "דוח רווח והפסד עדכני — שירן",
+     "ownerHe": "שירן אזולאי",
+     "intake": "human_review"
+    }
+   ],
+   "notRequiredHe": [
+    "תלושי שכר",
+    "אישור עוסק פטור"
+   ],
+   "packStatus": "ROUND_2",
+   "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."
+  },
+  {
+   "id": "TC-04",
+   "useCaseId": "UC-04",
+   "badgeHe": "שכיר + עצמאי",
+   "titleHe": "שכיר וגם עצמאי — הלוואה לרכישת רכב",
+   "personaHe": "אלון פרידמן",
+   "profileHe": "שכיר בנתיב תוכנה + עוסק פטור (פרידמן הדרכות)",
+   "caseId": "DEMO-MTZ-2026-104",
+   "caseDisplay": "438839104",
+   "loanHe": "רכישת רכב · ₪110,000 · 60 תשלומים",
+   "demonstratesHe": "שילוב: תלושים בגלל המשכורת ומסמכי עוסק פטור בגלל העסק — תעודת הזהות ודפי העו״ש פעם אחת בלבד.",
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-A",
+     "titleHe": "תעודת זהות — אלון",
+     "ownerHe": "אלון פרידמן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PAYSLIPS:BRW-A",
+     "titleHe": "3 תלושי שכר אחרונים — אלון",
+     "ownerHe": "אלון פרידמן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "BANK_STATEMENTS:ACC-1",
+     "titleHe": "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש 1 (אלון)",
+     "ownerHe": "אלון פרידמן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PURPOSE_PROOF",
+     "titleHe": "אסמכתה למטרת ההלוואה — רכישת רכב",
+     "ownerHe": "אלון פרידמן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "TAX_ASSESSMENT:BRW-A",
+     "titleHe": "שומת מס / אישור רו״ח — אלון",
+     "ownerHe": "אלון פרידמן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "VAT_EXEMPT_CERT:BRW-A",
+     "titleHe": "אישור עוסק פטור — אלון",
+     "ownerHe": "אלון פרידמן",
+     "intake": "human_review"
+    }
+   ],
+   "notRequiredHe": [
+    "תעודת זהות או דפי עו״ש כפולים"
+   ],
+   "packStatus": "ROUND_2",
+   "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."
+  },
+  {
+   "id": "TC-05",
+   "useCaseId": "UC-05",
+   "badgeHe": "שני לווים",
+   "titleHe": "בקשה משותפת — שכיר ועוסקת מורשית",
+   "personaHe": "רועי ומאיה שטרן",
+   "profileHe": "רועי: שכיר · מאיה: עוסקת מורשית",
+   "caseId": "DEMO-MTZ-2026-105",
+   "caseDisplay": "438839105",
+   "loanHe": "שיפוץ · ₪150,000 · 84 תשלומים",
+   "demonstratesHe": "לכל לווה תעודה ומסמכי הכנסה משלו; דף עו״ש אחד לחשבון המשותף. רחל, שותפה בחשבון של רועי, אינה לווה — ולא נדרש ממנה דבר.",
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-A",
+     "titleHe": "תעודת זהות — רועי",
+     "ownerHe": "רועי שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "ID_CARD:BRW-B",
+     "titleHe": "תעודת זהות — מאיה",
+     "ownerHe": "מאיה שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PAYSLIPS:BRW-A",
+     "titleHe": "3 תלושי שכר אחרונים — רועי",
+     "ownerHe": "רועי שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "BANK_STATEMENTS:ACC-1",
+     "titleHe": "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש משותף (רועי ומאיה)",
+     "ownerHe": "רועי שטרן ומאיה שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "BANK_STATEMENTS:ACC-2",
+     "titleHe": "דפי עו״ש ל־3 החודשים האחרונים — חשבון עו״ש של רועי ואמו (רועי)",
+     "ownerHe": "רועי שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "PURPOSE_PROOF",
+     "titleHe": "אסמכתה למטרת ההלוואה — שיפוץ",
+     "ownerHe": "רועי שטרן ומאיה שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "TAX_ASSESSMENT:BRW-B",
+     "titleHe": "שומת מס / אישור רו״ח — מאיה",
+     "ownerHe": "מאיה שטרן",
+     "intake": "ai_review"
+    },
+    {
+     "code": "VAT_DEALER_CERT:BRW-B",
+     "titleHe": "תעודת עוסק מורשה — מאיה",
+     "ownerHe": "מאיה שטרן",
+     "intake": "human_review"
+    },
+    {
+     "code": "PNL_STATEMENT:BRW-B",
+     "titleHe": "דוח רווח והפסד עדכני — מאיה",
+     "ownerHe": "מאיה שטרן",
+     "intake": "human_review"
+    }
+   ],
+   "notRequiredHe": [
+    "תלושים ממאיה",
+    "מסמכי עסק מרועי",
+    "מסמכים מרחל (בעלת חשבון, לא לווה)"
+   ],
+   "packStatus": "ROUND_2",
+   "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."
+  },
+  {
+   "id": "TC-06",
+   "useCaseId": "UC-06",
+   "badgeHe": "חברה בע״מ",
+   "titleHe": "חברה בע״מ — פנייה למימון ציוד",
+   "personaHe": "גלעד ששון · ש.ג. מערכות מיזוג בע״מ",
+   "profileHe": "חברה בע״מ · מורשה חתימה: גלעד ששון",
+   "caseId": "DEMO-MTZ-2026-106",
+   "caseDisplay": "438839106",
+   "loanHe": "מימון ציוד לעסק · ₪300,000 · 60 תשלומים",
+   "demonstratesHe": "מסלול עסקי מוגבל: זיהוי החברה ומורשה החתימה, רשימת מסמכים פיננסיים מייצגת וקליטת מסמכים — הבנקאית מלווה. אין חיתום עסקי ואין כללי הלוואה צרכנית.",
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-A",
+     "titleHe": "תעודת זהות — גלעד",
+     "ownerHe": "גלעד ששון",
+     "intake": "ai_review"
+    },
+    {
+     "code": "COMPANY_EXTRACT",
+     "titleHe": "נסח חברה עדכני",
+     "ownerHe": "ש.ג. מערכות מיזוג בע״מ",
+     "intake": "human_review"
+    },
+    {
+     "code": "SIGNATORY_AUTHORITY",
+     "titleHe": "פרוטוקול מורשי חתימה",
+     "ownerHe": "ש.ג. מערכות מיזוג בע״מ",
+     "intake": "human_review"
+    },
+    {
+     "code": "COMPANY_FINANCIALS",
+     "titleHe": "דוחות כספיים מבוקרים",
+     "ownerHe": "ש.ג. מערכות מיזוג בע״מ",
+     "intake": "human_review"
+    },
+    {
+     "code": "COMPANY_INTERIM",
+     "titleHe": "דוח רווח והפסד לתקופה השוטפת",
+     "ownerHe": "ש.ג. מערכות מיזוג בע״מ",
+     "intake": "human_review"
+    },
+    {
+     "code": "BUSINESS_STATEMENTS:ACC-1",
+     "titleHe": "דפי עו״ש עסקי ל־6 החודשים האחרונים — חשבון עסקי של החברה",
+     "ownerHe": "ש.ג. מערכות מיזוג בע״מ",
+     "intake": "human_review"
+    }
+   ],
+   "notRequiredHe": [
+    "תלושי שכר",
+    "אסמכתה צרכנית למטרה",
+    "דפי עו״ש פרטיים"
+   ],
+   "bankerAssisted": true,
+   "packStatus": "ROUND_2",
+   "packNoteHe": "חבילת PDF סינתטית ותוצאות AI צפויות — בסבב 2. כרגע: פרופיל ורשימת מסמכים."
+  }
+ ],
  "disclosureHe": "כל המסמכים והנתונים סינתטיים. התוצאה הצפויה היא הניתוב שהתרחיש בנוי להראות — לא תוצאת AI בפועל ולא החלטת אשראי.",
  "caseContext": {
   "id": "LOAN-DEMO-2026",

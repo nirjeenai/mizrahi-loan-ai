@@ -42,7 +42,42 @@ REQ_STATE_HE = {
     "required_missing": "טרם הועלה", "needs_customer_action": "נדרשת השלמה", "needs_banker_review": "לבדיקת הבנקאי",
     "checking": "בבדיקה", "uploaded_unreadable": "לא קריא", "extracted": "נבדק — תקין", "not_evaluated_in_demo": "לא נבדק בהדגמה",
     "preparation_confirmed": "אושר על ידי הבנקאי (הדגמה)",
+    "received_pending_review": "התקבל · ממתין לבדיקת הבנקאי", "accepted_by_banker": "התקבל אצל הבנקאי",
 }
+# a requirement without a review rubric: the customer's part is done once a document is there; it is never "valid by AI"
+HUMAN_DELIVERED = ("received_pending_review", "accepted_by_banker", "preparation_confirmed")
+
+
+def _human_requirement(r: dict, docs: list[dict], open_requests: list[dict], statuses: dict, replaced_ids: set,
+                       confirmed: Any) -> dict:
+    """A requirement no AI rubric covers (business registration, company documents): stored for the banker's review."""
+    code = r["code"]
+    mine = [d for d in docs if d["requirement_code"] == code and d["document_id"] not in replaced_ids]
+    asked = [q for q in open_requests if q["requirement_code"] == code]
+    asked_fix = [q for q in asked if q["kind"] == "correction"]
+    banker = {statuses.get(d["document_id"], {}).get("status") for d in mine}
+    if not mine and not asked:
+        state = "required_missing"
+    elif asked or "CORRECTION_REQUESTED" in banker:
+        state = "needs_customer_action"
+    elif "ACCEPTED" in banker:
+        state = "accepted_by_banker"
+    else:
+        state = "received_pending_review"
+    if confirmed and state in ("received_pending_review", "accepted_by_banker"):
+        state = "preparation_confirmed"
+    accepted = state in ("accepted_by_banker", "preparation_confirmed")
+    return {**r, "ai_state": state, "ai_state_he": REQ_STATE_HE[state], "documents": len(mine),
+            "document_ids": sorted(d["document_id"] for d in mine), "accepted_document_ids": [],
+            "open_customer_actions": 0, "open_banker_items": 1 if state == "received_pending_review" else 0,
+            "open_customer_requests": len(asked), "requested_months": [], "covered": [], "pending_review": [], "missing": [],
+            "duplicates": {}, "verified_months": [], "in_review_months": [], "required": 1, "units_required": 1,
+            "units_verified": 1 if accepted else 0, "coverage_gaps": [],
+            "customer_status": customer_status(
+                required=1, documents=len(mine), failed=0, review_failed=False, reviewed_before=bool(mine), busy=False,
+                correction=len(asked_fix) + ("CORRECTION_REQUESTED" in banker), missing=(1 if state == "required_missing" else 0)
+                + len(asked) - len(asked_fix), confirmed=confirmed is not None,
+                banker=1 if state == "received_pending_review" else 0, verified=1 if accepted else 0)}
 
 
 def customer_status(*, required: int, documents: int, failed: int, review_failed: bool, busy: bool,
@@ -199,8 +234,7 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
 
     for r in case_reqs:
         if not r["evaluated_by_ai"]:
-            requirements.append({**r, "ai_state": "not_evaluated_in_demo", "ai_state_he": REQ_STATE_HE["not_evaluated_in_demo"],
-                                 "units_required": 0, "units_verified": 0})
+            requirements.append(_human_requirement(r, docs, open_requests, statuses, replaced_ids, confirmed))
             continue
         if r["family"] != "payslip":
             requirements.append(_document_requirement(r, docs, open_f, open_requests, statuses, replaced_ids, confirmed,
@@ -276,20 +310,25 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
     verified_total = sum(r["units_verified"] for r in ai_reqs)
     correction = [f for f in customer_actions if f["document_id"]]
     asked_fix = [q for q in open_requests if q["kind"] == "correction"]
+    human_reqs = [r for r in requirements if not r["evaluated_by_ai"] and r["required"]]
     missing_units = sum(len(r["missing"]) for r in payslip_reqs) + sum(
-        1 for r in ai_reqs if r["family"] != "payslip" and r["ai_state"] == "required_missing")
+        1 for r in ai_reqs + human_reqs if r["family"] != "payslip" and r["ai_state"] == "required_missing")
     status = customer_status(
         required=required, documents=len(docs), failed=len(failed), review_failed=case_review_failed, busy=busy,
         reviewed_before=latest_case is not None, correction=len(correction) + len(asked_fix),
         missing=missing_units + len(customer_actions) - len(correction) + len(open_requests) - len(asked_fix),
         confirmed=confirmed is not None, banker=len(banker_items), verified=verified_total)
-    done = [r for r in ai_reqs if r["ai_state"] in ("extracted", "preparation_confirmed")]
+    done = [r for r in ai_reqs if r["ai_state"] in ("extracted", "preparation_confirmed")] + [
+        r for r in human_reqs if r["ai_state"] in HUMAN_DELIVERED]
     return {
         "scope": "loan_documents", "state": state, "state_he": STATE_HE[state], "state_he_banker": STATE_HE_BANKER[state],
         "case_status": case_status(state), "customer_status": status, "case_review_failed": case_review_failed,
         "payslips": {"required": sum(r["units_required"] for r in payslip_reqs),
                      "verified": sum(r["units_verified"] for r in payslip_reqs), "requested_months": requested_default},
-        "progress": {"done": len(done), "total": len(ai_reqs), "missing_units": missing_units},
+        "progress": {"done": len(done), "total": len(ai_reqs) + len(human_reqs), "missing_units": missing_units,
+                     **({"human_review_total": len(human_reqs),
+                         "human_review_received": sum(r["ai_state"] in HUMAN_DELIVERED for r in human_reqs)}
+                        if human_reqs else {})},
         "requirements": requirements,
         "counts": {"documents": len(docs), "reviewed": sum(d["status"] == "reviewed" for d in docs),
                    "processing": sum(d["status"] in ("queued", "processing") for d in docs), "failed": len(failed),

@@ -94,7 +94,10 @@ function CaseBar({ caseId, cases, ws, view, staff, onCase, onView }: {
       <div className="case-switch" data-popover>
         <button className="case-switch-btn" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="listbox" data-testid="case-switch">
           <span className="case-no ltr">{ws?.case.display_number || current?.display_number || caseId}</span>
-          <span className="case-names" title={ws?.case.title_he}>{ws ? ws.case.borrowers.map((b) => b.name_he).join(" ו") : current?.borrowers.join(" ו")}</span>
+          <span className="case-names" title={ws?.case.title_he}>{ws?.document_profile?.company ? `${ws.document_profile.company.name_he} · ` : ""}
+            {ws ? ws.case.borrowers.map((b) => b.name_he).join(" ו") : current?.borrowers.join(" ו")}</span>
+          {ws?.document_profile?.profile_label_he && <span className="case-profile" data-testid="banker-profile-label">{ws.document_profile.profile_label_he}</span>}
+          {ws?.document_profile?.banker_assisted && <span className="case-profile assisted" data-testid="banker-assisted">ליווי בנקאי · מסלול עסקי מוגבל</span>}
           <span aria-hidden>▾</span>
         </button>
         {open && (

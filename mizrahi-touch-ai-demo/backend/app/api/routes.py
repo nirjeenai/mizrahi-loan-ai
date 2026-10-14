@@ -24,7 +24,7 @@ from ..review import evidence as ev
 from ..review import registry, rubrics
 from ..store import repo
 from ..util import sha256_bytes
-from ..workflow import demo, desk_state, engine, intake, outcomes, readiness, review_desk
+from ..workflow import demo, desk_state, engine, intake, onboarding, outcomes, readiness, review_desk
 
 router = APIRouter(prefix="/api")
 
@@ -380,6 +380,50 @@ def create_application(body: intake.Application, request: Request, response: Res
     repo.audit(case_id, "customer", "loan_application_started", case_id,
                {"purpose": body.purpose, "employment": body.employment, "payments": body.payments})
     return {"case_id": case_id, "requirements": [r["title_he"] for r in bank.requirements(case_id)]}
+
+
+# ---------------------------------------------------------------- new-customer questionnaire (JEEN chat, demo intake)
+class OnboardingAnswer(BaseModel):
+    question_id: str
+    value: object = None
+
+
+def _onboarding(fn, *args):
+    if not settings.demo_identity:
+        raise HTTPException(404, "demo intake is switched off")
+    try:
+        return fn(*args)
+    except onboarding.OnboardingError as exc:
+        raise HTTPException(exc.status, exc.message_he) from None
+
+
+@router.post("/demo/onboarding", status_code=201)
+def onboarding_start():
+    """A new questionnaire draft. It is not a case: no requirement, follow-up or review exists until it is confirmed."""
+    return _onboarding(onboarding.start)
+
+
+@router.get("/demo/onboarding/{draft_id}")
+def onboarding_get(draft_id: str):
+    return _onboarding(onboarding.view, draft_id)
+
+
+@router.post("/demo/onboarding/{draft_id}/answers")
+def onboarding_answer(draft_id: str, body: OnboardingAnswer):
+    return _onboarding(onboarding.answer, draft_id, body.question_id, body.value)
+
+
+@router.post("/demo/onboarding/{draft_id}/confirm")
+def onboarding_confirm(draft_id: str, request: Request, response: Response):
+    """Create the case from the confirmed profile (once — repeating returns the same case) and extend the session to it."""
+    case_id, created = _onboarding(onboarding.confirm, draft_id)
+    held = (auth.customer(request) or {}).get("cases", [])
+    token = auth.issue("customer", list(dict.fromkeys([case_id] + held))[:auth.MAX_CASES])
+    auth.set_session(response, "customer", token)
+    if created:
+        repo.audit(case_id, "customer", "loan_application_started", case_id, onboarding.audit_detail(draft_id))
+    return {"case_id": case_id, "created": created,
+            "requirements": [{k: r[k] for k in ("code", "title_he", "owner_he", "intake")} for r in bank.requirements(case_id)]}
 
 
 FIXTURES = settings.frontend_dist.parent.parent / "fixtures" / "out"

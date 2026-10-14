@@ -48,6 +48,7 @@ def same_bytes(page: Page, link) -> tuple[bool, str]:
 def run(page: Page) -> None:
     page.goto(f"{BASE}/customer")
     page.locator("[data-testid=presenter-toggle]").click()          # the presenter starts collapsed
+    page.locator("[data-testid=more-tests-toggle]").click()         # the 15 earlier scenarios sit under "בדיקות נוספות"
     expect(page.locator("[data-testid=featured-scenarios]")).to_be_visible(timeout=20000)
     side = page.locator(".hub-side")
     check("RTL pane without sideways scrolling", side.evaluate("e => getComputedStyle(e).direction") == "rtl"

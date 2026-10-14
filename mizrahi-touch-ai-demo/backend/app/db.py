@@ -98,6 +98,10 @@ CREATE TABLE IF NOT EXISTS case_profile (
 CREATE TABLE IF NOT EXISTS demo_applications (
   case_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, application TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS onboarding_drafts (
+  draft_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, status TEXT NOT NULL,
+  answers TEXT NOT NULL, case_id TEXT
+);
 CREATE TABLE IF NOT EXISTS completion_tasks (
   task_id TEXT PRIMARY KEY, case_id TEXT NOT NULL, requirement_code TEXT NOT NULL, reason_code TEXT NOT NULL,
   status TEXT NOT NULL, issue_key TEXT, document_id TEXT, title_he TEXT, customer_text_he TEXT,

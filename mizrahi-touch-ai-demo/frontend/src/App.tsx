@@ -6,6 +6,7 @@ import { FollowupSimControls } from "./components/FollowupSimControls";
 import { IClose, IPanel } from "./components/Icons";
 import { ScenarioPresenter } from "./components/ScenarioPresenter";
 import { TouchShell } from "./components/TouchShell";
+import { UseCaseScenarios } from "./components/UseCaseScenarios";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { BankerConsole } from "./pages/banker/BankerConsole";
 import { Apply } from "./pages/customer/Apply";
@@ -42,14 +43,23 @@ function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObje
           <Link className="link small" to="/system">מערכת ואינטגרציות</Link>
         </div>
       </div>
-      <FeaturedScenarios />
+      <UseCaseScenarios />
+      <Link className="btn btn-ghost hub-apply" to="/customer/apply" data-testid="presenter-new-application">
+        + בקשת הלוואה חדשה — שאלון לקוח חדש</Link>
       <FollowupSimControls />
-      <details className="all-scn" data-testid="all-scenarios">
-        <summary data-testid="all-scenarios-toggle">
-          <span className="all-scn-title">כל תרחישי הבדיקה</span>
-          <span className="small muted">תרחישי הלוואה, קבצים משלימים ותלושי משפחת לביא · לבדיקות ו-QA</span>
+      <details className="all-scn more-tests" data-testid="more-tests">
+        <summary data-testid="more-tests-toggle">
+          <span className="all-scn-title">בדיקות נוספות</span>
+          <span className="small muted">15 התרחישים המאומתים: 4 תרחישי דמו מנהלים ו־11 תרחישי בדיקה · עם קבצים להורדה</span>
         </summary>
-        <ScenarioPresenter />
+        <FeaturedScenarios />
+        <details className="all-scn" data-testid="all-scenarios">
+          <summary data-testid="all-scenarios-toggle">
+            <span className="all-scn-title">כל תרחישי הבדיקה</span>
+            <span className="small muted">תרחישי הלוואה, קבצים משלימים ותלושי משפחת לביא · לבדיקות ו-QA</span>
+          </summary>
+          <ScenarioPresenter />
+        </details>
       </details>
     </aside>
   );

@@ -128,6 +128,7 @@ def functional(page: Page, requests: list[dict]) -> None:
     load(page)
     set_presenter(page, True)
     side = page.locator(".hub-side")
+    page.locator("[data-testid=more-tests-toggle]").click()        # the 15 earlier scenarios, under "בדיקות נוספות"
     cards = page.locator("[data-testid=featured-scenarios] article.feat")
     reachable = []
     for i in range(cards.count()):
@@ -218,7 +219,7 @@ def functional(page: Page, requests: list[dict]) -> None:
     load(page)
     set_presenter(page, True)
     title, close = page.locator(".hub-side-title").bounding_box(), page.locator("[data-testid=presenter-close]").bounding_box()
-    heading = page.locator("[data-testid=featured-scenarios] h2")
+    heading = page.locator("[data-testid=use-cases] h2")
     font = side.evaluate("e => getComputedStyle(e).fontFamily")
     check("RTL and Hebrew typography kept: dir=rtl, panel rtl, title on the right and close on the left, headings right-aligned, Open Sans",
           page.evaluate("document.documentElement.dir") == "rtl" and side.evaluate("e => getComputedStyle(e).direction") == "rtl"
@@ -257,7 +258,7 @@ def mobile(page: Page) -> None:
     g = geo(page)
     check("390×844: the menu's 'הדגמה' section opens the presenter full width; it closes with its own control",
           page.locator(".hub-side").is_visible() and g["side"]["w"] == 390 and g["overflow"] <= 0
-          and page.locator("[data-testid=featured-scenarios]").is_visible())
+          and page.locator("[data-testid=use-cases]").is_visible())
     shot(page, "390x844-open")
     set_presenter(page, False)
     check("390×844: closed again, the app is back as it was", not page.locator(".hub-side").is_visible()

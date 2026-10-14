@@ -60,9 +60,13 @@ _LAVI = [
 ]
 
 
-def _loan(purpose: str, purpose_he: str, amount: int, payments: int, note_he: str = "") -> dict:
-    return {"product": PRODUCT, "product_he": "הלוואה לכל מטרה", "purpose": purpose, "purpose_he": purpose_he,
-            "requested_amount_ils": amount, "payments": payments, "note_he": note_he}
+BUSINESS_PRODUCT = "business_financing.inquiry"
+
+
+def _loan(purpose: str, purpose_he: str, amount: int, payments: int, note_he: str = "", business: bool = False) -> dict:
+    return {"product": BUSINESS_PRODUCT if business else PRODUCT,
+            "product_he": "מימון עסקי — פנייה ראשונית" if business else "הלוואה לכל מטרה", "purpose": purpose,
+            "purpose_he": purpose_he, "requested_amount_ils": amount, "payments": payments, "note_he": note_he}
 
 
 def _accounts(*holders: list[str], start: int = 1) -> list[dict]:
@@ -127,6 +131,81 @@ _CASES: dict[str, dict[str, Any]] = {
                                _GOLDEN_CAR, _accounts(["BRW-A"]), executive_demo=True),
 }
 
+# "התיקים שלי" lists the cases of the persona being demonstrated. QA cases belong to no persona; the Lavi (לביא) and
+# Levy (לוי) families are different people with different national ids and never share a persona.
+for _cid, _persona in {"DEMO-MTZ-2026-001": "PRS-LAVI", "DEMO-MTZ-2026-002": "PRS-BARAK",
+                       "DEMO-MTZ-2026-006": "PRS-IDO-LEVY", "DEMO-MTZ-2026-008": "PRS-IDO-LEVY",
+                       "DEMO-MTZ-2026-009": "PRS-IDO-LEVY", "DEMO-MTZ-2026-010": "PRS-IDO-LEVY",
+                       "DEMO-MTZ-2026-011": "PRS-IDO-LEVY", "DEMO-MTZ-2026-007": "PRS-NOA-LEVY"}.items():
+    _CASES[_cid]["persona_id"] = _persona
+for _cid in ("DEMO-MTZ-2026-003", "DEMO-MTZ-2026-004", "DEMO-MTZ-2026-005"):
+    _CASES[_cid]["qa"] = True
+
+
+def _person(bid: str, first: str, last: str, national_id: str, role: str, sources: list[str], declared: int,
+            employer_he: str = "", registration: Optional[str] = None, business_he: str = "") -> dict:
+    """A synthetic applicant with an explicit income profile (what the document policy composes from)."""
+    employment = "self_employed" if sources == ["self_employed"] else "salaried" if sources else "none"
+    return {"borrower_id": bid, "name_he": f"{first} {last}", "first_name_he": first, "national_id": national_id,
+            "employment": employment, "income_sources": sources, "business_registration": registration,
+            "employer_declared_he": " · ".join(x for x in (employer_he, business_he) if x), "business_name_he": business_he or None,
+            "role": role, "declared_net_monthly_ils": declared, "declaration_note_he": "הוצהר בטופס הבקשה"}
+
+
+# The six primary demo use cases (UC-01…UC-06 ↔ presenter TC-01…TC-06 in fixtures/presenter). Each is one synthetic
+# persona; which documents it needs is NOT written here — the published loan policy composes it from this profile.
+_BARAK = copy.deepcopy(_CASES["DEMO-MTZ-2026-002"]["borrowers"][0])
+_USE_CASES: dict[str, dict[str, Any]] = {
+    "DEMO-MTZ-2026-101": _case(
+        "DEMO-MTZ-2026-101", "438839101", "הלוואה לרכישת רכב", [{**_BARAK, "income_sources": ["salaried"]}],
+        _loan("car", "רכישת רכב", 90000, 60, "רכב משפחתי חדש"), _accounts(["BRW-C"]),
+        submitted_at="2026-10-08T09:20:00+03:00", use_case="UC-01", persona_id="PRS-BARAK", profile_label_he="שכירה"),
+    "DEMO-MTZ-2026-102": _case(
+        "DEMO-MTZ-2026-102", "438839102", "הלוואה לרכישת רכב",
+        [_person("BRW-A", "יואב", "כרמי", "DEMO-ID-102", "primary", ["self_employed"], 11200,
+                 registration="vat_exempt", business_he="כרמי צילום")],
+        _loan("car", "רכישת רכב", 60000, 48, "רכב לעבודה"), _accounts(["BRW-A"]),
+        submitted_at="2026-10-08T11:05:00+03:00", use_case="UC-02", persona_id="PRS-KARMI", profile_label_he="עוסק פטור"),
+    "DEMO-MTZ-2026-103": _case(
+        "DEMO-MTZ-2026-103", "438839103", "הלוואה לרכישת רכב",
+        [_person("BRW-A", "שירן", "אזולאי", "DEMO-ID-103", "primary", ["self_employed"], 19800,
+                 registration="vat_registered", business_he="אזולאי עיצוב פנים")],
+        _loan("car", "רכישת רכב", 140000, 60, "רכב לעסק ולמשפחה"), _accounts(["BRW-A"]),
+        submitted_at="2026-10-09T10:40:00+03:00", use_case="UC-03", persona_id="PRS-AZULAY", profile_label_he="עוסקת מורשית"),
+    "DEMO-MTZ-2026-104": _case(
+        "DEMO-MTZ-2026-104", "438839104", "הלוואה לרכישת רכב",
+        [_person("BRW-A", "אלון", "פרידמן", "DEMO-ID-104", "primary", ["salaried", "self_employed"], 17400,
+                 employer_he="נתיב תוכנה בע״מ", registration="vat_exempt", business_he="פרידמן הדרכות")],
+        _loan("car", "רכישת רכב", 110000, 60), _accounts(["BRW-A"]),
+        submitted_at="2026-10-09T15:15:00+03:00", use_case="UC-04", persona_id="PRS-FRIEDMAN",
+        profile_label_he="שכיר וגם עצמאי"),
+    "DEMO-MTZ-2026-105": _case(
+        "DEMO-MTZ-2026-105", "438839105", "הלוואה לשיפוץ — בקשה משותפת",
+        [_person("BRW-A", "רועי", "שטרן", "DEMO-ID-105", "primary", ["salaried"], 15600, employer_he="מרכז רפואי השרון"),
+         _person("BRW-B", "מאיה", "שטרן", "DEMO-ID-115", "co_borrower", ["self_employed"], 13900,
+                 registration="vat_registered", business_he="סטודיו מאיה שטרן — אדריכלות")],
+        _loan("renovation", "שיפוץ", 150000, 84, "שיפוץ הדירה"),
+        _accounts(["BRW-A", "BRW-B"], ["BRW-A", "HLD-RACHEL"]),
+        submitted_at="2026-10-10T09:00:00+03:00", use_case="UC-05", persona_id="PRS-STERN", profile_label_he="שני לווים"),
+    "DEMO-MTZ-2026-106": {
+        **_case("DEMO-MTZ-2026-106", "438839106", "מימון ציוד — ש.ג. מערכות מיזוג בע״מ",
+                [_person("BRW-A", "גלעד", "ששון", "DEMO-ID-106", "authorized_signatory", [], 0)],
+                _loan("business_equipment", "מימון ציוד לעסק", 300000, 60, "מערכות מיזוג לפרויקט חדש", business=True),
+                [{"account_id": "ACC-1", "label_he": "חשבון עסקי של החברה", "bank_he": "מזרחי־טפחות", "holders": ["COMPANY"]}],
+                submitted_at="2026-10-11T08:30:00+03:00", use_case="UC-06", persona_id="PRS-SG-HVAC",
+                profile_label_he="חברה בע״מ", applicant_type="company", banker_assisted=True,
+                company={"name_he": "ש.ג. מערכות מיזוג בע״מ", "company_number": "DEMO-CO-516001060",
+                         "signatory_he": "גלעד ששון", "signatory_role_he": "מנכ״ל ומורשה חתימה"}),
+        "banker": {"name_he": "דנה כהן", "role_he": "הבנקאית המלווה", "staff_id": "STAFF-DANA"}},
+}
+_USE_CASES["DEMO-MTZ-2026-105"]["accounts"][1].update(
+    {"label_he": "חשבון עו״ש של רועי ואמו", "other_holders_he": ["רחל שטרן — בעלת חשבון, אינה לווה בבקשה"]})
+_USE_CASES["DEMO-MTZ-2026-105"]["accounts"][0]["label_he"] = "חשבון עו״ש משותף"
+for _cid in _USE_CASES:
+    _USE_CASES[_cid]["executive_demo"] = True
+    _USE_CASES[_cid]["stage_index"] = 2
+_CASES.update(_USE_CASES)
+
 
 def _applications() -> dict[str, dict]:
     """Customer-started applications (synthetic, stored in DATA_DIR) — see workflow/intake.py."""
@@ -162,7 +241,12 @@ class MockBankAdapter:
         case["source"] = SOURCE
         for b in case["borrowers"]:
             b["declared_income_provenance"] = "CUSTOMER_DECLARED"
+        from ..workflow import requirements
+        case["document_profile"] = requirements.profile(case)
         return case
+
+    def persona_of(self, case_id: str) -> Optional[str]:
+        return self._all().get(case_id, {}).get("persona_id")
 
     def staff(self, staff_id: str) -> Optional[dict[str, Any]]:
         return copy.deepcopy(STAFF.get(staff_id))

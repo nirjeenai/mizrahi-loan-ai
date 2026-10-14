@@ -24,7 +24,7 @@ function initialRequirement(reqs: Requirement[], preset?: string, borrowerId?: s
 export function UploadSheet() {
   const { snap, docs, caseId, upload, closeUpload, reload, openAssistant, assistantOrigin } = useCase();
   const nav = useNavigate();
-  const reqs = (snap?.readiness.requirements || []).filter((r) => r.evaluated_by_ai);
+  const reqs = (snap?.readiness.requirements || []).filter((r) => r.evaluated_by_ai || r.intake === "human_review");
   const asked = snap?.customer_requests?.find((q) => q.customer_request_id === upload.customerRequestId && q.status === "OPEN");
   const [code, setCode] = useState(() => initialRequirement(reqs, upload.requirementCode, upload.borrowerId, asked?.requirement_code));
   const requirement = reqs.find((r) => r.code === code);
@@ -74,10 +74,13 @@ export function UploadSheet() {
     : rejected.length === 1 ? rejected[0] : undefined;
   const [replaceOn, setReplaceOn] = useState(true);
   const reviewed = doc?.status === "reviewed" || doc?.status === "failed";
+  // a family without a review rubric: the file is kept for the banker, there is no AI result to wait for
+  const stored = doc?.status === "stored";
+  const human = requirement?.intake === "human_review";
   const fromChat = !!assistantOrigin;
 
   useEffect(() => {
-    if (!doc || doc.status === "reviewed" || doc.status === "failed") return;
+    if (!doc || doc.status === "reviewed" || doc.status === "failed" || doc.status === "stored") return;
     const t = window.setInterval(async () => {
       const d = await api.document(doc.document_id);
       setDoc(d);
@@ -175,6 +178,8 @@ export function UploadSheet() {
               )}
             </div>
             {requirement?.hint_he && <div className="tiny muted" data-testid="upload-hint">{requirement.hint_he}</div>}
+            {human && <div className="tiny upload-human" data-testid="upload-human-review">סוג מסמך זה אינו נבדק ב-AI בהדגמה — הקובץ יישמר
+              ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}.</div>}
             {sameKind.length > 1 && requirement?.account_id == null && (<>
               <div className="small bold">עבור מי המסמך?</div>
               <div className="choice">
@@ -223,7 +228,7 @@ export function UploadSheet() {
             </div>
             {error && <div className="notice">{error}</div>}
             <button className="btn btn-orange" disabled={!file || busy} onClick={submit} data-testid="upload-submit">
-              {busy ? <span className="spinner" /> : null}העלאה ובדיקה חכמה
+              {busy ? <span className="spinner" /> : null}{human ? "העלאה לבדיקת הבנקאי" : "העלאה ובדיקה חכמה"}
             </button>
             <div className="tiny muted" style={{ lineHeight: 1.6 }}>
               המסמך נשמר בתיק ההדגמה בלבד ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית — לא קבלת המסמך על ידי הבנק.
@@ -235,6 +240,11 @@ export function UploadSheet() {
               {note && <div className="notice" style={{ marginTop: 8 }}>{note}</div>}
               {answered && <div className="tiny" style={{ marginTop: 6, color: "var(--ok)", fontWeight: 700 }} data-testid="upload-answered">
                 הקובץ צורף לבקשה של {snap?.case.banker.name_he}. אחרי הבדיקה החכמה הוא יחזור אליה לבדיקה.</div>}
+              {stored ? (
+                <div className="doc-outcome info" style={{ marginTop: 10 }} data-testid="upload-stored" data-outcome="HUMAN_REVIEW_PENDING">
+                  המסמך נשמר בתיק ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}. לסוג מסמך זה אין בדיקת AI בהדגמה, ולכן הוא לא סומן ״תקין״.
+                </div>
+              ) : (<>
               <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.png" alt="" />עיבוד מסמכים באמצעות JEEN</div>
               <div className="stage-list" data-testid="upload-stages">
                 {STAGES.map(([k, label], i) => (
@@ -243,6 +253,7 @@ export function UploadSheet() {
                   </div>
                 ))}
               </div>
+              </>)}
               {doc.status === "failed" && <div className="notice" style={{ marginTop: 8 }}>הבדיקה נכשלה בגלל תקלה זמנית בעיבוד המסמך. אפשר לנסות שוב בעוד רגע.</div>}
               {doc.review && (
                 <div className="row between" style={{ marginTop: 12 }}>

@@ -23,6 +23,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 async def lifespan(app: FastAPI):
     db.connect()
     store.ensure_seeded()
+    store.upgrade_from_seed()
     engine.start_workers()
     yield
     engine.stop_workers()

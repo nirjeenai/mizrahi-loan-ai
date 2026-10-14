@@ -96,6 +96,9 @@ def show_presenter(page: Page) -> None:
     if page.locator(".hub").get_attribute("data-presenter") != "open":
         page.locator("[data-testid=presenter-toggle]").click()
     expect(page.locator(".hub-side")).to_be_visible()
+    # the four featured cards now sit under "בדיקות נוספות", after the six use cases
+    if page.locator("[data-testid=more-tests]").get_attribute("open") is None:
+        page.locator("[data-testid=more-tests-toggle]").click()
 
 
 def download(page: Page, route: str) -> dict[str, Path]:
@@ -204,8 +207,9 @@ def run(page: Page, banker: Page) -> None:
     expect(page.locator("[data-testid=new-demo-status]")).to_contain_text("הדמו מוכן", timeout=30000)
     expect(page.locator("[data-testid=readiness-state]")).to_have_text("ממתינים למסמכים לבקשת ההלוואה", timeout=15000)
     sessions()
-    check("'התחל דמו חדש' empties the loan demo cases and opens 438839006",
-          all(snap(c)["readiness"]["counts"]["documents"] == 0 for c in (PASS, JOURNEY, BLOCKER)))
+    check("'התחל דמו חדש' empties the loan demo cases and opens the first use case (TC-01, 438839101)",
+          all(snap(c)["readiness"]["counts"]["documents"] == 0 for c in (PASS, JOURNEY, BLOCKER))
+          and "438839101" in page.locator(".case-pill").inner_text())
     shot(page, "02-new-demo-home")
 
     # ------------------------------------------------------------ the journey: customer upload → AI validation → finding
@@ -428,18 +432,39 @@ def run(page: Page, banker: Page) -> None:
     page.goto(f"{BASE}/customer/stages")
     shot(page, "18-stages")
 
-    # ------------------------------------------------------------ start a new application (intake → conditional requirements)
+    # ------------------------------------------------------------ start a new application (JEEN questionnaire → policy)
     home(page)
     page.locator("button[aria-label='תפריט']").click()
     page.locator("[data-testid=drawer-apply]").click()
-    form = page.locator("[data-testid=apply-form]")
-    expect(form.locator("[data-purpose=renovation]")).to_be_attached(timeout=15000)
-    form.locator("[data-testid=apply-first]").fill("מיה")
-    form.locator("[data-testid=apply-last]").fill("ברקוביץ")
-    form.locator("label:has([data-purpose=renovation])").click()
-    form.locator("label:has([data-employment=self_employed])").click()
+    chat = page.locator("[data-testid=apply-chat]")
+    expect(chat.locator("[data-testid=onb-question]")).to_be_visible(timeout=15000)
+    if chat.locator("[data-testid=onb-restart]").count():
+        chat.locator("[data-testid=onb-restart]").click()
+
+    def reply(qid: str, value: str | None = None, name: tuple[str, str] | None = None, multi: list[str] | None = None) -> None:
+        expect(chat.locator("[data-testid=onb-question]")).to_have_attribute("data-question", qid, timeout=10000)
+        if name:
+            chat.locator("[data-testid=onb-first]").fill(name[0])
+            chat.locator("[data-testid=onb-last]").fill(name[1])
+            chat.locator("[data-testid=onb-send]").click()
+        else:
+            for v in multi or [value]:
+                chat.locator(f"[data-testid=onb-option][data-value='{v}']").click()
+            if multi:
+                chat.locator("[data-testid=onb-send]").click()
+        expect(chat.locator(f"[data-testid=onb-answered-{qid}]")).to_be_visible(timeout=10000)
+
+    reply("entity", "individual")
+    reply("name", name=("מיה", "ברקוביץ"))
+    reply("purpose", "renovation")
+    reply("income", multi=["self_employed"])
+    reply("registration", "vat_exempt")
     shot(page, "19-apply")
-    form.locator("[data-testid=apply-submit]").click()
+    reply("net", "12000")
+    reply("co_borrower", "no")
+    reply("amount", "80000")
+    reply("payments", "60")
+    page.locator("[data-testid=onb-confirm]").click()
     expect(page.locator("[data-testid='req-TAX_ASSESSMENT:BRW-A']")).to_be_visible(timeout=20000)
     pill = page.locator(".case-pill").inner_text()
     check("intake: a new self-employed renovation application opens with a tax assessment instead of payslips",

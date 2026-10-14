@@ -5,9 +5,43 @@ import { useCase } from "../../caseContext";
 import { IBag, IBank, IChart, ICheck, IChevron, IChevronDown, IClock, IDocs, IHouse, IPerson, IShield, ISpark, IUpload, IX } from "../../components/Icons";
 
 const LOAN_ICON: Record<string, ReactNode> = { id_document: <IPerson size={18} />, bank_statement: <IBank size={18} />,
-  purpose_proof: <IBag size={18} />, tax_form: <IChart size={18} /> };
+  purpose_proof: <IBag size={18} />, tax_form: <IChart size={18} />, business_registration: <IShield size={18} />,
+  pnl_statement: <IChart size={18} />, company_registry: <IShield size={18} />, signatory_authority: <IPerson size={18} />,
+  financial_statements: <IChart size={18} />, business_bank_statement: <IBank size={18} /> };
+/** A requirement the customer can upload for in the app: reviewed by AI, or stored for the banker (no rubric). */
+export const uploadable = (r: Requirement) => r.evaluated_by_ai || r.intake === "human_review";
+const DONE_STATES = ["extracted", "preparation_confirmed", "checking", "accepted_by_banker"];
 
-/** A one-document requirement of the loan (ID, a statement of one account, proof of purpose, tax form). */
+/** Who the checklist was composed for, from the case's document profile — the same inputs the policy read. */
+function ProfileCard() {
+  const { snap } = useCase();
+  const p = snap?.case.document_profile;
+  if (!snap || !p) return null;
+  const version = snap.readiness.requirements[0]?.policy_version;
+  return (
+    <section className="dx-profile" data-testid="document-profile" data-entity={p.entity} data-use-case={p.use_case || undefined}>
+      <div className="dx-profile-head">
+        <span className="bold small">פרופיל המסמכים של הבקשה</span>
+        {p.profile_label_he && <span className="badge info" data-testid="profile-label">{p.profile_label_he}</span>}
+      </div>
+      {p.company && <div className="small" data-testid="profile-company"><b>{p.company.name_he}</b> · <span className="ltr">{p.company.company_number}</span> · {p.company.signatory_role_he}: {p.company.signatory_he}</div>}
+      <ul className="dx-profile-people">
+        {p.applicants.map((a) => (
+          <li key={a.borrower_id} data-testid="profile-applicant" data-borrower={a.borrower_id}>
+            <b>{a.name_he}</b> · {a.role_he}{a.profile_he && a.profile_he !== a.role_he ? ` · ${a.profile_he}` : ""}</li>
+        ))}
+        {p.accounts.flatMap((acc) => acc.other_holders_he).map((h) => <li key={h} className="muted" data-testid="profile-other-holder">{h}</li>)}
+      </ul>
+      {p.banker_assisted && (
+        <div className="notice navy small" data-testid="banker-assisted">מסלול עסקי מוגבל בליווי {snap.case.banker.name_he}: אוספים כאן את מסמכי
+          הזיהוי והדוחות של החברה, והבנקאית ממשיכה את הטיפול. אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
+      )}
+      <div className="tiny muted dx-profile-note">{p.disclaimer_he}{version ? <> · <span className="ltr">{version}</span></> : null}</div>
+    </section>
+  );
+}
+
+/** A one-document requirement of the loan (ID, a statement of one account, proof of purpose, tax form, business documents). */
 function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; focused: boolean;
   expanded: Record<string, boolean>; setExpanded: (v: Record<string, boolean>) => void }) {
   const { snap, docs, openUpload, openAssistant } = useCase();
@@ -20,8 +54,9 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
   const isOpen = expanded[r.code] ?? focused;
   const [name, detail] = splitTitle(r.title_he);
   const tone = STATE_TONE[r.ai_state] || (r.ai_state === "required_missing" ? "bad" : "warn");
+  const human = r.intake === "human_review";
   return (
-    <li id={`req-${r.code}`} data-testid={`req-${r.code}`} data-family={r.family} data-state={r.ai_state}
+    <li id={`req-${r.code}`} data-testid={`req-${r.code}`} data-family={r.family} data-state={r.ai_state} data-intake={r.intake}
       data-focused={focused ? "true" : undefined} className={`dl-row${isOpen ? " open" : ""}${focused ? " focus" : ""}`}>
       <button className="dl-head" onClick={() => setExpanded({ ...expanded, [r.code]: !isOpen })} aria-expanded={isOpen}>
         <span className="dl-ic" aria-hidden>{LOAN_ICON[r.family] || <IDocs size={18} />}</span>
@@ -36,16 +71,24 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
       {isOpen && (
         <div className="dl-body">
           {r.hint_he && <p className="dl-note">{r.hint_he}</p>}
+          {(r.owner_he || r.why_he) && (
+            <p className="dl-note" data-testid="req-why">{r.owner_he && <><b>עבור: </b>{r.owner_he}. </>}{r.why_he && <><b>למה: </b>{r.why_he}</>}</p>
+          )}
+          {(r.alternatives_he?.length ?? 0) > 0 && (
+            <p className="dl-note" data-testid="req-alternatives"><b>מתקבל גם: </b>{r.alternatives_he!.join(" · ")}</p>
+          )}
+          {human && <p className="dl-note dl-human" data-testid="req-human-review">סוג מסמך זה אינו נבדק ב-AI בהדגמה: הקובץ נשמר בתיק
+            ועובר לבדיקת {snap.case.banker.name_he}. הוא לא יסומן ״תקין״ אוטומטית.</p>}
           {findings.map((f) => <div key={f.finding_id} className="small" style={{ marginTop: 6, lineHeight: 1.55 }}>• {f.message_he}</div>)}
           <div className="req-actions">
             <button className="link req-more" onClick={() => openAssistant(`מה בדיוק צריך להעלות עבור ${name}?`)}>
               למידע נוסף<IChevron size={14} /></button>
-            {!["extracted", "preparation_confirmed", "checking"].includes(r.ai_state) && (
+            {!DONE_STATES.includes(r.ai_state) && (
               <button className="btn btn-dark req-upload" onClick={() => openUpload(r.borrower_id || undefined, { requirementCode: r.code })}
                 data-testid={`upload-${r.code}`}><IUpload size={15} />{firstUpload ? "להעלאה" : "העלאה מחדש"}</button>
             )}
           </div>
-          <div className="dl-bank"><IClock size={13} />ממתין לאישור הבנק</div>
+          <div className="dl-bank"><IClock size={13} />{human ? "בדיקת בנקאי — ללא בדיקת AI" : "ממתין לאישור הבנק"}</div>
         </div>
       )}
     </li>
@@ -65,7 +108,8 @@ const FAMILY_ICON: Record<string, ReactNode> = {
   income: <IBank size={18} />, liabilities: <IChart size={18} />, property: <IHouse size={18} />,
   insurance: <IShield size={18} />, collateral: <IDocs size={18} />,
 };
-const STATE_TONE: Record<string, string> = { extracted: "ok", preparation_confirmed: "ok", needs_banker_review: "info", checking: "neutral" };
+const STATE_TONE: Record<string, string> = { extracted: "ok", preparation_confirmed: "ok", needs_banker_review: "info", checking: "neutral",
+  received_pending_review: "info", accepted_by_banker: "ok" };
 
 /** The payslip row's pill: what is missing first, otherwise the requirement's AI state. */
 function payslipPill(r: Requirement): { text: string; tone: string } {
@@ -133,11 +177,11 @@ export function Documents() {
     }
     if (!want) {
       // focus=<requirement code> opens on that requirement's card (home-screen summary rows)
-      const one = section && snap.readiness.requirements.some((r) => r.code === section && r.evaluated_by_ai) ? `req-${section}` : null;
+      const one = section && snap.readiness.requirements.some((r) => r.code === section && uploadable(r)) ? `req-${section}` : null;
       setFocus(section === "uploaded" ? "sec-uploaded" : one || "sec-payslips");
       return;
     }
-    const req = snap.readiness.requirements.find((r) => r.code === want && r.evaluated_by_ai);
+    const req = snap.readiness.requirements.find((r) => r.code === want && uploadable(r));
     if (!req) { setLinkNote("לא ניתן להעלות את סוג המסמך הזה באפליקציה."); return; }
     setFocus(`req-${req.code}`);
     openUpload(req.borrower_id || undefined, { requirementCode: req.code, period: params.get("period") });
@@ -152,8 +196,8 @@ export function Documents() {
   if (!snap) return null;
   const reqs = snap.readiness.requirements;
   const payslips = reqs.filter((r) => r.evaluated_by_ai && r.family === "payslip");
-  const loanDocs = reqs.filter((r) => r.evaluated_by_ai && r.family !== "payslip");
-  const others = reqs.filter((r) => !r.evaluated_by_ai);
+  const loanDocs = reqs.filter((r) => uploadable(r) && r.family !== "payslip");
+  const others = reqs.filter((r) => !uploadable(r));
   const progress = snap.readiness.progress;
   const reviewedValid = docs.filter((d) => d.review?.verdict === "VALID").length;
   const customerFindings = snap.findings.filter((f) => f.status === "open" && f.review_state === "CUSTOMER_ACTION_REQUIRED");
@@ -179,6 +223,7 @@ export function Documents() {
       </div>
       {linkNote && <div className="notice" role="status" style={{ marginBottom: 12 }} data-testid="link-note">{linkNote}</div>}
       {tab === "list" && (<>
+        <ProfileCard />
         {requests.length > 0 && (<>
           <div className="section-label" id="sec-requests">בקשות מ{snap.case.banker.name_he}</div>
           {requests.map((q) => {
@@ -357,6 +402,7 @@ export function Documents() {
               return <span className={`badge ${v.cls}`} data-testid="doc-verdict">{v.text}</span>;
             })()
               : d.status === "failed" ? <span className="badge bad">נכשל</span>
+              : d.status === "stored" ? <span className="badge info" data-testid="doc-human-review">לבדיקת הבנקאי</span>
                 : <span className="badge neutral"><span className="spinner" />{d.stage_he}</span>}
             <span className="chev"><IChevron size={16} /></span>
           </button>

@@ -19,7 +19,7 @@ MODE = {"bank": "DEMO", "review_provider": "gemini (LIVE)", "data": "synthetic"}
 VERDICT_HE = {"VALID": "נמצא תקין בבדיקה האוטומטית", "INVALID": "לא תקין — נדרש תיקון", "NEEDS_REVIEW": "דורש בדיקה"}
 STAGE_HE = {"queued": "ממתין לבדיקה", "intake": "קליטה", "extract": "קריאה וחילוץ", "verify_evidence": "אימות ראיות",
             "deterministic_checks": "בדיקות כללים", "judge": "שיפוט לפי רובריקה", "done": "הבדיקה הושלמה",
-            "retrying": "ניסיון חוזר", "failed": "הבדיקה נכשלה"}
+            "retrying": "ניסיון חוזר", "failed": "הבדיקה נכשלה", "human_review": "התקבל · ממתין לבדיקת הבנקאי"}
 
 
 class ToolError(ValueError):

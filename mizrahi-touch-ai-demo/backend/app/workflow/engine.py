@@ -78,15 +78,23 @@ def submit_document(case_id: str, filename: str, mime: str, data: bytes, borrowe
     except Exception as exc:                          # corrupt / protected file
         path.unlink(missing_ok=True)
         raise UploadRejected(f"the file could not be opened ({type(exc).__name__})") from None
+    from .requirements import evaluated_by_ai
+    reviewed_by_ai = evaluated_by_ai(family)
     row = {"document_id": document_id, "case_id": case_id, "borrower_id": borrower_id, "requirement_code": requirement_code,
            "filename": Path(filename).name[:120], "mime": mime, "sha256": sha, "bytes": len(data), "pages": info["pages"],
            "text_layer_chars": info["text_layer_chars"], "storage_path": str(path), "uploaded_at": now_iso(),
-           "uploaded_by": actor, "channel": channel, "status": "queued", "stage": "queued"}
+           "uploaded_by": actor, "channel": channel,
+           "status": "queued" if reviewed_by_ai else "stored", "stage": "queued" if reviewed_by_ai else "human_review"}
     repo.insert_document(row)
     repo.audit(case_id, actor, "document_uploaded", document_id,
                {"filename": row["filename"], "borrower_id": borrower_id, "sha256": sha, "pages": info["pages"],
-                "text_layer": info["text_layer_chars"] > 0})
-    enqueue("review_document", case_id, document_id, f"review_document:{document_id}:1")
+                "text_layer": info["text_layer_chars"] > 0, "intake": "ai_review" if reviewed_by_ai else "human_review"})
+    if reviewed_by_ai:
+        enqueue("review_document", case_id, document_id, f"review_document:{document_id}:1")
+    else:
+        # no rubric for this family: the file is kept for the banker and never gets an AI verdict; the set review still
+        # runs so the requirement's coverage reflects the upload
+        request_case_review(case_id, f"document {document_id} stored for human review")
     followup_event(case_id, "document_uploaded")
     return repo.document(document_id), True
 
