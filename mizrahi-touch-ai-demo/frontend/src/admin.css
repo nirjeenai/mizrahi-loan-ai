@@ -74,6 +74,9 @@
 .adm-after { color: var(--ok); font-weight: 700; }
 .adm-row-actions { display: flex; gap: 10px; }
 table.t tr.adm-why td { border-bottom: none; padding-top: 0; }
+table.t tr.adm-sim-fail td { background: var(--bad-soft); }
+.adm-rule-ids { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.adm-sim td { vertical-align: top; }
 .adm-waiting { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 @media (max-width: 980px) {

@@ -5,7 +5,6 @@ behavior; publishing makes it the version the engine reads, and a rollback publi
 the store's revision: the client sends the revision it edited, and a stale one is a 409."""
 from __future__ import annotations
 
-import importlib.util
 from typing import Any, Literal, Optional
 
 from fastapi import APIRouter, HTTPException, Request
@@ -14,7 +13,7 @@ from pydantic import BaseModel, Field
 from .. import auth, events, flags
 from ..config import settings
 from ..followup.contract import ENVELOPE, LOCKED_RULES, RULES
-from ..policy import prompts, schema, store, validate
+from ..policy import prompts, schema, simulator, store, validate
 
 router = APIRouter(prefix="/api/admin/loan-completion")
 
@@ -50,6 +49,12 @@ class Rollback(BaseModel):
     kind: Kind
     to_version_id: str
     reason: str = Field("", max_length=300)
+
+
+class Simulate(BaseModel):
+    version_id: Optional[str] = None
+    config: Optional[dict[str, Any]] = None
+    scenario_ids: Optional[list[str]] = None
 
 
 class Pause(BaseModel):
@@ -108,13 +113,14 @@ def get_settings(request: Request):
         "drafts": {k: _project(store.open_draft(k)) for k in KINDS},
         "kill_switch": flags.row(flags.KILL_SWITCH),
         "locked_rules": [{"id": r, "label_he": RULES[r][1]} for r in LOCKED_RULES],
+        "rule_labels": {r: {"tier": tier, "label_he": label} for r, (tier, label) in RULES.items()},
         "envelope": ENVELOPE,
         "locked_fields": {k: [{"path": p, "reason_he": validate.LOCKED_HE[p]} for p in v]
                           for k, v in validate.LOCKED_FIELDS.items()},
         "prompt_variables": list(schema.PROMPT_VARIABLES),
         "preview_variables": prompts.PREVIEW_VARIABLES,
         "requirement_catalog": store.seed_config("loan_policy")["document_requirements"],
-        "simulator_available": importlib.util.find_spec(f"{store.__package__}.simulator") is not None,
+        "simulator_available": True,
         "caller": {k: person.get(k) for k in ("staff_id", "name_he", "role_he")},
     }
 
@@ -154,9 +160,12 @@ def validate_draft(version_id: str, request: Request):
     row = store.get(version_id)
     if row is None or row["kind"] not in KINDS:
         raise HTTPException(404, "הגרסה לא נמצאה")
-    reasons = validate.publish_reasons(row) if row["status"] == "DRAFT" else []
+    results = simulator.run(row["config"]) if row["kind"] == "loan_policy" else []     # pure: nothing is stored
+    reasons = validate.publish_reasons(row, results) if row["status"] == "DRAFT" else []
     return {**_report(row["kind"], row["config"]), "publishable": row["status"] == "DRAFT" and not reasons,
-            "reasons": reasons, "revision": row["revision"]}
+            "reasons": reasons, "revision": row["revision"],
+            "scenarios": {"total": len(results), "failed": [r.scenario_id for r in results if not r.passed],
+                          "mandatory_failed": [r.scenario_id for r in simulator.mandatory_failures(results)]}}
 
 
 @router.post("/validate")
@@ -186,6 +195,13 @@ def publish_draft(version_id: str, body: Revision, request: Request):
     reasons = validate.publish_reasons(row)
     if reasons:
         raise HTTPException(422, {"message": "לא ניתן להפעיל את הטיוטה", "reasons": reasons})
+    run_id = None
+    if row["kind"] == "loan_policy":                     # the recorded simulation run that cleared (or stopped) this publish
+        sim = simulator.simulate(row["config"], version_id, actor)
+        run_id = sim.run_id
+        failed = validate.scenario_reasons(list(sim.results))
+        if failed:
+            raise HTTPException(422, {"message": "תרחישי חובה נכשלו בסימולציה", "reasons": failed, "run_id": run_id})
     previous = store.published(row["kind"])
     try:
         published = store.publish(version_id, body.revision, actor)
@@ -194,7 +210,20 @@ def publish_draft(version_id: str, body: Revision, request: Request):
     except store.InvalidConfig as exc:
         raise HTTPException(422, {"message": "לא ניתן להפעיל את הטיוטה",
                                   "reasons": [f"{e['path']}: {e['message']}" for e in exc.errors]}) from None
-    return {"published": _project(published), "previous": _project(previous, with_config=False)}
+    return {"published": _project(published), "previous": _project(previous, with_config=False), "simulation_run_id": run_id}
+
+
+@router.post("/policy/simulate")
+def simulate(body: Simulate, request: Request):
+    """Run a loan-policy configuration (unsaved, a version, or the published one) through every scenario fixture."""
+    _, actor = _admin(request)
+    config, version_id = body.config, body.version_id
+    if config is None:
+        row = store.get(version_id) if version_id else store.published("loan_policy")
+        if row is None or row["kind"] != "loan_policy":
+            raise HTTPException(404, "הגרסה לא נמצאה")
+        config, version_id = row["config"], row["version_id"]
+    return simulator.simulate(config, version_id, actor, body.scenario_ids).model_dump(mode="json")
 
 
 @router.get("/versions")

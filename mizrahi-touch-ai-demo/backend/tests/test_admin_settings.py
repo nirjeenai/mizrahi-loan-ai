@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import auth, db, events, flags
+from app.followup import contract
 from app.main import app
 from app.policy import prompts, store, validate
 from app.workflow import requirements
@@ -38,6 +39,15 @@ def _restore_configuration():
             if row["case_id"] not in pins:
                 c.execute("DELETE FROM case_profile WHERE case_id=?", (row["case_id"],))
     flags.put(flags.KILL_SWITCH, False, "tests")
+
+
+@pytest.fixture(autouse=True)
+def _stable_scenarios(monkeypatch):
+    """The publish gate runs the simulator. These suites test the Admin flow, so they use scenarios whose outcome
+    doesn't depend on the edited values (the gate itself is covered in test_admin_simulator.py)."""
+    real = contract.load_scenarios
+    keep = {"S01", "S02", "S12", "S25"}
+    monkeypatch.setattr(contract, "load_scenarios", lambda *a, **k: [s for s in real(*a, **k) if s.id in keep])
 
 
 @pytest.fixture(autouse=True)
@@ -71,7 +81,8 @@ ROUTES = [("get", "/settings", None), ("post", "/drafts", {"kind": "loan_policy"
           ("post", "/validate", {"kind": "loan_policy", "config": {}}), ("post", "/drafts/X/discard", {"revision": 1}),
           ("post", "/drafts/X/publish", {"revision": 1}), ("get", "/versions?kind=loan_policy", None),
           ("get", "/versions/X/diff", None), ("post", "/rollback", {"kind": "loan_policy", "to_version_id": "X"}),
-          ("post", "/followups/pause", {"paused": True}), ("get", "/audit", None), ("post", "/prompts/test", {})]
+          ("post", "/followups/pause", {"paused": True}), ("get", "/audit", None), ("post", "/prompts/test", {}),
+          ("post", "/policy/simulate", {})]
 
 
 @pytest.mark.parametrize("method,path,body", ROUTES)
@@ -87,7 +98,8 @@ def test_settings_for_the_demo_admin():
     assert s["published"]["loan_policy"]["status"] == "PUBLISHED" and s["drafts"] == {"loan_policy": None, "talk_prompt": None}
     assert {"HG-KILL-SWITCH", "HG-ACTIVE-SESSION", "HG-OPT-OUT"} <= {r["id"] for r in s["locked_rules"]}
     assert all(r["label_he"] for r in s["locked_rules"]) and s["envelope"]["max_attempts_per_case"] == 3
-    assert s["kill_switch"]["value"] is False and s["simulator_available"] is False
+    assert s["kill_switch"]["value"] is False and s["simulator_available"] is True
+    assert s["rule_labels"]["HG-KILL-SWITCH"]["tier"] == "HARD_GUARD"
     assert s["prompt_variables"] == ["first_name", "missing_documents", "secure_upload_link", "next_step"]
     assert {r["id"] for r in s["requirement_catalog"]} >= {"ID_CARD", "PAYSLIPS", "BANK_STATEMENTS", "PURPOSE_PROOF"}
     assert s["caller"]["staff_id"] == "STAFF-DANA"

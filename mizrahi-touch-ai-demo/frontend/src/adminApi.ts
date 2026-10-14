@@ -23,6 +23,7 @@ export interface Settings {
   drafts: Record<Kind, VersionRow | null>;
   kill_switch: FlagRow;
   locked_rules: { id: string; label_he: string }[];
+  rule_labels: Record<string, { tier: string; label_he: string }>;
   envelope: { call_window_bounds: [string, string]; no_contact_days: string[]; max_attempts_per_case: number;
     min_hours_between_calls: number; min_grace_minutes: Record<string, number> };
   locked_fields: Record<Kind, { path: string; reason_he: string }[]>;
@@ -31,6 +32,19 @@ export interface Settings {
   requirement_catalog: Json[];
   simulator_available: boolean;
   caller: { staff_id: string; name_he: string; role_he: string };
+}
+export interface Decision {
+  action: string; policy_version: string; explanation_he: string; blocked_by: string[]; rule_ids: string[];
+  next_eligible_at: string | null; channel: string | null; task_ids: string[];
+}
+export interface ScenarioResult {
+  scenario_id: string; title_he: string; mandatory: boolean; passed: boolean;
+  expected: { action: string; rule_ids_include: string[]; blocked_by_include: string[]; next_eligible_at: string | null };
+  actual: Decision | null; error: string | null;
+}
+export interface SimulationRun {
+  run_id: string; version_id: string | null; config_hash: string; actor: string; created_at: string; side_effects: false;
+  passed: boolean; mandatory_passed: boolean; results: ScenarioResult[];
 }
 export interface AuditEvent { event_id: string; type: string; occurred_at: string; actor: string; payload: Json }
 
@@ -73,6 +87,8 @@ export const adminApi = {
   diff: (id: string, against?: string) =>
     http<{ version: VersionRow; against: VersionRow | null; diff: DiffEntry[] }>(`${BASE}/versions/${id}/diff${against ? `?against=${against}` : ""}`),
   rollback: (kind: Kind, to: string, reason: string) => http<VersionRow>(`${BASE}/rollback`, send("POST", { kind, to_version_id: to, reason })),
+  simulate: (config: Json | null, versionId: string | null) =>
+    http<SimulationRun>(`${BASE}/policy/simulate`, send("POST", config ? { config, version_id: versionId } : { version_id: versionId })),
   pause: (paused: boolean, reason: string) => http<FlagRow>(`${BASE}/followups/pause`, send("POST", { paused, reason })),
   audit: (limit = 60) => http<{ events: AuditEvent[]; versions: Record<Kind, VersionRow[]> }>(`${BASE}/audit?limit=${limit}`),
 };

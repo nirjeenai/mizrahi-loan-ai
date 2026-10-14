@@ -86,19 +86,42 @@ def main() -> int:
         tab(page, "versions")
         diff_text = page.get_by_test_id("pending-diff-loan_policy").inner_text()
         check("diff in versions tab", "followup.abandonment_grace_minutes" in diff_text and str(new_grace) in diff_text)
-        check("simulator waits for the policy engine", "ממתין למנוע המדיניות" in page.get_by_test_id("simulator").inner_text())
         shot(page, "03-versions-diff")
 
-        # 3. publish (same admin, no approval step)
+        # 3. simulate the draft through every scenario fixture of the follow-up engine
+        page.get_by_test_id("simulate").click()
+        expect(page.get_by_test_id("sim-summary")).to_be_visible(timeout=15000)
+        fixtures = page.get_by_test_id("sim-table").locator("tbody tr").count()
+        run = page.request.post(f"{API}/policy/simulate", data={"config": s["drafts"]["loan_policy"]["config"]}).json()
+        check("simulator runs every fixture", fixtures == len(run["results"]) > 0, f"{fixtures} scenarios")
+        mandatory_failed = [r["scenario_id"] for r in run["results"] if r["mandatory"] and not r["passed"]]
+        shot(page, "04-simulation")
+        expected, edited = new_grace, "abandonment_grace_minutes"
+
+        # 4. publish (same admin, no approval step); a draft that breaks a mandatory scenario is refused (AC 18)
+        if mandatory_failed:
+            page.get_by_test_id("publish-loan_policy").first.click()
+            page.get_by_test_id("confirm-publish-loan_policy").first.click()
+            expect(page.get_by_test_id("reasons-loan_policy").first).to_contain_text("תרחיש חובה", timeout=10000)
+            check("publish gate refuses a draft that breaks mandatory scenarios",
+                  settings(page)["published"]["loan_policy"]["version_id"] == v0["version_id"], ", ".join(mandatory_failed))
+            print(f"NOTE · the grace edit breaks fixtures {mandatory_failed}; until Agent B pins their config values in "
+                  "policy_overrides, the suite publishes a change no fixture depends on", flush=True)
+            shot(page, "04b-gate-refused")
+            tab(page, "followup")
+            page.get_by_test_id("f-abandonment_grace_minutes").fill(str(grace0))
+            spacing = v0["config"]["followup"]["min_hours_between_calls"] + 24
+            page.get_by_test_id("f-min_hours_between_calls").fill(str(spacing))
+            expected, edited = spacing, "min_hours_between_calls"
+            tab(page, "versions")
         page.get_by_test_id("publish-loan_policy").first.click()
         page.get_by_test_id("confirm-publish-loan_policy").first.click()
-        v1_number = v0["number"]
         expect(page.get_by_test_id("published-loan_policy")).not_to_contain_text(f"v{v0['number']}", timeout=10000)
         s = settings(page)
         v1 = s["published"]["loan_policy"]
         v1_number = v1["number"]
         check("published: the engine's version moved", v1["version_id"] != v0["version_id"]
-              and v1["config"]["followup"]["abandonment_grace_minutes"] == new_grace and s["drafts"]["loan_policy"] is None)
+              and v1["config"]["followup"][edited] == expected and s["drafts"]["loan_policy"] is None, edited)
         row = page.get_by_test_id(f"version-loan_policy-{v1_number}")
         expect(row).to_contain_text("פעילה")
         check("version list updated", "פעילה" in row.inner_text()
@@ -157,7 +180,8 @@ def main() -> int:
         check("ends on the starting configuration", end["published"]["loan_policy"]["config"] == v0["config"]
               and end["drafts"] == {"loan_policy": None, "talk_prompt": None} and end["kill_switch"]["value"] is False)
         browser.close()
-    real = [e for e in errors if "favicon" not in e]
+    # the refused publish is an expected 422 that the page handles; the browser still logs the failed request
+    real = [e for e in errors if "favicon" not in e and "status of 422" not in e]
     check("no console errors", not real, "; ".join(real[:3]))
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n{len(RESULTS) - len(failed)}/{len(RESULTS)} passed · screenshots in {ART}")

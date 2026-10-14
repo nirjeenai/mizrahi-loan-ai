@@ -9,6 +9,7 @@ from typing import Any, Optional
 
 from ..followup.contract import ENVELOPE
 from . import prompts, store
+from .simulator import mismatch_he
 
 LOCKED_FIELDS = {"loan_policy": ("schema_version", "scope"), "talk_prompt": ("schema_version", "opening_locked")}
 LOCKED_HE = {"schema_version": "גרסת הסכמה נקבעת בקוד", "scope": "הסביבה והמוצר נקבעים בהתקנה, לא בהגדרות",
@@ -75,8 +76,13 @@ def check(kind: str, config: dict) -> dict:
     return {"errors": errors, "warnings": warnings, "lint": lint}
 
 
-def publish_reasons(row: dict) -> list[str]:
-    """Why a draft can't be published yet (empty when it can)."""
+def scenario_reasons(results: list) -> list[str]:
+    """One reason per failed mandatory scenario (AC 18): what the policy engine was expected to do and what it did."""
+    return [f"תרחיש חובה {r.scenario_id} ({r.title_he}) נכשל: {mismatch_he(r)}" for r in results if r.mandatory and not r.passed]
+
+
+def publish_reasons(row: dict, scenario_results: Optional[list] = None) -> list[str]:
+    """Why a draft can't be published yet (empty when it can). For a loan policy, pass the simulator's results."""
     published = store.published(row["kind"])
     reasons = [f"{e['path'] or 'תצורה'}: {e['message']}" for e in check(row["kind"], row["config"])["errors"]]
     reasons += [f"{e['path']}: {e['message']}" for e in locked_errors(row["kind"], published["config"], row["config"])]
@@ -84,4 +90,4 @@ def publish_reasons(row: dict) -> list[str]:
         reasons.append(f"הטיוטה נפתחה מגרסה שאינה הפעילה (הפעילה היא {published['label']}). בטלו אותה ופתחו טיוטה חדשה.")
     if not store.diff(published["config"], row["config"]):
         reasons.append("אין שינויים לעומת הגרסה הפעילה.")
-    return reasons
+    return reasons + scenario_reasons(scenario_results or [])

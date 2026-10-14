@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { actorHe, adminApi, KIND_HE, STATUS_HE, type AuditEvent, type DiffEntry, type Kind, type Settings, type VersionRow } from "../../adminApi";
+import { actorHe, adminApi, KIND_HE, STATUS_HE, type AuditEvent, type DiffEntry, type Kind, type ScenarioResult, type Settings, type SimulationRun, type VersionRow } from "../../adminApi";
 import { timeHe } from "../../api";
 import { Chip } from "../banker/deskUi";
 import type { Work } from "./AdminPage";
@@ -21,17 +21,16 @@ export function VersionsTab({ settings, work, refresh, bars, onRollback }: {
   useEffect(() => { adminApi.audit(80).then(setLog).catch(() => setLog(null)); }, [refresh]);
   return (
     <div className="adm-tab" data-testid="tab-body-versions">
-      <div className="panel" data-testid="simulator">
-        <h3>סימולציית מדיניות</h3>
-        {settings.simulator_available ? <div className="small">הסימולטור זמין.</div> : (
+      {settings.simulator_available ? <Simulator settings={settings} work={work.loan_policy} /> : (
+        <div className="panel" data-testid="simulator">
+          <h3>סימולציית מדיניות</h3>
           <div className="adm-waiting">
             <Chip>ממתין למנוע המדיניות</Chip>
-            <span className="small muted">כאן תרוץ הטיוטה על תרחישי הבדיקה של מנוע המעקב (פעיל בפורטל, עזב, מחוץ לשעות, אין הסכמה ועוד),
-              עם פעולה צפויה מול פעולה בפועל לכל תרחיש. אין הרצה ואין תוצאות עד שהמנוע יחובר.</span>
+            <span className="small muted">כאן תרוץ הטיוטה על תרחישי הבדיקה של מנוע המעקב, עם פעולה צפויה מול פעולה בפועל לכל תרחיש.</span>
             <button className="btn btn-ghost btn-sm" disabled>הרצת סימולציה</button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       {KINDS.map((k) => (
         <div key={k}>
           {bars[k]}
@@ -60,6 +59,92 @@ export function VersionsTab({ settings, work, refresh, bars, onRollback }: {
         </table>
         {log && !log.events.length && <div className="small muted">אין עדיין שינויים.</div>}
       </div>
+    </div>
+  );
+}
+
+const ACTION_HE: Record<string, string> = {
+  NO_ACTION: "אין פעולה", IN_APP_ONLY: "תיקון באפליקציה בלבד", IN_APP_NUDGE: "תזכורת באפליקציה", SUPPRESS: "השהיה (פעילות בתהליך)",
+  WAIT: "המתנה", SCHEDULE_CALL: "תזמון שיחה", DISPATCH_NOW: "שיחה עכשיו", BLOCK: "חסימה", SNOOZE: "דחייה לבקשת הלקוח",
+  ESCALATE: "העברה לבנקאי", RESOLVE_AND_CANCEL: "הושלם, ביטול פניות",
+};
+
+const at = (iso: string | null) => iso ? new Date(iso).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "ללא מועד";
+
+/** Which part of the expectation the decision missed (the parts contract.matches compares). */
+function mismatchHe(r: ScenarioResult): string {
+  if (!r.actual) return `שגיאה בהרצה: ${r.error}`;
+  const e = r.expected, d = r.actual, parts: string[] = [];
+  if (d.action !== e.action) parts.push(`פעולה צפויה ${ACTION_HE[e.action] || e.action}`);
+  const missing = e.rule_ids_include.filter((x) => !d.rule_ids.includes(x));
+  if (missing.length) parts.push(`חסרים כללים: ${missing.join(", ")}`);
+  const unblocked = e.blocked_by_include.filter((x) => !d.blocked_by.includes(x));
+  if (unblocked.length) parts.push(`לא נחסם לפי: ${unblocked.join(", ")}`);
+  if (e.next_eligible_at && (!d.next_eligible_at || new Date(d.next_eligible_at).getTime() !== new Date(e.next_eligible_at).getTime()))
+    parts.push(`מועד הפנייה הבא: צפוי ${at(e.next_eligible_at)}, בפועל ${at(d.next_eligible_at)}`);
+  return parts.join(" · ");
+}
+
+/** The draft (as edited, saved or not) through every scenario fixture of the follow-up engine. */
+function Simulator({ settings, work }: { settings: Settings; work: Work }) {
+  const [run, setRun] = useState<SimulationRun | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [failedOnly, setFailedOnly] = useState(false);
+  const go = async () => {
+    setBusy(true); setError(null);
+    try { setRun(await adminApi.simulate(work.config, !work.dirty && work.draft ? work.draft.version_id : null)); }
+    catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  };
+  const results = (run?.results || []).filter((r) => !failedOnly || !r.passed);
+  const failed = run ? run.results.filter((r) => !r.passed) : [];
+  const label = (id: string) => settings.rule_labels[id]?.label_he || id;
+  const subject = work.dirty ? "העריכה הנוכחית (לא נשמרה)" : work.draft ? `טיוטה v${work.draft.number}` : `הגרסה הפעילה v${settings.published.loan_policy.number}`;
+  return (
+    <div className="panel" data-testid="simulator">
+      <div className="row between wrap">
+        <h3 style={{ margin: 0 }}>סימולציית מדיניות · {subject}</h3>
+        <span className="row">
+          {run && <label className="small row" style={{ gap: 4 }}><input type="checkbox" checked={failedOnly} onChange={(e) => setFailedOnly(e.target.checked)} />רק כשלים</label>}
+          <button className="btn btn-dark btn-sm" onClick={go} disabled={busy} data-testid="simulate">{busy && <span className="spinner" />}הרצת סימולציה</button>
+        </span>
+      </div>
+      <div className="small muted" style={{ margin: "6px 0 10px" }}>
+        מנוע המעקב מקבל את מדיניות המעקב וההשלמה שבטיוטה ומחליט בכל תרחיש בדיקה (לקוח פעיל, עזב, מחוץ לשעות, אין הסכמה ועוד) מה לעשות.
+        ההרצה אינה נוגעת בתיקים ואינה יוצרת פניות; היא נרשמת ביומן. תרחישי חובה שנכשלים חוסמים את ההפעלה.
+      </div>
+      {error && <div className="adm-err" role="alert">{error}</div>}
+      {run && (
+        <>
+          <div className="row wrap" style={{ marginBottom: 8 }} data-testid="sim-summary">
+            <Chip tone={run.mandatory_passed ? "ok" : "bad"}>{run.mandatory_passed ? "כל תרחישי החובה עברו" : "תרחישי חובה נכשלו: אי אפשר להפעיל"}</Chip>
+            <Chip>{run.results.length - failed.length}/{run.results.length} עברו</Chip>
+            <Chip tone="info">ללא תופעות לוואי</Chip>
+            <span className="tiny muted ltr">{run.run_id} · {timeHe(run.created_at)}</span>
+          </div>
+          <table className="t adm-sim" data-testid="sim-table">
+            <thead><tr><th>תרחיש</th><th>תוצאה</th><th>צפוי</th><th>בפועל</th><th>כללים והסבר</th></tr></thead>
+            <tbody>{results.map((r) => (
+              <tr key={r.scenario_id} className={r.passed ? "" : "adm-sim-fail"} data-testid={`sim-${r.scenario_id}`}>
+                <td><span className="ltr bold tiny">{r.scenario_id}</span> {r.mandatory && <Chip tone="navy">חובה</Chip>}<div className="tiny">{r.title_he}</div></td>
+                <td><Chip tone={r.passed ? "ok" : r.mandatory ? "bad" : "warn"}>{r.passed ? "עבר" : "נכשל"}</Chip></td>
+                <td className="tiny">{ACTION_HE[r.expected.action] || r.expected.action}<div className="muted"><span className="ltr">{r.expected.action}</span></div></td>
+                <td className="tiny">{r.actual ? <>{ACTION_HE[r.actual.action] || r.actual.action}<div className="muted"><span className="ltr">{r.actual.action}</span></div></> : null}
+                  {!r.passed && <div className="adm-err" data-testid={`sim-gap-${r.scenario_id}`}>{mismatchHe(r)}</div>}</td>
+                <td className="tiny">
+                  {r.actual && <>
+                    <div>{r.actual.explanation_he}</div>
+                    <div className="adm-rule-ids">{r.actual.rule_ids.map((id) => (
+                      <span key={id} className={`chip ${r.actual!.blocked_by.includes(id) ? "bad" : ""}`} title={label(id)}><span className="ltr">{id}</span></span>
+                    ))}</div>
+                  </>}
+                </td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 }
