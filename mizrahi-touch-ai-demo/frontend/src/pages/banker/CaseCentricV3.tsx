@@ -42,11 +42,11 @@ export function CaseCentricV3({ caseId, ws, openV1 }: { caseId: string; ws: Work
       <StickyBar ctx={ctx} shown={pinned} />
       <div className="cc-page">
         <CaseHeader ctx={ctx} innerRef={head} />
-        <Recommendation ctx={ctx} go={go} />
         <KeyFigures ctx={ctx} />
         <CaseDetails ctx={ctx} />
         <Documents ctx={ctx} ws={ws} onOpen={setDoc} />
         <Financial ctx={ctx} />
+        <Recommendation ctx={ctx} go={go} />
         <Alternatives ctx={ctx} />
         <Reasoning ctx={ctx} />
         <Reply ctx={ctx} onToast={setToast} />

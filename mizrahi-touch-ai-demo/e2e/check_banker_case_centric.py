@@ -97,11 +97,14 @@ def michal(page: Page, c: httpx.Client) -> None:
     rec = page.locator("[data-testid=cc-rec]")
     check("complete: header names the customer and the loan from the case", page.locator("[data-testid=cc-name]").inner_text() == "מיכל ברק"
           and page.locator("[data-testid=cc-loanline]").inner_text() == "הלוואה לרכישת רכב · ₪90,000 · 60 תשלומים")
-    check("complete: the recommendation is above the fold, matches the state, and is not an approval",
+    sections = page.locator(".cc-page > *").evaluate_all("els => els.map(e => e.dataset.testid || e.tagName)")
+    check("order: header, figures, details, documents, financial analysis, recommendation, alternatives, reasoning, reply, footer",
+          sections == ["cc-head", "cc-figures", "cc-details", "cc-docs", "cc-financial", "cc-rec", "cc-alternatives", "cc-reasoning", "cc-reply", "P"]
+          and page.locator("[data-testid=cc-rec]").count() == 1, " → ".join(sections))
+    check("complete: the recommendation matches the state, and is not an approval",
           rec.get_attribute("data-state") == "READY_FOR_CREDIT_REVIEW" == x["recommendation"]["state"]
           and page.locator("[data-testid=cc-rec-title]").inner_text() == "מומלץ להתקדם לבחינת האשראי"
           and page.locator("[data-testid=cc-rec-text]").inner_text() == x["recommendation"]["headline_he"]
-          and rec.bounding_box()["y"] + rec.bounding_box()["height"] < 900
           and "אינה אישור אשראי" in rec.inner_text() and "ההלוואה אושרה" not in rec.inner_text()
           and page.locator("[data-testid=cc-attention]").count() == 0)
     figs = (num(page, "[data-testid=cc-fig-income] .cc-num"), num(page, "[data-testid=cc-fig-payment] .cc-num"), num(page, "[data-testid=cc-fig-dsr] .cc-num"))
