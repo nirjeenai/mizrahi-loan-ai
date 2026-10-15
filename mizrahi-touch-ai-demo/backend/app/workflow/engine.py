@@ -359,7 +359,7 @@ def reconcile_findings(case_id: str, desired: list[DesiredFinding], run_id: str)
         if f["review_state"] == "NEEDS_BANKER_REVIEW":
             if not f["detail"].get("not_reproduced_by"):
                 history = f["history"] + [{"at": now, "run_id": run_id, "event": "not_reproduced",
-                                           "note": "הבדיקה האחרונה אינה משחזרת ממצא זה — נדרש אישור בנקאי לסגירה"}]
+                                           "note": "הבדיקה האחרונה אינה משחזרת ממצא זה, נדרש אישור בנקאי לסגירה"}]
                 repo.upsert_finding({**f, "detail": {**f["detail"], "not_reproduced_by": run_id}, "updated_at": now,
                                      "history": history})
             stats["kept_for_banker"] += 1

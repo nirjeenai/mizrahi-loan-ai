@@ -37,7 +37,7 @@ def _holder(cid: str, assigned: Optional[dict], borrowers: dict, name: Optional[
     if pid and all(det.id_relation(pid, p["national_id"]) == "different" for p in candidates):
         other = borrowers.get(matched or "")
         return "FAIL", (f"מספר הזהות במסמך אינו של {assigned['name_he']}"
-                        + (f" — המסמך מזוהה עם {other['name_he']}" if other and other["borrower_id"] != assigned["borrower_id"] else ""))
+                        + (f", המסמך מזוהה עם {other['name_he']}" if other and other["borrower_id"] != assigned["borrower_id"] else ""))
     if name and all(det.holder_relation(name, p["name_he"]) == "different" for p in candidates):
         return "FAIL", f"השם במסמך ({name}) אינו {assigned['name_he']}"
     return "JUDGE", f"השוואת זהות לא חד־משמעית (שם: {name or 'לא מודפס'})"
@@ -70,7 +70,7 @@ def outcomes(family: str, rubric: dict, *, val: Callable[[str], Any], norm: Call
         put("ID-03", _holder("ID-03", assigned, borrowers, holder_name, holder_id, matched))
         check = det.israeli_id_check(holder_id)
         put("ID-04", {"valid": ("PASS", f"מספר הזהות {holder_id} עומד בבדיקת ספרת הביקורת"),
-                      "synthetic": ("PASS", f"מזהה סינתטי של סביבת ההדגמה ({holder_id}) — בדיקת ספרת ביקורת אינה רלוונטית"),
+                      "synthetic": ("PASS", f"מזהה פנימי ({holder_id}), בדיקת ספרת ביקורת אינה חלה עליו"),
                       "invalid": ("FAIL", f"מספר הזהות {holder_id} אינו עומד בבדיקת ספרת הביקורת"),
                       "unknown": ("NEEDS_REVIEW", "מספר הזהות אינו מודפס או אינו קריא")}[check])
         expiry = norm("expiry_date")
@@ -92,8 +92,8 @@ def outcomes(family: str, rubric: dict, *, val: Callable[[str], Any], norm: Call
             # one statement must fall inside the window; whether the SET is recent enough is a case-level coverage fact
             age = (as_of - date.fromisoformat(end)).days
             limit = int(rules.get("max_age_days", 30)) + int(rules.get("coverage_days", 90))
-            put("BS-05", ("PASS", f"הדף מסתיים {age} ימים לפני תאריך הבדיקה — בתוך התקופה הנדרשת") if age <= limit else
-                ("FAIL", f"הדף מסתיים ב־{det.day_he(date.fromisoformat(end))}, {age} ימים לפני תאריך הבדיקה — "
+            put("BS-05", ("PASS", f"הדף מסתיים {age} ימים לפני תאריך הבדיקה, בתוך התקופה הנדרשת") if age <= limit else
+                ("FAIL", f"הדף מסתיים ב־{det.day_he(date.fromisoformat(end))}, {age} ימים לפני תאריך הבדיקה, "
                          "מחוץ לתקופה הנדרשת. נדרש דף עדכני."))
         else:
             put("BS-04", ("FAIL", "תקופת הדף אינה מודפסת או אינה ניתנת לפענוח"))
@@ -109,7 +109,7 @@ def outcomes(family: str, rubric: dict, *, val: Callable[[str], Any], norm: Call
         if issued:
             age = (as_of - date.fromisoformat(issued)).days
             put("PP-04", ("PASS", f"הופק לפני {age} ימים (עד {limit})") if 0 <= age <= limit else
-                ("FAIL", f"המסמך הופק ב־{det.day_he(date.fromisoformat(issued))} — מעבר ל־{limit} הימים שהמדיניות מאפשרת"))
+                ("FAIL", f"המסמך הופק ב־{det.day_he(date.fromisoformat(issued))}, מעבר ל־{limit} הימים שהמדיניות מאפשרת"))
         else:
             put("PP-04", ("FAIL", "תאריך המסמך אינו מודפס"))
         injection("PP-06")
@@ -120,7 +120,7 @@ def outcomes(family: str, rubric: dict, *, val: Callable[[str], Any], norm: Call
         offset = int(rules.get("min_tax_year_offset", 1))
         if year:
             put("TX-04", ("PASS", f"שנת מס {year}") if int(year) >= as_of.year - offset - 1 else
-                ("FAIL", f"שנת המס {year} ישנה — נדרשת שומה של {as_of.year - offset} או מאוחרת"))
+                ("FAIL", f"שנת המס {year} ישנה, נדרשת שומה של {as_of.year - offset} או מאוחרת"))
         else:
             put("TX-04", ("FAIL", "שנת המס אינה מודפסת"))
         injection("TX-05")
@@ -157,9 +157,9 @@ def outcomes(family: str, rubric: dict, *, val: Callable[[str], Any], norm: Call
             age = (as_of - d).days
             start = norm("period_from")
             span = f"{det.day_he(date.fromisoformat(start))}–{det.day_he(d)}" if start else f"עד {det.day_he(d)}"
-            put("PL-04", ("PASS", f"תקופת הדוח {span} — הסתיימה לפני {age} ימים (עד {limit})") if 0 <= age <= limit else
-                ("FAIL", f"תקופת הדוח הסתיימה ב־{det.day_he(d)}, {age} ימים לפני תאריך הבדיקה — מעבר ל־{limit} הימים "
-                         "שמדיניות ההדגמה מאפשרת. נדרש דוח עדכני."))
+            put("PL-04", ("PASS", f"תקופת הדוח {span}, הסתיימה לפני {age} ימים (עד {limit})") if 0 <= age <= limit else
+                ("FAIL", f"תקופת הדוח הסתיימה ב־{det.day_he(d)}, {age} ימים לפני תאריך הבדיקה, מעבר ל־{limit} הימים "
+                         "שהמדיניות מאפשרת. נדרש דוח עדכני."))
         else:
             put("PL-04", ("FAIL", "תקופת הדוח אינה מודפסת"))
         issuer = val("issuer_name")

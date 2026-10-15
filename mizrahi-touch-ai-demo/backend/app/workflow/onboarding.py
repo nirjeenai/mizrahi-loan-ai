@@ -19,7 +19,7 @@ from ..util import now_iso
 from . import requirements
 
 MAX_DRAFTS = 500
-ID_PROMPT = "מה מספר תעודת הזהות שלך? (9 ספרות; בהדגמה מתקבל גם מזהה סינתטי בצורה DEMO-ID-201)"
+ID_PROMPT = "מה מספר תעודת הזהות שלך? (9 ספרות)"
 ID_QUESTIONS = ("national_id", "co_national_id", "signatory_id")
 _DEMO_ID = re.compile(r"^DEMO-ID-\d{3}$")
 MAX_CASES = 200
@@ -58,7 +58,7 @@ def _co(a: dict) -> bool:
 # (id, kind, prompt, options, applies). Kinds: choice · multi · name · text · number (with suggested chips).
 QUESTIONS: list[tuple[str, str, str, Callable[[], list[dict]] | list[dict], Callable[[dict], bool]]] = [
     ("entity", "choice", "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
-     [{"value": "individual", "label_he": "הלוואה פרטית — עבורי (או עבורי ועבור לווה נוסף)"},
+     [{"value": "individual", "label_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"},
       {"value": "company", "label_he": "מימון לחברה בע״מ שאני מורשה החתימה בה"}], lambda a: True),
     ("name", "name", "איך קוראים לך?", [], _individual),
     ("national_id", "text", ID_PROMPT, [], _individual),
@@ -66,8 +66,8 @@ QUESTIONS: list[tuple[str, str, str, Callable[[], list[dict]] | list[dict], Call
     ("income", "multi", "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.", INCOME, _individual),
     ("registration", "choice", "איך העסק רשום במע״מ?", REGISTRATION,
      lambda a: _individual(a) and "self_employed" in (a.get("income") or [])),
-    ("net", "number", "מה ההכנסה החודשית נטו שלך, בערך? (הצהרה בלבד — אינה מאומתת)", NET, _individual),
-    ("co_borrower", "choice", "האם יש לווה נוסף בבקשה — מישהו שיחתום איתך על ההלוואה?", YES_NO, _individual),
+    ("net", "number", "מה ההכנסה החודשית נטו שלך, בערך? (הצהרה בלבד, אינה מאומתת)", NET, _individual),
+    ("co_borrower", "choice", "האם יש לווה נוסף בבקשה, מישהו שיחתום איתך על ההלוואה?", YES_NO, _individual),
     ("co_name", "name", "איך קוראים ללווה הנוסף?", [], _co),
     ("co_national_id", "text", "ומה מספר תעודת הזהות של הלווה הנוסף?", [], _co),
     ("co_income", "multi", "מאיפה ההכנסה של הלווה הנוסף?", INCOME, _co),
@@ -141,7 +141,7 @@ def _validate(qid: str, value: Any) -> Any:
         from ..review import deterministic as det
         text = text.replace(" ", "").upper() if text.upper().startswith("DEMO") else text.replace("-", "").replace(" ", "")
         if not (_DEMO_ID.match(text) or (text.isdigit() and len(text) == 9 and det.israeli_id_check(text) == "valid")):
-            raise OnboardingError("מספר הזהות אינו תקין (9 ספרות עם ספרת ביקורת, או מזהה הדגמה DEMO-ID-XXX)")
+            raise OnboardingError("מספר הזהות אינו תקין (9 ספרות עם ספרת ביקורת)")
         return text
     if not 2 <= len(text) <= 60 or any(ch in text for ch in "<>{}\\"):
         raise OnboardingError("נא להזין 2–60 תווים")
@@ -201,7 +201,7 @@ def build_case(answers: dict, case_id: str, display_number: str, persona_id: str
 def _row(draft_id: str) -> dict:
     row = db.one("SELECT * FROM onboarding_drafts WHERE draft_id=?", (draft_id,))
     if not row:
-        raise OnboardingError("הטיוטה לא נמצאה — אפשר להתחיל בקשה חדשה", 404)
+        raise OnboardingError("הטיוטה לא נמצאה, אפשר להתחיל בקשה חדשה", 404)
     return {**row, "answers": db.jload(row["answers"]) or {}}
 
 
@@ -232,7 +232,7 @@ def view(draft_id: str) -> dict[str, Any]:
 
 def start() -> dict[str, Any]:
     if (db.one("SELECT COUNT(*) AS n FROM onboarding_drafts") or {"n": 0})["n"] >= MAX_DRAFTS:
-        raise OnboardingError("הגעתם למספר המרבי של טיוטות הדגמה בסביבה זו")
+        raise OnboardingError("הגעתם למספר המרבי של טיוטות פתוחות")
     draft_id = f"OBD-{secrets.token_hex(6).upper()}"
     now = now_iso()
     with db.tx() as c:
@@ -246,7 +246,7 @@ def answer(draft_id: str, question_id: str, value: Any) -> dict[str, Any]:
     correcting the income source does not erase the VAT registration; only answers whose question applies are used."""
     row = _row(draft_id)
     if row["status"] != "draft":
-        raise OnboardingError("הבקשה כבר נפתחה — אי אפשר לשנות את התשובות", 409)
+        raise OnboardingError("הבקשה כבר נפתחה, אי אפשר לשנות את התשובות", 409)
     if question_id not in BY_ID:
         raise OnboardingError("שאלה לא מוכרת")
     answers = dict(row["answers"])
@@ -274,7 +274,7 @@ def confirm(draft_id: str) -> tuple[str, bool]:
             raise OnboardingError("עוד לא ענינו על כל השאלות", 409)
         count = (db.one("SELECT COUNT(*) AS n FROM demo_applications") or {"n": 0})["n"]
         if count >= MAX_CASES:
-            raise OnboardingError("הגעתם למספר המרבי של בקשות הדגמה בסביבה זו")
+            raise OnboardingError("הגעתם למספר המרבי של בקשות פתוחות")
         suffix = secrets.token_hex(2).upper()
         case_id = f"DEMO-LN-{count + 1:04d}-{suffix}"
         case = build_case(row["answers"], case_id, f"4388{secrets.randbelow(90000) + 10000}", f"PRS-NEW-{suffix}")

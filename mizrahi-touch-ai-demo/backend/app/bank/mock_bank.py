@@ -65,7 +65,7 @@ BUSINESS_PRODUCT = "business_financing.inquiry"
 
 def _loan(purpose: str, purpose_he: str, amount: int, payments: int, note_he: str = "", business: bool = False) -> dict:
     return {"product": BUSINESS_PRODUCT if business else PRODUCT,
-            "product_he": "מימון עסקי — פנייה ראשונית" if business else "הלוואה לכל מטרה", "purpose": purpose,
+            "product_he": "מימון עסקי, פנייה ראשונית" if business else "הלוואה לכל מטרה", "purpose": purpose,
             "purpose_he": purpose_he, "requested_amount_ils": amount, "payments": payments, "note_he": note_he}
 
 
@@ -91,7 +91,7 @@ _CASES: dict[str, dict[str, Any]] = {
         submitted_at="2026-09-28T10:32:00+03:00",
         meeting={"date": "2026-10-20", "from": "10:00", "to": "10:30", "type_he": "שיחת וידאו עם הבנקאית"}),
     "DEMO-MTZ-2026-003": _case(
-        "DEMO-MTZ-2026-003", "438838999", "תיק בדיקות QA — מסמכים בעייתיים", copy.deepcopy(_LAVI),
+        "DEMO-MTZ-2026-003", "438838999", "הלוואה לרכישת רכב · תיק נוסף", copy.deepcopy(_LAVI),
         _loan("car", "רכישת רכב", 95000, 48), _accounts(["BRW-A", "BRW-B"]), submitted_at="2026-09-28T10:32:00+03:00"),
     "DEMO-MTZ-2026-002": {
         **_case("DEMO-MTZ-2026-002", "438840117", "הלוואה לשיפוץ",
@@ -101,33 +101,33 @@ _CASES: dict[str, dict[str, Any]] = {
                 _loan("renovation", "שיפוץ", 80000, 60), _accounts(["BRW-C"]), submitted_at="2026-10-01T09:10:00+03:00"),
         "stage_index": 1, "banker": {"name_he": "אורי לוי", "role_he": "הבנקאי שלך", "staff_id": "STAFF-ORI"}},
     # The presenter's test-scenario cases: one applicant (the golden identity), so each scenario's result is its own.
-    "DEMO-MTZ-2026-004": _case("DEMO-MTZ-2026-004", "438839004", "תרחישי בדיקה — הלוואה לרכב",
+    "DEMO-MTZ-2026-004": _case("DEMO-MTZ-2026-004", "438839004", "הלוואה לרכב · תיק ז׳",
                                [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"])),
-    "DEMO-MTZ-2026-005": _case("DEMO-MTZ-2026-005", "438839005", "תרחישי בדיקה — תיק QA מבודד",
+    "DEMO-MTZ-2026-005": _case("DEMO-MTZ-2026-005", "438839005", "הלוואה לרכב · תיק ח׳",
                                [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"])),
     # Executive demo: one applicant per case, so each featured scenario has its own case-wide status. The presenter
     # manifest maps scenarios to these cases; nothing here says what a review of them should conclude.
-    "DEMO-MTZ-2026-006": _case("DEMO-MTZ-2026-006", "438839006", "הלוואה לרכב · הדגמה א׳",
+    "DEMO-MTZ-2026-006": _case("DEMO-MTZ-2026-006", "438839006", "הלוואה לרכב · תיק א׳",
                                [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
                                executive_demo=True),
-    "DEMO-MTZ-2026-007": _case("DEMO-MTZ-2026-007", "438839007", "הלוואה לרכב · הדגמה ב׳",
+    "DEMO-MTZ-2026-007": _case("DEMO-MTZ-2026-007", "438839007", "הלוואה לרכב · תיק ב׳",
                                [{**copy.deepcopy(_GOLDEN_SET_BORROWERS[1]), "role": "primary"}], _GOLDEN_CAR,
                                _accounts(["BRW-B"]), executive_demo=True),
-    "DEMO-MTZ-2026-008": _case("DEMO-MTZ-2026-008", "438839008", "הלוואה לרכב · הדגמה ג׳",
+    "DEMO-MTZ-2026-008": _case("DEMO-MTZ-2026-008", "438839008", "הלוואה לרכב · תיק ג׳",
                                [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
                                executive_demo=True),
     # The loan-completion journey: a full package, a wrong-month payslip, follow-up and a simulated JEEN Talk call.
-    "DEMO-MTZ-2026-009": _case("DEMO-MTZ-2026-009", "438839009", "השלמת מסמכים · הדגמה ד׳",
+    "DEMO-MTZ-2026-009": _case("DEMO-MTZ-2026-009", "438839009", "השלמת מסמכים · תיק ד׳",
                                [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
                                executive_demo=True),
     # Contact permission withheld: the policy must block every automatic contact and explain why.
-    "DEMO-MTZ-2026-010": _case("DEMO-MTZ-2026-010", "438839010", "ללא הרשאת קשר · הדגמה ה׳",
+    "DEMO-MTZ-2026-010": _case("DEMO-MTZ-2026-010", "438839010", "ללא הרשאת קשר · תיק ה׳",
                                [copy.deepcopy(_GOLDEN_SET_BORROWERS[0])], _GOLDEN_CAR, _accounts(["BRW-A"]),
                                executive_demo=True, contact={"consent_voice": False, "consent_message": False}),
     # A complete, valid package whose payslips do not support the declared income: the banker's judgment (human review).
-    "DEMO-MTZ-2026-011": _case("DEMO-MTZ-2026-011", "438839011", "פער הכנסה · הדגמה ו׳",
+    "DEMO-MTZ-2026-011": _case("DEMO-MTZ-2026-011", "438839011", "פער הכנסה · תיק ו׳",
                                [{**copy.deepcopy(_GOLDEN_SET_BORROWERS[0]), "declared_net_monthly_ils": 16500,
-                                 "declaration_note_he": "הוצהר בטופס הבקשה — כולל בונוס צפוי"}],
+                                 "declaration_note_he": "הוצהר בטופס הבקשה, כולל בונוס צפוי"}],
                                _GOLDEN_CAR, _accounts(["BRW-A"]), executive_demo=True),
 }
 
@@ -180,10 +180,10 @@ _USE_CASES: dict[str, dict[str, Any]] = {
         submitted_at="2026-10-09T15:15:00+03:00", use_case="UC-04", persona_id="PRS-FRIEDMAN",
         profile_label_he="שכיר וגם עצמאי"),
     "DEMO-MTZ-2026-105": _case(
-        "DEMO-MTZ-2026-105", "438839105", "הלוואה לשיפוץ — בקשה משותפת",
+        "DEMO-MTZ-2026-105", "438839105", "הלוואה לשיפוץ, בקשה משותפת",
         [_person("BRW-A", "רועי", "שטרן", "DEMO-ID-105", "primary", ["salaried"], 15600, employer_he="מרכז רפואי השרון"),
          _person("BRW-B", "מאיה", "שטרן", "DEMO-ID-115", "co_borrower", ["self_employed"], 13900,
-                 registration="vat_registered", business_he="סטודיו מאיה שטרן — אדריכלות")],
+                 registration="vat_registered", business_he="סטודיו מאיה שטרן, אדריכלות")],
         _loan("renovation", "שיפוץ", 150000, 84, "שיפוץ הדירה"),
         _accounts(["BRW-A", "BRW-B"], ["BRW-A", "HLD-RACHEL"]),
         submitted_at="2026-10-10T09:00:00+03:00", use_case="UC-05", persona_id="PRS-STERN", profile_label_he="שני לווים"),
@@ -199,7 +199,7 @@ _USE_CASES: dict[str, dict[str, Any]] = {
         "banker": {"name_he": "דנה כהן", "role_he": "הבנקאית המלווה", "staff_id": "STAFF-DANA"}},
 }
 _USE_CASES["DEMO-MTZ-2026-105"]["accounts"][1].update(
-    {"label_he": "חשבון עו״ש של רועי ואמו", "other_holders_he": ["רחל שטרן — בעלת חשבון, אינה לווה בבקשה"]})
+    {"label_he": "חשבון עו״ש של רועי ואמו", "other_holders_he": ["רחל שטרן, בעלת חשבון, אינה לווה בבקשה"]})
 _USE_CASES["DEMO-MTZ-2026-105"]["accounts"][0]["label_he"] = "חשבון עו״ש משותף"
 for _cid in _USE_CASES:
     _USE_CASES[_cid]["executive_demo"] = True
@@ -277,7 +277,7 @@ class MockBankAdapter:
 
     def stage_dictionary(self) -> dict[str, Any]:
         return {**SOURCE, "stages": STAGE_DICTIONARY,
-                "note_he": "מילון שלבים להדגמה בלבד — אינו רשימת שלבים מאומתת של הבנק להלוואות."}
+                "note_he": "מילון השלבים משמש לתצוגה; השלב הרשמי נקבע במערכות הבנק."}
 
     def requirements(self, case_id: str) -> list[dict[str, Any]]:
         """Requirement instances of the case, from the loan policy version pinned to it."""

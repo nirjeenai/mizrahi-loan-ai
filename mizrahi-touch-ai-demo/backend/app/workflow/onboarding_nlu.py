@@ -309,7 +309,7 @@ def is_question(text: str) -> bool:
 
 def understand(text: str, answers: dict, pending: str | None, as_statement: bool = False) -> dict[str, Any]:
     """Candidate answers and open points of one message. `answers` are the draft's cleaned answers. Values are read
-    from statements only ("למה צריך לדעת אם אני עוסק פטור?" records nothing) unless `as_statement` — a change request
+    from statements only ("למה צריך לדעת אם אני עוסק פטור?" records nothing) unless `as_statement`, a change request
     such as "אפשר לשנות את הסכום ל־100 אלף?" carries its new value inside the question."""
     norm = normalize(text)
     clauses = _clauses(norm)

@@ -116,7 +116,7 @@ def test_history_alternates_and_opens_with_the_customer():
 def test_after_upload_wording_comes_from_review_results():
     noa = doc("DOC-1", "BRW-B", filename="noa.pdf")
     valid = {"doc_type": "payslip", "period": "2026-09", "verdict": "VALID", "matched_borrower_id": "BRW-B"}
-    assert continuation._document_sentence(noa, valid, {"created_new": 1}, [], NAMES) == "התלוש של נועה לספטמבר 2026 התקבל ונבדק — נמצא תקין."
+    assert continuation._document_sentence(noa, valid, {"created_new": 1}, [], NAMES) == "התלוש של נועה לספטמבר 2026 התקבל ונבדק, נמצא תקין."
     ido = doc("DOC-2", "BRW-A", filename="ido_payslip_2026-09.pdf")
     august = {**valid, "period": "2026-08", "file_name_period": "2026-09", "matched_borrower_id": "BRW-A"}
     assert continuation._document_sentence(ido, august, {"expected_period": "2026-09"}, [], NAMES) == \

@@ -67,7 +67,7 @@ const TONE: Record<string, "ok" | "warn" | "neutral" | "bad"> = { READY_FOR_CRED
 /** A short title per recommendation state; the backend's own sentence follows it as the explanation. */
 const TITLE: Record<string, string> = {
   READY_FOR_CREDIT_REVIEW: "מומלץ להתקדם בתהליך ההלוואה",
-  PREPARATION_CONFIRMED: "הכנת התיק אושרה — אפשר להתקדם לבחינת האשראי",
+  PREPARATION_CONFIRMED: "הכנת התיק אושרה, אפשר להתקדם לבחינת האשראי",
   CLARIFICATION_REQUIRED: "נדרש בירור לפני בחינת האשראי",
   DOCUMENTS_INCOMPLETE: "נדרשת השלמת מסמכים לפני בחינת האשראי",
   NO_DOCUMENTS: "טרם התקבלו מסמכים בתיק",
@@ -97,7 +97,7 @@ function Num({ ctx, d, testId, exact }: { ctx: Ctx; d?: Datum | null; testId?: s
   const k = markOf(src);
   return (
     <button className={`cc-num k-${k}`} onClick={() => ctx.open(src)} disabled={!src} data-testid={testId || "cc-datum"}
-      data-source={d.source_id || ""} data-kind={src?.kind || "none"} title={src ? `${MARK[k].title} — לחצו להצגת המקור` : undefined}>
+      data-source={d.source_id || ""} data-kind={src?.kind || "none"} title={src ? `${MARK[k].title}, לחצו להצגת המקור` : undefined}>
       {d.unit === "months" ? <span>{fmt(d.value, d.unit, exact)}</span> : <span className="ltr">{fmt(d.value, d.unit, exact)}</span>}
     </button>
   );
@@ -168,7 +168,7 @@ function Recommendation({ ctx, go }: { ctx: Ctx; go: (id: string) => void }) {
     target: "cc-docs", testId: "cc-attn-correction" });
   for (const k of x.risks.filter((q) => q.kind === "finding")) attention.push({ text: k.title_he, target: "cc-why", testId: "cc-attn-finding" });
   for (const e of x.bank_context.events.filter((q) => q.returned_checks_12m || q.arrears_12m || q.restrictions_he.length))
-    attention.push({ text: `אירוע חשבון בהקשר הבנקאי (${e.owner_he}) — לאימות במערכות הבנק`, target: "cc-fin", testId: "cc-attn-event" });
+    attention.push({ text: `אירוע חשבון בהקשר הבנקאי (${e.owner_he}), לאימות במערכות הבנק`, target: "cc-fin", testId: "cc-attn-event" });
   return (
     <section className={`cc-rec t-${tone}`} data-testid="cc-rec" data-state={r.state}>
       <div className="cc-rec-in">
@@ -181,7 +181,7 @@ function Recommendation({ ctx, go }: { ctx: Ctx; go: (id: string) => void }) {
           {attention.map((a, i) => <li key={i} data-testid={a.testId}><span>{a.text}</span>
             <button className="cc-link" onClick={() => go(a.target)}>לפרטים</button></li>)}
         </ul>}
-        <div className="cc-rec-nb" data-testid="cc-rec-disclaimer">המלצה לבנקאי בלבד — אינה אישור אשראי</div>
+        <div className="cc-rec-nb" data-testid="cc-rec-disclaimer">המלצה לבנקאי בלבד, אינה אישור אשראי</div>
       </div>
     </section>
   );
@@ -202,7 +202,7 @@ function RecBasis({ ctx }: { ctx: Ctx }) {
   return (
     <dl className="cc-basis" data-testid="cc-rec-basis">
       <div className={docsOk ? "ok" : "warn"}><dt>דרישות מסמכים</dt>
-        <dd>{p && p.total ? (docsOk ? <><span className="ltr">{p.done}/{p.total}</span> הושלמו</> : <>{p.done} מתוך {p.total}</>) : "—"}</dd></div>
+        <dd>{p && p.total ? (docsOk ? <><span className="ltr">{p.done}/{p.total}</span> הושלמו</> : <>{p.done} מתוך {p.total}</>) : "-"}</dd></div>
       <div className={income.t}><dt>בסיס ההכנסה</dt><dd>{income.v}</dd></div>
       <div className={dsr == null ? "" : dsr > thr || a.availability !== "full" ? "warn" : "ok"}><dt>יחס החזר כולל</dt>
         <dd><Num ctx={ctx} d={a.combined_dsr} /> <span className="cc-basis-n">{a.availability === "provisional" ? "זמני" : a.availability === "partial" ? "חלקי" : `עד ${thr}%`}</span></dd></div>
@@ -216,7 +216,7 @@ function KeyFigures({ ctx }: { ctx: Ctx }) {
   const thr = x.simulation.threshold_pct;
   const rows = x.income.borrowers;
   const months = rows.reduce((n, r) => n + r.months.filter((m) => m.net_ils != null).length, 0);
-  const incomeNote = a.availability === "provisional" ? "זמני — הנתון הנמוך מבין ההצהרה לתלושים"
+  const incomeNote = a.availability === "provisional" ? "זמני, הנתון הנמוך מבין ההצהרה לתלושים"
     : rows.some((r) => r.quality === "declared") ? "כולל הכנסה מוצהרת שטרם אומתה"
       : rows.length && rows.every((r) => r.quality === "verified") ? `ממוצע ${months} תלושי שכר מאומתים` : a.status_he;
   const dsr = a.combined_dsr?.value;
@@ -253,22 +253,22 @@ function CaseDetails({ ctx }: { ctx: Ctx }) {
       {x.applicant.borrowers.map((b) => (
         <dl key={b.borrower_id} className="cc-kvs" data-testid="cc-borrower">
           <KV k="שם מלא"><b>{b.name_he}</b>{many && <span className="cc-role">{b.role_he}</span>}</KV>
-          <KV k="פרופיל">{b.profile_he || x.applicant.profile_label_he || "—"}</KV>
+          <KV k="פרופיל">{b.profile_he || x.applicant.profile_label_he || "-"}</KV>
           <KV k="מעסיק / עסק">{b.employer_document_source_id ? <SrcText ctx={ctx} id={b.employer_document_source_id} />
-            : b.employer_declared_he ? <>{b.employer_declared_he} <Tag kind="declared" /></> : "—"}</KV>
+            : b.employer_declared_he ? <>{b.employer_declared_he} <Tag kind="declared" /></> : "-"}</KV>
         </dl>
       ))}
       <div className="cc-group-k">הבקשה</div>
       <dl className="cc-kvs">
-        <KV k="סוג הלוואה">{x.loan.product_he || "—"}</KV>
-        <KV k="מטרה">{x.loan.purpose_he || "—"}</KV>
+        <KV k="סוג הלוואה">{x.loan.product_he || "-"}</KV>
+        <KV k="מטרה">{x.loan.purpose_he || "-"}</KV>
         <KV k="סכום מבוקש" testId="cc-loan-amount"><Num ctx={ctx} d={x.loan.amount} /></KV>
         <KV k="תקופה מבוקשת" testId="cc-loan-term"><Num ctx={ctx} d={x.loan.term} />{x.loan.term.value ? <span className="cc-muted"> · {years(x.loan.term.value)}</span> : null}</KV>
         {x.loan.asset && <KV k={x.loan.asset.label_he} testId="cc-asset-price"><Num ctx={ctx} d={x.loan.asset.price} /></KV>}
         {x.loan.asset?.subject_source_id && <KV k="הפריט באסמכתה"><SrcText ctx={ctx} id={x.loan.asset.subject_source_id} /></KV>}
         {x.applicant.co_borrowers.length > 0 && <KV k="לווים נוספים">{x.applicant.co_borrowers.join(", ")}</KV>}
       </dl>
-      {x.loan.note_he && <p className="cc-quote">„{x.loan.note_he}” <span className="cc-muted">— מתוך הבקשה</span></p>}
+      {x.loan.note_he && <p className="cc-quote">„{x.loan.note_he}” <span className="cc-muted">מתוך הבקשה</span></p>}
       <Toggle open={more} onClick={() => setMore(!more)} testId="cc-details-more">{more ? "פחות פרטים" : "פרטים נוספים"}</Toggle>
       {more && <dl className="cc-kvs cc-kvs-quiet" data-testid="cc-details-extra">
         <KV k="מספר תיק"><span className="ltr">{x.case.display_number}</span></KV>
@@ -297,7 +297,7 @@ function Documents({ ctx, ws, onOpen }: { ctx: Ctx; ws: Workspace; onOpen: (d: D
   const primary = !p || !p.total ? { text: d.state_he, tone: "neutral" }
     : waiting ? { text: `התקבלו ${p.done} מתוך ${p.total} דרישות · ${waiting === 1 ? "פריט אחד ממתין" : `${waiting} פריטים ממתינים`} ללקוח`, tone: "warn" }
       : p.done >= p.total ? { text: "כל המסמכים הנדרשים התקבלו ונבדקו ב-AI", tone: "ok" }
-        : { text: `${p.done} מתוך ${p.total} דרישות הושלמו · ${unmet.map((q) => `${q.title_he} — ${q.state_he}`).join(" · ")}`, tone: "warn" };
+        : { text: `${p.done} מתוך ${p.total} דרישות הושלמו · ${unmet.map((q) => `${q.title_he}, ${q.state_he}`).join(" · ")}`, tone: "warn" };
   const banker = d.open_findings ? `${d.open_findings === 1 ? "ממצא אחד" : `${d.open_findings} ממצאים`} לשיקול דעתך`
     : d.awaiting_decision ? `${d.awaiting_decision === 1 ? "מסמך אחד נבדק ב-AI וממתין" : `${d.awaiting_decision} מסמכים נבדקו ב-AI וממתינים`} לקבלה פורמלית שלך`
       : d.total && d.accepted >= d.total ? "כל המסמכים התקבלו על ידך" : null;
@@ -340,7 +340,7 @@ function DocTile({ doc, onOpen }: { doc: DocItem; onOpen: () => void }) {
     <button className={`cc-doc${doc.replaced_by ? " old" : ""}`} onClick={onOpen} data-testid="cc-doc" data-doc={doc.document_id} title={`פתיחת ${doc.filename}`}>
       <span className="cc-thumb">
         {failed ? <span className="cc-thumb-icon" data-testid="cc-thumb-fallback">{ext || "קובץ"}</span>
-          : <img src={`/api/documents/${doc.document_id}/pages/1.png?dpi=60`} alt={`עמוד ראשון — ${doc.doc_type_he}`} loading="lazy" onError={() => setFailed(true)} data-testid="cc-thumb" />}
+          : <img src={`/api/documents/${doc.document_id}/pages/1.png?dpi=60`} alt={`עמוד ראשון, ${doc.doc_type_he}`} loading="lazy" onError={() => setFailed(true)} data-testid="cc-thumb" />}
         {doc.pages > 1 && <span className="cc-thumb-pages">{doc.pages} עמ׳</span>}
       </span>
       <span className="cc-doc-meta">
@@ -442,7 +442,7 @@ function IncomeRow({ ctx, r }: { ctx: Ctx; r: Intelligence["income"]["borrowers"
     <div className="cc-block" data-testid="cc-income" data-borrower={r.borrower_id}>
       <div className="cc-block-head">
         <div>
-          <h3>הכנסה{ctx.x.income.borrowers.length > 1 ? ` — ${r.first_name_he}` : ""} <span className={`cc-q q-${r.quality}`}>{q}</span>
+          <h3>הכנסה{ctx.x.income.borrowers.length > 1 ? `, ${r.first_name_he}` : ""} <span className={`cc-q q-${r.quality}`}>{q}</span>
             {r.unresolved_discrepancy && <span className="cc-q q-gap">פער פתוח</span>}</h3>
           <div className="cc-line">
             {r.documented_avg.value != null ? <>הכנסה ממוצעת: <Num ctx={ctx} d={r.documented_avg} testId="cc-income-avg" /></>
@@ -483,7 +483,7 @@ function Obligations({ ctx }: { ctx: Ctx }) {
       <div className="cc-block-head">
         <div>
           <h3>התחייבויות ומסגרות אשראי {bc.available && <Tag kind="demo" />}</h3>
-          {!bc.available ? <div className="cc-line cc-muted">אין נתוני הקשר בנקאי עבור {bc.missing_for.join(", ") || "המבקשים"} — ההתחייבויות הקיימות לא ידועות,
+          {!bc.available ? <div className="cc-line cc-muted">אין נתוני הקשר בנקאי עבור {bc.missing_for.join(", ") || "המבקשים"}, ההתחייבויות הקיימות לא ידועות,
             והיחס הכולל כולל רק את ההלוואה המבוקשת.</div>
             : <div className="cc-line">החזרים קיימים: <Num ctx={ctx} d={a.existing_debt} testId="cc-existing" /> לחודש
               {" · "}{bc.loans.length === 1 ? "הלוואה אחת" : `${bc.loans.length} הלוואות`}
@@ -512,10 +512,10 @@ function Obligations({ ctx }: { ctx: Ctx }) {
         <ul className="cc-notes">
           <li><b>לא נספר פעמיים:</b> יתרות ומסגרות הן חשיפה (אובליגו), לא החזר חודשי. רק ההחזרים החודשיים נכנסים ליחס ההחזר.</li>
           {bc.card_spending.map((s) => <li key={s.source_id}>חיובי כרטיס ({s.owner_he}): <button className="cc-num k-demo" onClick={() => ctx.open(s.source_id)}>
-            <span className="ltr">{money(s.avg_monthly_ils)}</span></button> בממוצע לחודש — הוצאה שוטפת, אינה החזר חוב ואינה נכללת ביחס.</li>)}
+            <span className="ltr">{money(s.avg_monthly_ils)}</span></button> בממוצע לחודש, הוצאה שוטפת, אינה החזר חוב ואינה נכללת ביחס.</li>)}
           {bc.events.filter((e) => !flagged.includes(e)).map((e) => <li key={e.source_id}>אירועי חשבון ב־12 חודשים ({e.owner_he}): ללא שיקים חוזרים, פיגורים או הגבלות.</li>)}
         </ul>
-        <div className="cc-srcnote">מקור: {bc.fixture_ids.join(", ")} · נכון ל־<span className="ltr">{bc.observed_at}</span> · לא נשלפו ממערכות הבנק
+        <div className="cc-srcnote">נתוני בנק · נכון ל־<span className="ltr">{bc.observed_at}</span> · לא מאומת
           {bc.missing_for.length ? ` · חסר עבור ${bc.missing_for.join(", ")}` : ""}</div>
       </div>}
     </div>
@@ -561,14 +561,14 @@ function Alternatives({ ctx }: { ctx: Ctx }) {
   const src = (r: Scenario, what: "pay" | "dsr" | "total") => scenarioSource(s, r, what, principal, term, rate);
   return (
     <Card id="cc-alt" title="חלופות מימון" testId="cc-alternatives"
-      sub="שלוש חלופות להמחשת השפעת תקופת ההחזר על התשלום החודשי ועלות המימון. להמחשה בלבד — לא הצעה מחייבת."
+      sub="שלוש חלופות להמחשת השפעת תקופת ההחזר על התשלום החודשי ועלות המימון. להמחשה בלבד, לא הצעה מחייבת."
       aside={<>
         {changed && <button className="btn btn-soft btn-sm" onClick={reset} data-testid="cc-wi-reset">חזרה לנתוני הבקשה</button>}
         <Toggle open={whatIf} onClick={() => setWhatIf(!whatIf)} testId="cc-whatif-toggle">מה יקרה אם?</Toggle></>}>
       {x.analysis.availability !== "full" && <div className="cc-note warn" data-testid="cc-sim-provisional">
-        {x.analysis.availability === "unavailable" ? "ניתוח היחסים אינו זמין לתיק זה — מוצגים החזרים ועלויות בלבד."
-          : x.analysis.availability === "provisional" ? "החלופות מוצגות להמחשה בלבד — הניתוח הפיננסי זמני עד לבירור הפער."
-            : "החלופות מוצגות להמחשה בלבד — הניתוח הפיננסי חלקי."}</div>}
+        {x.analysis.availability === "unavailable" ? "ניתוח היחסים אינו זמין לתיק זה, מוצגים החזרים ועלויות בלבד."
+          : x.analysis.availability === "provisional" ? "החלופות מוצגות להמחשה בלבד, הניתוח הפיננסי זמני עד לבירור הפער."
+            : "החלופות מוצגות להמחשה בלבד, הניתוח הפיננסי חלקי."}</div>}
       {whatIf && <div className="cc-whatif" data-testid="cc-whatif">
         <Slider label="סכום ההלוואה" value={principal} min={10000} max={s.bounds.principal_max} step={1000} onChange={setPrincipal} display={money(principal)}
           testId="cc-wi-principal" changed={principal !== base.principal} />
@@ -577,7 +577,7 @@ function Alternatives({ ctx }: { ctx: Ctx }) {
         <Slider label="ריבית שנתית להמחשה" value={rate} min={0} max={15} step={0.1} onChange={(v) => setRate(Math.round(v * 10) / 10)} display={`${rate.toFixed(1)}%`}
           testId="cc-wi-rate" changed={rate !== base.annual_rate_pct}
           hint={<>ברירת מחדל <SrcText ctx={ctx} id={s.rate_source_id}>{base.annual_rate_pct.toFixed(1)}%</SrcText> · הנחה</>} />
-        <p className="cc-whatif-n">השינויים מחושבים מיד ואינם נשמרים — הבקשה, ההכנסה וההתחייבויות אינן משתנות.</p>
+        <p className="cc-whatif-n">השינויים מחושבים מיד ואינם נשמרים, הבקשה, ההכנסה וההתחייבויות אינן משתנות.</p>
       </div>}
       {changed && <div className="cc-simbadge" data-testid="cc-sim-active">סימולציה פעילה: {money(principal)} · {term} תשלומים · {rate.toFixed(1)}%</div>}
       <div className="cc-scs">
@@ -611,7 +611,7 @@ function Alternatives({ ctx }: { ctx: Ctx }) {
         ב־<b className="ltr">{short.term_months}</b>, אך עלות המימון גבוהה ב־<b className="ltr">{money(long.total_interest_ils - short.total_interest_ils)}</b>.
         {" "}הריבית (<SrcText ctx={ctx} id={s.rate_source_id}>{rate.toFixed(1)}%</SrcText>) והסף ליחס ההחזר (<SrcText ctx={ctx} id={s.threshold_source_id}>{thr}%</SrcText>) הם הנחות לצורך החישוב, לא תנאי הבנק.</p>}
       {x.analysis.illustrative_max_principal != null && <p className="cc-muted cc-small" data-testid="cc-max-principal">להמחשה: בהנחות אלה, סכום של עד <b className="ltr">{money(x.analysis.illustrative_max_principal)}</b> ל־{base.term_months} תשלומים
-        משאיר את היחס הכולל בתוך {thr}% — אינו סכום מאושר.</p>}
+        משאיר את היחס הכולל בתוך {thr}%, אינו סכום מאושר.</p>}
     </Card>
   );
 }

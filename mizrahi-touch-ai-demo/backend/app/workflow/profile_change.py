@@ -20,7 +20,7 @@ from . import engine, requirements
 
 INCOME = ("salaried", "self_employed")
 REGISTRATION = ("vat_exempt", "vat_registered")
-REASON_HE = "פרופיל ההכנסה עודכן — המסמך אינו נדרש עוד"
+REASON_HE = "פרופיל ההכנסה עודכן, המסמך אינו נדרש עוד"
 
 
 class ProfileError(ValueError):

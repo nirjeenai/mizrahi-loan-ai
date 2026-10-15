@@ -267,7 +267,7 @@ def test_a_customer_fix_finding_must_be_dismissed_before_the_document_can_be_acc
                           json={"action": "dismiss"}, headers=DANA)
     assert dismiss.status_code == 422                                      # a dismissal needs a reason
     dismiss = client.post(f"/api/banker/cases/{CASE}/findings/{mismatch['finding_id']}/decision",
-                          json={"action": "dismiss", "rationale": "נבדק מול ת״ז — המסמך של עידו"}, headers=DANA)
+                          json={"action": "dismiss", "rationale": "נבדק מול ת״ז, המסמך של עידו"}, headers=DANA)
     assert dismiss.status_code == 200
     case_run()
     assert not [f for f in repo.findings(CASE, "open") if f["code"] == "BORROWER_MISMATCH"]   # the ruling holds
@@ -496,7 +496,7 @@ def test_an_explanation_request_is_answered_in_the_app_and_never_closes_the_find
     assert q["status"] == "RESPONDED" and q["responded_text"] == answer
     it = finding_item()
     assert it["has_customer_statement"] and it["finding"]["statements"][0]["text"] == answer
-    assert it["recommendation"]["title_he"] == "הלקוח מסר הסבר — לא מאומת" and repo.finding(fid)["status"] == "open"
+    assert it["recommendation"]["title_he"] == "הלקוח מסר הסבר, לא מאומת" and repo.finding(fid)["status"] == "open"
     docs = [o["document_id"] for o in it["evidence_options"]]
     assert rule(fid, "resolve", reason_code="explanation_supported", rationale="ההסבר נבדק").status_code == 422   # no support
     ok = rule(fid, "resolve", reason_code="explanation_supported", evidence_document_ids=docs,

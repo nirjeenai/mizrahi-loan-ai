@@ -238,7 +238,7 @@ def demo_talk_outcome(case_id: str, body: TalkOutcome, request: Request):
     actor = _demo(request, case_id)
     attempt = orchestrator.set_talk_outcome(case_id, body.outcome, body.callback_at)
     if attempt is None:
-        raise HTTPException(409, "אין שיחה מדומה פעילה בתיק")
+        raise HTTPException(409, "אין שיחה פעילה בתיק")
     repo.audit(case_id, actor, "demo_talk_outcome", attempt["attempt_id"], {"outcome": body.outcome})
     return {**SIM, "attempt_id": attempt["attempt_id"], "status": attempt["status"], "outcome": attempt["outcome"],
             "plan_state": (orchestrator.plan(case_id) or {}).get("state")}

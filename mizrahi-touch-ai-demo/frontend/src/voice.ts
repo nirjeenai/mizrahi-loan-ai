@@ -77,7 +77,7 @@ export class BrowserVoice implements VoiceChannel {
     const server = !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
     this.sttMode = browser ? "browser" : server ? "server" : "none";
     const detail = this.sttMode === "browser" ? "זיהוי דיבור עברי של הדפדפן" :
-      this.sttMode === "server" ? "הקלטה ותמלול עברי בשרת JEEN" : "אין קלט קולי בדפדפן זה — אפשר להקליד";
+      this.sttMode === "server" ? "הקלטה ותמלול עברי בשרת JEEN" : "אין קלט קולי בדפדפן זה, אפשר להקליד";
     return { stt: this.sttMode, tts, detail: `${detail}${tts ? " · הקראה בקול עברי" : " · אין קול עברי להקראה"}` };
   }
 
@@ -101,7 +101,7 @@ export class BrowserVoice implements VoiceChannel {
     rec.onerror = (ev: any) => {
       if (ev.error === "language-not-supported" || ev.error === "network") {
         this.sttMode = "server";
-        onError("זיהוי הדיבור של הדפדפן אינו זמין — עובר לתמלול בשרת. לחצו שוב על המיקרופון.");
+        onError("זיהוי הדיבור של הדפדפן אינו זמין, עובר לתמלול בשרת. לחצו שוב על המיקרופון.");
       } else if (ev.error !== "no-speech" && ev.error !== "aborted") onError(`שגיאת מיקרופון: ${ev.error}`);
     };
     rec.onend = () => { if (finalText.trim()) onFinal(finalText.trim(), { source: "asr", engine: "browser-webspeech-he-IL", confidence }); };
@@ -126,7 +126,7 @@ export class BrowserVoice implements VoiceChannel {
           const r = await api.transcribe(await toWav(captured).catch(() => captured));
           if (r.text) onFinal(r.text, { source: "asr", engine: r.engine, latency_ms: r.latency_ms });
           else onError("לא זוהה דיבור");
-        } catch { onError("לא הצלחתי לתמלל את ההקלטה — נסו שוב או הקלידו את השאלה"); }
+        } catch { onError("לא הצלחתי לתמלל את ההקלטה, נסו שוב או הקלידו את השאלה"); }
       };
       recorder.start();
       if (stopped) recorder.stop();
@@ -157,7 +157,7 @@ export class JeenTalkVoice implements VoiceChannel {
   id = "jeen-talk" as const;
   label = "JEEN Talk";
   async capability(): Promise<VoiceCapability> {
-    return { stt: "none", tts: false, detail: "JEEN Talk אינו מחובר בסביבה זו — נדרשים כתובת, מפתח Developer API וסוכן עברי" };
+    return { stt: "none", tts: false, detail: "JEEN Talk אינו מחובר בסביבה זו, נדרשים כתובת, מפתח Developer API וסוכן עברי" };
   }
   listen(_p: (t: string) => void, _f: (t: string, m: Record<string, unknown>) => void, onError: (e: string) => void) {
     onError("JEEN Talk אינו מחובר");

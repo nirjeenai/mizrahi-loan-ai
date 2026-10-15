@@ -37,8 +37,8 @@ MANIFEST = json.loads((ROOT.parent / "fixtures" / "presenter" / "presenter_scena
 DOCS = {d["id"]: d for d in MANIFEST["documents"]}
 FEATURED = {f["outcome"]: f for f in MANIFEST["featured"]}
 PASS, REVIEW, BLOCKER = (FEATURED[k]["caseId"] for k in ("PASS", "REVIEW", "BLOCKER"))
-LABEL = {"PASS": "עבר בדיקת AI — ממתין לקבלת הבנקאי", "REVIEW": "נדרש בירור בנקאי — נמצא פער בהכנסה",
-         "BLOCKER": "המסמך אינו מתאים לדרישה — נא להעלות מסמך חלופי"}
+LABEL = {"PASS": "עבר בדיקת AI, ממתין לקבלת הבנקאי", "REVIEW": "נדרש בירור בנקאי, נמצא פער בהכנסה",
+         "BLOCKER": "המסמך אינו מתאים לדרישה, נא להעלות מסמך חלופי"}
 RESULTS: list[dict] = []
 
 
@@ -298,7 +298,7 @@ def run(page: Page, banker: Page) -> None:
     home(page)
     expect(page.locator("[data-testid=readiness-state]")).to_have_text("נמצא מסמך שדורש תיקון", timeout=15000)
     wrong = next(d for d in api.get(f"/api/cases/{BLOCKER}/documents").json() if d["filename"] == "bank_statement_Jul_Sep_2026.pdf")
-    check("BLOCKER: the bank statement is not a payslip — customer correction, 'העלאת מסמך חלופי' on the home card",
+    check("BLOCKER: the bank statement is not a payslip, customer correction, 'העלאת מסמך חלופי' on the home card",
           wrong["review"]["verdict"] == "INVALID" and s["outcomes"]["documents"][wrong["document_id"]]["outcome"] == "BLOCKER"
           and page.locator("[data-testid=card-primary]").inner_text().strip() == "העלאת מסמך חלופי")
     shot(page, "09-blocker-home")

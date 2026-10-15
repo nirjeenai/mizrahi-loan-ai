@@ -26,7 +26,7 @@ export function FollowupSimControls() {
   };
   return (
     <details className="all-scn fu-sim" data-testid="followup-sim">
-      <summary><span className="all-scn-title">סימולציית מעקב השלמה</span>
+      <summary><span className="all-scn-title">מעקב השלמה · הפעלה ידנית</span>
         <span className="small muted">על התיק שפתוח מימין</span></summary>
       <div className="fu-sim-body">
         <div className="row wrap" style={{ gap: 6 }}>

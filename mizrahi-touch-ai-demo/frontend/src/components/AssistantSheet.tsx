@@ -91,7 +91,7 @@ export function AssistantSheet() {
         <div className="chat" style={{ minHeight: 0, flex: 1 }}>
           <div className="chat-log" ref={log} data-testid="chat-log">
             {turns.length === 0 && (
-              <div className="bubble assistant">שלום! אני עוזר המסמכים של טפחות טאצ׳. אפשר לשאול אותי בכתב או בקול מה חסר בתיק, מה נמצא בבדיקת המסמכים ואיך מתקנים — ואעביר לבנקאית כל מה שדורש החלטה אנושית.</div>
+              <div className="bubble assistant">שלום! אני עוזר המסמכים של טפחות טאצ׳. אפשר לשאול אותי בכתב או בקול מה חסר בתיק, מה נמצא בבדיקת המסמכים ואיך מתקנים, ואעביר לבנקאית כל מה שדורש החלטה אנושית.</div>
             )}
             {turns.map((t) => {
               const actions = t.role === "assistant" ? t.actions ?? [] : [];

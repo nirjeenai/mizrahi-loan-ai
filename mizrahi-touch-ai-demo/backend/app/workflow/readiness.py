@@ -22,10 +22,10 @@ STATE_HE = {
     "CHECKING": "בבדיקה",
     "RECHECKING": "בבדיקה חוזרת",
     "ACTION_REQUIRED": "נדרשת השלמה מצדכם",
-    "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDINGS": "מוכן לבדיקת הבנקאי — עם ממצאים פתוחים",
+    "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDINGS": "מוכן לבדיקת הבנקאי, עם ממצאים פתוחים",
     "READY_FOR_HUMAN_REVIEW": "מוכן לבדיקת הבנקאי",
     "PREPARATION_CONFIRMED": "הבנקאי אישר את הכנת מסמכי הבקשה",
-    "ERROR": "תקלה בבדיקה — נדרש טיפול",
+    "ERROR": "תקלה בבדיקה, נדרש טיפול",
 }
 # the same states as the banker reads them; STATE_HE above speaks to the customer
 STATE_HE_BANKER = {
@@ -36,12 +36,12 @@ STATE_HE_BANKER = {
     "READY_FOR_HUMAN_REVIEW_WITH_OPEN_FINDINGS": "ממתין לבדיקתך · יש ממצאים פתוחים",
     "READY_FOR_HUMAN_REVIEW": "ממתין לבדיקתך",
     "PREPARATION_CONFIRMED": "הכנת מסמכי הבקשה אושרה",
-    "ERROR": "תקלה בעיבוד — נדרש טיפול",
+    "ERROR": "תקלה בעיבוד, נדרש טיפול",
 }
 REQ_STATE_HE = {
     "required_missing": "טרם הועלה", "needs_customer_action": "נדרשת השלמה", "needs_banker_review": "לבדיקת הבנקאי",
-    "checking": "בבדיקה", "uploaded_unreadable": "לא קריא", "extracted": "נבדק — תקין", "not_evaluated_in_demo": "לא נבדק בהדגמה",
-    "preparation_confirmed": "אושר על ידי הבנקאי (הדגמה)",
+    "checking": "בבדיקה", "uploaded_unreadable": "לא קריא", "extracted": "נבדק, תקין", "not_evaluated_in_demo": "לא נבדק אוטומטית",
+    "preparation_confirmed": "אושר על ידי הבנקאי",
     "received_pending_review": "התקבל · ממתין לבדיקת הבנקאי", "accepted_by_banker": "התקבל אצל הבנקאי",
 }
 # a requirement without a review rubric: the customer's part is done once a document is there; it is never "valid by AI"
@@ -345,7 +345,7 @@ def compute(case_id: str, ignore_job_id: str | None = None) -> dict[str, Any]:
         "inactive_requirements": [{"code": code, "family": reqs_mod.family_of(code, case_id),
                                    "family_he": reqs_mod.FAMILY_HE.get(reqs_mod.family_of(code, case_id), ""),
                                    "document_ids": [d["document_id"] for d in all_docs if d["requirement_code"] == code],
-                                   "state_he": "לא נדרש עוד — פרופיל ההכנסה עודכן"} for code in sorted(inactive)],
+                                   "state_he": "לא נדרש עוד, פרופיל ההכנסה עודכן"} for code in sorted(inactive)],
         "banker_confirmation": confirmed, "banker_confirmation_stale": stale_confirmation,
         "last_case_run_id": latest_case_run, "computed_at": now_iso(),
     }

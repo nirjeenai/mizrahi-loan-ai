@@ -12,7 +12,7 @@ function describe(e: AuditEvent, docs: DocView[], banker: string): { title: stri
   const doc = docs.find((d) => d.document_id === e.target);
   const file = iso(e.detail?.filename || doc?.filename);
   switch (e.action) {
-    case "document_uploaded": return { title: "מסמך הועלה לתיק", body: `${file} — הבדיקה החכמה התחילה.`, tone: "info" };
+    case "document_uploaded": return { title: "מסמך הועלה לתיק", body: `${file}, הבדיקה החכמה התחילה.`, tone: "info" };
     case "document_reviewed": {
       // a payslip read correctly can still be the wrong month: say which month it prints when the file name claims another
       const named = doc?.review?.file_name_period;
@@ -31,8 +31,8 @@ function describe(e: AuditEvent, docs: DocView[], banker: string): { title: stri
         return { title: `בקשה חדשה מ${banker}`, body: e.detail?.customer_message || "", tone: "action" };
       if (e.detail?.action === "ESCALATE_FINDING") return { title: "נושא בבירור נוסף", body: `${banker} ממשיך/ה לבדוק נושא בתיק. אין צורך בפעולה מצדכם כרגע.`, tone: "info" };
       return { title: `${banker} בדק/ה נושא בתיק`, body: e.detail?.action === "DISMISS_FINDING" ? "הממצא נבדק ונמצא לא רלוונטי." : "הנושא נבדק ונסגר.", tone: "ok" };
-    case "banker_request_withdrawn": return { title: "בקשה בוטלה", body: `${e.detail?.title_he || "הבקשה"} — אין צורך לפעול לגביה.`, tone: "info" };
-    case "banker_handoff_acknowledged": return { title: `${banker} קיבלה את הפנייה שלכם`, body: "הפנייה בטיפול. אם יידרש משהו מצדכם — תופיע כאן בקשה.", tone: "ok" };
+    case "banker_request_withdrawn": return { title: "בקשה בוטלה", body: `${e.detail?.title_he || "הבקשה"}, אין צורך לפעול לגביה.`, tone: "info" };
+    case "banker_handoff_acknowledged": return { title: `${banker} קיבלה את הפנייה שלכם`, body: "הפנייה בטיפול. אם יידרש משהו מצדכם, תופיע כאן בקשה.", tone: "ok" };
     case "banker_document_decision":
       if (e.detail?.action === "REQUEST_CORRECTION") return { title: `בקשה חדשה מ${banker}`, body: e.detail?.customer_message || "", tone: "action" };
       if (e.detail?.action === "ACCEPT_DOCUMENT") return { title: "מסמך התקבל לבדיקת המסמכים", body: `${file} התקבל אצל ${banker}. זה אינו אישור ההלוואה.`, tone: "ok" };
@@ -41,7 +41,7 @@ function describe(e: AuditEvent, docs: DocView[], banker: string): { title: stri
     case "customer_request_responded":
       return e.detail?.statement_id ? { title: "התשובה שלכם נשמרה", body: `ההסבר הועבר ל${banker}. הוא אינו סוגר את הבירור.`, tone: "ok" }
         : { title: "המסמך שהעליתם צורף לבקשה", body: "הוא נבדק בבדיקה החכמה ויחזור לבנקאי לעיון.", tone: "ok" };
-    case "banker_confirmed_preparation": return { title: "הבנקאית אישרה את הכנת מסמכי הבקשה", body: "זהו אישור הכנת מסמכים בלבד — לא החלטה על ההלוואה.", tone: "ok" };
+    case "banker_confirmed_preparation": return { title: "הבנקאית אישרה את הכנת מסמכי הבקשה", body: "זהו אישור הכנת מסמכים בלבד, לא החלטה על ההלוואה.", tone: "ok" };
     case "document_review_failed":
       // the worker retries a few times; only the last attempt (final) means it stopped
       return { title: "הבדיקה של מסמך נכשלה", tone: "bad", body: String(e.detail?.final) === "True" || e.detail?.final === true

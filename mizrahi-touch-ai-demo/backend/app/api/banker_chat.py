@@ -1,4 +1,4 @@
-"""Banker V3 "שאל את JEEN" — a case-aware chat beside the customer-reply draft.
+"""Banker V3 "שאל את JEEN", a case-aware chat beside the customer-reply draft.
 
 One structured Gemini call per message answers the banker's question about the selected case and/or proposes a revision
 of the CURRENT draft. The model reads only a scoped copy of the Banker Intelligence payload for this one case (facts,
@@ -46,7 +46,7 @@ DRAFT_PURPOSE = {
                "the financing-terms block and the closing DEMO notice come from the bank's code.",
 }
 
-SYSTEM = """You are JEEN, an AI colleague inside the Mizrahi-Tefahot banker workspace (a concept demo on synthetic data).
+SYSTEM = """You are JEEN, an AI colleague inside the Mizrahi-Tefahot banker workspace.
 You help ONE human banker with ONE selected loan application: you answer questions about the case and you revise the
 customer-reply draft shown next to you. The banker decides everything; you never decide credit.
 
@@ -61,9 +61,10 @@ ANSWERING QUESTIONS
 1. Use only facts in <case_data>. Never invent income, documents, account activity, approvals, policies or figures. If the
    information is not there, say it is not available in the case.
 2. Say where each fact comes from, in plain Hebrew: from a document (מסמך), declared by the customer (מוצהר, not verified),
-   calculated by the system (חישוב), synthetic demo bank data (נתוני דמו — not verified against bank systems), or a demo
-   assumption (הנחת הדגמה). "AI checked" a document is not the banker accepting it: banker acceptance is
-   documents.accepted / each document's banker_status_he.
+   calculated by the system (חישוב), bank-context data (נתוני בנק, לא מאומתים, not verified against bank systems), or an
+   assumption for the calculation (הנחה). Do not describe the case, its data or the workspace as a demo, synthetic,
+   simulated or a test (the approval letter keeps its own title and closing notice, below). "AI checked" a document is
+   not the banker accepting it: banker acceptance is documents.accepted / each document's banker_status_he.
 3. To explain a calculation, use the formula_he and inputs of its entry in `sources` with the actual values. Never
    recompute or alter the system's figures.
 4. The recommendation is a recommendation to the banker, not a credit decision. Nothing in the case is approved.
@@ -226,7 +227,7 @@ def check_revision(revised: str, current: str, intel: dict, kind: Optional[str] 
             issues.append(f"הנוסח כולל טענת אישור שאינה נכונה במצב התיק („{new_claims[0]}”). ההלוואה לא אושרה, ואין ריבית או תנאים מאושרים.")
     done = [c for c in _claims(text, _DONE) if c not in (current or "")]
     if done:
-        issues.append(f"הנוסח טוען שההלוואה הועמדה או שמסמכים נחתמו („{done[0]}”) — אלה שלבים עתידיים.")
+        issues.append(f"הנוסח טוען שההלוואה הועמדה או שמסמכים נחתמו („{done[0]}”), אלה שלבים עתידיים.")
     allowed = allowed_numbers(intel, f"{current}\n{base}")
     extra = sorted(n for n in _numbers(text) - allowed if n * 1000 not in allowed and n / 1000 not in allowed)
     if extra:
@@ -249,7 +250,7 @@ def _prompt(ctx: dict, draft: Optional[dict], intel: dict, message: str, demo: O
     if draft:
         template = next((d for d in intel.get("drafts") or [] if d["kind"] == draft["kind"]), None)
         draft_block = json.dumps({
-            "kind": draft["kind"], "title_he": (template or {}).get("title_he") or ("אישור הלוואה — הדמיה" if demo else None),
+            "kind": draft["kind"], "title_he": (template or {}).get("title_he") or ("אישור הלוואה · הדמיה" if demo else None),
             "purpose": DRAFT_PURPOSE.get(draft["kind"], ""),
             "edited_by_banker": bool(template) and draft["text"].strip() != template["message_he"].strip(),
             "other_templates_he": [d["title_he"] for d in intel.get("drafts") or [] if d["kind"] != draft["kind"]],
@@ -336,7 +337,7 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
         raise ChatUnavailable("JEEN הגיע למכסת הקריאות לשעה זו. נסו שוב מאוחר יותר.") from None
     except g.GeminiError as exc:
         log.warning("banker chat failed: %s", exc)
-        raise ChatUnavailable("JEEN לא הצליח לענות כרגע. הטיוטה לא השתנתה — אפשר לנסות שוב.") from None
+        raise ChatUnavailable("JEEN לא הצליח לענות כרגע. הטיוטה לא השתנתה, אפשר לנסות שוב.") from None
     answer = re.sub(r"[*`]+", "", out.get("answer_he") or "").strip()
     if rejected and out["intent"] != "declined":
         answer = "לא עדכנתי את הטיוטה: " + " ".join(rejected)

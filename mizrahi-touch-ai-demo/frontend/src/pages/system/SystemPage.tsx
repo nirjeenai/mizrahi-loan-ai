@@ -20,7 +20,7 @@ export function SystemPage() {
               <td><span className={`mode ${r.state.startsWith("CONNECTED") ? "LOCAL" : r.state}`}>{r.state}</span></td><td className="small ltr" style={{ textAlign: "left" }}>{r.detail}</td></tr>))}</tbody></table>
         </div>
         <div className="grid2">
-          <div className="panel"><h3>Gemini — שימוש ועלויות (ספר קריאות)</h3>
+          <div className="panel"><h3>Gemini, שימוש ועלויות (ספר קריאות)</h3>
             {m && (<><div className="grid3">
               <div className="statbox"><b>{m.llm.calls}</b><span>קריאות מודל</span></div>
               <div className="statbox"><b>{Math.round((m.llm.prompt_tokens + m.llm.output_tokens) / 1000)}K</b><span>טוקנים</span></div>
@@ -29,7 +29,7 @@ export function SystemPage() {
                 <tbody>{m.llm.by_purpose.map((b: any) => <tr key={b.purpose}><td className="ltr">{b.purpose}</td><td>{b.calls}</td><td>{Math.round(b.avg_ms)}</td></tr>)}</tbody></table>
               <div className="tiny muted" style={{ marginTop: 6 }}>תקציב: {m.llm.calls_last_hour}/{m.llm.budget_per_hour} קריאות בשעה האחרונה.</div></>)}
           </div>
-          <div className="panel"><h3>שרת MCP של תיק ההלוואה — בדיקה חיה</h3>
+          <div className="panel"><h3>שרת MCP של תיק ההלוואה, בדיקה חיה</h3>
             <div className="small muted" style={{ marginBottom: 8 }}>השרת מריץ סבב MCP אמיתי מול ‎/mcp‎ (initialize → tools/list → tools/call) עם מפתח הקשור לתיק, ומשווה לתמונת המצב של האפליקציה.</div>
             <button className="btn btn-dark" disabled={mcpBusy} data-testid="mcp-selftest" onClick={async () => { setMcpBusy(true); setMcpError(null);
               try {

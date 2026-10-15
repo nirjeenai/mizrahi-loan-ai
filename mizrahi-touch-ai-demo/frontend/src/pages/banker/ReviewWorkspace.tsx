@@ -52,7 +52,7 @@ export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnl
   };
   return (
     <div className="desk-body">
-      {stale && <div className="desk-stale" role="status">לא הצלחנו לרענן את התיק — ייתכן שהמידע אינו עדכני.</div>}
+      {stale && <div className="desk-stale" role="status">לא הצלחנו לרענן את התיק, ייתכן שהמידע אינו עדכני.</div>}
       {readOnly && <div className="desk-stale" role="status">התיק משויך ל{ws.case.banker.name_he}. אפשר לצפות בו, אבל אי אפשר לרשום בו החלטות.</div>}
       <HandoffBanner ws={ws} reload={reload} readOnly={readOnly} onToast={setToast} />
       <SummaryHeader ws={ws} onSelect={onSelect} />
@@ -136,7 +136,7 @@ function SummaryHeader({ ws, onSelect }: { ws: Workspace; onSelect: (id: string)
         <div className="sum-stat" data-testid="requirements-progress">
           <b className="ltr">{ws.progress.done}/{ws.progress.total}</b>
           <span><span className="sum-label">דרישות מסמכים הושלמו</span>
-            <span className="sum-sub">{ws.case_status === "READY_FOR_BANKER" ? "מוכן לבדיקתך — לא החלטת אשראי" : `תלושים: ${s.payslips_verified}/${s.payslips_required}`}</span></span>
+            <span className="sum-sub">{ws.case_status === "READY_FOR_BANKER" ? "מוכן לבדיקתך, לא החלטת אשראי" : `תלושים: ${s.payslips_verified}/${s.payslips_required}`}</span></span>
         </div>
       )}
       {!ws.progress?.total && <div className="sum-stat">
@@ -393,7 +393,7 @@ function DocumentEvidence({ item, focus, setFocus, onSelect, ws }: { item: DocIt
           <div>
             <div className="ev-title" data-testid="evidence-title">{item.doc_type_he} · {borrower?.name_he || item.borrower_he}</div>
             <div className="ev-meta">
-              {item.period_he || item.claimed_period ? <span>חודש מודפס: <b>{item.period_he || "—"}</b></span>
+              {item.period_he || item.claimed_period ? <span>חודש מודפס: <b>{item.period_he || "-"}</b></span>
                 : <span>סוג: <b>{item.doc_type_he}</b></span>}
               {mismatch && <span className="warn-text">הועלה עבור: <b>{item.claimed_period_he}</b></span>}
               <span className="ltr">{timeHe(item.uploaded_at)}</span>
@@ -445,8 +445,8 @@ function MissingEvidence({ item, onSelect, ws }: { item: MissingItem; onSelect: 
         <div className="ev-title" data-testid="missing-title">{item.period_he ? `לא התקבל תלוש ${item.period_he} של ${borrower?.name_he}`
           : `${item.status_he}: ${item.title_he}`}</div>
         <p className="small">{item.explanation_he}</p>
-        <p className="tiny muted">{item.period_he ? "זהו חודש נדרש שלא הועלה — אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותו."
-          : "זו דרישה ממדיניות המסמכים של הבקשה שעדיין לא מולאה — אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותה."}</p>
+        <p className="tiny muted">{item.period_he ? "זהו חודש נדרש שלא הועלה, אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותו."
+          : "זו דרישה ממדיניות המסמכים של הבקשה שעדיין לא מולאה, אין מסמך לאשר. אפשר לבקש מהלקוח להשלים אותה."}</p>
         {item.related_documents.length > 0 && (
           <div className="missing-related">
             <div className="small bold">ייתכן שקשור:</div>
@@ -476,7 +476,7 @@ function FindingEvidence({ item, focus, setFocus, ws }: { item: CaseFindingItem;
           const cells: [string, string, string?][] = [
             ["נטו מוצהר", ils(inc.declared_net_monthly_ils)],
             [inc.months_compared.length === 1 ? `נטו ${inc.documented_label_he}` : "ממוצע בתלושים", ils(inc.average_documented_net_ils)],
-            ["פער", inc.difference_ils != null ? `${ils(inc.difference_ils)} (${inc.difference_pct}%)` : "—"],
+            ["פער", inc.difference_ils != null ? `${ils(inc.difference_ils)} (${inc.difference_pct}%)` : "-"],
             ["בסיס ההשוואה", `${inc.months_compared.length}/${inc.months_required} חודשים${inc.basis === "preliminary" ? " · ראשונית" : ""}`,
               inc.basis === "preliminary" ? "warn" : ""],
             ["סף סבולת", `${inc.tolerance_pct}%`]];

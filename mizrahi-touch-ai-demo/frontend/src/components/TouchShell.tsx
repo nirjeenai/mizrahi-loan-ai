@@ -101,7 +101,7 @@ function Drawer({ caseId, onPick, onClose, onPresenter }: {
           + בקשת הלוואה חדשה</Link>
         <div className="small muted" style={{ marginTop: 14 }}>עוד</div>
         {onPresenter && <button onClick={() => { onClose(); onPresenter(); }} data-testid="drawer-presenter">תרחישים וקבצים להורדה</button>}
-        <Link to="/banker" onClick={onClose}>תצוגת בנקאי — חבילת ראיות</Link>
+        <Link to="/banker" onClick={onClose}>תצוגת בנקאי, חבילת ראיות</Link>
         <Link to="/system" onClick={onClose}>מטריצת אינטגרציות, MCP ורובריקות</Link>
         <button onClick={async () => { if (confirm("לאפס את התיק הזה ולמחוק מסמכים, ממצאים ושיחה?")) { await api.reset(caseId); reload(); onClose(); } }}>
           איפוס התיק

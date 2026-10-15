@@ -55,7 +55,7 @@ DOCUMENT TYPES (doc_type) and the fields to extract for each:
 - business_registration (תעודת עוסק מורשה, אישור עוסק פטור, אישור פתיחת תיק במע״מ): holder_name (the registered
   proprietor), holder_id, business_name, dealer_number (מספר עוסק), registration_type (as printed, e.g. "עוסק פטור"),
   issue_date.
-- pnl_statement (דוח רווח והפסד, or a periodic VAT report — דוח תקופתי למע״מ): holder_name (the business owner),
+- pnl_statement (דוח רווח והפסד, or a periodic VAT report, דוח תקופתי למע״מ): holder_name (the business owner),
   holder_id, business_name, period_from and period_to (the reporting period), issuer_name (the CPA or representative
   who prepared or signed it), issue_date.
 - application_form, other or unreadable: extract only what is clearly printed among the fields above.

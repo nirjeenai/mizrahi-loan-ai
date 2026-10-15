@@ -1,4 +1,4 @@
-"""Banker V3 third reply: "אישור הלוואה — הדמיה" — a detailed approval letter for an explicitly SIMULATED banker decision.
+"""Banker V3 third reply: "אישור הלוואה · הדמיה", a detailed approval letter for an explicitly SIMULATED banker decision.
 
 Nothing here touches the case: no status, decision, document or figure changes, and nothing is sent. The letter is
 assembled in code: the title, the header, the financing terms (the existing deterministic calculation — the model
@@ -21,7 +21,7 @@ from ..util import mask_ids
 from . import banker_chat, banker_intelligence
 
 DEMO_KIND = banker_chat.DEMO_KIND
-TITLE_HE = "הודעה בדבר אישור בקשת הלוואה — הדמיה"
+TITLE_HE = "הודעה בדבר אישור בקשת הלוואה · הדמיה"
 NOTICE_HE = ("הבהרה: מכתב זה הוכן כהדמיה בלבד, לצורך הצגת תהליך הכנת הודעה ללקוח. הוא אינו החלטת אשראי של הבנק, "
              "אינו הסכם הלוואה ואינו מחייב את הבנק או את הלקוח. אם וככל שיינתן אשראי, התנאים המחייבים יהיו אלה שייקבעו "
              "במסמכי ההלוואה שייחתמו בפועל.")
@@ -55,7 +55,7 @@ def scenario(intel: dict) -> Optional[dict]:
     return {"label_he": "בקשת ההלוואה אושרה בכפוף לתנאים (החלטה מדומה)", "basis_he": "הסכום והתקופה שהתבקשו בבקשה",
             "principal_ils": amount, "term_months": term, "years": round(term / 12, 1),
             "annual_rate_pct": sim["inputs"]["annual_rate_pct"], "rate_type_he": "קבועה",
-            "repayment_method_he": "לוח שפיצר — תשלום חודשי קבוע",
+            "repayment_method_he": "לוח שפיצר, תשלום חודשי קבוע",
             "monthly_payment_ils": a["proposed_payment"]["value"], "total_payments_ils": a["total_payments"]["value"],
             "total_interest_ils": a["total_interest"]["value"], "purpose_he": loan.get("purpose_he") or loan.get("product_he"),
             "collateral_he": "לא הוגדרו", "fees_he": "לא הוגדרו",
@@ -108,7 +108,7 @@ def assemble(intel: dict, sc: dict, s: dict, case_id: str) -> str:
     terms = [f"• סכום ההלוואה: {_money(sc['principal_ils'])}",
              f"• מטרת ההלוואה: {sc['purpose_he']}",
              f"• תקופת ההחזר: {sc['term_months']} תשלומים חודשיים ({sc['years']:g} שנים)",
-             f"• ריבית שנתית: {sc['annual_rate_pct']:.1f}% {sc['rate_type_he']} — להמחשה; הריבית בפועל תיקבע במסמכי ההלוואה",
+             f"• ריבית שנתית: {sc['annual_rate_pct']:.1f}% {sc['rate_type_he']}, להמחשה; הריבית בפועל תיקבע במסמכי ההלוואה",
              f"• שיטת ההחזר: {sc['repayment_method_he']}",
              f"• החזר חודשי משוער: {_money(sc['monthly_payment_ils'])}",
              f"• סך התשלומים המשוער: {_money(sc['total_payments_ils'])}",
@@ -186,14 +186,14 @@ def generate(case_id: str, acknowledge_open_issues: bool = False, use_ai: bool =
     intel = banker_intelligence.build(case_id)
     sc = scenario(intel)
     if not sc:
-        raise LetterRefused(422, "אין בבקשה סכום ומספר תשלומים — אי אפשר להכין מכתב אישור גם בהדמיה.")
+        raise LetterRefused(422, "אין בבקשה סכום ומספר תשלומים, אי אפשר להכין מכתב אישור.")
     issues_open = open_issues(intel)
     if not sc["case_ready"] and not acknowledge_open_issues:
         raise LetterRefused(409, "התיק אינו מוכן לבחינת אשראי. כדי להכין מכתב אישור יש לבחור בכך במפורש; "
                                  "הפריטים הפתוחים נשארים בתיק.")
     base = base_sections(intel, sc)
     base_text = assemble(intel, sc, base, case_id)
-    out = {"kind": DEMO_KIND, "title_he": "אישור הלוואה — הדמיה", "scenario": sc, "open_issues_he": issues_open,
+    out = {"kind": DEMO_KIND, "title_he": "אישור הלוואה · הדמיה", "scenario": sc, "open_issues_he": issues_open,
            "case_ready": sc["case_ready"], "check_issues_he": []}
     if not use_ai:
         return {**out, "text": base_text, "source": "base", "model": None}

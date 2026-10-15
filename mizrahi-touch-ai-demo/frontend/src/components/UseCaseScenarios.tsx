@@ -50,7 +50,7 @@ export function UseCaseScenarios() {
   return (
     <section className="uc-section" aria-labelledby="uc-heading" data-testid="use-cases">
       <h2 id="uc-heading" className="feat-heading">שישה פרופילי לקוח</h2>
-      <div className="small muted feat-sub">כל פרופיל פותח תיק מוכן עם הלקוח, מטרת ההלוואה ורשימת המסמכים — וחבילת קבצים
+      <div className="small muted feat-sub">כל פרופיל פותח תיק מוכן עם הלקוח, מטרת ההלוואה ורשימת המסמכים, וחבילת קבצים
         להורדה ולהעלאה מימין.</div>
       <div className="feat-list">
         {cases.map((u) => <UseCaseCard key={u.id} u={u} docs={docs} isOpen={open.includes(u.id)} onToggle={() => toggle(u.id)} />)}
@@ -90,7 +90,7 @@ function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<s
   const files = (u.steps || []).filter((s) => !isBanker(s)).length;
   const reset = async () => {
     setBusy(true); setMsg(null);
-    try { await api.reset(u.caseId); reload(); setMsg("התיק אופס — אין בו מסמכים."); }
+    try { await api.reset(u.caseId); reload(); setMsg("התיק אופס, אין בו מסמכים."); }
     catch (e) { setMsg(`האיפוס לא הושלם: ${(e as Error).message}`); } finally { setBusy(false); setAsking(false); }
   };
   return (
@@ -104,7 +104,7 @@ function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<s
       <div className="feat-line" data-testid="usecase-persona"><b>לקוח: </b>{u.personaHe} · {u.profileHe}</div>
       <div className="feat-line"><b>בקשה: </b>{u.loanHe} · תיק <span className="ltr">{u.caseDisplay}</span></div>
       <div className="feat-line uc-desc" title={u.demonstratesHe} data-testid="usecase-description">{u.demonstratesHe}</div>
-      {u.bankerAssisted && <div className="feat-line uc-assisted" data-testid="usecase-banker-assisted">מסלול מוגבל — דורש טיפול בנקאי; אין חיתום עסקי.</div>}
+      {u.bankerAssisted && <div className="feat-line uc-assisted" data-testid="usecase-banker-assisted">מסלול מוגבל, דורש טיפול בנקאי; אין חיתום עסקי.</div>}
       <div className="feat-expected info" data-testid="usecase-expected">
         <span className="feat-k">תוצאה צפויה</span>
         <span>{u.expectedLabelHe || `${u.requirements.length} מסמכים`}</span>
@@ -163,7 +163,7 @@ function NewCustomerCard({ p, docs, isOpen, onToggle }: { p: NewCustomerPack; do
     <article className={`feat uc uc-new${isOpen ? " open" : ""}`} data-testid="usecase-NEW-CUSTOMER">
       <div className="feat-top"><span className="feat-badge ok">מסלול 7 · לקוח חדש</span></div>
       <h3 className="feat-title">{p.titleHe}</h3>
-      <div className="feat-line"><b>לקוחה: </b>{p.personaHe} — אין לה תיק מוכן; התיק נוצר מהשאלון.</div>
+      <div className="feat-line"><b>לקוחה: </b>{p.personaHe}, אין לה תיק מוכן; התיק נוצר מהשאלון.</div>
       <div className="feat-line feat-do"><b>איך מריצים: </b>{p.instructionHe}</div>
       <div className="feat-actions">
         <Link className="btn btn-dark scn-btn" to="/customer/apply" data-testid="usecase-new-start">פתיחת השאלון מימין</Link>

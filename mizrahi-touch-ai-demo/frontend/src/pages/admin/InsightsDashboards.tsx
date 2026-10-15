@@ -6,7 +6,7 @@ import "./insightsV2.css";
 /** Which presentation of "ביצועים ותובנות" is shown: `?dash=v2`, otherwise V1. A display choice only; it never touches
  *  the loan policy's versions. */
 type Dash = "v1" | "v2";
-const DASHES: [Dash, string][] = [["v1", "V1 — מקורי"], ["v2", "V2 — חדש"]];
+const DASHES: [Dash, string][] = [["v1", "V1, מקורי"], ["v2", "V2, חדש"]];
 
 function useDash(): [Dash, (d: Dash) => void] {
   const [params, setParams] = useSearchParams();

@@ -141,8 +141,8 @@ class GeminiReviewProvider:
 
         limitations = list(judged.get("limitations_he") or [])
         if scanned:
-            limitations.insert(0, "המסמך סרוק ואין בו שכבת טקסט — כל ערך מכריע אומת בקריאה חוזרת עצמאית של אזור הערך בתמונה.")
-        limitations.append("תוצאת בדיקת מסמך בלבד — אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי.")
+            limitations.insert(0, "המסמך סרוק ואין בו שכבת טקסט, כל ערך מכריע אומת בקריאה חוזרת עצמאית של אזור הערך בתמונה.")
+        limitations.append("תוצאת בדיקת מסמך בלבד, אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי.")
         doc_type = ext.get("doc_type") or "other"
         if ext.get("legibility") == "unreadable":
             doc_type = "unreadable"
@@ -177,14 +177,14 @@ class GeminiReviewProvider:
                     ref.witness_detail = f"מודפס בשכבת הטקסט של ה־PDF ({loc['occurrences']} מופעים בעמוד)"
                 else:
                     ref.witness = "not_found"
-                    ref.witness_detail = "שכבת הטקסט של ה־PDF אינה מדפיסה ערך זה — הערך לא אומת"
+                    ref.witness_detail = "שכבת הטקסט של ה־PDF אינה מדפיסה ערך זה, הערך לא אומת"
             else:
                 if box:
                     ref.bbox, ref.page_size = ev.norm_box_to_page(box, size), size
                     if name in REREAD_FIELDS:
                         reread.append((name, page, box))
                 ref.witness = "vision_unverified"
-                ref.witness_detail = "עמוד סרוק — טרם אומת בקריאה חוזרת"
+                ref.witness_detail = "עמוד סרוק, טרם אומת בקריאה חוזרת"
             facts[name] = ExtractedFact(field=name, label_he=P.FIELD_LABELS_HE[name], value_raw=f.get("value"),
                                         value_normalized=_normalize(name, f), confidence=f.get("confidence"),
                                         evidence=ref)
@@ -286,7 +286,7 @@ class GeminiReviewProvider:
         elif id_rel == "different":
             other = borrowers.get(matched or "")
             o["PS-03"] = ("FAIL", f"מספר הזהות במסמך אינו של {assigned['name_he']}" +
-                          (f" — המסמך מזוהה עם {other['name_he']}" if other and other is not assigned else ""))
+                          (f", המסמך מזוהה עם {other['name_he']}" if other and other is not assigned else ""))
         elif name_rel == "different" and id_rel != "same":
             o["PS-03"] = ("FAIL", f"שם העובד במסמך ({val('employee_name')}) אינו {assigned['name_he']}")
         elif id_rel == "same" and name_rel in ("same", "variant"):
@@ -341,7 +341,7 @@ class GeminiReviewProvider:
         judge_specs = [c for c in rubric["criteria"] if c["method"] in ("judge", "hybrid")]
         ids = [c["id"] for c in judge_specs]
         record = {
-            "environment": "synthetic demonstration corpus — every document carries a 'מסמך דמו' watermark and a synthetic "
+            "environment": "synthetic demonstration corpus, every document carries a 'מסמך דמו' watermark and a synthetic "
                            "footer by design; that marker alone is not editing or tampering",
             "filename": req.filename,
             "classification": {"doc_type": ext.get("doc_type"), "reason": ext.get("doc_type_reason"),
@@ -393,7 +393,7 @@ class GeminiReviewProvider:
                 else:
                     outcome, text, who = "NEEDS_REVIEW", (code[1] if code else "") or "לא הוכרע", "code"
             if cid == legible_id and checks["unreadable"]:
-                outcome, text, who = "FAIL", "המסמך אינו קריא — לא ניתן לזהות את השדות המכריעים", "code+judge"
+                outcome, text, who = "FAIL", "המסמך אינו קריא, לא ניתן לזהות את השדות המכריעים", "code+judge"
             if cid == type_id and checks["unreadable"] and outcome == "FAIL":
                 outcome, text, who = "NEEDS_REVIEW", "לא ניתן לקבוע את סוג המסמך כי אינו קריא", "code+judge"
             needed = [n for n in c.get("required_fields", []) if n in rubric.get("decisive_fields", [])]

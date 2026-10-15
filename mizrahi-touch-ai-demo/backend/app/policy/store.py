@@ -61,7 +61,7 @@ def ensure_seeded() -> None:
                       " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                       (new_id("CFG"), kind, SCOPE, 1, "PUBLISHED", db.jdump(config), config.get("schema_version"),
                        stable_hash(db.jdump(config)), 1, "system:seed", now, now, now, "system:seed",
-                       "גרסת פתיחה מתוך קובץ הזרע (נתוני הדגמה)", "system:seed"))
+                       "גרסת פתיחה", "system:seed"))
 
 
 UPGRADE_REASON = "הרחבת מדיניות המסמכים מקובץ הזרע: פרופילי מסמכים (עצמאים, לווים משותפים, חברה)"

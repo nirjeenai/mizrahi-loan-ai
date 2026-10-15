@@ -1,4 +1,4 @@
-"""Presenter "תרחישי בדיקה" pane — browser checks in a real Chrome against the running backend (:8791).
+"""Presenter "תרחישי בדיקה" pane, browser checks in a real Chrome against the running backend (:8791).
 
 LEGACY (mortgage era, not yet adapted to loans): asserts the 10 golden CASE-xx scenarios and 21 golden files; --live
 spends real Gemini calls. Kept for reference and later adaptation; the loan presenter pane is covered by
@@ -492,7 +492,7 @@ def case_rows(exp: dict, act: dict, phase: str) -> list[dict]:
         e, a = exp["income_check"][key], act["income"].get(bid, {})
         avg, diff, months = a.get("average_documented_net_ils"), a.get("difference_ils"), a.get("months_compared") or []
         valid = sum(1 for d in act["documents"] if d["borrower_id"] == bid and d["doc_type"] == "payslip" and d["verdict"] == "VALID")
-        basis = f"ממוצע על {len(months)} חודשים ({', '.join(months)})" if avg is not None else f"לא חושב ממוצע — {valid} תלושים במצב VALID"
+        basis = f"ממוצע על {len(months)} חודשים ({', '.join(months)})" if avg is not None else f"לא חושב ממוצע, {valid} תלושים במצב VALID"
         if e.get("document_monthly_avg") is None:
             res = "תואם" if avg is None else "שונה"
             note = f"הגולדן דוחה ממוצע עד שהכיסוי מלא · {basis}" if avg is not None else ""
@@ -511,7 +511,7 @@ def case_rows(exp: dict, act: dict, phase: str) -> list[dict]:
     expected_codes = {APP_CODE.get(f["reason_code"], f["reason_code"]) for f in exp["expected_findings"]}
     extra = [f"{f['code']} ({f['status']} · {f['review_state']})" for f in act["findings"] if f["code"] not in expected_codes]
     if extra:
-        rows.append(row("ממצאים נוספים בפועל", "—", extra, "שונה", "לא קיימים ב-Expected"))
+        rows.append(row("ממצאים נוספים בפועל", "-", extra, "שונה", "לא קיימים ב-Expected"))
     return rows
 
 

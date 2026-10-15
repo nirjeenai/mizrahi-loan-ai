@@ -190,7 +190,7 @@ function History({ kind, rows, settings, onRollback }: {
     if (open?.id === r.version_id) return setOpen(null);
     const prev = shown.find((x) => x.number < r.number && x.status !== "DRAFT");
     const res = await adminApi.diff(r.version_id, prev?.version_id).catch(() => null);
-    if (res) setOpen({ id: r.version_id, diff: res.diff, against: res.against?.label || "—" });
+    if (res) setOpen({ id: r.version_id, diff: res.diff, against: res.against?.label || "-" });
   };
   return (
     <div className="panel" data-testid={`history-${kind}`}>
@@ -203,7 +203,7 @@ function History({ kind, rows, settings, onRollback }: {
               <td className="ltr bold">v{r.number}</td>
               <td><Chip tone={STATUS_TONE[r.status]}>{STATUS_HE[r.status]}</Chip></td>
               <td className="tiny">{actorHe(r.author, settings.caller)}<div className="muted"><span className="ltr">{timeHe(r.created_at)}</span></div></td>
-              <td className="tiny">{r.published_at ? <>{actorHe(r.published_by, settings.caller)}<div className="muted"><span className="ltr">{timeHe(r.published_at)}</span></div></> : "—"}</td>
+              <td className="tiny">{r.published_at ? <>{actorHe(r.published_by, settings.caller)}<div className="muted"><span className="ltr">{timeHe(r.published_at)}</span></div></> : "-"}</td>
               <td className="tiny adm-row-actions">
                 <button className="link small" onClick={() => compare(r)}>{open?.id === r.version_id ? "סגירה" : "השוואה"}</button>
                 {r.status === "ARCHIVED" && <button className="link small" data-testid={`rollback-${kind}-${r.number}`}

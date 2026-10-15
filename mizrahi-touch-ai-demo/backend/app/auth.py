@@ -140,7 +140,7 @@ def require_assigned_staff(request: Request, case_id: str) -> dict:
     s = require_staff(request)
     assigned = _known_case(case_id)["banker"]
     if assigned.get("staff_id") != s["staff_id"]:
-        raise HTTPException(403, f"התיק משויך ל{assigned['name_he']} — אין הרשאה לבצע בו פעולות.")
+        raise HTTPException(403, f"התיק משויך ל{assigned['name_he']}, אין הרשאה לבצע בו פעולות.")
     return s
 
 

@@ -152,7 +152,7 @@ def test_pass_valid_payslips_wait_for_the_bankers_acceptance_and_nothing_is_appr
     s = snap(ido, PASS_CASE)
     assert s["readiness"]["customer_status"] == "CHECKS_COMPLETE"
     assert not [f for f in s["findings"] if f["status"] == "open"]
-    assert s["outcomes"]["borrowers"]["BRW-A"] == {"outcome": "PASS", "label_he": "עבר בדיקת AI — ממתין לקבלת הבנקאי"}
+    assert s["outcomes"]["borrowers"]["BRW-A"] == {"outcome": "PASS", "label_he": "עבר בדיקת AI, ממתין לקבלת הבנקאי"}
     assert {s["outcomes"]["documents"][d]["outcome"] for d in docs} == {"PASS"}
     ws = workspace(PASS_CASE)
     for d in docs:                                   # the banker sees the same route the customer sees
@@ -182,7 +182,7 @@ def test_review_valid_payslips_with_an_income_gap_go_to_banker_judgment_and_a_re
     assert {e["document_id"] for e in gap[0]["evidence"]} == set(docs)
     s = snap(noa, REVIEW_CASE)
     assert s["readiness"]["customer_status"] == "BANKER_REVIEW"
-    assert s["outcomes"]["borrowers"]["BRW-B"]["label_he"] == "נדרש בירור בנקאי — נמצא פער בהכנסה"
+    assert s["outcomes"]["borrowers"]["BRW-B"]["label_he"] == "נדרש בירור בנקאי, נמצא פער בהכנסה"
     assert {s["outcomes"]["documents"][d]["outcome"] for d in docs} == {"REVIEW"}
     ws = workspace(REVIEW_CASE)
     finding = next(i for i in ws["items"] if i["kind"] == "case_finding" and i["finding"]["code"] == INCOME)

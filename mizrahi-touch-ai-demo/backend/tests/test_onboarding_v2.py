@@ -273,7 +273,7 @@ def test_the_indication_turn_can_take_one_call_and_an_approval_claim_never_passe
         _interp([("income", "salaried", "answer", True), ("net", "16000", "extra", True)],
                 reply="תודה. מישהו נוסף חותם איתך על ההלוואה?", next_field="co_borrower"),
         _interp([("co_borrower", "no", "answer", True)], reply="מצוין, ההלוואה מאושרת! הנה הסיכום.", next_field="summary"),
-        {"reply_he": "הבקשה רק על שמך. הסיכום מוכן למטה לבדיקה ולאישור — פתיחת הבקשה אינה אישור הלוואה."},
+        {"reply_he": "הבקשה רק על שמך. הסיכום מוכן למטה לבדיקה ולאישור, פתיחת הבקשה אינה אישור הלוואה."},
     ], seen)
     ch.say("אני שכירה ומרוויחה בערך 16 אלף נטו")
     assert ch.last["llm_calls"] == "1" and ch.last["indication"]["requested_amount_ils"] == 80000

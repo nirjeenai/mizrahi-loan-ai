@@ -39,7 +39,7 @@ DOC_FINDING_UNCERTAIN_TEXT = {
     "DOCUMENT_UNREADABLE": ("לא ברור אם המסמך קריא במלואו",
                             "בדיקת ה-AI לא הצליחה לקבוע אם {file} קריא ושלם. המסמך הועבר לבדיקת בנקאי."),
 }
-UNCERTAIN_FALLBACK = "{detail} — לא הוכרע בבדיקת ה-AI, הועבר לבדיקת בנקאי."
+UNCERTAIN_FALLBACK = "{detail}, לא הוכרע בבדיקת ה-AI, הועבר לבדיקת בנקאי."
 
 
 def _first(borrower: dict) -> str:
@@ -151,7 +151,7 @@ def _requirement_coverage(ctx: dict, documents: list[dict], as_of: date, finding
                     findings.append(DesiredFinding(
                         key=f"{RC.STATEMENT_PERIOD_GAP}:{code}", code=RC.STATEMENT_PERIOD_GAP, severity="blocking",
                         review_state="CUSTOMER_ACTION_REQUIRED", borrower_id=q.get("borrower_id"),
-                        title_he=f"חסרה תקופה בדפי העו״ש — {holders}",
+                        title_he=f"חסרה תקופה בדפי העו״ש, {holders}",
                         message_he=(f"דפי העו״ש שהועלו לחשבון אינם מכסים את {days} הימים האחרונים. חסרה התקופה: {listed}. "
                                     "נא להעלות דף תנועות שמכסה אותה."),
                         detail={"requirement_code": code, "family": q["family"], "gaps": entry["gaps"], "window": entry["window"]}))
@@ -259,7 +259,7 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
             findings.append(DesiredFinding(
                 key=f"REQUIRED_PERIOD_MISSING:{bid}:{m}", code="REQUIRED_PERIOD_MISSING", severity="blocking",
                 review_state="CUSTOMER_ACTION_REQUIRED", borrower_id=bid, period=m,
-                title_he=f"חסר תלוש שכר ל{det.month_label_he(m)} — {_first(b)}",
+                title_he=f"חסר תלוש שכר ל{det.month_label_he(m)}, {_first(b)}",
                 message_he=f"כדי להשלים את מסמכי השכר של {_first(b)} חסר תלוש שכר לחודש {det.month_label_he(m)}. "
                            f"החודשים הנדרשים: {', '.join(det.month_label_he(x) for x in requested)}.",
                 detail={"requested": requested, "covered": cov["distinct"]}))
@@ -272,10 +272,10 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
             findings.append(DesiredFinding(
                 key=f"DUPLICATE_PERIOD:{bid}:{m}", code="DUPLICATE_PERIOD", severity="minor" if not action else "major",
                 review_state="CUSTOMER_ACTION_REQUIRED" if action else "INFO", borrower_id=bid, period=m,
-                title_he=f"התקבלו {n} תלושים ל{det.month_label_he(m)} — {_first(b)}",
+                title_he=f"התקבלו {n} תלושים ל{det.month_label_he(m)}, {_first(b)}",
                 message_he=(f"התקבלו {n} מסמכים שמודפס בהם {det.month_label_he(m)}: {names}."
                             + (f" {'; '.join(claimed)}." if claimed else "")
-                            + (" החודש החסר עדיין נדרש." if action else " כל החודשים הנדרשים כוסו — אין צורך בפעולה.")),
+                            + (" החודש החסר עדיין נדרש." if action else " כל החודשים הנדרשים כוסו, אין צורך בפעולה.")),
                 detail={"documents": [d["document_id"] for d in dups], "copies": n},
                 evidence=[e for d in dups for e in _evidence(d, "salary_period")]))
         for d in mismatched:
@@ -287,27 +287,27 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
                 review_state="CUSTOMER_ACTION_REQUIRED", borrower_id=bid, document_id=d["document_id"],
                 period=r.get("period"), title_he=f"המסמך אינו של {_first(b)}",
                 message_he=f"המסמך {d['filename']} הועלה עבור {_first(b)}, אך {ps03['explanation_he']}. "
-                           + (f"נראה שזהו מסמך של {_first(other)} — יש לשייך אותו מחדש או להעלות את המסמך הנכון." if other
+                           + (f"נראה שזהו מסמך של {_first(other)}, יש לשייך אותו מחדש או להעלות את המסמך הנכון." if other
                               else "יש להעלות את התלוש הנכון."),
                 detail={"assigned": bid, "document_identifies": r.get("matched_borrower_id")},
                 evidence=_evidence(d, "employee_id") + _evidence(d, "employee_name")))
-        criteria.append(CriterionOutcome(criterion_id=f"IS-01:{bid}", title_he=f"כיסוי החודשים הנדרשים — {_first(b)}",
+        criteria.append(CriterionOutcome(criterion_id=f"IS-01:{bid}", title_he=f"כיסוי החודשים הנדרשים, {_first(b)}",
                                          method="deterministic", outcome="PASS" if not cov["missing"] else "FAIL",
                                          severity="blocking", reason_code="REQUIRED_PERIOD_MISSING",
                                          explanation_he=("כל החודשים מכוסים" if not cov["missing"] else
                                                          "חסרים: " + ", ".join(det.month_label_he(m) for m in cov["missing"]))))
-        criteria.append(CriterionOutcome(criterion_id=f"IS-02:{bid}", title_he=f"כפילות חודשים — {_first(b)}",
+        criteria.append(CriterionOutcome(criterion_id=f"IS-02:{bid}", title_he=f"כפילות חודשים, {_first(b)}",
                                          method="deterministic",
                                          outcome="FAIL" if cov["duplicates"] and cov["missing"] else "PASS",
                                          severity="minor", reason_code="DUPLICATE_PERIOD",
                                          explanation_he=("אין כפילות" if not cov["duplicates"] else
                                                          "כפילות ב: " + ", ".join(det.month_label_he(m) for m in cov["duplicates"]))))
-        criteria.append(CriterionOutcome(criterion_id=f"IS-03:{bid}", title_he=f"שיוך מסמכים ללווה — {_first(b)}",
+        criteria.append(CriterionOutcome(criterion_id=f"IS-03:{bid}", title_he=f"שיוך מסמכים ללווה, {_first(b)}",
                                          method="deterministic", outcome="FAIL" if mismatched else "PASS",
                                          severity="blocking", reason_code="BORROWER_MISMATCH",
                                          explanation_he=f"{len(mismatched)} מסמכים שויכו בטעות" if mismatched else "כל המסמכים שויכו נכון"))
         invalid = [d for d in counting if d["review"]["verdict"] != "VALID"]
-        criteria.append(CriterionOutcome(criterion_id=f"IS-06:{bid}", title_he=f"תקינות מסמכי השכר — {_first(b)}",
+        criteria.append(CriterionOutcome(criterion_id=f"IS-06:{bid}", title_he=f"תקינות מסמכי השכר, {_first(b)}",
                                          method="deterministic", outcome="PASS" if not invalid else "NEEDS_REVIEW",
                                          severity="major", reason_code="DOCUMENT_NOT_VALID",
                                          explanation_he=("כל התלושים נמצאו תקינים" if not invalid else
@@ -340,21 +340,21 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
         stats, s = income[bid], sem_by.get(bid)
         if "difference_pct" in stats and "self_employed" in (b.get("income_sources") or []):
             # the declaration covers salary and business income; payslips show the salary part only
-            criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים — {_first(b)}",
+            criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים, {_first(b)}",
                                              method="judge", outcome="NOT_APPLICABLE", severity="major",
                                              reason_code="DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
                                              explanation_he=(f"הכנסה משולבת: ההצהרה ({stats['declared_net_monthly_ils']:,.0f} ₪) כוללת גם "
                                                              f"הכנסה מעסק, והתלושים ({stats['average_documented_net_ils']:,.0f} ₪ בממוצע) "
-                                                             "מראים רק את השכר — אין השוואה אוטומטית; ההכנסה מהעסק מתועדת "
+                                                             "מראים רק את השכר, אין השוואה אוטומטית; ההכנסה מהעסק מתועדת "
                                                              "בשומה או באישור הרו״ח לשיקול הבנקאי."),
                                              decided_by="code"))
             continue
         if "difference_pct" not in stats:
             no_payslips = listed is not None and bid not in with_payslips
-            criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים — {_first(b)}",
+            criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים, {_first(b)}",
                                              method="judge", outcome="NOT_APPLICABLE", severity="major",
                                              reason_code="DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
-                                             explanation_he=("לא נדרשים תלושי שכר מלווה זה — ההכנסה מתועדת במסמכים אחרים "
+                                             explanation_he=("לא נדרשים תלושי שכר מלווה זה, ההכנסה מתועדת במסמכים אחרים "
                                                              "לשיקול הבנקאי" if no_payslips else "אין עדיין תלושים מאומתים להשוואה"),
                                              decided_by="code"))
             continue
@@ -376,7 +376,7 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
         explanation = (f"מוצהר {stats['declared_net_monthly_ils']:,.0f} ₪ נטו · {basis} {stats['average_documented_net_ils']:,.0f} ₪ "
                        f"({stats['difference_pct']:+.1f}%)" + (f" · השוואה ראשונית, {len(compared)} מתוך {len(requested)} חודשים" if partial else "")
                        + ". " + ((s or {}).get("explanation_he") or ""))
-        criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים — {_first(b)}",
+        criteria.append(CriterionOutcome(criterion_id=f"IS-04:{bid}", title_he=f"הכנסה מוצהרת מול תלושים, {_first(b)}",
                                          method="judge", outcome=outcome, severity="major",
                                          reason_code="DECLARED_VS_DOCUMENT_INCOME_VARIANCE", explanation_he=explanation,
                                          decided_by=who, escalation="banker",
@@ -388,7 +388,7 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
             findings.append(DesiredFinding(
                 key=f"DECLARED_VS_DOCUMENT_INCOME_VARIANCE:{bid}", code="DECLARED_VS_DOCUMENT_INCOME_VARIANCE",
                 severity="major", review_state="NEEDS_BANKER_REVIEW", borrower_id=bid,
-                title_he=f"פער בין ההכנסה המוצהרת לתלושים — {_first(b)}",
+                title_he=f"פער בין ההכנסה המוצהרת לתלושים, {_first(b)}",
                 message_he=(f"בבקשה הוצהרה הכנסה נטו של {stats['declared_net_monthly_ils']:,.0f} ₪ לחודש. "
                             + (f"השוואה ראשונית על בסיס {len(compared)} מתוך {len(requested)} החודשים הנדרשים: "
                                f"{basis} הנטו הוא {stats['average_documented_net_ils']:,.0f} ₪ ({stats['difference_pct']:+.1f}%). "
@@ -402,7 +402,7 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
         if s and s.get("identity_assessment") == "INCONSISTENT":
             findings.append(DesiredFinding(
                 key=f"IDENTITY_INCONSISTENT:{bid}", code="IDENTITY_INCONSISTENT", severity="major",
-                review_state="NEEDS_BANKER_REVIEW", borrower_id=bid, title_he=f"אי־עקביות בזהות — {_first(b)}",
+                review_state="NEEDS_BANKER_REVIEW", borrower_id=bid, title_he=f"אי־עקביות בזהות, {_first(b)}",
                 message_he=s.get("identity_explanation_he") or "נמצאה אי־עקביות בפרטי הזהות בין המסמכים.",
                 detail={"semantic": s}))
     return CaseReviewResult(run_id=req.run_id, case_id=req.case_id, identity=identity, rubric_id=rubric["rubric_id"],
@@ -410,8 +410,8 @@ def run(identity: ProviderIdentity, req: CaseReviewRequest, progress: ProgressFn
                             coverage={"requested": requested, "by_borrower": coverage, "by_requirement": requirement_coverage},
                             income=income, semantic=semantic.get("borrowers", []), criteria=criteria, findings=findings,
                             limitations_he=list(semantic.get("limitations_he") or []) + [
-                                "הדרישות נגזרות ממדיניות המסמכים שהוצמדה לתיק (נתוני הדגמה) — אינן רשימה מאומתת של הבנק.",
-                                "החודשים והתקופות הנדרשים מחושבים לפי תאריך הסימולציה ומדיניות ניתנת להגדרה."],
+                                "הדרישות נגזרות ממדיניות המסמכים שהוצמדה לתיק.",
+                                "החודשים והתקופות הנדרשים מחושבים לפי תאריך הבדיקה ומדיניות ניתנת להגדרה."],
                             usage={"semantic_cached": semantic.get("_cached", False),
                                    "semantic_source_run": semantic.get("_source_run")})
 

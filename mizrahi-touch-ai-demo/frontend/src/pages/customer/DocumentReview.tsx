@@ -110,8 +110,8 @@ export function DocumentReview() {
       <div className="card">
         <div className="card-title">מה עושים עכשיו?</div>
         <div className="small" style={{ margin: "6px 0 10px", lineHeight: 1.6 }}>
-          {!r ? "הבדיקה עדיין רצה — התוצאה תופיע כאן אוטומטית." : needsAction ? "יש פריט שמחכה לכם. אפשר להעלות מסמך מתוקן — הבדיקה תרוץ מחדש על כל סט המסמכים." :
-            r.verdict === "VALID" ? "אין צורך בפעולה מצדכם לגבי מסמך זה. הבנקאית תעבור עליו." : "המסמך הועבר לבדיקת הבנקאית. אם יידרש משהו — נעדכן."}
+          {!r ? "הבדיקה עדיין רצה, התוצאה תופיע כאן אוטומטית." : needsAction ? "יש פריט שמחכה לכם. אפשר להעלות מסמך מתוקן, הבדיקה תרוץ מחדש על כל סט המסמכים." :
+            r.verdict === "VALID" ? "אין צורך בפעולה מצדכם לגבי מסמך זה. הבנקאית תעבור עליו." : "המסמך הועבר לבדיקת הבנקאית. אם יידרש משהו, נעדכן."}
         </div>
         <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
           {needsAction && <button className="btn btn-dark" data-testid="document-replace" onClick={() => openUpload(doc.borrower_id || undefined, asked

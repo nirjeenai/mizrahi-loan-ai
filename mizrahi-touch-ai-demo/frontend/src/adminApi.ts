@@ -103,7 +103,7 @@ export const STATUS_HE: Record<string, string> = { DRAFT: "טיוטה", PUBLISHE
 
 /** "admin:STAFF-DANA" → a display name; system and test actors stay as written. */
 export function actorHe(actor: string | null | undefined, me?: { staff_id: string; name_he: string }): string {
-  if (!actor) return "—";
+  if (!actor) return "-";
   if (actor === "system:seed") return "גרסת פתיחה";
   const id = actor.includes(":") ? actor.split(":")[1] : actor;
   return me && id === me.staff_id ? me.name_he : id;

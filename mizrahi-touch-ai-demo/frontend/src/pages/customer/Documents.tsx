@@ -140,7 +140,7 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
                 data-testid={`upload-${r.code}`}><IUpload size={15} />{firstUpload ? "להעלאה" : "העלאה מחדש"}</button>
             )}
           </div>
-          <div className="dl-bank"><IClock size={13} />{human ? "בדיקת בנקאי — ללא בדיקת AI" : "ממתין לאישור הבנק"}</div>
+          <div className="dl-bank"><IClock size={13} />{human ? "בדיקת בנקאי, ללא בדיקת AI" : "ממתין לאישור הבנק"}</div>
         </div>
       )}
     </li>
@@ -319,7 +319,7 @@ export function Documents() {
                 ) : (
                   <div className="small creq-done" data-testid="request-answered">
                     העליתם את <span className="ltr">{q.responded_filename || replacement?.filename}</span>
-                    {replacement && !replacement.review ? " — בבדיקה חכמה עכשיו." : ` — נבדק וממתין לעיון של ${snap.case.banker.name_he}.`}
+                    {replacement && !replacement.review ? ", בבדיקה חכמה עכשיו." : `, נבדק וממתין לעיון של ${snap.case.banker.name_he}.`}
                   </div>
                 )}
               </div>
@@ -372,7 +372,7 @@ export function Documents() {
                     <button className="dl-head" onClick={() => setExpanded({ ...expanded, [r.code]: !isOpen })} aria-expanded={isOpen}>
                       <span className="dl-ic" aria-hidden><IDocs size={18} /></span>
                       <span className="grow dl-text">
-                        <span className="dl-name">{name ? `תלושי שכר — ${name}` : r.title_he}</span>
+                        <span className="dl-name">{name ? `תלושי שכר, ${name}` : r.title_he}</span>
                         <span className="dl-detail">{r.required ? `${r.required} החודשים האחרונים` : splitTitle(r.title_he)[1]}</span>
                       </span>
                       <span className={`dl-pill ${pill.tone}`}>{r.ai_state === "checking" && <span className="spinner" />}{pill.text}</span>
@@ -485,7 +485,7 @@ export function Documents() {
         )}
         {snap.readiness.banker_confirmation ? (
           <div className="card"><div className="card-title">הבנקאית אישרה את הכנת מסמכי הבקשה</div>
-            <div className="small muted" style={{ marginTop: 4 }}>אישור הכנת מסמכים בלבד — לא החלטה על ההלוואה.</div></div>
+            <div className="small muted" style={{ marginTop: 4 }}>אישור הכנת מסמכים בלבד, לא החלטה על ההלוואה.</div></div>
         ) : <div className="card small muted">אישורים נוספים מהבנק יופיעו כאן כשהבנק ינפיק אותם.</div>}
       </>)}
     </>

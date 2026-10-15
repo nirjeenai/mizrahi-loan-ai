@@ -107,7 +107,7 @@ def michal(page: Page, c: httpx.Client) -> None:
           and page.locator("[data-testid=cc-rec-title]").inner_text() == "מומלץ להתקדם בתהליך ההלוואה"
           and page.locator("[data-testid=cc-rec-text]").inner_text() == x["recommendation"]["headline_he"]
           == "התיק הושלם מבחינת מסמכים. על בסיס הנתונים שנאספו ניתן להתקדם לבחינת בקשת האשראי. נבחנו 3 חלופות מימון לצורך סימולציה. קביעת זכאות, סכום ותנאים מחייבת אימות נוסף והחלטת הבנק."
-          and page.locator("[data-testid=cc-rec-disclaimer]").inner_text() == "המלצה לבנקאי בלבד — אינה אישור אשראי"
+          and page.locator("[data-testid=cc-rec-disclaimer]").inner_text() == "המלצה לבנקאי בלבד, אינה אישור אשראי"
           and "ההלוואה אושרה" not in rec.inner_text() and page.locator("[data-testid=cc-attention]").count() == 0)
     box, why_box = rec.bounding_box(), page.locator("[data-testid=cc-reasoning]").bounding_box()
     inner = page.locator("[data-testid=cc-rec] .cc-rec-in").bounding_box()
@@ -168,8 +168,8 @@ def michal(page: Page, c: httpx.Client) -> None:
     page.locator("[data-testid=cc-payslips-toggle]").click()
     page.locator("[data-testid=cc-obligations-toggle]").click()
     obl = page.locator("[data-testid=cc-obligations-detail]").inner_text()
-    check("financial: three payslip months on demand; obligations detail names the synthetic fixture and its date",
-          page.locator("[data-testid=cc-income-month]").count() == 3 and "BFC-DEMO-BARAK-01" in obl and "2026-10-11" in obl and "לא נספר פעמיים" in obl)
+    check("financial: three payslip months on demand; obligations detail dates the bank context without fixture ids",
+          page.locator("[data-testid=cc-income-month]").count() == 3 and "DEMO" not in obl and "2026-10-11" in obl and "לא נספר פעמיים" in obl)
     shot_section(page, "cc-financial", "05-v3-financial-analysis.png")
     page.locator("[data-testid=cc-income-month][data-period='2026-07']").click()
     drawer = page.locator("[data-testid=bi-drawer]")
@@ -183,8 +183,8 @@ def michal(page: Page, c: httpx.Client) -> None:
     drawer.locator("[data-testid=bi-drawer-input]").nth(1).click()
     drawer.locator("[data-testid=bi-drawer-input]").first.click()
     expect(drawer).to_have_attribute("data-kind", "synthetic_bank")
-    check("evidence: the combined ratio explains its formula and leads down to the synthetic loan record",
-          "BFC-DEMO-BARAK-01" in drawer.inner_text())
+    check("evidence: the combined ratio explains its formula and leads down to the bank-context loan record",
+          "2026-10-11" in drawer.inner_text() and "DEMO" not in drawer.inner_text())
     page.locator("[data-testid=bi-drawer-close]").click()
     # scenarios and What-if
     want = norm(expected(s["inputs"]["principal"], s["inputs"]["term_months"], s["inputs"]["annual_rate_pct"], s))

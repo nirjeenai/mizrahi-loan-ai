@@ -183,7 +183,7 @@ export function NewDemoButton() {
         } catch (e) {
           const msg = (e as Error).message || "";
           if (!(e instanceof AccessError) && msg.includes("האיפוס יתבצע") && Date.now() - started < 60000) {
-            setNote({ tone: "warn", text: "בדיקת מסמך עדיין רצה באחד התיקים — ממתינים לסיומה ומאפסים מיד אחריה…" });
+            setNote({ tone: "warn", text: "בדיקת מסמך עדיין רצה באחד התיקים, ממתינים לסיומה ומאפסים מיד אחריה…" });
             await new Promise((r) => window.setTimeout(r, 3000));
             continue;
           }

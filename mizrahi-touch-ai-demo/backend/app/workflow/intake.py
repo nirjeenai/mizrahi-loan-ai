@@ -56,7 +56,7 @@ def create(app: Application) -> str:
         raise IntakeRefused("מטרת ההלוואה אינה אחת מהמטרות של המסלול")
     count = (db.one("SELECT COUNT(*) AS n FROM demo_applications") or {"n": 0})["n"]
     if count >= 200:
-        raise IntakeRefused("הגעתם למספר המרבי של בקשות הדגמה בסביבה זו")
+        raise IntakeRefused("הגעתם למספר המרבי של בקשות פתוחות")
     case_id = f"DEMO-LN-{count + 1:04d}-{secrets.token_hex(2).upper()}"
     borrower = {"borrower_id": "BRW-A", "name_he": f"{app.first_name_he} {app.last_name_he}", "first_name_he": app.first_name_he,
                 "national_id": f"DEMO-ID-{500 + count:03d}", "employment": app.employment, "role": "primary",

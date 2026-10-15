@@ -83,12 +83,12 @@ const markKey = (s: PresenterScenario, docId?: string) => (docId ? `${s.id}/${do
 function prerequisite(s: PresenterScenario): { chip: string; text: string; resettable: boolean } {
   if (s.dependsOn) {
     const n = scenarioNumber(s.dependsOn);
-    return { chip: `אחרי ${n}`, text: `ממשיכים מתרחיש ${n} באותו תיק — בלי איפוס.`, resettable: false };
+    return { chip: `אחרי ${n}`, text: `ממשיכים מתרחיש ${n} באותו תיק, בלי איפוס.`, resettable: false };
   }
   if (s.state === "isolated_qa_case") {
-    return { chip: "QA מבודד", text: "תיק QA מבודד — מאפסים אותו לפני התרחיש, כדי לא לזהם את תיק ההצגה.", resettable: true };
+    return { chip: "QA מבודד", text: "תיק QA מבודד, מאפסים אותו לפני התרחיש, כדי לא לזהם את תיק ההצגה.", resettable: true };
   }
-  return { chip: "תיק נקי", text: "מתחילים מתיק נקי — מאפסים את תיק התרחישים לפני ההעלאה הראשונה.", resettable: true };
+  return { chip: "תיק נקי", text: "מתחילים מתיק נקי, מאפסים את תיק התרחישים לפני ההעלאה הראשונה.", resettable: true };
 }
 
 function negativeCodes(ctx: Ctx, docId: string) {
@@ -188,7 +188,7 @@ export function ScenarioPresenter() {
           <section className={`scn${open.includes(SUPPLEMENTARY) ? " open" : ""}`} data-testid="scn-supplementary">
             <button type="button" className="scn-head" aria-expanded={open.includes(SUPPLEMENTARY)} onClick={() => flip(SUPPLEMENTARY)}>
               <span className="grow">
-                <span className="scn-title">קבצים משלימים — מחוץ לתרחישים</span>
+                <span className="scn-title">קבצים משלימים, מחוץ לתרחישים</span>
                 <span className="scn-meta"><span>{extras.length} קבצים לרפרנס</span></span>
               </span>
               <span className="scn-chev"><IChevronDown /></span>
@@ -225,7 +225,7 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
           <span className="scn-meta">
             <span data-testid={`scn-count-${s.id}`}><span className="ltr">{uploaded}/{s.files.length}</span> מסמכים בתרחיש</span>
             <span className="scn-chip">{pre.chip}</span>
-            {s.verification === "live" && <span className="scn-chip warn" title="אין הקלטת REPLAY לקבצים — התוצאה נבדקת בהרצה חיה בלבד">LIVE בלבד</span>}
+            {s.verification === "live" && <span className="scn-chip warn" title="אין הקלטת REPLAY לקבצים, התוצאה נבדקת בהרצה חיה בלבד">LIVE בלבד</span>}
             {flagged && <span className="scn-chip warn"><IAlert size={11} />לבדיקה</span>}
           </span>
         </span>
@@ -261,7 +261,7 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
                   try {
                     await api.reset(target);
                     if (caseId === target) reload();
-                    setResetNote(`תיק ${caseInfo?.display_number ?? target} אופס — אפשר להתחיל להעלות.`);
+                    setResetNote(`תיק ${caseInfo?.display_number ?? target} אופס, אפשר להתחיל להעלות.`);
                   } catch (e) {
                     setResetNote(`האיפוס נכשל: ${(e as Error).message}`);
                   }
@@ -278,7 +278,7 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
               <summary>פרטים טכניים · קודי ממצא וסטטוסים</summary>
               <div className="scn-label">קודי ממצא צפויים</div>
               {links.length ? <div className="scn-codes">{links.map((l) => <CodeLine key={l.code} link={l} />)}</div>
-                : <div className="tiny muted">ללא קוד ממצא צפוי — ההצלחה נמדדת בחילוץ מאומת של עובדות המסמך.</div>}
+                : <div className="tiny muted">ללא קוד ממצא צפוי, ההצלחה נמדדת בחילוץ מאומת של עובדות המסמך.</div>}
               {exp && <StatusLines exp={exp} />}
             </details>
             <Checks markId={markKey(s)} ctx={ctx} label="סימון מגיש לתוצאת התיק" />
@@ -322,7 +322,7 @@ function FileCard({ doc, item, index, scenario, ctx }: {
       <div className="scn-upload">
         {scenario ? (
           <><span className="scn-k">להעלאה מימין:</span> {item?.slotHe ?? doc.slotHe}{item?.period ? ` · חודש ${monthHe(item.period)}` : ""}</>
-        ) : <span className="tiny muted">קובץ רפרנס — אינו חלק מתרחיש.{doc.casesHe ? ` ${doc.casesHe} · ${doc.slotHe}` : ""}</span>}
+        ) : <span className="tiny muted">קובץ רפרנס, אינו חלק מתרחיש.{doc.casesHe ? ` ${doc.casesHe} · ${doc.slotHe}` : ""}</span>}
       </div>
       <div className="scn-filename">
         <span className="ltr">{name}</span>
@@ -353,7 +353,7 @@ function FileCard({ doc, item, index, scenario, ctx }: {
         </div>
       </div>
       </details>
-      {scenario && <Checks markId={markKey(scenario, doc.id)} ctx={ctx} label={`סימון מגיש — ${doc.displayNameHe}`} />}
+      {scenario && <Checks markId={markKey(scenario, doc.id)} ctx={ctx} label={`סימון מגיש, ${doc.displayNameHe}`} />}
     </article>
   );
 }
@@ -375,7 +375,7 @@ function StatusLines({ exp }: { exp: any }) {
   return (
     <div className="scn-status">
       <div>מסמכי הבקשה: {value(exp.salary_documents_readiness)}</div>
-      <div>החלטת בנק: <b>{exp.bank_decision ? String(exp.bank_decision) : "אין — רק הבנקאי מחליט"}</b></div>
+      <div>החלטת בנק: <b>{exp.bank_decision ? String(exp.bank_decision) : "אין, רק הבנקאי מחליט"}</b></div>
       {exp.bank_stage && (
         <div>שלב בבנק: <code className="ltr">{exp.bank_stage.value}</code> · <code className="ltr">{exp.bank_stage.source}</code>
           {exp.bank_stage.official_approval_created === false ? " · לא נוצר אישור רשמי" : ""}</div>
@@ -421,7 +421,7 @@ function TechDetails({ s, ctx, links }: { s: PresenterScenario; ctx: Ctx; links:
               <code className="ltr">{d.downloadPath}</code>
               <div>SHA-256 <code className="ltr" title={d.sha256}>{d.sha256.slice(0, 16)}…</code>
                 {f?.sha256_matches_manifest ? " · תואם למניפסט (נבדק בשרת)" : " · לא תואם למניפסט"}</div>
-              <div>{f?.pages ?? "—"} עמ׳ · {f?.input_mode === "image_only" ? "סרוק ללא שכבת טקסט" : "PDF דיגיטלי"}</div>
+              <div>{f?.pages ?? "-"} עמ׳ · {f?.input_mode === "image_only" ? "סרוק ללא שכבת טקסט" : "PDF דיגיטלי"}</div>
               {d.expectedRequiredFollowup && <div dir="ltr">Follow-up: {d.expectedRequiredFollowup}</div>}
             </div>
           );

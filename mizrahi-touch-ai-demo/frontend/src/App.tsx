@@ -35,7 +35,7 @@ function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObje
       <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
         <img src="/brand/jeen-logo.png" alt="Jeen" /></div>
       <h1>טפחות טאצ׳ × JEEN</h1>
-      <p className="small hub-lead">השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה — הבנקאית מחליטה.</p>
+      <p className="small hub-lead">השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה, הבנקאית מחליטה.</p>
       <div className="hub-bar">
         <NewDemoButton />
         <div className="hub-bar-links">
@@ -45,7 +45,7 @@ function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObje
       </div>
       <UseCaseScenarios />
       <Link className="btn btn-ghost hub-apply" to="/customer/apply" data-testid="presenter-new-application">
-        + בקשת הלוואה חדשה — שאלון לקוח חדש</Link>
+        + בקשת הלוואה חדשה, שאלון לקוח חדש</Link>
       <FollowupSimControls />
       <details className="all-scn more-tests" data-testid="more-tests">
         <summary data-testid="more-tests-toggle">

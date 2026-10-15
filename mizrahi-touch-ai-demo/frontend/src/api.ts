@@ -588,11 +588,11 @@ export function usePolling<T>(loader: () => Promise<T>, deps: unknown[], busy: (
 }
 
 export const ils = (n?: number | null) =>
-  n === null || n === undefined ? "—" : `₪${Number(n).toLocaleString("he-IL", { maximumFractionDigits: 2 })}`;
+  n === null || n === undefined ? "-" : `₪${Number(n).toLocaleString("he-IL", { maximumFractionDigits: 2 })}`;
 
 const MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
 export const monthHe = (ym?: string | null) => {
-  if (!ym) return "—";
+  if (!ym) return "-";
   const [y, m] = ym.split("-");
   return `${MONTHS[Number(m) - 1]} ${y}`;
 };
@@ -601,7 +601,7 @@ export const timeHe = (iso?: string | null) => {
   const d = new Date(iso);
   return `${d.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "2-digit" })} | ${d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}`;
 };
-export const VERDICT_HE: Record<string, string> = { VALID: "נמצא תקין", INVALID: "לא תקין — נדרש תיקון", NEEDS_REVIEW: "דורש בדיקה" };
+export const VERDICT_HE: Record<string, string> = { VALID: "נמצא תקין", INVALID: "לא תקין, נדרש תיקון", NEEDS_REVIEW: "דורש בדיקה" };
 /** The customer's badge for a reviewed file: a document the AI review sends back to the customer reads as one to fix,
  *  also when the reviewer's verdict is NEEDS_REVIEW (unreadable, out of date) — the same thing its page and row say. */
 export function customerVerdict(verdict: string, outcome?: RoutedOutcome): { cls: string; text: string } {

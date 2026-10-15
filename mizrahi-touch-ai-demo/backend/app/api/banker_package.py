@@ -13,8 +13,7 @@ from ..workflow import desk_state, outcomes, readiness, review_desk
 from ..workflow.engine import BANKER_RULINGS, COVERAGE_CODES
 
 DISCLAIMERS_HE = ["אינו החלטת אשראי ואינו קבלת מסמכים על ידי הבנק.",
-                  "״מוכן לבדיקת בנקאי״ פירושו שדרישות המסמכים התקיימו — לא זכאות, לא ריבית ולא אישור הלוואה.",
-                  "נתונים סינתטיים להדגמה בלבד."]
+                  "״מוכן לבדיקת בנקאי״ פירושו שדרישות המסמכים התקיימו, לא זכאות, לא ריבית ולא אישור הלוואה."]
 
 
 def build_package(case_id: str) -> dict[str, Any]:
@@ -44,7 +43,7 @@ def build_package(case_id: str) -> dict[str, Any]:
     return {
         "case_id": case_id, "generated_at": now_iso(), "status": "DRAFT_FOR_BANKER_REVIEW",
         "bank_stage": case["bank_stage"], "preliminary_decision": case.get("preliminary_decision"),
-        "scope_he": "מסמכי בקשת ההלוואה — לפי מדיניות המסמכים שהוצמדה לתיק",
+        "scope_he": "מסמכי בקשת ההלוואה, לפי מדיניות המסמכים שהוצמדה לתיק",
         "borrowers": [{"borrower_id": b["borrower_id"], "name_he": b["name_he"],
                        "declared_net_monthly_ils": b["declared_net_monthly_ils"], "declaration_note_he": b["declaration_note_he"],
                        "declared_income_provenance": b["declared_income_provenance"]}
@@ -76,7 +75,7 @@ GROUPS = [
     ("judgment", "פערים לשיקול דעתך", "ממצאים ברמת התיק שה-AI לא סוגר בעצמו"),
     ("escalated", "בבירור", "מסמכים שהעברת לבירור נוסף"),
     ("correction", "תיקון אצל הלקוח", "מסמכים שהוחזרו לתיקון או שבדיקת ה-AI מצאה בהם בעיה שהלקוח צריך לתקן"),
-    ("missing", "מסמכים חסרים", "חודשים נדרשים שהלקוח טרם העלה — אינם מסמכים שממתינים לאישור"),
+    ("missing", "מסמכים חסרים", "חודשים נדרשים שהלקוח טרם העלה, אינם מסמכים שממתינים לאישור"),
     ("processing", "בעיבוד", "מסמכים שה-AI עדיין קורא, או שעיבודם נכשל"),
     ("done", "טופלו", "מסמכים שקיבלת או שהוחלפו, וממצאים שהכרעת בהם"),
 ]
@@ -89,10 +88,10 @@ ALLOWED = {"AWAITING_DECISION": ["accept", "request_correction", "escalate"],
 VERDICT_HE = {"VALID": "תקין", "NEEDS_REVIEW": "דורש בדיקה", "INVALID": "לא תקין"}
 VERDICT_TONE = {"VALID": "ok", "NEEDS_REVIEW": "warn", "INVALID": "bad"}
 REVIEW_STATE_HE = {"CUSTOMER_ACTION_REQUIRED": "דורש פעולה מהלקוח", "NEEDS_BANKER_REVIEW": "לשיקול דעתך", "INFO": "לידיעה"}
-RESOLUTION_HE = {"resolved_by_new_evidence": "נסגר — ראיה חדשה", "accepted_by_banker": "נסגר — התקבל על ידי הבנקאי",
+RESOLUTION_HE = {"resolved_by_new_evidence": "נסגר, ראיה חדשה", "accepted_by_banker": "נסגר, התקבל על ידי הבנקאי",
                  "resolved_by_banker": "הבירור נסגר על ידי הבנקאי לאחר בדיקה",
-                 "dismissed_by_banker": "סומן כשגוי על ידי הבנקאי", "correction_requested_by_banker": "נסגר — המסמך הוחזר לתיקון",
-                 "replaced_by_customer_upload": "נסגר — הוחלף במסמך חדש"}
+                 "dismissed_by_banker": "סומן כשגוי על ידי הבנקאי", "correction_requested_by_banker": "נסגר, המסמך הוחזר לתיקון",
+                 "replaced_by_customer_upload": "נסגר, הוחלף במסמך חדש"}
 REQUEST_STATUS_HE = {"OPEN": "ממתין ללקוח", "RESPONDED": "הלקוח העלה מסמך"}
 MAIN_FACTS = ["employee_name", "employee_id", "employer_name", "salary_period", "payment_date", "gross_pay", "total_deductions", "net_pay"]
 VERIFIED = ("text_layer_exact", "vision_reread_confirmed")
@@ -172,7 +171,7 @@ def _doc_item(case: dict, d: dict, review: Optional[dict], st: dict, findings: l
     allowed = list(ALLOWED.get(status, []))
     blocked = None
     if status == "AWAITING_CUSTOMER_FIX":
-        blocked = "בבדיקת ה-AI נמצא ממצא שמחייב תיקון מצד הלקוח. אם הממצא שגוי — סמנו אותו כשגוי, ואז אפשר לקבל את המסמך."
+        blocked = "בבדיקת ה-AI נמצא ממצא שמחייב תיקון מצד הלקוח. אם הממצא שגוי, סמנו אותו כשגוי, ואז אפשר לקבל את המסמך."
     identity = (review or {}).get("identity") or {}
     return {
         "id": f"doc:{did}", "kind": "document", "group": GROUP_BY_STATUS[status],
@@ -187,7 +186,7 @@ def _doc_item(case: dict, d: dict, review: Optional[dict], st: dict, findings: l
         "uploaded_at": d["uploaded_at"], "is_scanned": bool((review or {}).get("is_scanned")),
         "title_he": f"{(review or {}).get('doc_type_he') or 'מסמך'} · {first}" + (f" · {det.month_label_he(printed)}" if printed else ""),
         "ai": {"status": d["status"], "stage": d["stage"], "verdict": (review or {}).get("verdict"),
-               "verdict_he": VERDICT_HE.get((review or {}).get("verdict") or "", "בעיבוד" if status == "PROCESSING" else "—"),
+               "verdict_he": VERDICT_HE.get((review or {}).get("verdict") or "", "בעיבוד" if status == "PROCESSING" else "-"),
                "tone": VERDICT_TONE.get((review or {}).get("verdict") or "", "neutral"),
                "attention_he": attention, "summary_he": (review or {}).get("summary_he") or "",
                "facts": [{**f, "verified": (f.get("evidence") or {}).get("witness") in VERIFIED} for f in facts],
@@ -247,10 +246,10 @@ def _income_block(bid: str, latest_case: dict, required: list[str], open_f: list
                        + f"ההשוואה המלאה תתאפשר אחרי {_month_list_he(missing)}.")
             tone = "warn" if outcome != "PASS" else "neutral"
         elif outcome == "PASS":
-            summary, tone = f"{gap} — בתוך סף הסבולת של {tolerance:g}%. לידיעה בלבד; לא נפתח ממצא.", "ok"
+            summary, tone = f"{gap}, בתוך סף הסבולת של {tolerance:g}%. לידיעה בלבד; לא נפתח ממצא.", "ok"
         else:
-            summary = gap + (f" — בתוך סף {tolerance:g}%, אך ההגדרות אינן ניתנות להשוואה ודורשות שיקול דעת." if not over
-                             else f" — מעל סף הסבולת של {tolerance:g}%. הועבר לשיקול דעתך.")
+            summary = gap + (f", בתוך סף {tolerance:g}%, אך ההגדרות אינן ניתנות להשוואה ודורשות שיקול דעת." if not over
+                             else f", מעל סף הסבולת של {tolerance:g}%. הועבר לשיקול דעתך.")
             tone = "warn"
     return {"declared_net_monthly_ils": inc.get("declared_net_monthly_ils"), "average_documented_net_ils": inc.get("average_documented_net_ils"),
             "difference_ils": diff, "difference_pct": pct, "months_compared": months, "months_compared_he": _month_list_he(months),
@@ -308,7 +307,7 @@ def _case_finding_item(case: dict, f: dict, state: dict, requests: list[dict], d
         rec = {"action": "request_explanation", "title_he": "אין הסבר מהלקוח",
                "body_he": "אפשר לבקש הסבר ואסמכתה, או לסגור את הבירור על סמך המסמכים שבתיק עם נימוק."}
     else:
-        rec = {"action": "resolve", "title_he": "הלקוח מסר הסבר — לא מאומת",
+        rec = {"action": "resolve", "title_he": "הלקוח מסר הסבר, לא מאומת",
                "body_he": "הסבר לבדו אינו מספיק לסגירה. בדקו אם מסמך בתיק תומך בו, בקשו אסמכתה, או הכריעו בהחלטה מקצועית מנומקת."}
     options = []
     for d in docs:
@@ -318,7 +317,7 @@ def _case_finding_item(case: dict, f: dict, state: dict, requests: list[dict], d
         net = next((x for x in (r or {}).get("facts", []) if x["field"] == "net_pay"), None)
         options.append({"document_id": d["document_id"], "filename": d["filename"],
                         "period_he": det.month_label_he(r["period"]) if r and r.get("period") else None,
-                        "net": (net or {}).get("value_raw"), "verdict_he": VERDICT_HE.get((r or {}).get("verdict") or "", "—")})
+                        "net": (net or {}).get("value_raw"), "verdict_he": VERDICT_HE.get((r or {}).get("verdict") or "", "-")})
     open_requests = [q for q in requests if q["status"] == "OPEN"]
     other_requests = [q for q in open_requests if q["finding_id"] != fid]
     banker_now = state["counts"]["banker_items"]
@@ -571,8 +570,8 @@ def build_workspace(case_id: str, light: bool = False) -> dict[str, Any]:
                                 "policy_version": r.get("policy_version"), "intake": r.get("intake"),
                                 "owner_he": r.get("owner_he")}
                                for r in state["requirements"]] + [
-            {"code": r["code"], "title_he": f"{r['family_he']} — לא נדרש עוד", "family": r["family"], "family_he": r["family_he"],
-             "ai_state": "inactive", "ai_state_he": r["state_he"], "borrower_he": None, "satisfied": False, "units": "—",
+            {"code": r["code"], "title_he": f"{r['family_he']}, לא נדרש עוד", "family": r["family"], "family_he": r["family_he"],
+             "ai_state": "inactive", "ai_state_he": r["state_he"], "borrower_he": None, "satisfied": False, "units": "-",
              "policy_version": None, "intake": None, "owner_he": None, "inactive": True,
              "document_ids": r["document_ids"]} for r in state.get("inactive_requirements") or []],
         "document_profile": case.get("document_profile"), "profile_changed_at": case.get("profile_changed_at"),

@@ -127,7 +127,7 @@ def sync(case_id: str, actor: str = "followup") -> dict[str, list[str]]:
             status = "RESOLVED" if doc else "CANCELED"
             stored = doc and docs[doc]["status"] == "stored"
             _set(c, task, status, actor, now, document_id=doc,
-                 note=("המסמך התקבל — ממתין לבדיקת הבנקאי" if stored else "מסמך חדש עבר בדיקה") if doc
+                 note=("המסמך התקבל, ממתין לבדיקת הבנקאי" if stored else "מסמך חדש עבר בדיקה") if doc
                  else "הדרישה נסגרה ללא מסמך חדש")
             if doc:
                 events.emit("completion.resolved.v1", case_id, actor, {"task_id": task["task_id"],

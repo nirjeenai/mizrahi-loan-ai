@@ -108,7 +108,7 @@ def _document_sentence(d: dict, review: Optional[dict], intent: dict, found: lis
     if banker:
         return lead + f"{subject} התקבל ונבדק, והועבר לבדיקת הבנקאית: {banker[0]['title_he']}."
     if review.get("verdict") == "VALID":
-        return lead + f"{subject} התקבל ונבדק — נמצא תקין."
+        return lead + f"{subject} התקבל ונבדק, נמצא תקין."
     if review.get("verdict") == "NEEDS_REVIEW":
         return lead + f"{subject} התקבל ונבדק, ודורש בדיקה נוספת."
     return lead + f"{subject} התקבל ונבדק ונמצא לא תקין."
@@ -123,7 +123,7 @@ def _remaining_sentence(state: dict, names: dict, open_f: list[dict]) -> str:
         name, months = gaps[0]
         return f"נותר להעלות את תלוש {det.month_label_he(months[0])} של {name}."
     if gaps or others:
-        return "נותרו להעלות: " + "; ".join([f"תלושים של {name} — {actions.months_he(months)}" for name, months in gaps]
+        return "נותרו להעלות: " + "; ".join([f"תלושים של {name}, {actions.months_he(months)}" for name, months in gaps]
                                             + others) + "."
     customer = [f for f in open_f if f["review_state"] == "CUSTOMER_ACTION_REQUIRED"]
     if customer:

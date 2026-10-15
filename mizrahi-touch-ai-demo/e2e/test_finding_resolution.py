@@ -150,7 +150,7 @@ def main() -> int:
         page.locator("[data-testid=resolve-review]").click()
         confirm = page.locator("[data-testid=resolve-confirm]").inner_text()
         check("resolve · confirmation lists finding, basis, evidence, reason, impact and customer view",
-              all(x in confirm for x in ("פער בין ההכנסה המוצהרת", "החלטה מקצועית", "ללא — החלטה מקצועית", "חלקי — 1 מתוך 3",
+              all(x in confirm for x in ("פער בין ההכנסה המוצהרת", "החלטה מקצועית", "ללא, החלטה מקצועית", "חלקי, 1 מתוך 3",
                                          "פריטים לשיקול דעתך", "שלב הבקשה בבנק לא משתנה", "בלי הנימוק הפנימי")), confirm.replace("\n", " ")[:200])
         page.locator("[data-testid=decision-panel]").screenshot(path=str(ART / "after-2-confirm-partial.png"))
         page.locator("[data-testid=resolve-confirm] button", has_text="חזרה לעריכה").click()

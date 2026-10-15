@@ -104,7 +104,7 @@ export function Preview({ text, vars, label = "תצוגה מקדימה" }: { tex
   );
 }
 
-const show = (v: unknown) => v === undefined ? "—" : typeof v === "string" ? v : JSON.stringify(v);
+const show = (v: unknown) => v === undefined ? "-" : typeof v === "string" ? v : JSON.stringify(v);
 
 export function DiffTable({ diff, testId }: { diff: DiffEntry[]; testId?: string }) {
   if (!diff.length) return <div className="small muted">אין שינויים.</div>;

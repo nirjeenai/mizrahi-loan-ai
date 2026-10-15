@@ -57,7 +57,7 @@ export function Apply() {
     <>
       <VersionSwitch v={1} />
       <div className="page-title">בקשת הלוואה חדשה</div>
-      <p className="page-sub">כמה שאלות קצרות, ואחריהן נציג בדיוק אילו מסמכים נדרשים — לפני שהבקשה נפתחת.</p>
+      <p className="page-sub">כמה שאלות קצרות, ואחריהן נציג בדיוק אילו מסמכים נדרשים, לפני שהבקשה נפתחת.</p>
       <div className="card onb" data-testid="apply-chat" data-draft={draft?.draft_id}>
         <div className="onb-head">
           <img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" />
@@ -167,7 +167,7 @@ function Summary({ draft, busy, onConfirm }: { draft: OnboardingDraft; busy: boo
       <div className="kv"><span>מטרה</span><span>{s.loan.purpose_he} · <span className="ltr">{ils(s.loan.requested_amount_ils)}</span> · {s.loan.payments} תשלומים</span></div>
       {p.banker_assisted && (
         <div className="notice navy small" style={{ marginTop: 10 }} data-testid="onb-banker-assisted">
-          מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות — אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
+          מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות, אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
       )}
       <div className="section-label" style={{ margin: "14px 0 6px" }}>המסמכים שיידרשו ({s.requirements.length})</div>
       <ul className="onb-reqs">

@@ -54,7 +54,7 @@ def set_to(target: datetime, actor: str, reason: str = "") -> dict:
 
 
 def reset(actor: str) -> dict:
-    flags.put(flags.DEMO_CLOCK_OFFSET, 0, actor, "איפוס שעון ההדגמה")
+    flags.put(flags.DEMO_CLOCK_OFFSET, 0, actor, "איפוס השעון")
     return state()
 
 

@@ -251,7 +251,7 @@ def main() -> int:
         mismatch = outcome_text(page)
         mismatch_actions = page.locator("[data-testid=upload-outcome-actions] .act-btn")
         check("a mismatched month is reported with the next action",
-              "מודפס בו אוגוסט 2026, ולא ספטמבר 2026 כפי שבחרתם" in mismatch and "עידו — ספטמבר 2026" in mismatch
+              "מודפס בו אוגוסט 2026, ולא ספטמבר 2026 כפי שבחרתם" in mismatch and "עידו, ספטמבר 2026" in mismatch
               and page.locator("[data-testid=upload-outcome-actions] [data-action-id='upload:PAYSLIPS:BRW-A']").count() == 1,
               f"{mismatch} · actions={mismatch_actions.all_inner_texts()}".replace("\n", " "))
         shot(page, "07-mismatch-outcome")
@@ -259,7 +259,7 @@ def main() -> int:
         page.wait_for_selector("[data-testid=upload-months] [data-period='2026-09'][aria-checked=true]")
         upload_in_sheet(page, FIX / "main" / "ido_payslip_2026-09_corrected.pdf")
         fixed = outcome_text(page)
-        check("the corrected payslip closes Ido's gap", fixed.startswith("התלוש של עידו לספטמבר 2026 התקבל ונבדק — נמצא תקין")
+        check("the corrected payslip closes Ido's gap", fixed.startswith("התלוש של עידו לספטמבר 2026 התקבל ונבדק, נמצא תקין")
               and "עידו" not in fixed.split("נותרו להעלות")[-1], fixed)
 
         # 12 · stale actions: the earlier "September for Ido" is disabled and refused by the server

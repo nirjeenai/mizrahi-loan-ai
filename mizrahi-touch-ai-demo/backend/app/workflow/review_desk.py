@@ -173,7 +173,7 @@ def draft_correction(case: dict, doc: dict, review: Optional[dict], open_finding
                                                          else f"נדרש {what} מתוקן.")
         return {"explanation_he": explanation,
                 "message_he": f"{hello}נבקש להעלות {what} מתוקן במקום {doc['filename']}. " + (mine[0]["title_he"] + "." if mine else ""),
-                "requested_period": None, "requested_item_he": f"{what} מתוקן" + (f" — {first}" if first else "")}
+                "requested_period": None, "requested_item_he": f"{what} מתוקן" + (f", {first}" if first else "")}
     first = _first(case, doc["borrower_id"])
     printed = (review or {}).get("period")
     claimed = _claimed_period(doc, review)
@@ -197,7 +197,7 @@ def draft_correction(case: dict, doc: dict, review: Optional[dict], open_finding
         message = f"{hello}הקובץ {doc['filename']} אינו תלוש שכר. נא להעלות תלוש שכר{' ל' + det.month_label_he(period) if period else ''}."
     elif "DOCUMENT_UNREADABLE" in codes:
         explanation = f"לא ניתן לקרוא את {label}."
-        message = f"{hello}לא הצלחנו לקרוא את {label}. נא להעלות עותק ברור — עדיף קובץ PDF מקורי מהמעסיק או מאתר השכר."
+        message = f"{hello}לא הצלחנו לקרוא את {label}. נא להעלות עותק ברור, עדיף קובץ PDF מקורי מהמעסיק או מאתר השכר."
     elif "PERIOD_UNCLEAR" in codes:
         explanation = "בתלוש לא מודפס חודש שכר חד־משמעי."
         message = f"{hello}בתלוש שהעלית לא מופיע חודש שכר ברור. נא להעלות תלוש שבו מודפס חודש השכר."
@@ -206,7 +206,7 @@ def draft_correction(case: dict, doc: dict, review: Optional[dict], open_finding
         explanation = failing[0]["explanation_he"] if failing else "נמצאו בתלוש פרטים שדורשים מסמך נוסף."
         message = (f"{hello}ב{label} שהעלית חלק מהפרטים אינם ברורים לנו. "
                    "נא להעלות עותק מקורי של התלוש מהמעסיק או מאתר השכר.")
-    item = f"תלוש שכר ל{det.month_label_he(period)} — {first}" if period else f"תלוש שכר מתוקן — {first}"
+    item = f"תלוש שכר ל{det.month_label_he(period)}, {first}" if period else f"תלוש שכר מתוקן, {first}"
     return {"explanation_he": explanation, "message_he": message, "requested_period": period, "requested_item_he": item}
 
 
@@ -219,7 +219,7 @@ def draft_missing(case: dict, borrower_id: str, period: str, related: list[dict]
                    f"ולכן תלוש {det.month_label_he(period)} עדיין חסר. נא להעלות אותו כדי להמשיך בבדיקת מסמכי ההכנסה.")
     else:
         message = f"{hello}כדי להשלים את בדיקת מסמכי ההכנסה חסר תלוש השכר של {det.month_label_he(period)}. נא להעלות אותו באפליקציה."
-    return {"message_he": message, "requested_period": period, "requested_item_he": f"תלוש שכר ל{det.month_label_he(period)} — {first}"}
+    return {"message_he": message, "requested_period": period, "requested_item_he": f"תלוש שכר ל{det.month_label_he(period)}, {first}"}
 
 
 def draft_missing_months(case: dict, borrower_id: str, months: list[str]) -> dict[str, Any]:
@@ -231,7 +231,7 @@ def draft_missing_months(case: dict, borrower_id: str, months: list[str]) -> dic
         words = [month_word(m) for m in months]
         listed = (", ".join(words[:-1]) + " ו" + words[-1]) + (f" {months[0][:4]}" if len({m[:4] for m in months}) == 1 else "")
         message = f"{hello}כדי להשלים את בדיקת ההכנסה חסרים תלושי השכר של {listed}. נא להעלות אותם באפליקציה."
-    return {"message_he": message, "months": months, "requested_item_he": f"תלושי שכר חסרים — {first}"}
+    return {"message_he": message, "months": months, "requested_item_he": f"תלושי שכר חסרים, {first}"}
 
 
 def draft_explanation(case: dict, finding: dict, income: Optional[dict]) -> dict[str, Any]:
@@ -241,11 +241,11 @@ def draft_explanation(case: dict, finding: dict, income: Optional[dict]) -> dict
     if income and income.get("declared_net_monthly_ils") and income.get("average_documented_net_ils") is not None:
         documented = income.get("documented_label_he") or "בתלושים"
         message = (f"{hello}ההכנסה החודשית נטו שהצהרת ({income['declared_net_monthly_ils']:,.0f} ₪) שונה מהנטו {documented} "
-                   f"({income['average_documented_net_ils']:,.0f} ₪). נבקש הסבר קצר, ואם אפשר גם אסמכתה — "
+                   f"({income['average_documented_net_ils']:,.0f} ₪). נבקש הסבר קצר, ואם אפשר גם אסמכתה, "
                    f"{needed[0].rstrip('.') if needed else 'למשל אישור מעסיק על רכיבי שכר משתנים'}.")
     else:
         message = f"{hello}בבדיקת המסמכים עלתה שאלה: {finding['title_he']}. נבקש הסבר קצר, ואם אפשר גם מסמך תומך."
-    return {"message_he": message, "requested_item_he": f"הסבר או אסמכתה — {first}"}
+    return {"message_he": message, "requested_item_he": f"הסבר או אסמכתה, {first}"}
 
 
 def draft_additional(case: dict, finding: dict) -> dict[str, Any]:
@@ -254,7 +254,7 @@ def draft_additional(case: dict, finding: dict) -> dict[str, Any]:
     needed = [x for x in ((finding.get("detail") or {}).get("semantic") or {}).get("evidence_needed_he") or [] if x]
     ask = needed[0].rstrip(".") if needed else "מסמך שמסביר את ההפרש בין ההכנסה שהוצהרה לבין התלושים"
     return {"message_he": f"{hello}כדי להשלים את בדיקת ההכנסה נבקש להעלות: {ask}.", "requested_period": None,
-            "requested_item_he": f"מסמך משלים לבדיקת ההכנסה — {first}"}
+            "requested_item_he": f"מסמך משלים לבדיקת ההכנסה, {first}"}
 
 
 # ---------------------------------------------------------------- document decisions
@@ -279,7 +279,7 @@ def decide_document(case_id: str, document_id: str, staff: dict, action: str, ra
     allowed, new = TRANSITIONS[action]
     if status["status"] not in allowed:
         if action == "ACCEPT_DOCUMENT" and status["status"] == "AWAITING_CUSTOMER_FIX":
-            raise DeskError(409, "בבדיקת ה-AI נמצא ממצא שמחייב תיקון מצד הלקוח. אם הממצא שגוי — סמנו אותו כשגוי, ורק אז קבלו את המסמך.")
+            raise DeskError(409, "בבדיקת ה-AI נמצא ממצא שמחייב תיקון מצד הלקוח. אם הממצא שגוי, סמנו אותו כשגוי, ורק אז קבלו את המסמך.")
         raise DeskError(409, f"לא ניתן לבצע ״{ACTION_HE[action]}״ במסמך במצב ״{status['status_he']}״.")
     review = repo.latest_document_result(document_id) if doc["status"] == "reviewed" else None
     mine = [f for f in open_f if f["document_id"] == document_id]
@@ -310,8 +310,8 @@ def decide_document(case_id: str, document_id: str, staff: dict, action: str, ra
         what = "תלוש" if fam == "payslip" else DOC_HE.get(fam, "מסמך")
         customer_request = {"kind": "correction", "borrower_id": doc["borrower_id"], "document_id": document_id,
                             "requirement_code": doc["requirement_code"], "period": period, "message_he": customer_message,
-                            "title_he": (f"נדרש תלוש {det.month_label_he(period)} — {first}" if period
-                                         else f"נדרש {what} מתוקן במקום {doc['filename']}" + (f" — {first}" if first else ""))}
+                            "title_he": (f"נדרש תלוש {det.month_label_he(period)}, {first}" if period
+                                         else f"נדרש {what} מתוקן במקום {doc['filename']}" + (f", {first}" if first else ""))}
         finding_rows = [{**f, "status": "superseded", "resolution": "correction_requested_by_banker",
                          "resolution_note": rationale or None} for f in banker_findings]
     elif action == "ESCALATE":
@@ -361,7 +361,7 @@ def request_missing(case_id: str, staff: dict, borrower_id: str, period: str, cu
                        customer_request={"kind": "missing_document", "borrower_id": borrower_id, "period": period,
                                          "requirement_code": (req or {}).get("code"), "message_he": customer_message,
                                          "finding_id": (finding or {}).get("finding_id"),
-                                         "title_he": f"נדרש תלוש {det.month_label_he(period)} — {first}"},
+                                         "title_he": f"נדרש תלוש {det.month_label_he(period)}, {first}"},
                        audit_action="banker_requested_document")
     return _result(decision, case_id)
 
@@ -386,7 +386,7 @@ def request_requirement(case_id: str, staff: dict, requirement_code: str, custom
     if not req:
         raise DeskError(404, "הדרישה אינה שייכת לתיק.")
     if req["family"] == "payslip":
-        raise DeskError(409, "לתלוש חסר — בקשו את החודש החסר מתוך שורת החודש.")
+        raise DeskError(409, "לתלוש חסר, בקשו את החודש החסר מתוך שורת החודש.")
     prior = _replay(request_id, case_id)
     if prior:
         if prior["action"] != "REQUEST_MISSING_DOCUMENT" or prior["target_kind"] != "missing_requirement":
@@ -482,7 +482,7 @@ def decide_finding(case_id: str, finding_id: str, staff: dict, action: str, rati
     if action != "dismiss" and f["review_state"] != "NEEDS_BANKER_REVIEW":
         raise DeskError(409, "פעולה זו זמינה רק לממצאים שממתינים לשיקול דעת הבנקאי.")
     if action in ("request_document", "request_explanation") and f["document_id"]:
-        raise DeskError(409, "לממצא במסמך מסוים — החזירו את המסמך לתיקון מתוך המסמך עצמו.")
+        raise DeskError(409, "לממצא במסמך מסוים, החזירו את המסמך לתיקון מתוך המסמך עצמו.")
     linked = [r["customer_request_id"] for r in repo.customer_requests(case_id, status="OPEN") if r["finding_id"] == finding_id]
     statements = [x for x in repo.statements(case_id) if x["finding_id"] == finding_id]
     evidence = _evidence_refs([f])
@@ -531,7 +531,7 @@ def decide_finding(case_id: str, finding_id: str, staff: dict, action: str, rati
         customer_request = {"kind": "explanation" if explain else "additional_document", "borrower_id": f["borrower_id"],
                             "finding_id": finding_id, "message_he": customer_message,
                             "requirement_code": f"PAYSLIPS:{f['borrower_id']}" if f["borrower_id"] else None,
-                            "title_he": f"נדרש הסבר או אסמכתה — {first}" if explain else f"נדרש מסמך משלים — {first}"}
+                            "title_he": f"נדרש הסבר או אסמכתה, {first}" if explain else f"נדרש מסמך משלים, {first}"}
         finding_rows, new = [{**f}], "open"
     decision = _record(case_id, staff, target_kind="finding", action=code, previous=f["status"], new=new, rationale=rationale,
                        customer_message=customer_message if customer_request else "", finding_id=finding_id,
@@ -619,7 +619,7 @@ def confirm_preparation(case_id: str, staff: dict, note: str = "", request_id: O
                 "package_id": (repo.handoff_by_request(f"confirm:{request_id}") or {}).get("package_id")}
     state = readiness.compute(case_id)
     if state["counts"]["customer_actions"] or state["counts"]["customer_requests"]:
-        raise DeskError(409, "יש פריטים פתוחים לטיפול הלקוח — לא ניתן לאשר הכנה")
+        raise DeskError(409, "יש פריטים פתוחים לטיפול הלקוח, לא ניתן לאשר הכנה")
     if state["state"] in ("CHECKING", "RECHECKING", "NOT_CHECKED", "ERROR"):
         raise DeskError(409, f"לא ניתן לאשר במצב {state['state_he_banker']}")
     current = state.get("banker_confirmation")
@@ -683,7 +683,7 @@ def check_replacement(case_id: str, borrower_id: Optional[str], replaces_documen
     if old["borrower_id"] != borrower_id:
         raise DeskError(422, "המסמך החלופי חייב להיות של אותו לווה.")
     if customer_request_id or any(r["document_id"] == replaces_document_id for r in repo.customer_requests(case_id, status="OPEN")):
-        raise DeskError(409, "על המסמך הזה יש בקשה פתוחה מהבנקאי — יש להעלות דרך הבקשה.")
+        raise DeskError(409, "על המסמך הזה יש בקשה פתוחה מהבנקאי, יש להעלות דרך הבקשה.")
     status = desk_state.document_statuses(case_id)[replaces_document_id]["status"]
     if status != "AWAITING_CUSTOMER_FIX":
         raise DeskError(409, "המסמך הזה אינו ממתין להחלפה." if status != "REPLACED" else "המסמך הזה כבר הוחלף.")

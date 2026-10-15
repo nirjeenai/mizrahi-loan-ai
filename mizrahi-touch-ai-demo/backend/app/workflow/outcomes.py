@@ -10,19 +10,19 @@ from typing import Any, Optional
 
 INCOME_CODE = "DECLARED_VS_DOCUMENT_INCOME_VARIANCE"
 OUTCOME_HE = {
-    "PASS": "עבר בדיקת AI — ממתין לקבלת הבנקאי",
-    "ACCEPTED": "התקבל אצל הבנקאי — קבלת מסמך בלבד, לא אישור הלוואה",
+    "PASS": "עבר בדיקת AI, ממתין לקבלת הבנקאי",
+    "ACCEPTED": "התקבל אצל הבנקאי, קבלת מסמך בלבד, לא אישור הלוואה",
     "REVIEW": "נדרש בירור בנקאי",
-    "BLOCKER": "המסמך אינו מתאים לדרישה — נא להעלות מסמך חלופי",
+    "BLOCKER": "המסמך אינו מתאים לדרישה, נא להעלות מסמך חלופי",
     "IN_PROGRESS": "בבדיקה",
     "NOT_COMPLETED": "הבדיקה לא הושלמה",
     "REPLACED": "הוחלף במסמך חדש",
     "INCOMPLETE": "חסרים מסמכים",
     "AWAITING_UPLOAD": "ממתינים להעלאת מסמכים",
     "CONFIRMED": "הבנקאי אישר את הכנת מסמכי הבקשה",
-    "HUMAN_REVIEW_PENDING": "התקבל — ממתין לבדיקת הבנקאי (אין בדיקת AI לסוג מסמך זה)",
+    "HUMAN_REVIEW_PENDING": "התקבל, ממתין לבדיקת הבנקאי (אין בדיקת AI לסוג מסמך זה)",
 }
-INCOME_REVIEW_HE = "נדרש בירור בנקאי — נמצא פער בהכנסה"
+INCOME_REVIEW_HE = "נדרש בירור בנקאי, נמצא פער בהכנסה"
 # the borrower's payslip set, from readiness.customer_status (same precedence: a document to fix comes before a review)
 SET_OUTCOME = {"CHECKS_COMPLETE": "PASS", "BANKER_REVIEW": "REVIEW", "CORRECTION_REQUIRED": "BLOCKER",
                "MISSING_DOCUMENTS": "INCOMPLETE", "PROCESSING": "IN_PROGRESS", "REVALIDATING": "IN_PROGRESS",

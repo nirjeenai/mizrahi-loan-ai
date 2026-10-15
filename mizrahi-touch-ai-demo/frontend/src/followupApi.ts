@@ -50,11 +50,11 @@ export const followupApi = {
 
 export const PLAN_HE: Record<string, string> = {
   IDLE: "אין מעקב פעיל", WAITING: "ממתינים ללקוח", IN_APP: "תזכורת באפליקציה", SCHEDULED: "שיחה מתוזמנת",
-  DISPATCHING: "מחייגים (סימולציה)", IN_CALL: "בשיחה (סימולציה)", AWAITING_CUSTOMER: "נשלח קישור — ממתינים להעלאה",
+  DISPATCHING: "מחייגים", IN_CALL: "בשיחה", AWAITING_CUSTOMER: "נשלח קישור, ממתינים להעלאה",
   BLOCKED: "חסום לפי מדיניות", PAUSED: "מושהה ע״י הבנקאי", CANCELED: "בוטל", ESCALATED: "הועבר לבנקאי", COMPLETED: "הושלם",
 };
 export const ACTION_HE: Record<string, string> = {
   NO_ACTION: "אין צורך בפעולה", IN_APP_ONLY: "באפליקציה בלבד", WAIT: "המתנה", SUPPRESS: "בלי פנייה", IN_APP_NUDGE: "תזכורת באפליקציה",
-  SCHEDULE_CALL: "תזמון שיחה", DISPATCH_NOW: "פנייה עכשיו", BLOCK: "חסום", RESOLVE_AND_CANCEL: "נפתר — המעקב בוטל",
+  SCHEDULE_CALL: "תזמון שיחה", DISPATCH_NOW: "פנייה עכשיו", BLOCK: "חסום", RESOLVE_AND_CANCEL: "נפתר, המעקב בוטל",
   ESCALATE: "העברה לבנקאי", SNOOZE: "נדחה לבקשת הלקוח",
 };

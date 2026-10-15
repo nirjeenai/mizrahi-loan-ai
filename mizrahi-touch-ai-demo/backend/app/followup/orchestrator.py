@@ -658,13 +658,13 @@ def banker_view(case_id: str, now: Optional[datetime] = None) -> dict:
 
 
 SUMMARY_HE = {
-    "completion.required.v1": "נפתחה דרישת השלמה", "completion.resolved.v1": "דרישת השלמה נסגרה — מסמך חדש עבר בדיקה",
+    "completion.required.v1": "נפתחה דרישת השלמה", "completion.resolved.v1": "דרישת השלמה נסגרה, מסמך חדש עבר בדיקה",
     "customer.presence_changed.v1": "שינוי בנוכחות הלקוח בפורטל", "followup.policy_evaluated.v1": "החלטת מדיניות",
     "followup.scheduled.v1": "שיחה תוזמנה", "followup.deferred.v1": "הפנייה נדחתה",
     "followup.canceled.v1": "הטיפול היזום הסתיים או בוטל", "talk.call.status_changed.v1": "עדכון סטטוס שיחה",
     "case.ready_for_banker.v1": "התיק מוכן לבדיקת הבנקאי", "contact.permission_changed.v1": "שינוי בהעדפות הקשר",
     "case.override_applied.v1": "פעולת בנקאי / לקוח על הטיפול היזום",
-    "integration.reconciliation_required.v1": "אירוע ספק ללא שיחה מוכרת — נדרש בירור",
+    "integration.reconciliation_required.v1": "אירוע ספק ללא שיחה מוכרת, נדרש בירור",
 }
 
 

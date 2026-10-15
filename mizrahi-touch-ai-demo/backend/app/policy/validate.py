@@ -72,7 +72,7 @@ def check(kind: str, config: dict) -> dict:
         env = (config.get("scope") or {}).get("environment") if isinstance(config.get("scope"), dict) else None
         if (config.get("talk") or {}).get("mode") == "live" and env == "demo":
             warnings.append({"path": "talk.mode", "code": "TALK_LIVE_IN_DEMO", "span": None, "match": "",
-                             "message": "מצב live בסביבת הדגמה: ספק השיחות החי אינו מוגדר, ולכן לא תתבצע אף שיחה."})
+                             "message": "מצב live: ספק השיחות החי אינו מוגדר בסביבה זו, ולכן לא תתבצע אף שיחה."})
     return {"errors": errors, "warnings": warnings, "lint": lint}
 
 

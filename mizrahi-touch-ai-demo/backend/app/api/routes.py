@@ -175,10 +175,10 @@ async def upload(case_id: str, request: Request, file: UploadFile = File(...), b
     answered = review_desk.link_upload(case_id, doc, created, customer_request_id, expected_period)
     note = None
     if not created:
-        note = "הקובץ הזה כבר הועלה לתיק — לא נבדק פעם נוספת."
+        note = "הקובץ הזה כבר הועלה לתיק, לא נבדק פעם נוספת."
         if borrower_id and doc.get("borrower_id") and doc["borrower_id"] != borrower_id:
             owner = next((b["first_name_he"] for b in bank.get_case(case_id)["borrowers"] if b["borrower_id"] == doc["borrower_id"]), "")
-            note = f"אותו קובץ כבר הועלה עבור {owner}. אם זה מסמך של לווה אחר — יש להעלות את המסמך הנכון."
+            note = f"אותו קובץ כבר הועלה עבור {owner}. אם זה מסמך של לווה אחר, יש להעלות את המסמך הנכון."
     replaces = replaces_document_id if created else None
     intent = continuation.record_intent(case_id, doc, created, expected_period, action_id, origin_turn_id, replaces)
     if replaces:
@@ -572,7 +572,7 @@ def presenter_demo_reset(request: Request):
     try:
         return demo.reset_executive_cases(f"banker:{s['staff_id']}" if s else "presenter")
     except demo.DemoBusy:
-        raise HTTPException(409, "בדיקת מסמך עדיין רצה באחד מתיקי הדמו — האיפוס יתבצע מיד כשתסתיים.") from None
+        raise HTTPException(409, "בדיקת מסמך עדיין רצה באחד מתיקי הדמו, האיפוס יתבצע מיד כשתסתיים.") from None
 
 
 @router.post("/system/mcp-selftest")

@@ -114,7 +114,7 @@ export function DocumentSummary() {
       </div>
       {how && (
         <div className="sum-more" id="sum-how" data-testid="summary-how-detail">
-          {showProgress && <p>דרישה מושלמת רק כשכל המסמכים שלה נמצאו תקינים בבדיקה החכמה או התקבלו אצל {bankerName}: בתלושים — כל חודש נדרש נספר פעם אחת; בדפי עו״ש — התקופה כולה מכוסה. קובץ שהועלה או נבדק עדיין לא משלים דרישה.</p>}
+          {showProgress && <p>דרישה מושלמת רק כשכל המסמכים שלה נמצאו תקינים בבדיקה החכמה או התקבלו אצל {bankerName}: בתלושים, כל חודש נדרש נספר פעם אחת; בדפי עו״ש, התקופה כולה מכוסה. קובץ שהועלה או נבדק עדיין לא משלים דרישה.</p>}
           {others > 0 && (
             <button className="sum-others" onClick={() => nav("/customer/documents")}>
               <span>עוד {others} מסמכים בתיק מטופלים ישירות מול הבנק</span><IChevron size={14} />

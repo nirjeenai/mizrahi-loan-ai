@@ -114,7 +114,7 @@ def pay_date_check(period: Optional[str], printed: Optional[str], paid: Optional
     payslip details, so an absent one stays unknown (NOT_APPLICABLE), never a defect; the issue date is a different
     field and never stands in for it. A printed date that cannot be parsed or verified is left to the judge."""
     if not str(printed or "").strip():
-        return ("NOT_APPLICABLE", "תאריך תשלום אינו מודפס בתלוש — מועד התשלום נשאר לא ידוע. "
+        return ("NOT_APPLICABLE", "תאריך תשלום אינו מודפס בתלוש, מועד התשלום נשאר לא ידוע. "
                                   "תאריך ההפקה הוא שדה אחר ואינו משמש כתאריך תשלום.")
     if not paid or not period:
         return "JUDGE", f"תאריך התשלום המודפס ({printed}) אינו ניתן לפענוח חד־משמעי"
@@ -128,10 +128,10 @@ def pay_date_check(period: Optional[str], printed: Optional[str], paid: Optional
     if paid < first:
         return "FAIL", f"תאריך התשלום {shown} קודם לתחילת תקופת השכר ({label})"
     if paid < last - timedelta(days=3):
-        return "NEEDS_REVIEW", f"תאריך התשלום {shown} בתוך תקופת השכר ({label}) ולפני סופה — מקדמה או תקופה שגויה"
+        return "NEEDS_REVIEW", f"תאריך התשלום {shown} בתוך תקופת השכר ({label}) ולפני סופה, מקדמה או תקופה שגויה"
     if paid <= deadline:
-        return "PASS", f"תאריך התשלום {shown} — בסוף {label} או עד ה־{payday_day} בחודש העוקב"
-    return "PASS", f"תאריך התשלום {shown} — אחרי ה־{payday_day} בחודש העוקב (הערת מידע, לא פגם במסמך)"
+        return "PASS", f"תאריך התשלום {shown}, בסוף {label} או עד ה־{payday_day} בחודש העוקב"
+    return "PASS", f"תאריך התשלום {shown}, אחרי ה־{payday_day} בחודש העוקב (הערת מידע, לא פגם במסמך)"
 
 
 _FINALS = str.maketrans({"ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ"})

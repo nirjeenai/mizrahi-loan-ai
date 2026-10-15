@@ -263,7 +263,7 @@ or block. It decides in code, with rule ids and a Hebrew reason (`followup/polic
   - the completion tasks, the simulated attempts and their outcome;
   - the timeline;
   - pause, resume and call now.
-- **Presenter:** "סימולציית מעקב השלמה" in the left pane: the customer leaves, clock +20 min / next window, run the
+- **Presenter:** "מעקב השלמה · הפעלה ידנית" in the left pane: the customer leaves, clock +20 min / next window, run the
   engine, the call's outcome, open the sent link, reset the clock.
 - **Assistant and MCP:** `get_followup_context`, read-only, so the MCP catalog has 11 tools.
 - **`/system`:** a "Follow-up engine" row and a "JEEN Talk (outbound follow-up calls)" row: DEMO, SIMULATION.
@@ -783,7 +783,7 @@ Results and screenshots are written to `e2e/artifacts/`, and the screenshots abo
 
 ## Known limitations
 
-- Only salaried payslips are reviewed. Other document families appear as "לא נבדק בהדגמה".
+- Only salaried payslips are reviewed. Other document families appear as "לא נבדק אוטומטית".
 - No identity provider. Access is enforced on every route by server-issued sessions, but in demo mode anyone who can reach the server can obtain a demo session for any case or for the demo banker, so the demo still must not hold real data. Turn `DEMO_IDENTITY` off and connect bank SSO/OTP before any real use. One browser holds one customer session and one staff session at a time (the presenter plays both roles). Single-process SQLite with in-process workers is fine for a demo; production needs a database server and a queue.
 - There is no push channel: both apps poll every 4 s (1.2 s while work is in progress). Measured propagation on a local machine was 0.1–4 s.
 - The app can only upload payslips. A "request a document" on the income finding asks for something like an employer letter, which is uploaded as a payslip and reviewed against the payslip rubric, so it comes back "not a payslip". The banker can still read it in the evidence viewer.

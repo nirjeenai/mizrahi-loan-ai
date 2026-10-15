@@ -135,7 +135,7 @@ export function UploadSheet() {
   const stageIndex = doc ? STAGES.findIndex(([k]) => k === (doc.status === "reviewed" ? "done" : doc.stage)) : -1;
   const monthHint = months.length > 1
     ? (period ? "הבדיקה תסתמך על החודש שמודפס בתלוש, ותתריע אם הוא שונה מהחודש שבחרתם."
-      : `חסרים ${months.length} חודשים. מעלים תלוש אחד בכל פעם — בחרו את החודש של הקובץ הזה, או העלו ונזהה אותו מהתלוש.`)
+      : `חסרים ${months.length} חודשים. מעלים תלוש אחד בכל פעם, בחרו את החודש של הקובץ הזה, או העלו ונזהה אותו מהתלוש.`)
     : `נבחר ${monthHe(months[0])} לפי מה שחסר בתיק. הבדיקה תסתמך על החודש שמודפס בתלוש.`;
   return (
     <div className="sheet-backdrop" onClick={closeUpload}>
@@ -146,7 +146,7 @@ export function UploadSheet() {
           {!doc && (<>
             {fromChat && (
               <div className="upload-context" data-testid="upload-from-chat">
-                <span>הגעתם מהשיחה עם העוזר — מילאנו מראש את מה שידוע מהתיק.</span>
+                <span>הגעתם מהשיחה עם העוזר, מילאנו מראש את מה שידוע מהתיק.</span>
                 <button className="link small" onClick={backToChat}>חזרה לשיחה</button>
               </div>
             )}
@@ -178,7 +178,7 @@ export function UploadSheet() {
               )}
             </div>
             {requirement?.hint_he && <div className="tiny muted" data-testid="upload-hint">{requirement.hint_he}</div>}
-            {human && <div className="tiny upload-human" data-testid="upload-human-review">סוג מסמך זה אינו נבדק ב-AI — הקובץ יישמר
+            {human && <div className="tiny upload-human" data-testid="upload-human-review">סוג מסמך זה אינו נבדק ב-AI, הקובץ יישמר
               ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}.</div>}
             {sameKind.length > 1 && requirement?.account_id == null && (<>
               <div className="small bold">עבור מי המסמך?</div>
@@ -231,7 +231,7 @@ export function UploadSheet() {
               {busy ? <span className="spinner" /> : null}{human ? "העלאה לבדיקת הבנקאי" : "העלאה ובדיקה חכמה"}
             </button>
             <div className="tiny muted" style={{ lineHeight: 1.6 }}>
-              המסמך נשמר בתיק ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית — לא קבלת המסמך על ידי הבנק.
+              המסמך נשמר בתיק ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית, לא קבלת המסמך על ידי הבנק.
             </div>
           </>)}
           {doc && (<>

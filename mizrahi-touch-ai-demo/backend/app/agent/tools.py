@@ -14,9 +14,9 @@ from ..workflow import desk_state, engine, readiness, review_desk
 from . import actions
 
 APP_CHANNELS = ("text", "voice")
-NOTICE = "בדיקת מסמכים אוטומטית בלבד — לא החלטת אשראי ולא קבלת מסמך על ידי הבנק. הבנקאי מחליט."
+NOTICE = "בדיקת מסמכים אוטומטית בלבד, לא החלטת אשראי ולא קבלת מסמך על ידי הבנק. הבנקאי מחליט."
 MODE = {"bank": "DEMO", "review_provider": "gemini (LIVE)", "data": "synthetic"}
-VERDICT_HE = {"VALID": "נמצא תקין בבדיקה האוטומטית", "INVALID": "לא תקין — נדרש תיקון", "NEEDS_REVIEW": "דורש בדיקה"}
+VERDICT_HE = {"VALID": "נמצא תקין בבדיקה האוטומטית", "INVALID": "לא תקין, נדרש תיקון", "NEEDS_REVIEW": "דורש בדיקה"}
 STAGE_HE = {"queued": "ממתין לבדיקה", "intake": "קליטה", "extract": "קריאה וחילוץ", "verify_evidence": "אימות ראיות",
             "deterministic_checks": "בדיקות כללים", "judge": "שיפוט לפי רובריקה", "done": "הבדיקה הושלמה",
             "retrying": "ניסיון חוזר", "failed": "הבדיקה נכשלה", "human_review": "התקבל · ממתין לבדיקת הבנקאי"}
@@ -148,7 +148,7 @@ def get_upload_guidance(case_id: str, args: dict, ctx: dict) -> dict:
     targets = [r for r in state["requirements"] if r["evaluated_by_ai"] and (not bid or r["borrower_id"] in (None, bid))
                and r["ai_state"] not in ("extracted", "preparation_confirmed")]
     steps = ["פתחו את לשונית ״מסמכים״ באפליקציה.", "בכרטיס הדרישה המתאימה (תעודת זהות, תלוש שכר, דף עו״ש או אסמכתה) לחצו ״להעלאה״.",
-             "עדיף PDF מקורי; אם מצלמים — צילום חד, ישר ומלא של כל העמוד.",
+             "עדיף PDF מקורי; אם מצלמים, צילום חד, ישר ומלא של כל העמוד.",
              "ודאו שבמסמך מודפסים השם ומספר הזהות, והתקופה הנכונה (חודש התלוש או תקופת דף החשבון).",
              "אחרי ההעלאה הבדיקה רצה מחדש על כל סט המסמכים."]
     need = [{"borrower": borrowers[r["borrower_id"]]["first_name_he"] if r.get("borrower_id") in borrowers else None,
@@ -206,7 +206,7 @@ def request_banker_handoff(case_id: str, args: dict, ctx: dict) -> dict:
                {"note": row["note"], "open_banker_items": len(package["findings_open_banker"])})
     return {"package_id": row["package_id"], "status": row["status"],
             "spoken_he": f"העברתי את התיק עם הממצאים והראיות ל{banker}. היא תחזור אליכם; זו אינה החלטה על ההלוואה.",
-            "note": "נשמר בתור הבנקאי של ההדגמה — לא נשלח למערכות הבנק.", "notice": NOTICE}
+            "note": "נשמר בתור הבנקאי.", "notice": NOTICE}
 
 
 def request_revalidation(case_id: str, args: dict, ctx: dict) -> dict:
@@ -242,7 +242,7 @@ def get_followup_context(case_id: str, args: dict, ctx: dict) -> dict:
     return {**view, "open_tasks": [{"requirement_code": t["requirement_code"], "reason_code": t["reason_code"],
                                     "title_he": t["title_he"], "customer_text_he": t["customer_text_he"]}
                                    for t in tasks.open_for(case_id)],
-            "notice": "מעקב השלמה מדומה (JEEN Talk בסימולציה): אין שיחה אמיתית. ההחלטות נקבעות בקוד, לא במודל."}
+            "notice": "החלטות מעקב ההשלמה נקבעות בקוד, לא במודל."}
 
 
 def offer_app_actions(case_id: str, args: dict, ctx: dict) -> dict:
@@ -285,7 +285,7 @@ TOOLS: dict[str, dict[str, Any]] = {
                            "parameters": {"type": "object", "properties": {"document_id": {"type": "string"}}}},
     "get_followup_context": {"handler": get_followup_context, "write": False,
                              "description": "The completion follow-up for this case as the customer may see it: whether the bank is "
-                                            "waiting for the customer, a reminder in the app, a scheduled simulated JEEN Talk call or "
+                                            "waiting for the customer, a reminder in the app, a scheduled JEEN Talk call or "
                                             "nothing; the open completion tasks; snooze and contact preferences. Read-only.",
                              "parameters": {"type": "object", "properties": {}}},
     "record_customer_statement": {"handler": record_customer_statement, "write": True,

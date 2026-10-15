@@ -163,7 +163,7 @@ export function ApplyHandoff() {
     <div className="cv2-handoff" role="status" data-testid="cv2-handoff">
       <AssistantMark size={26} />
       <div className="grow">
-        {state.first ? `${state.first}, ` : ""}סיימנו להכין את הבקשה שלך. עכשיו נעבור למסמכים שיעזרו לבנק לבדוק אותה —
+        {state.first ? `${state.first}, ` : ""}סיימנו להכין את הבקשה שלך. עכשיו נעבור למסמכים שיעזרו לבנק לבדוק אותה
         אפשר להעלות אותם כאן, ואני אעזור לך להבין אם משהו חסר. פתיחת הבקשה עדיין אינה אישור הלוואה.
       </div>
       <button className="link tiny" onClick={() => nav(loc.pathname, { replace: true, state: null })} aria-label="סגירה">הבנתי</button>
@@ -183,7 +183,7 @@ export function VersionSwitch({ v }: { v: 1 | 2 }) {
 function Stages({ stages }: { stages: ChatStage[] }) {
   const i = stages.findIndex((s) => s.state === "current");
   const cur = stages[i];
-  const caption = !cur ? "" : cur.id === "summary" ? "כמעט סיימנו — נשאר לעבור על הסיכום ולאשר"
+  const caption = !cur ? "" : cur.id === "summary" ? "כמעט סיימנו, נשאר לעבור על הסיכום ולאשר"
     : `שלב ${i + 1} מתוך ${stages.length} · ${cur.label_he}${cur.total > 1 ? ` · שאלה ${Math.min(cur.answered + 1, cur.total)} מתוך ${cur.total}` : ""}`;
   return (
     <div className="cv2-stages" data-testid="cv2-stages">
@@ -246,19 +246,19 @@ function IndicationCard({ m, latest, disabled, onAsk }: { m: ChatMessage; latest
     <div className={`cv2-insight${m.stale ? " stale" : ""}`} data-testid="cv2-insight" data-stale={m.stale ? "1" : "0"}
       data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils}>
       <div className="cv2-insight-eyebrow">
-        <span>אינדיקציה ראשונית · סימולציה</span>
+        <span>אינדיקציה ראשונית</span>
         {m.stale && <span className="badge neutral" data-testid="cv2-insight-stale">עודכנה</span>}
       </div>
       <div className="cv2-insight-figure">
         <span className="pre">הבקשה ל־</span><b className="ltr">{ils(ind.requested_amount_ils)}</b>
       </div>
       <div className={`cv2-insight-verdict ${ind.within ? "ok" : "warn"}`}>
-        {ind.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שנוסחת הסימולציה מראה כאפשרי"}</div>
+        {ind.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שההערכה הראשונית מראה כאפשרי"}</div>
       <dl className="cv2-insight-facts">
         <div><dt>החזר חודשי משוער</dt><dd><span className="ltr">{ils(ind.requested_monthly_ils)}</span> · {ind.payments} תשלומים</dd></div>
         <div><dt>תקרה תיאורטית בנוסחה (לא מסגרת אשראי)</dt><dd><span className="ltr">{ils(ind.max_amount_ils)}</span></dd></div>
       </dl>
-      <div className="cv2-insight-note">לפי ההכנסה נטו שמסרת והנחות סימולציה בלבד. זו לא בדיקת זכאות ולא אישור — הבנק יבדוק מסמכים והתחייבויות.</div>
+      <div className="cv2-insight-note">לפי ההכנסה נטו שמסרת והנחות חישוב כלליות בלבד. זו לא בדיקת זכאות ולא אישור, הבנק יבדוק מסמכים והתחייבויות.</div>
       {latest && !m.stale && (
         <button className="cv2-chip" disabled={disabled} onClick={() => onAsk("איך חישבת את האינדיקציה?")} data-testid="cv2-explain">איך חישבת?</button>
       )}
@@ -284,14 +284,14 @@ function Summary({ draft, busy, onEdit, onConfirm }: { draft: ChatDraft; busy: b
       {draft.indication && (
         <div className="cv2-summary-ind" data-testid="cv2-summary-indication">
           אינדיקציה ראשונית: הבקשה ל־<b className="ltr">{ils(draft.indication.requested_amount_ils)}</b>{" "}
-          {draft.indication.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שנוסחת הסימולציה מראה כאפשרי"} (החזר משוער
+          {draft.indication.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שההערכה הראשונית מראה כאפשרי"} (החזר משוער
           כ־<span className="ltr">{ils(draft.indication.requested_monthly_ils)}</span> ב־{draft.indication.payments} תשלומים), לפי ההכנסה
-          שמסרת והנחות סימולציה. זו אינה בדיקת זכאות ואינה אישור.
+          שמסרת והנחות חישוב כלליות. זו אינה בדיקת זכאות ואינה אישור.
         </div>
       )}
       {s.profile.banker_assisted && (
         <div className="notice navy small" style={{ marginTop: 10 }} data-testid="cv2-banker-assisted">
-          מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות — אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
+          מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות, אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
       )}
       <div className="section-label" style={{ margin: "14px 0 6px" }}>המסמכים שיידרשו ({s.requirements.length})</div>
       <ul className="onb-reqs">
@@ -300,7 +300,7 @@ function Summary({ draft, busy, onEdit, onConfirm }: { draft: ChatDraft; busy: b
         ))}
       </ul>
       <div className="tiny muted" style={{ lineHeight: 1.6, marginTop: 8 }}>
-        פתיחת הבקשה אינה אישור הלוואה — היא מכינה את רשימת המסמכים לבדיקת הבנק. גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.</div>
+        פתיחת הבקשה אינה אישור הלוואה, היא מכינה את רשימת המסמכים לבדיקת הבנק. גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.</div>
       <button className="btn btn-orange" style={{ width: "100%", marginTop: 12 }} disabled={busy} onClick={onConfirm} data-testid="cv2-confirm">
         {busy && <span className="spinner" />}אישור ופתיחת הבקשה</button>
     </section>

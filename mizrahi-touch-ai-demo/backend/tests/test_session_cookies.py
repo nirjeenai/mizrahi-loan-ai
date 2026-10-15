@@ -1,5 +1,5 @@
 """Sessions of different app instances on one host never overwrite each other, and every 401 names the session that
-would satisfy it — the cause of the intermittent "נדרש חיבור לתיק." when a preview or isolated stack ran beside the
+would satisfy it, the cause of the intermittent "נדרש חיבור לתיק." when a preview or isolated stack ran beside the
 main instance on 127.0.0.1 (cookies are scoped by host, not port)."""
 from __future__ import annotations
 

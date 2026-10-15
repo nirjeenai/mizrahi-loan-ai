@@ -28,8 +28,7 @@ COMPANY_AI_FAMILIES = ("id_document",)
 INCOME_HE = {"salaried": "שכיר/ה", "self_employed": "עצמאי/ת", "allowance": "מקבל/ת קצבה"}
 REGISTRATION_HE = {"vat_exempt": "עוסק פטור", "vat_registered": "עוסק מורשה"}
 ROLE_HE = {"primary": "לווה ראשי", "co_borrower": "לווה נוסף", "authorized_signatory": "מורשה חתימה"}
-POLICY_DISCLAIMER_HE = ("מדיניות מסמכים להדגמה, המבוססת על פרקטיקה בנקאית ומיסויית ציבורית — אינה רשימת הדרישות "
-                        "המאושרת של מזרחי־טפחות.")
+POLICY_DISCLAIMER_HE = "רשימת המסמכים נגזרת ממדיניות המסמכים של הבקשה; הבנקאי/ת עשויים לבקש מסמכים נוספים."
 
 
 def pin(case_id: str) -> str:
@@ -86,7 +85,7 @@ def _matches(cond: Optional[schema.Condition], case: dict, applicant: Optional[d
 
 
 def applicant_profile_he(applicant: dict) -> str:
-    """'שכיר/ה · עצמאי/ת (עוסק פטור)' — the income profile the policy composes from."""
+    """'שכיר/ה · עצמאי/ת (עוסק פטור)', the income profile the policy composes from."""
     parts = []
     for src in income_sources(applicant):
         reg = REGISTRATION_HE.get(applicant.get("business_registration") or "") if src == "self_employed" else None

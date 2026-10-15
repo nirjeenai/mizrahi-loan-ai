@@ -252,7 +252,7 @@ def banker_decide(banker: Page, case: str, document_id: str, action: str) -> Non
         banker.locator("[data-testid=send-request]").click()
     else:
         banker.locator("[data-testid=action-accept]").click()
-        banker.locator("[data-testid=accept-rationale]").fill("נבדק ידנית מול המקור — תקין לצורך הכנת התיק")
+        banker.locator("[data-testid=accept-rationale]").fill("נבדק ידנית מול המקור, תקין לצורך הכנת התיק")
         banker.locator("[data-testid=confirm-accept]").click()
     banker.wait_for_timeout(1200)
 

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import "./bankletter.css";
 
 /** A customer letter on Mizrahi-Tefahot letterhead: logo and document type, the brand rule, the body, and a footer with
- *  the bank's name and the draft status. One layout for every reply type; `demo` keeps the simulated-approval marking. */
+ *  the bank's name and the draft status. One layout for every reply type; `demo` puts the non-binding line in the footer. */
 export function LetterSheet({ docType, demo, compact, children }: { docType: string; demo?: boolean; compact?: boolean; children: ReactNode }) {
   return (
     <article className={`bl${compact ? " compact" : ""}`} data-testid="cc-letter">
@@ -10,14 +10,14 @@ export function LetterSheet({ docType, demo, compact, children }: { docType: str
         <img className="bl-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" />
         <div className="bl-head-meta">
           <span className="bl-doctype">{docType}</span>
-          <span className={`bl-state${demo ? " demo" : ""}`}>{demo ? "מסמך הדמיה" : "טיוטה · טרם נשלחה"}</span>
+          <span className="bl-state">טיוטה · טרם נשלחה</span>
         </div>
       </header>
       <div className="bl-rule" aria-hidden><i /><i /></div>
       <div className="bl-body">{children}</div>
       <footer className="bl-foot">
         <span className="bl-foot-bank">בנק מזרחי טפחות בע״מ</span>
-        <span>{demo ? "מסמך הדמיה · אינו החלטת אשראי ואינו הסכם הלוואה" : "טיוטה לעיון הבנקאי · לא נשלחה ללקוח"}</span>
+        <span>{demo ? "אינו החלטת אשראי ואינו הסכם הלוואה · לא נשלח ללקוח" : "טיוטה לעיון הבנקאי · לא נשלחה ללקוח"}</span>
       </footer>
     </article>
   );

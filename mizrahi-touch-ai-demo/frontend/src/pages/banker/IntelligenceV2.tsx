@@ -68,10 +68,10 @@ function Dashboard({ x, open, openV1, onToast }: Ctx & { onToast: (t: { text: st
 // ---------------------------------------------------------------- formatting and provenance
 const nf0 = new Intl.NumberFormat("he-IL", { maximumFractionDigits: 0 });
 const nf2 = new Intl.NumberFormat("he-IL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const money = (v?: number | null, exact = false) => (v == null ? "—" : `₪${(exact ? nf2 : nf0).format(v)}`);
-export const pct = (v?: number | null) => (v == null ? "—" : `${v.toFixed(1)}%`);
+export const money = (v?: number | null, exact = false) => (v == null ? "-" : `₪${(exact ? nf2 : nf0).format(v)}`);
+export const pct = (v?: number | null) => (v == null ? "-" : `${v.toFixed(1)}%`);
 export const fmt = (v: number | string | null | undefined, unit?: string, exact = false) =>
-  v == null ? "—" : typeof v === "string" ? v : unit === "pct" ? pct(v) : unit === "months" ? `${v} תשלומים` : money(v, exact);
+  v == null ? "-" : typeof v === "string" ? v : unit === "pct" ? pct(v) : unit === "months" ? `${v} תשלומים` : money(v, exact);
 export const years = (m: number) => (m % 12 === 0 ? `${m / 12} שנים` : `${(m / 12).toFixed(1)} שנים`);
 
 export type MarkKind = "verified" | "reviewed" | "unverified" | "declared" | "demo" | "calc" | "assume" | "missing" | "sim";
@@ -80,13 +80,13 @@ export type MarkKind = "verified" | "reviewed" | "unverified" | "declared" | "de
 export const MARK: Record<MarkKind, { icon: string; label: string; title: string }> = {
   verified: { icon: "✓", label: "מסמך", title: "חולץ ממסמך ואומת מול הקובץ" },
   reviewed: { icon: "✓", label: "נבדק", title: "חולץ ממסמך, אומת מול הקובץ, והמסמך התקבל על ידי הבנקאי" },
-  unverified: { icon: "!", label: "מסמך · לא אומת", title: "חולץ ממסמך — לא אומת מול הקובץ" },
-  declared: { icon: "✎", label: "מוצהר", title: "הצהרת הלקוח בבקשה — לא מאומת" },
-  demo: { icon: "בנק", label: "נתוני בנק", title: "נתון מההקשר הבנקאי של התיק — לא אומת מול מערכות הבנק" },
-  calc: { icon: "ƒ", label: "חישוב", title: "חושב בקוד מנתונים אחרים — לחצו לנוסחה ולקלטים" },
-  assume: { icon: "≈", label: "הנחה", title: "הנחה לצורך החישוב — אינה מדיניות או ריבית של הבנק" },
+  unverified: { icon: "!", label: "מסמך · לא אומת", title: "חולץ ממסמך, לא אומת מול הקובץ" },
+  declared: { icon: "✎", label: "מוצהר", title: "הצהרת הלקוח בבקשה, לא מאומת" },
+  demo: { icon: "בנק", label: "נתוני בנק", title: "נתון מההקשר הבנקאי של התיק, לא אומת מול מערכות הבנק" },
+  calc: { icon: "ƒ", label: "חישוב", title: "חושב בקוד מנתונים אחרים, לחצו לנוסחה ולקלטים" },
+  assume: { icon: "≈", label: "הנחה", title: "הנחה לצורך החישוב, אינה מדיניות או ריבית של הבנק" },
   missing: { icon: "?", label: "חסר", title: "הנתון אינו זמין" },
-  sim: { icon: "◇", label: "סימולציה", title: "ערך סימולציה — לא נשמר ואינו משנה את הבקשה" },
+  sim: { icon: "◇", label: "סימולציה", title: "ערך סימולציה, לא נשמר ואינו משנה את הבקשה" },
 };
 export function markOf(s?: IntelSource | null): MarkKind {
   if (!s) return "missing";
@@ -120,7 +120,7 @@ function SrcLink({ ctx, id, children }: { ctx: Ctx; id: string | null | undefine
 
 // ---------------------------------------------------------------- header: who, what, the recommendation, one action
 const TITLE: Record<string, string> = {
-  READY_FOR_CREDIT_REVIEW: "מומלץ להתקדם לבחינת האשראי", PREPARATION_CONFIRMED: "הכנת התיק אושרה — אפשר להתקדם לבחינת האשראי",
+  READY_FOR_CREDIT_REVIEW: "מומלץ להתקדם לבחינת האשראי", PREPARATION_CONFIRMED: "הכנת התיק אושרה, אפשר להתקדם לבחינת האשראי",
   CLARIFICATION_REQUIRED: "נדרש בירור לפני המשך הטיפול", DOCUMENTS_INCOMPLETE: "נדרשת השלמת מסמכים", NO_DOCUMENTS: "ממתינים למסמכים מהלקוח",
   PROCESSING: "JEEN בודק את המסמכים", ERROR: "תקלה בבדיקת המסמכים",
 };
@@ -141,7 +141,7 @@ function explanation(x: Intelligence): string {
     `${verified ? "ההכנסה הממוצעת המאומתת היא" : "ההכנסה לחישוב (חלקה מוצהרת) היא"} ${money(x.analysis.income.value)}`];
   if (x.analysis.combined_dsr?.value != null) parts.push(`יחס ההחזר המשולב בסימולציה הוא ${pct(x.analysis.combined_dsr.value)}`);
   const last = parts.pop();
-  const verify = x.bank_context.available ? "נדרש אימות נתוני הבנק לפני החלטה." : "אין נתוני התחייבויות קיימות — נדרש אימות לפני החלטה.";
+  const verify = x.bank_context.available ? "נדרש אימות נתוני הבנק לפני החלטה." : "אין נתוני התחייבויות קיימות, נדרש אימות לפני החלטה.";
   return `${parts.join(", ")} ו${last}. ${verify}`;
 }
 
@@ -212,14 +212,14 @@ function Kpis({ ctx, live, changed, sim }: { ctx: Ctx; live?: Scenario; changed:
   const thr = x.simulation.threshold_pct;
   const income = x.income.borrowers;
   const incomeNote = a.availability === "provisional" ? "הנמוך מבין מוצהר למתועד, עד לבירור"
-    : income.some((b) => b.quality === "declared") ? "מוצהר — טרם אומת במסמכים"
+    : income.some((b) => b.quality === "declared") ? "מוצהר, טרם אומת במסמכים"
       : income.some((b) => b.quality === "partial") ? "חלק מהחודשים" : income.length > 1 ? "סך הלווים" : "ממוצע תלושים מאומתים";
   const paySrc: IntelSource | null = !live ? null : !changed && a.proposed_payment?.source_id ? x.sources[a.proposed_payment.source_id] : {
-    id: "sim:kpi:pay", kind: "calculated", label_he: `החזר חודשי בסימולציה — ${live.term_months} תשלומים`, value: live.monthly_payment_ils, unit: "ils",
+    id: "sim:kpi:pay", kind: "calculated", label_he: `החזר חודשי בסימולציה, ${live.term_months} תשלומים`, value: live.monthly_payment_ils, unit: "ils",
     formula_he: "P·r ÷ (1 − (1 + r)^−n), r = ריבית שנתית ÷ 12",
     inputs: [{ label_he: "קרן (P)", value: sim.principal, unit: "ils", source_id: null, origin: "sim" },
       { label_he: "תשלומים (n)", value: sim.term, unit: "months", source_id: null, origin: "sim" },
-      { label_he: "ריבית שנתית", value: sim.rate, unit: "pct", source_id: null, origin: "sim" }], note_he: "ערכי סימולציה — לא נשמרים." };
+      { label_he: "ריבית שנתית", value: sim.rate, unit: "pct", source_id: null, origin: "sim" }], note_he: "ערכי סימולציה, לא נשמרים." };
   const dsrSrc: IntelSource | null = !live || live.combined_dsr_pct == null ? null : !changed && a.combined_dsr?.source_id ? x.sources[a.combined_dsr.source_id] : {
     id: "sim:kpi:dsr", kind: "calculated", label_he: "יחס החזר משולב בסימולציה", value: live.combined_dsr_pct, unit: "pct",
     formula_he: "(החזר משוער + החזרים קיימים) ÷ הכנסה נטו × 100",
@@ -238,7 +238,7 @@ function Kpis({ ctx, live, changed, sim }: { ctx: Ctx; live?: Scenario; changed:
         <div className="bi-kpi-k">החזר חודשי חדש בסימולציה</div>
         {live && paySrc ? <button className="bi-val big" onClick={() => ctx.open(paySrc)} data-testid="bi-kpi-payment-value" data-value={live.monthly_payment_ils}>
           <span className="bi-num ltr">{money(live.monthly_payment_ils)}</span><Mark kind={changed ? "sim" : "calc"} /></button> : <Val ctx={ctx} d={null} big />}
-        <div className="bi-kpi-n">{live ? `${money(live.principal_ils)} · ${live.term_months} תשלומים · ${pct(live.annual_rate_pct)}` : "—"}</div>
+        <div className="bi-kpi-n">{live ? `${money(live.principal_ils)} · ${live.term_months} תשלומים · ${pct(live.annual_rate_pct)}` : "-"}</div>
       </div>
       <div className={`bi-kpi${live?.combined_dsr_pct != null ? (over ? " k-warn" : " k-ok") : ""}`} data-testid="bi-kpi-combined">
         <div className="bi-kpi-k">יחס החזר כולל בסימולציה</div>
@@ -262,18 +262,18 @@ export function scenarioSource(s: Intelligence["simulation"], r: Scenario, what:
     origin: r.term_months === term ? "sim" : "calc" };
   const inR: SourceInput = { label_he: "ריבית שנתית", value: rate, unit: "pct", source_id: rate === base.annual_rate_pct ? s.rate_source_id : null, origin: "sim" };
   const pay: SourceInput = { label_he: "החזר חודשי", value: r.monthly_payment_ils, unit: "ils", source_id: null, origin: "calc" };
-  if (what === "pay") return { id: `sim:pay:${r.key}`, kind: "calculated", label_he: `החזר חודשי — ${r.term_months} תשלומים`, value: r.monthly_payment_ils,
+  if (what === "pay") return { id: `sim:pay:${r.key}`, kind: "calculated", label_he: `החזר חודשי, ${r.term_months} תשלומים`, value: r.monthly_payment_ils,
     unit: "ils", formula_he: "P·r ÷ (1 − (1 + r)^−n), r = ריבית שנתית ÷ 12", inputs: [inP, inN, inR],
     note_he: "חושב בדפדפן באותה נוסחה ובאותו עיגול כמו בשרת. ערכי סימולציה אינם נשמרים." };
-  if (what === "total") return { id: `sim:total:${r.key}`, kind: "calculated", label_he: `עלות המימון — ${r.term_months} תשלומים`, value: r.total_interest_ils,
+  if (what === "total") return { id: `sim:total:${r.key}`, kind: "calculated", label_he: `עלות המימון, ${r.term_months} תשלומים`, value: r.total_interest_ils,
     unit: "ils", formula_he: "החזר חודשי × n − P", inputs: [pay, inN, inP],
-    note_he: "מחושב מההחזר הלא מעוגל — התשלום האחרון סופג את עיגול האגורות. בריבית 0% עלות המימון היא 0." };
-  return { id: `sim:dsr:${r.key}`, kind: "calculated", label_he: `יחס החזר משולב — ${r.term_months} תשלומים`, value: r.combined_dsr_pct, unit: "pct",
+    note_he: "מחושב מההחזר הלא מעוגל, התשלום האחרון סופג את עיגול האגורות. בריבית 0% עלות המימון היא 0." };
+  return { id: `sim:dsr:${r.key}`, kind: "calculated", label_he: `יחס החזר משולב, ${r.term_months} תשלומים`, value: r.combined_dsr_pct, unit: "pct",
     formula_he: "(החזר משוער + החזרים קיימים) ÷ הכנסה נטו × 100",
     inputs: [pay,
       { label_he: "החזרים קיימים", value: s.existing_debt_ils, unit: "ils", source_id: s.existing_source_id },
       { label_he: "הכנסה נטו", value: s.income_ils, unit: "ils", source_id: s.income_source_id }],
-    note_he: r.combined_includes_existing ? null : "אין נתוני התחייבויות קיימות — היחס כולל רק את ההלוואה המבוקשת." };
+    note_he: r.combined_includes_existing ? null : "אין נתוני התחייבויות קיימות, היחס כולל רק את ההלוואה המבוקשת." };
 }
 
 function Simulator({ ctx, sim, setSim, base, changed, rows }: { ctx: Ctx; sim: Sim; setSim: (s: Sim) => void; base: Sim; changed: boolean; rows: Scenario[] }) {
@@ -283,9 +283,9 @@ function Simulator({ ctx, sim, setSim, base, changed, rows }: { ctx: Ctx; sim: S
   if (!s.enabled) return <section className="bi-sec" data-testid="bi-simulator"><h2>חלופות מימון</h2><div className="bi-empty">אין בבקשה סכום ומספר תשלומים לחישוב.</div></section>;
   const short = rows[0], long = rows[rows.length - 1];
   const calcSource = (r: Scenario, what: "pay" | "dsr" | "total") => scenarioSource(s, r, what, sim.principal, sim.term, sim.rate);
-  const caution = x.analysis.availability === "unavailable" ? "ניתוח יחסי ההחזר אינו זמין לתיק זה — מוצגים החזרים ועלויות בלבד."
-    : x.analysis.availability === "provisional" ? "להמחשה בלבד — הניתוח זמני עד לבירור הפער בהכנסה."
-      : x.analysis.availability === "partial" ? `להמחשה בלבד — ${x.analysis.reasons_he[0] || "הניתוח חלקי."}` : null;
+  const caution = x.analysis.availability === "unavailable" ? "ניתוח יחסי ההחזר אינו זמין לתיק זה, מוצגים החזרים ועלויות בלבד."
+    : x.analysis.availability === "provisional" ? "להמחשה בלבד, הניתוח זמני עד לבירור הפער בהכנסה."
+      : x.analysis.availability === "partial" ? `להמחשה בלבד, ${x.analysis.reasons_he[0] || "הניתוח חלקי."}` : null;
   return (
     <section className="bi-sec bi-simsec" data-testid="bi-simulator">
       <header className="bi-sec-head">
@@ -361,7 +361,7 @@ function Reasons({ ctx }: { ctx: Ctx }) {
   const [all, setAll] = useState(false);
   const d = x.documents;
   const pending = d.missing.length + d.corrections.length;
-  const docLine = { text_he: pending ? `חסרים ${pending} פריטים בתיק — ראו בראש המסך.`
+  const docLine = { text_he: pending ? `חסרים ${pending} פריטים בתיק, ראו בראש המסך.`
     : d.open_findings ? `המסמכים הושלמו; ${d.open_findings === 1 ? "ממצא אחד ממתין" : `${d.open_findings} ממצאים ממתינים`} לבירור שלך.`
       : d.total ? `המסמכים הנדרשים הושלמו (${d.progress ? `${d.progress.done}/${d.progress.total}` : d.total}).` : "טרם הועלו מסמכים.",
     tone: pending || d.open_findings ? "warn" : d.total ? "ok" : "info", source_ids: [] as string[] };
@@ -433,7 +433,7 @@ function Supporting({ ctx }: { ctx: Ctx }) {
           </div>
         ))}
         {a.declared_alternative && <div className="bi-caution" data-testid="bi-declared-alt">על בסיס ההכנסה המוצהרת ({money(a.declared_alternative.income_ils)}) היחס המשולב היה{" "}
-          <b className="ltr">{pct(a.declared_alternative.combined_dsr_pct)}</b> — הניתוח לא בוחר בנתון שמציג את הבקשה טוב יותר.</div>}
+          <b className="ltr">{pct(a.declared_alternative.combined_dsr_pct)}</b>, הניתוח לא בוחר בנתון שמציג את הבקשה טוב יותר.</div>}
         {x.risks.length > 0 && <ul className="bi-risks" data-testid="bi-risks">
           {x.risks.map((r, i) => (
             <li key={i} className={`r-${r.kind}`}><span className="bi-tag warn">{r.who_he}</span>
@@ -441,7 +441,7 @@ function Supporting({ ctx }: { ctx: Ctx }) {
               {r.source_ids.map((id) => <button key={id} className="bi-chipsrc" onClick={() => ctx.open(id)}><Mark kind={markOf(x.sources[id])} /></button>)}
               <button className="bi-link" onClick={() => ctx.openV1(r.v1_item)}>פתיחה</button></li>))}
         </ul>}
-        <div className="bi-unknowns"><b>לא נכלל בבדיקה:</b> {x.unknowns.map((u) => `${u.label_he} — ${u.text_he}`).join(" · ")}</div>
+        <div className="bi-unknowns"><b>לא נכלל בבדיקה:</b> {x.unknowns.map((u) => `${u.label_he}, ${u.text_he}`).join(" · ")}</div>
       </Panel>
 
       <Panel title="התחייבויות ואובליגו" testId="bi-obligations" demo={bc.available}
@@ -454,8 +454,8 @@ function Supporting({ ctx }: { ctx: Ctx }) {
           {bc.exposure && <div><span>אובליגו מאושר</span><Val ctx={ctx} d={bc.exposure.approved} testId="bi-exposure-approved" /></div>}
           {bc.exposure && <div><span>אובליגו מנוצל</span><Val ctx={ctx} d={bc.exposure.utilized} testId="bi-exposure-utilized" /></div>}
         </div>
-        {!bc.available ? <div className="bi-empty">אין נתוני הקשר בנקאי עבור {bc.missing_for.join(", ") || "המבקשים"} — ההתחייבויות הקיימות לא ידועות, והיחס כולל רק את ההלוואה המבוקשת.</div> : <>
-          <div className="bi-src-note">מקור: {bc.fixture_ids.join(", ")} · נכון ל־<span className="ltr">{bc.observed_at}</span> · לא נשלפו ממערכות הבנק{bc.missing_for.length ? ` · חסר עבור ${bc.missing_for.join(", ")}` : ""}</div>
+        {!bc.available ? <div className="bi-empty">אין נתוני הקשר בנקאי עבור {bc.missing_for.join(", ") || "המבקשים"}, ההתחייבויות הקיימות לא ידועות, והיחס כולל רק את ההלוואה המבוקשת.</div> : <>
+          <div className="bi-src-note">נתוני בנק · נכון ל־<span className="ltr">{bc.observed_at}</span> · לא מאומת{bc.missing_for.length ? ` · חסר עבור ${bc.missing_for.join(", ")}` : ""}</div>
           <table className="bi-table">
             <thead><tr><th>הלוואה קיימת</th><th>יתרת קרן</th><th>החזר חודשי</th><th>נותרו</th></tr></thead>
             <tbody>{bc.loans.length ? bc.loans.map((l) => (
@@ -471,12 +471,12 @@ function Supporting({ ctx }: { ctx: Ctx }) {
                 <td><div className="bi-meter"><span style={{ width: `${Math.min(100, (l.utilized_ils / (l.limit_ils || 1)) * 100)}%` }} /></div></td></tr>))}</tbody>
           </table>
           <ul className="bi-notes">
-            <li>יתרות ומסגרות הן חשיפה (אובליגו), לא החזר חודשי — רק ההחזרים החודשיים נכנסים ליחס ההחזר.</li>
-            {bc.card_spending.map((c) => <li key={c.source_id}>חיובי כרטיס ({c.owner_he}): <button className="bi-val" onClick={() => ctx.open(c.source_id)}><span className="bi-num ltr">{money(c.avg_monthly_ils)}</span><Mark kind="demo" /></button> בחודש — הוצאה שוטפת, לא נספרת כהחזר חוב.</li>)}
+            <li>יתרות ומסגרות הן חשיפה (אובליגו), לא החזר חודשי, רק ההחזרים החודשיים נכנסים ליחס ההחזר.</li>
+            {bc.card_spending.map((c) => <li key={c.source_id}>חיובי כרטיס ({c.owner_he}): <button className="bi-val" onClick={() => ctx.open(c.source_id)}><span className="bi-num ltr">{money(c.avg_monthly_ils)}</span><Mark kind="demo" /></button> בחודש, הוצאה שוטפת, לא נספרת כהחזר חוב.</li>)}
             {bc.events.map((e) => <li key={e.source_id} className={e.returned_checks_12m || e.arrears_12m ? "warn-text" : ""}>אירועי חשבון ב־12 חודשים ({e.owner_he}): {e.returned_checks_12m || e.arrears_12m ? e.detail_he.join(" ") : "ללא שיקים חוזרים, פיגורים או הגבלות"} <button className="bi-chipsrc" onClick={() => ctx.open(e.source_id)}><Mark kind="demo" /></button></li>)}
           </ul>
         </>}
-        {a.illustrative_max_principal != null && <div className="bi-maxp" data-testid="bi-max-principal">להמחשה: סכום של עד <b className="ltr">{money(a.illustrative_max_principal)}</b> ל־{x.simulation.inputs.term_months} תשלומים משאיר את היחס המשולב בתוך {x.simulation.threshold_pct}% — אינו סכום מאושר.</div>}
+        {a.illustrative_max_principal != null && <div className="bi-maxp" data-testid="bi-max-principal">להמחשה: סכום של עד <b className="ltr">{money(a.illustrative_max_principal)}</b> ל־{x.simulation.inputs.term_months} תשלומים משאיר את היחס המשולב בתוך {x.simulation.threshold_pct}%, אינו סכום מאושר.</div>}
       </Panel>
 
       <Panel title="נתונים ומקורות" testId="bi-data"
@@ -511,7 +511,7 @@ function Supporting({ ctx }: { ctx: Ctx }) {
             </dl>
             <h3>מסמכים</h3>
             <dl className="bi-dl" data-testid="bi-doc-detail">
-              <div><dt>דרישות שהושלמו</dt><dd className="ltr">{d.progress ? `${d.progress.done}/${d.progress.total}` : "—"}</dd></div>
+              <div><dt>דרישות שהושלמו</dt><dd className="ltr">{d.progress ? `${d.progress.done}/${d.progress.total}` : "-"}</dd></div>
               <div><dt>קבצים שהתקבלו</dt><dd className="ltr">{d.total}</dd></div>
               <div><dt>התקבלו על ידך</dt><dd className="ltr">{d.accepted}/{d.total}</dd></div>
               <div><dt>שלב רשמי בבנק</dt><dd>{x.case.bank_stage.label_he} <Mark kind="demo" /></dd></div>
@@ -533,9 +533,9 @@ function Supporting({ ctx }: { ctx: Ctx }) {
 
 // ---------------------------------------------------------------- the customer draft: a preview, editing on demand
 export const DRAFT_NOTE: Record<string, string> = {
-  complete_documentation: "אישור קבלה והעברה לבדיקת הבנק — ללא התחייבות לאישור.",
+  complete_documentation: "אישור קבלה והעברה לבדיקת הבנק, ללא התחייבות לאישור.",
   missing_documents: "בקשה מדויקת לפריטים שחסרים בתיק.",
-  financial_clarification: "בקשת הבהרה על פער מתועד — בלי הנימוק הפנימי.",
+  financial_clarification: "בקשת הבהרה על פער מתועד, בלי הנימוק הפנימי.",
   conditional_financing: "חלופות להמחשה בלבד, עם התנאים במפורש. לא הצעה מחייבת.",
 };
 
@@ -554,7 +554,7 @@ function DraftCard({ ctx, onToast }: { ctx: Ctx; onToast: (t: { text: string; to
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(full);
-      onToast({ text: "הטיוטה הועתקה. היא לא נשלחה ללקוח — השליחה נעשית בערוץ הבנק.", tone: "ok" });
+      onToast({ text: "הטיוטה הועתקה. היא לא נשלחה ללקוח, השליחה נעשית בערוץ הבנק.", tone: "ok" });
     } catch {
       onToast({ text: "ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית.", tone: "bad" });
     }
@@ -594,7 +594,7 @@ function DraftCard({ ctx, onToast }: { ctx: Ctx; onToast: (t: { text: string; to
           <button className="bi-ghost" onClick={() => setEditing(false)} data-testid="bi-draft-collapse">סגירה</button>
         </div>
       </>}
-      <div className="bi-dfoot">שום דבר לא נשלח מכאן. נוסח מתבנית קבועה — לא טקסט של מודל, בלי יחסי החזר או הערות פנימיות.</div>
+      <div className="bi-dfoot">שום דבר לא נשלח מכאן. נוסח מתבנית קבועה, לא טקסט של מודל, בלי יחסי החזר או הערות פנימיות.</div>
     </section>
   );
 }
@@ -628,7 +628,7 @@ export function SourceDrawer({ src, depth, ws, x, open, openV1, onBack, onClose 
             <div><dt>סוג</dt><dd>{src.doc_type_he}{src.period_he ? ` · ${src.period_he}` : ""}</dd></div>
             <div><dt>בדיקת AI</dt><dd>{src.ai_verdict_he}</dd></div>
             <div><dt>החלטת בנקאי</dt><dd>{src.banker_status_he}</dd></div>
-            <div><dt>מיקום</dt><dd>{src.has_location ? `עמוד ${src.page}, מסומן על המסמך` : "אין מיקום מדויק — מוצג העמוד בלבד"}</dd></div>
+            <div><dt>מיקום</dt><dd>{src.has_location ? `עמוד ${src.page}, מסומן על המסמך` : "אין מיקום מדויק, מוצג העמוד בלבד"}</dd></div>
           </dl>
           <div className="bi-dr-actions">
             <button className="bi-btn" onClick={() => { onClose(); openV1(src.v1_item); }} data-testid="bi-drawer-v1">פתיחה בסקירת המסמכים</button>
@@ -636,13 +636,13 @@ export function SourceDrawer({ src, depth, ws, x, open, openV1, onBack, onClose 
           </div>
           {doc ? <div className="bi-dr-viewer" data-testid="bi-drawer-evidence">
             <EvidenceViewer documentId={doc.document_id} facts={doc.ai.facts} page={src.page || 1} focus={src.field} dpi={130} quiet autoScroll={false} />
-          </div> : <div className="bi-empty">המסמך אינו זמין בסקירה הנוכחית — לא מוצגת ראיה.</div>}
+          </div> : <div className="bi-empty">המסמך אינו זמין בסקירה הנוכחית, לא מוצגת ראיה.</div>}
         </>}
         {src.kind === "declared" && <div className="bi-dr-box">
           <p><b>מקור:</b> {src.origin_he}</p>{src.note_he && <p><b>הערת הלקוח:</b> {src.note_he}</p>}
           <p className="muted">נתון שהלקוח מסר. אינו מאומת עד שמסמך תומך בו.</p></div>}
         {src.kind === "synthetic_bank" && <div className="bi-dr-box demo" data-testid="bi-drawer-synthetic">
-          <p><b>מקור:</b> {src.source_he} · <span className="ltr">{src.fixture_id}</span></p>
+          <p><b>מקור:</b> {src.source_he}</p>
           <p><b>נכון לתאריך:</b> <span className="ltr">{src.observed_at}</span></p>
           {src.detail_he && <p>{src.detail_he}</p>}
           <p className="muted">{src.note_he}</p></div>}

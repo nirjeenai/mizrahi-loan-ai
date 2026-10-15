@@ -148,8 +148,8 @@ export function Tools() {
     <>
       <div className="page-title">כלים</div>
       <div className="card">
-        <div className="card-title">מחשבון החזר חודשי — להמחשה בלבד</div>
-        <div className="tiny muted" style={{ marginBottom: 10 }}>מחשבון כללי (לוח שפיצר). הריבית מוזנת על ידכם — זו אינה הצעת ריבית, אינה הצעת אשראי ואינה החלטה של הבנק.</div>
+        <div className="card-title">מחשבון החזר חודשי, להמחשה בלבד</div>
+        <div className="tiny muted" style={{ marginBottom: 10 }}>מחשבון כללי (לוח שפיצר). הריבית מוזנת על ידכם, זו אינה הצעת ריבית, אינה הצעת אשראי ואינה החלטה של הבנק.</div>
         {[["סכום הלוואה (₪)", amount, setAmount, 5000, 250000, 1000], ["מספר תשלומים", payments, setPayments, 2, 120, 1], ["ריבית שנתית (%)", rate, setRate, 0, 15, 0.1]].map(([label, value, set, min, max, step]) => (
           <label key={label as string} className="stack" style={{ gap: 4, marginBottom: 10 }}>
             <span className="small bold">{label as string}: <span className="ltr">{Number(value).toLocaleString("he-IL")}</span></span>
@@ -160,7 +160,7 @@ export function Tools() {
         <div className="statbox" style={{ textAlign: "center" }}><span>החזר חודשי משוער</span><b className="ltr">{ils(Math.round(monthly))}</b></div>
       </div>
       <a className="card card-row" style={{ textDecoration: "none" }} href="https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/" target="_blank" rel="noreferrer">
-        <span className="grow"><div className="card-title">הלוואה לכל מטרה — באתר מזרחי־טפחות</div><div className="card-sub">המקור הציבורי לרשימת המסמכים: ת״ז, 3 תלושים, דפי עו״ש ל־3 חודשים ואסמכתה למטרה</div></span>
+        <span className="grow"><div className="card-title">הלוואה לכל מטרה, באתר מזרחי־טפחות</div><div className="card-sub">המקור הציבורי לרשימת המסמכים: ת״ז, 3 תלושים, דפי עו״ש ל־3 חודשים ואסמכתה למטרה</div></span>
       </a>
     </>
   );

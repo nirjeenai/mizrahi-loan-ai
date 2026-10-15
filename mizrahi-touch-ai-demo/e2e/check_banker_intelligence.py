@@ -153,8 +153,8 @@ def michal(page: Page, c: httpx.Client) -> None:
     check("sections: collapsed by default for a clean case, and each expands",
           closed == ["false", "false", "false"] and ob.locator("[data-testid=bi-exposure-utilized]").is_visible()
           and page.locator("[data-testid=bi-evlist]").is_visible(), str(closed))
-    check("obligations: synthetic DEMO marks, fixture id and date, exposure and LTV inside the details",
-          ob.locator("[data-mark=demo]").count() >= 4 and "BFC-DEMO-BARAK-01" in ob.inner_text() and "2026-10-11" in ob.inner_text()
+    check("obligations: bank-data marks and date (no fixture ids), exposure and LTV inside the details",
+          ob.locator("[data-mark=demo]").count() >= 4 and "DEMO" not in ob.inner_text() and "2026-10-11" in ob.inner_text()
           and ob.locator("[data-testid=bi-kpi-ltv]").inner_text().startswith("68.2%"))
     page.locator("[data-testid=bi-slips-toggle]").click()
     check("income: compact summary; 'show payslips' reveals three verified (or banker-accepted) months",
@@ -176,8 +176,8 @@ def michal(page: Page, c: httpx.Client) -> None:
     expect(drawer).to_have_attribute("data-kind", "calculated")
     drawer.locator("[data-testid=bi-drawer-input]").first.click()
     expect(drawer).to_have_attribute("data-kind", "synthetic_bank")
-    check("evidence: the combined-ratio KPI explains its formula and leads down to the synthetic loan record",
-          inputs == 3 and "BFC-DEMO-BARAK-01" in drawer.inner_text())
+    check("evidence: the combined-ratio KPI explains its formula and leads down to the bank-context loan record",
+          inputs == 3 and "2026-10-11" in drawer.inner_text() and "DEMO" not in drawer.inner_text())
     page.screenshot(path=str(OUT / "04b-evidence-calc-to-synthetic.png"))
     page.locator("[data-testid=bi-drawer-close]").click()
     # the draft: collapsed preview → edit → collapse keeps the edit → copy

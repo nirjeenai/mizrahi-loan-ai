@@ -87,7 +87,7 @@ def _load(draft_id: str) -> tuple[dict, dict, dict]:
     if not conv:
         conv = _new_conv()
         first = _pending(conv, a)
-        _say(conv, f"{OPENING}\nנתחיל — {_prompt(first, conv, a)}" if first == "loan_type" else _prompt(first, conv, a),
+        _say(conv, f"{OPENING}\nנתחיל, {_prompt(first, conv, a)}" if first == "loan_type" else _prompt(first, conv, a),
              question_id=first)
         conv["asked"] = first
         _save(draft_id, conv)
@@ -190,22 +190,22 @@ def _prompt(qid: str, conv: dict, a: dict) -> str:
     purpose = a.get("purpose")
     prompts = {
         "loan_type": "איזו הלוואה מעניינת אותך?",
-        "business_form": "איך העסק רשום — עוסק פטור, עוסק מורשה או חברה בע״מ?",
+        "business_form": "איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
         "name": "איך קוראים לך? (שם פרטי ושם משפחה)",
-        "national_id": "מה מספר תעודת הזהות שלך? בהדגמה אפשר גם מזהה סינתטי, למשל DEMO-ID-201.",
+        "national_id": "מה מספר תעודת הזהות שלך?",
         "purpose": "למה העסק צריך את המימון?" if _sole(conv, a) else f"{first + ', ' if first else ''}למה מיועדת ההלוואה?",
         "amount": {"car": "איזה סכום צריך למימון הרכב?", "renovation": "איזה סכום צריך לשיפוץ?",
                    "celebration": "איזה סכום צריך לאירוע?"}.get(purpose or "", "איזה סכום תרצו לבקש?"),
         "payments": "על פני כמה תשלומים נוח לפרוס את ההחזר?",
-        "income": "איך מגיעה ההכנסה שלך היום — ממשכורת, מעסק או משניהם?",
+        "income": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
         "registration": "העסק שלך רשום כעוסק פטור או כעוסק מורשה?",
-        "net": ("כמה נכנס לך בחודש בערך, נטו — מהמשכורת ומהעסק יחד?" if len(sources) > 1 else
+        "net": ("כמה נכנס לך בחודש בערך, נטו, מהמשכורת ומהעסק יחד?" if len(sources) > 1 else
                 "כמה נשאר לך מהעסק בחודש, בערך, נטו?" if sources == ["self_employed"] else
-                "מה המשכורת החודשית שלך נטו, בערך?") + " (הצהרה בלבד — המסמכים יאמתו אותה בהמשך)",
+                "מה המשכורת החודשית שלך נטו, בערך?") + " (הצהרה בלבד, המסמכים יאמתו אותה בהמשך)",
         "co_borrower": "מישהו נוסף חותם איתך על ההלוואה, למשל בן או בת זוג?",
         "co_name": "איך קוראים ללווה הנוסף? (שם פרטי ושם משפחה)",
         "co_national_id": f"ומה מספר תעודת הזהות של {co}?",
-        "co_income": f"איך מגיעה ההכנסה של {co} — ממשכורת, מעסק או משניהם?",
+        "co_income": f"איך מגיעה ההכנסה של {co}, ממשכורת, מעסק או משניהם?",
         "co_registration": f"העסק של {co} רשום כעוסק פטור או כעוסק מורשה?",
         "co_net": f"וכמה נכנס ל{co} בחודש, בערך, נטו? (הצהרה בלבד)",
         "accounts": f"יש לך ול{co} חשבון עו״ש משותף, או שלכל אחד חשבון משלו?",
@@ -220,7 +220,7 @@ def _prompt(qid: str, conv: dict, a: dict) -> str:
 
 SHORT = {"loan_type": "מדובר בהלוואה פרטית או עסקית?", "name": "איך קוראים לך?",
          "national_id": "מה מספר תעודת הזהות שלך?", "amount": "איזה סכום צריך?", "payments": "בכמה תשלומים?",
-         "income": "איך מגיעה ההכנסה שלך — ממשכורת, מעסק או משניהם?", "net": "כמה נכנס לך נטו בחודש, בערך?",
+         "income": "איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?", "net": "כמה נכנס לך נטו בחודש, בערך?",
          "co_borrower": "יש לווה נוסף, או שהבקשה רק על שמך?"}
 
 
@@ -286,11 +286,11 @@ def _ack(changes: list[tuple[str, Any, Any]], a: dict, conv: dict) -> str:
     loan = _loan(conv, a)
     if "loan_type" in ids or "business_form" in ids:
         if loan.get("type") == "personal":
-            parts.append("הלוואה פרטית — בשמחה.")
+            parts.append("הלוואה פרטית, בשמחה.")
         elif loan.get("form") == "company":
             parts.append("הלוואה עסקית לחברה בע״מ. זה מסלול מוגבל בליווי בנקאי/ת, ואאסוף כאן רק את מה שצריך כדי להתחיל.")
         elif loan.get("form"):
-            parts.append(f"הלוואה עסקית כ{FORM_HE[loan['form']]} — הבקשה תיפתח על שמך כבעל/ת העסק, עם מסמכי העסק שלך.")
+            parts.append(f"הלוואה עסקית כ{FORM_HE[loan['form']]}, הבקשה תיפתח על שמך כבעל/ת העסק, עם מסמכי העסק שלך.")
         else:
             parts.append("הלוואה עסקית, הבנתי.")
     if "name" in ids:
@@ -304,7 +304,7 @@ def _ack(changes: list[tuple[str, Any, Any]], a: dict, conv: dict) -> str:
     listed = sorted([(q, v) for q, v in new if q not in skip], key=lambda x: ORDER.index(x[0]))
     if any(q == "purpose" and v == "car" for q, v in listed) and len(listed) <= 2:
         extra = [_value_he(q, v, a) for q, v in listed if q != "purpose"]
-        parts.append("הבנתי, נבדוק יחד מימון לרכב" + (f" — {_and(extra)}." if extra else "."))
+        parts.append("הבנתי, נבדוק יחד מימון לרכב" + (f", {_and(extra)}." if extra else "."))
     elif len(listed) >= 2:
         parts.append(_ack_many(dict(listed), a))
     elif len(listed) == 1:
@@ -312,7 +312,7 @@ def _ack(changes: list[tuple[str, Any, Any]], a: dict, conv: dict) -> str:
     income_changed = any(q.endswith("income") for q, _ in listed) or any(q.endswith("income") for q, _, _ in upd)
     if any(q in ("registration", "co_registration") for q, _ in new) and not income_changed and "business_form" not in ids:
         reg = next(v for q, v in new if q in ("registration", "co_registration"))
-        parts.append(f"{FORM_HE[reg]} — רשמתי.")
+        parts.append(f"{FORM_HE[reg]}, רשמתי.")
     if any(q in ("national_id", "co_national_id", "signatory_id") for q, _ in new) and not parts:
         parts.append("תודה, רשמתי.")
     for q, old, v in upd:
@@ -339,13 +339,13 @@ def _ack_many(f: dict, a: dict) -> str:
     sources = f.get("income")
     if sources:
         income = ("הכנסה ממשכורת" if sources == ["salaried"] else "הכנסה מעסק" if sources == ["self_employed"]
-                  else "שתי הכנסות — ממשכורת ומהעסק")
+                  else "שתי הכנסות, ממשכורת ומהעסק")
     if "net" in f:
         income = (income + " של" if income and len(sources or []) < 2 else income + ", יחד" if income else "הכנסה של") \
             + f" כ־{_ils(f['net'])} נטו בחודש"
     rest = [_value_he(q, v, a) for q, v in f.items() if q not in ("purpose", "amount", "payments", "income", "net")]
     bits = [b for b in [loan, income] + rest if b]
-    out = f"הבנתי — {_and(bits)}."
+    out = f"הבנתי, {_and(bits)}."
     if sources and len(sources) > 1:
         out += " אקח את שתי ההכנסות בחשבון כשנבנה את הבקשה."
     return out
@@ -355,18 +355,18 @@ def _ack_one(q: str, v: Any, a: dict) -> str:
     co = _first(a, "co_name") or "הלווה הנוסף"
     if q in ("income", "co_income"):
         reg_q = "registration" if q == "income" else "co_registration"
-        reg = {"vat_exempt": " — כעוסק פטור", "vat_registered": " — כעוסק מורשה"}.get(a.get(reg_q) or "", "")
+        reg = {"vat_exempt": ", כעוסק פטור", "vat_registered": ", כעוסק מורשה"}.get(a.get(reg_q) or "", "")
         who = "יש לך" if q == "income" else f"ל{co} יש"
         more = " אשאל עוד שאלה קצרה כדי להתאים את המסמכים." if "self_employed" in v and reg_q not in a else ""
         if len(v) > 1:
-            return f"הבנתי, {who} שתי הכנסות — ממשכורת ומהעסק{reg}. אקח את שתיהן בחשבון.{more}"
+            return f"הבנתי, {who} שתי הכנסות, ממשכורת ומהעסק{reg}. אקח את שתיהן בחשבון.{more}"
         return "הבנתי, הכנסה ממשכורת." if v == ["salaried"] else f"הבנתי, הכנסה מעסק{reg}.{more}"
     if q in ("purpose", "company_purpose"):
-        return f"{_purpose_he(v)} — רשמתי."
+        return f"{_purpose_he(v)}, רשמתי."
     if q == "amount":
-        return f"{_ils(v)}{' למימון הרכב' if a.get('purpose') == 'car' else ''} — רשמתי."
+        return f"{_ils(v)}{' למימון הרכב' if a.get('purpose') == 'car' else ''}, רשמתי."
     if q == "business_amount":
-        return f"{_ils(v)} — רשמתי."
+        return f"{_ils(v)}, רשמתי."
     if q == "payments":
         return f"{v} תשלומים{f', כלומר {v // 12} שנים' if v % 12 == 0 else ''}."
     if q == "net":
@@ -376,9 +376,9 @@ def _ack_one(q: str, v: Any, a: dict) -> str:
     if q == "co_borrower":
         return "בסדר, נוסיף לווה נוסף לבקשה." if v == "yes" else "בסדר, הבקשה רק על שמך."
     if q == "accounts":
-        return "חשבון משותף — רשמתי." if v == "joint" else "חשבונות נפרדים — רשמתי."
+        return "חשבון משותף, רשמתי." if v == "joint" else "חשבונות נפרדים, רשמתי."
     if q == "company_name":
-        return f"{v} — רשמתי."
+        return f"{v}, רשמתי."
     return "תודה, רשמתי."
 
 
@@ -415,17 +415,17 @@ def _why(qid: str, conv: dict, a: dict) -> str:
                           "ולחברה בע״מ יש מסלול נפרד בליווי בנקאי/ת."),
         "name": "כדי לפנות אליך בשמך ולשייך כל מסמך ללווה הנכון.",
         "national_id": f"מספר הזהות משמש ל{ident.why_he}." if ident else "",
-        "purpose": (f"לכל מטרה מבקשים אסמכתה אחרת — {proof.why_he}. למשל, ל{purpose.label_he}: {purpose.proof_he}."
+        "purpose": (f"לכל מטרה מבקשים אסמכתה אחרת, {proof.why_he}. למשל, ל{purpose.label_he}: {purpose.proof_he}."
                     if proof and purpose else ""),
         "amount": "הסכום הוא חלק מהבקשה, והוא גם מאפשר לי לתת לך אינדיקציה ראשונית להמחשה. הוא לא משנה את רשימת המסמכים.",
         "payments": "מספר התשלומים קובע את גובה ההחזר החודשי, ולכן גם את האינדיקציה הראשונית.",
-        "income": (f"כי מקור ההכנסה משפיע על המסמכים שנצטרך: ממשכורת — {_label('PAYSLIPS')}; מעסק — "
+        "income": (f"כי מקור ההכנסה משפיע על המסמכים שנצטרך: ממשכורת, {_label('PAYSLIPS')}; מעסק, "
                    f"{_label('TAX_ASSESSMENT')} ואישור על רישום העסק. מי שיש לו את שניהם מתבקש את שני הסוגים."
                    if pay and tax else ""),
-        "registration": (f"סוג הרישום במע״מ קובע אילו מסמכים יבקשו על העסק: לעוסק פטור — {_and(exempt)}; "
-                         f"לעוסק מורשה — {_and(registered)}. בשני המקרים מבקשים גם {_label('TAX_ASSESSMENT')}."),
+        "registration": (f"סוג הרישום במע״מ קובע אילו מסמכים יבקשו על העסק: לעוסק פטור, {_and(exempt)}; "
+                         f"לעוסק מורשה, {_and(registered)}. בשני המקרים מבקשים גם {_label('TAX_ASSESSMENT')}."),
         "net": "ההכנסה המוצהרת נשמרת כהצהרה בלבד, והבנקאי/ת משווה אותה למסמכים. היא גם מאפשרת לי לתת אינדיקציה ראשונית.",
-        "co_borrower": "לכל לווה נוסף נדרשים מסמכים משלו — תעודת זהות ומסמכי הכנסה — ולכן חשוב לדעת את זה כבר עכשיו.",
+        "co_borrower": "לכל לווה נוסף נדרשים מסמכים משלו, תעודת זהות ומסמכי הכנסה, ולכן חשוב לדעת את זה כבר עכשיו.",
         "accounts": f"דפי העו״ש נבדקים לכל חשבון. {stmt.why_he}." if stmt else "",
         "company_name": "המסלול לחברות מטופל בליווי בנקאי/ת, והשם מופיע על כל מסמכי החברה.",
         "signatory": "רק מורשה חתימה יכול להגיש בקשה בשם החברה.",
@@ -480,28 +480,28 @@ def _provisional_documents(a: dict) -> Optional[list[str]]:
 def _explain(ind: dict, a: dict) -> str:
     if not ind["available"]:
         if ind["reason"] == "company":
-            return "במסלול לחברות אין אינדיקציה אוטומטית — הבקשה נבדקת בליווי בנקאי/ת."
+            return "במסלול לחברות אין אינדיקציה אוטומטית, הבקשה נבדקת בליווי בנקאי/ת."
         if ind["reason"] == "no_income":
             return "בלי הכנסה חודשית מוצהרת אין לי בסיס לאינדיקציה, ולכן אני לא מציג מספר."
-        return f"עוד אין לי אינדיקציה — חסרים לי {_and(ind['missing_he'])}. כשיהיו לי, אחשב ואסביר בדיוק איך."
+        return f"עוד אין לי אינדיקציה, חסרים לי {_and(ind['missing_he'])}. כשיהיו לי, אחשב ואסביר בדיוק איך."
     parts = [f"{_ils(p['net_ils'])} שלך" if p["who"] == "primary" else
              f"{_ils(p['net_ils'])} של {_first(a, 'co_name') or 'הלווה הנוסף'}" for p in ind["net_parts"]]
     income = f"{_ils(ind['declared_net_ils'])} ({' + '.join(parts)})" if len(parts) > 1 else _ils(ind["declared_net_ils"])
     ratio = int(round(ind["ratio"] * 100))
     lines = [
-        "כך חישבתי (הנחות סימולציה, לא כללי חיתום של הבנק):",
-        f"• ההכנסה החודשית נטו שמסרת: {income} — הצהרה, עוד לא מאומתת.",
+        "כך חישבתי (הנחות חישוב כלליות, לא כללי חיתום של הבנק):",
+        f"• ההכנסה החודשית נטו שמסרת: {income}, הצהרה, עוד לא מאומתת.",
         f"• עד {ratio}% ממנה להחזר חודשי ← עד כ־{_ils(ind['max_monthly_ils'])} בחודש."
         + (f" ({ratio}% ולא {int(indication.DEMO_RATIO_SALARIED * 100)}%, כי חלק מההכנסה מעסק.)" if ind["business_income"] else ""),
         f"• ריבית המחשה של {ind['annual_rate'] * 100:g}% לשנה ו־{ind['payments']} תשלומים: על {_ils(ind['requested_amount_ils'])} "
         f"ההחזר המשוער הוא כ־{_ils(ind['requested_monthly_ils'])} בחודש.",
         f"• התקרה התיאורטית בנוסחה הזו היא כ־{_ils(ind['max_amount_ils'])}"
         + (f" (מוגבלת ל־{_ils(ind['cap_ils'])}, התקרה של מסלול הבקשה)" if ind["capped"] else "")
-        + " — זו לא מסגרת אשראי מאושרת.",
+        + ", זו לא מסגרת אשראי מאושרת.",
     ]
     if ind["co_borrower_pending"]:
         lines.append("• ההכנסה של הלווה הנוסף עוד לא נכללה.")
-    lines.append("לא השתמשתי בנתוני אשראי, בחשבונות בנק או בהתחייבויות — אין לי גישה אליהם, והם לא נבדקו.")
+    lines.append("לא השתמשתי בנתוני אשראי, בחשבונות בנק או בהתחייבויות, אין לי גישה אליהם, והם לא נבדקו.")
     return "\n".join(lines)
 
 
@@ -547,7 +547,7 @@ def _answer(topic: str, q: str, a: dict, conv: dict, pending: Optional[str]) -> 
         conv["explained"] = ind.get("key")
         return _explain(ind, a), []
     if topic == "approval":
-        return ("אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה ולהכין אותה להמשך בחינה — את ההחלטה מקבל הבנק "
+        return ("אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה ולהכין אותה להמשך בחינה, את ההחלטה מקבל הבנק "
                 "אחרי בדיקת הבקשה והמסמכים."), []
     if topic == "interest":
         return ("את הריבית בפועל קובע הבנק רק אחרי בדיקת הבקשה, ואין לי נתון כזה. באינדיקציה הראשונית אני משתמש "
@@ -556,17 +556,17 @@ def _answer(topic: str, q: str, a: dict, conv: dict, pending: Optional[str]) -> 
         if ind["available"]:
             return "האינדיקציה הראשונית כבר מוצגת בשיחה, ואפשר לשאול אותי איך חישבתי אותה.", []
         if ind["reason"] == "company":
-            return "במסלול לחברות אין אינדיקציה אוטומטית — הבקשה נבדקת בליווי בנקאי/ת.", []
+            return "במסלול לחברות אין אינדיקציה אוטומטית, הבקשה נבדקת בליווי בנקאי/ת.", []
         return f"אחשב אינדיקציה ראשונית ברגע שיהיו לי {_and(ind.get('missing_he') or ['עוד כמה פרטים'])}.", []
     if topic == "missing_payslip":
         count, months = _payslip_months_he()
-        return (f"המדיניות מבקשת {count} תלושים אחרונים — לפי תאריך ההדגמה: {months}. אם חסר תלוש, אפשר בכל זאת לפתוח "
+        return (f"המדיניות מבקשת {count} תלושים אחרונים: {months}. אם חסר תלוש, אפשר בכל זאת לפתוח "
                 "את הבקשה ולהעלות את מה שיש; חודש חסר יסומן, והבנקאי/ת יוכלו לבקש אותו או הסבר. הסבר בכתב לא מחליף "
                 "את התלוש, ואין לי אפשרות לאשר כאן חלופה."), []
     if topic == "why_payslips":
         r = _rule("PAYSLIPS")
         count, months = _payslip_months_he()
-        return (f"תלושי השכר מאמתים את ההכנסה ממשכורת. המדיניות מבקשת {count} תלושים אחרונים — לפי תאריך ההדגמה: "
+        return (f"תלושי השכר מאמתים את ההכנסה ממשכורת. המדיניות מבקשת {count} תלושים אחרונים: "
                 f"{months}. {r.why_he if r else ''}."), []
     if topic == "why_registration":
         return _why_registration(a, conv), []
@@ -576,31 +576,32 @@ def _answer(topic: str, q: str, a: dict, conv: dict, pending: Optional[str]) -> 
             conv["focus"] = target
             return f"בטח. כרגע רשום: {_value_he(target, _v2(conv, a)[target], a)}.", []
         if target:
-            return "עוד לא הגענו לזה — אשאל על זה בהמשך.", []
+            return "עוד לא הגענו לזה, אשאל על זה בהמשך.", []
         return "מה תרצו לשנות? אפשר ללחוץ \"שינוי\" ליד כל פרט בסיכום, או לכתוב לי, למשל \"לשנות את הסכום ל־90 אלף\".", []
     if topic == "add_coborrower":
         if a.get("entity") == "company":
-            return "בבקשה של חברה אין לווה נוסף — את הבקשה מגיש/ה מורשה החתימה.", []
+            return "בבקשה של חברה אין לווה נוסף, את הבקשה מגיש/ה מורשה החתימה.", []
         if a.get("co_borrower") == "yes":
             return f"כבר הוספנו את {_first(a, 'co_name') or 'הלווה הנוסף'}. בבקשה הזו אפשר לצרף לווה נוסף אחד.", []
         act = [{"label_he": "להוסיף לווה נוסף", "question_id": "co_borrower", "value": "yes"}] if a.get("entity") else []
-        return ("אפשר — לבקשה אפשר לצרף לווה נוסף אחד, למשל בן או בת זוג. אז יידרשו גם המסמכים שלו או שלה"
+        return ("אפשר, לבקשה אפשר לצרף לווה נוסף אחד, למשל בן או בת זוג. אז יידרשו גם המסמכים שלו או שלה"
                 + (", ואשאל על זה בשלב ההתאמה האישית." if a.get("co_borrower") != "no" else ".")), act
     if topic == "documents":
         docs = _provisional_documents(a)
         if docs:
             return f"לפי מה שסיפרת עד עכשיו, יידרשו {len(docs)} מסמכים: {_and(docs)}. את הרשימה הסופית אציג בסיכום.", []
-        return "רשימת המסמכים תלויה בסוג ההלוואה ובמקור ההכנסה — כשאדע אותם אציג בדיוק מה יידרש.", []
+        return "רשימת המסמכים תלויה בסוג ההלוואה ובמקור ההכנסה, כשאדע אותם אציג בדיוק מה יידרש.", []
     if topic == "remaining":
         left = [x for x in _applicable(conv, _assume(a)) if x not in _v2(conv, a)]
         if not left:
-            return "סיימנו את השאלות — נשאר לעבור על הסיכום ולאשר, ואז נעבור למסמכים.", []
+            return "סיימנו את השאלות, נשאר לעבור על הסיכום ולאשר, ואז נעבור למסמכים.", []
         stages = [label for _, label, qs in STAGES if any(x in qs for x in left)]
         return f"נשארו עוד {len(left)} שאלות קצרות ({_and(stages)}), ואחריהן סיכום לאישור.", []
     if topic == "banker":
         return "אני עוזר דיגיטלי, לא בנקאי. אחרי שהבקשה תיפתח היא תגיע לבנקאי/ת שמטפל/ת בה, וההחלטות מתקבלות שם.", []
     if topic == "privacy":
-        return "זו סביבת הדגמה עם נתונים סינתטיים — הבקשה לא נשלחת לבנק. התשובות קובעות אילו מסמכים יידרשו.", []
+        return ("הפרטים שמסרת משמשים להכנת הבקשה בלבד: התשובות קובעות אילו מסמכים יידרשו, ואחרי פתיחת הבקשה "
+                "הם מגיעים לבנקאי/ת שמטפל/ת בה."), []
     if topic == "why_pending" and pending:
         return _why(pending, conv, a), []
     if topic == "smalltalk":
@@ -620,14 +621,14 @@ def _change_target(q: str, conv: dict, a: dict) -> Optional[str]:
 
 
 NOTE_TEXT = {
-    "range_low": lambda n: f"רשמתי {_ils(n['value'])} — הערך הנמוך בטווח שכתבת, כדי לא להגזים בהערכה.",
-    "conflicting_numbers": lambda n: f"ראיתי כמה מספרים ל{FIELD_HE.get(n['field'], 'אותו פרט')} — איזה מהם נכון?",
-    "unplaced_number": lambda n: f"לא בטוח למה התכוונת ב־{n['value']:,} — זה הסכום, ההכנסה או משהו אחר?",
-    "ambiguous_purpose": lambda n: "הזכרת יותר ממטרה אחת — מה המטרה העיקרית של ההלוואה?",
+    "range_low": lambda n: f"רשמתי {_ils(n['value'])}, הערך הנמוך בטווח שכתבת, כדי לא להגזים בהערכה.",
+    "conflicting_numbers": lambda n: f"ראיתי כמה מספרים ל{FIELD_HE.get(n['field'], 'אותו פרט')}, איזה מהם נכון?",
+    "unplaced_number": lambda n: f"לא בטוח למה התכוונת ב־{n['value']:,}, זה הסכום, ההכנסה או משהו אחר?",
+    "ambiguous_purpose": lambda n: "הזכרת יותר ממטרה אחת, מה המטרה העיקרית של ההלוואה?",
     "unsupported_income": lambda n: ("בשאלון הזה אפשר לציין הכנסה ממשכורת או מעסק. הכנסה מסוג אחר (למשל קצבה או שכירות) "
                                      "השאלון עוד לא יודע לקלוט."),
     "partial_name": lambda n: "אשמח גם לשם המשפחה.",
-    "no_income_left": lambda n: "אם אין הכנסה ממשכורת ולא מעסק — השאלון הזה עוד לא תומך בסוג ההכנסה הזה.",
+    "no_income_left": lambda n: "אם אין הכנסה ממשכורת ולא מעסק, השאלון הזה עוד לא תומך בסוג ההכנסה הזה.",
 }
 CLARIFYING_NOTES = {"conflicting_numbers", "unplaced_number", "ambiguous_purpose", "partial_name"}
 
@@ -644,8 +645,8 @@ def _unclear(field: str, kind: str, conv: dict, a: dict) -> tuple[str, list[dict
         if kind == "income_side_jobs":
             return ("הבנתי שיש לך לפעמים הכנסה כשכיר וגם עבודות נוספות. העבודות מהצד הן במסגרת עסק עצמאי, "
                     "או שגם שם מדובר בהעסקה כשכיר?"), acts + [{"label_he": "אני לא בטוח/ה", "text": "אני לא בטוח איך להגדיר את העבודות מהצד"}]
-        return ("זה בסדר, זה לא תמיד ברור. אם על העבודות מוציאים חשבונית או קבלה — זו הכנסה מעסק עצמאי. "
-                "אם מקבלים עליהן תלוש — זו הכנסה כשכיר. מה מתאים לך?"), acts + [
+        return ("זה בסדר, זה לא תמיד ברור. אם על העבודות מוציאים חשבונית או קבלה, זו הכנסה מעסק עצמאי. "
+                "אם מקבלים עליהן תלוש, זו הכנסה כשכיר. מה מתאים לך?"), acts + [
             {"label_he": "רק עסק עצמאי", "question_id": field, "value": ["self_employed"]}]
     return {"amount": "כמה בערך תרצו לבקש? גם סכום משוער מספיק.",
             "business_amount": "כמה בערך מבקשים? גם סכום משוער מספיק.",
@@ -653,8 +654,8 @@ def _unclear(field: str, kind: str, conv: dict, a: dict) -> tuple[str, list[dict
             "co_net": "כמה בערך נכנס ללווה הנוסף נטו בחודש?",
             "payments": "בכמה תשלומים תרצו לפרוס? אפשר 36, 48, 60 או 84.",
             "loan_type": "מדובר בהלוואה פרטית או עסקית?",
-            "purpose": "למה מיועדת ההלוואה — למשל רכב, שיפוץ או מטרה אחרת?",
-            "name": "אשמח לשם המלא — שם פרטי ושם משפחה."}.get(field, f"אפשר לפרט קצת לגבי {FIELD_HE.get(field, 'זה')}?"), []
+            "purpose": "למה מיועדת ההלוואה, למשל רכב, שיפוץ או מטרה אחרת?",
+            "name": "אשמח לשם המלא, שם פרטי ושם משפחה."}.get(field, f"אפשר לפרט קצת לגבי {FIELD_HE.get(field, 'זה')}?"), []
 
 
 ERROR_LEAD = {"net": "לא רשמתי את ההכנסה: ", "co_net": "לא רשמתי את ההכנסה: "}
@@ -668,13 +669,13 @@ def _error_text(qid: str, msg: str, value: Any = None) -> str:
         limit = f"של עד {_ils(hi)}" if value > hi else f"של {_ils(lo)} לפחות"
         return f"במסלול הבקשה הזה אפשר כרגע להזין סכום {limit}. אם מתאים לך, נמשיך עם סכום בטווח הנתמך."
     if msg == "השאלה אינה רלוונטית לתשובות הקודמות":
-        return f"לא רשמתי את {FIELD_HE.get(qid, 'הפרט')} — הוא לא מתאים לסוג הבקשה הנוכחי."
+        return f"לא רשמתי את {FIELD_HE.get(qid, 'הפרט')}, הוא לא מתאים לסוג הבקשה הנוכחי."
     return ERROR_LEAD.get(qid, "") + msg + "."
 
 
 def _not_understood(pending: Optional[str]) -> str:
     if pending is None:
-        return "לא בטוח שהבנתי. אפשר לבקש לשנות פרט — למשל \"לשנות את הסכום\" — או לאשר את הסיכום למטה."
+        return "לא בטוח שהבנתי. אפשר לבקש לשנות פרט, למשל \"לשנות את הסכום\", או לאשר את הסיכום למטה."
     kind = "choice" if pending in LOAN_FIELDS else BY_ID[pending][1]
     hint = {"choice": "אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
             "multi": "אפשר לבחור אחת מהאפשרויות או לכתוב, למשל \"אני שכירה\".",
@@ -729,10 +730,10 @@ def _indication_event(conv: dict, a: dict) -> tuple[Optional[str], Optional[dict
         if ind["within"]:
             core = f"הבקשה שלך ל־{req} נראית אפשרית להמשך בדיקה ראשונית{co}"
         else:
-            core = f"הסכום שביקשת ({req}) גבוה ממה שנוסחת הסימולציה מראה כאפשרי{co}; אפשר להמשיך כך, והבנק יבדוק"
+            core = f"הסכום שביקשת ({req}) גבוה ממה שההערכה הראשונית מראה כאפשרי{co}; אפשר להמשיך כך, והבנק יבדוק"
         if updated:
             return "updated", snap, f"עדכנתי את האינדיקציה לפי השינוי: {core}."
-        return "new", snap, (f"אגב, לפי ההכנסה שמסרת ובהתאם להנחות הסימולציה, {core}. זו עדיין לא בדיקת זכאות "
+        return "new", snap, (f"אגב, לפי ההכנסה שמסרת ובהתאם להנחות חישוב כלליות, {core}. זו עדיין לא בדיקת זכאות "
                              "או אישור מהבנק.")
     if shown and shown.get("key"):
         conv["shown"] = {"key": None}
@@ -763,7 +764,7 @@ def _summary_lines(conv: dict, a: dict) -> list[dict]:
                       "co_borrower"),
                      ("חשבון עו״ש", "משותף" if a["accounts"] == "joint" else "נפרד לכל לווה", "accounts")]
         else:
-            rows.append(("לווה נוסף", "אין — הבקשה רק על שמך", "co_borrower"))
+            rows.append(("לווה נוסף", "אין, הבקשה רק על שמך", "co_borrower"))
     return [{"label_he": l, "value_he": v, "question_id": q} for l, v, q in rows]
 
 
@@ -949,7 +950,7 @@ def _question_line(t: dict, conv: dict, a: dict) -> str:
         return _prompt(nxt, conv, a)
     # vary the way back to the question so consecutive interruptions don't all start with "אז"
     lead = ("בינתיים, " if t["gross"] else "נמשיך? " if t.get("off_topic") else
-            ("", "אז ", "ולגבי הבקשה — ")[conv["seq"] % 3] if t["interrupted"] else "")
+            ("", "אז ", "ולגבי הבקשה, ")[conv["seq"] % 3] if t["interrupted"] else "")
     return lead + _short(nxt, conv, a)
 
 
@@ -1055,7 +1056,7 @@ def view(draft_id: str) -> dict[str, Any]:
                        if ind["available"] else None),
         "suggestions": suggestions,
         "summary": None,
-        "note_he": "בקשת הדגמה עם נתונים סינתטיים — אינה מגיעה לבנק.",
+        "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי.",
     }
     if pending is None and base["summary"]:
         out["summary"] = {**base["summary"], "lines": _summary_lines(conv, a),
@@ -1073,7 +1074,7 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
     with _lock:
         row, a, conv = _load(draft_id)
         if row["status"] != "draft":
-            raise OnboardingError("הבקשה כבר נפתחה — אי אפשר לשנות את התשובות", 409)
+            raise OnboardingError("הבקשה כבר נפתחה, אי אפשר לשנות את התשובות", 409)
         if turn_id and turn_id in conv["turns"]:
             return view(draft_id)
         pending = _pending(conv, a)
@@ -1120,12 +1121,12 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
             t["ack"] = _ack(t["changes"], a, conv)
             if t["held"]:
                 t["ack"] = (t["ack"] + " " if t["ack"] else "") + (
-                    f"הבנתי — {_and([_value_he(k, conv['held'][k], a) for k in t['held']])}. אשמור את זה להמשך.")
+                    f"הבנתי, {_and([_value_he(k, conv['held'][k], a) for k in t['held']])}. אשמור את זה להמשך.")
             for qid, msg in res["rejected"]:
                 t["issues"].append(msg)
                 t["clarifying"] = t["clarifying"] or qid == pending
             for qid, old, new in res["conflicts"]:
-                t["issues"].append(f"רק לוודא — קודם רשמתי {_value_he(qid, old, a, short=True)}, ועכשיו הבנתי "
+                t["issues"].append(f"רק לוודא, קודם רשמתי {_value_he(qid, old, a, short=True)}, ועכשיו הבנתי "
                                    f"{_value_he(qid, new, a, short=True)}. מה נכון?")
                 t["actions"] += [{"label_he": _value_he(qid, new, a, short=True), "question_id": qid, "value": new},
                                  {"label_he": _value_he(qid, old, a, short=True), "question_id": qid, "value": old}]
@@ -1171,8 +1172,8 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         if t["next"] is None:
             sig = db.jdump(_v2(conv, a))
             if conv.get("summary_for") != sig:
-                t["summary_text"] = ("עדכנתי — הסיכום למטה מעודכן." if conv.get("summary_for") else
-                                     "סיימנו! ריכזתי למטה את כל הפרטים ואת המסמכים שיידרשו — אפשר לעבור עליהם, "
+                t["summary_text"] = ("עדכנתי, הסיכום למטה מעודכן." if conv.get("summary_for") else
+                                     "סיימנו! ריכזתי למטה את כל הפרטים ואת המסמכים שיידרשו, אפשר לעבור עליהם, "
                                      "לשנות ולאשר. פתיחת הבקשה אינה אישור הלוואה.")
                 conv["summary_for"] = sig
 

@@ -5,7 +5,7 @@ undo, case switching and the phone layout.
 Isolated stack only. Populate the cases first on a REPLAY backend (zero Gemini), then run the real backend on the same
 DATA_DIR. Without CHAT_LIVE the suite makes no model call and checks layout, the honest failure state and the phone
 layout (the backend runs with no key). CHAT_LIVE=1 makes ~10–14 real Gemini calls (purpose "banker_chat");
-CHAT_LIVE=demo checks the third reply, "אישור הלוואה — הדמיה" (~5–7 calls: banker_demo_letter + banker_chat).
+CHAT_LIVE=demo checks the third reply, "אישור הלוואה · הדמיה" (~5–7 calls: banker_demo_letter + banker_chat).
 
     # from backend/ — populate (REPLAY, zero Gemini), then stop it
     .venv/bin/python ../e2e/replay_backend.py --port 8799 --data ../e2e/artifacts/case-chat/data
@@ -159,7 +159,7 @@ def live(page: Page) -> None:
           and page.locator("[data-testid=cc-draft-ai]").is_visible(), f"intent {c['intent']}")
     disclosure = _DISCLOSURE.search(after_c)
     check("C · facts and the non-approval disclosure are kept", "90,000" in after_c and "60" in after_c and bool(disclosure) and not _claims(after_c),
-          f"disclosure: „{disclosure.group(0) if disclosure else '—'}”")
+          f"disclosure: „{disclosure.group(0) if disclosure else '-'}”")
     shot(page, "03-ai-edit-formal")
 
     d = send(page, "תוסיף שהבקשה עדיין כפופה לאימות ואישור הבנק.", "D")

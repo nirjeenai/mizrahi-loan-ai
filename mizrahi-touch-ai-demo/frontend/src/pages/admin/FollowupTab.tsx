@@ -37,7 +37,7 @@ export function FollowupTab({ work, edit, bar, settings, onKillSwitch }: KindPro
               <select value={talk.mode} onChange={(e) => set("talk.mode")(e.target.value)} data-testid="t-mode">
                 {Object.entries(MODE_HE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
-              <span className="tiny muted">במצב חי, שיחה תתבצע רק כשספק JEEN Talk אמיתי מחובר ומוגדר. כרגע הוא אינו מוגדר.</span>
+              <span className="tiny muted">במצב חי, שיחה תתבצע רק כשספק JEEN Talk מחובר ומוגדר. כרגע הוא אינו מוגדר.</span>
               <FieldErrors report={report} path="talk.mode" />
             </label>
           </div>

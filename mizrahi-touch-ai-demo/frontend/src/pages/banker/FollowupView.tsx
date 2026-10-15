@@ -3,7 +3,7 @@ import { timeHe, usePolling } from "../../api";
 import { ACTION_HE, followupApi, PLAN_HE } from "../../followupApi";
 import { Chip } from "./deskUi";
 
-const TASK_HE: Record<string, string> = { OPEN: "פתוחה", RESOLVED: "נפתרה — מסמך חדש עבר בדיקה", CANCELED: "בוטלה",
+const TASK_HE: Record<string, string> = { OPEN: "פתוחה", RESOLVED: "נפתרה, מסמך חדש עבר בדיקה", CANCELED: "בוטלה",
   PAUSED_BY_BANKER: "מושהית ע״י הבנקאי", PAUSED_BY_CUSTOMER: "נדחתה לבקשת הלקוח", POLICY_BLOCKED: "חסומה לפי מדיניות" };
 const OUTCOME_HE: Record<string, string> = { LINK_SENT: "נשלח קישור להשלמה", CALLBACK_REQUESTED: "הלקוח ביקש שיחה חוזרת",
   REFUSED: "הלקוח סירב", HUMAN_REQUESTED: "הלקוח ביקש נציג", NO_ANSWER: "אין מענה", IDENTITY_FAILED: "זיהוי נכשל",
@@ -47,7 +47,7 @@ export function FollowupView({ caseId, readOnly }: { caseId: string; readOnly: b
         {!readOnly && (
           <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
             {paused ? <button className="btn btn-ghost btn-sm" data-testid="fu-resume" onClick={() => act(() => followupApi.override(caseId, "resume", "חידוש המעקב מהקונסולה"), "המעקב חודש.")}>חידוש המעקב</button>
-              : <button className="btn btn-ghost btn-sm" data-testid="fu-pause" onClick={() => act(() => followupApi.override(caseId, "pause", "השהיה ידנית מהקונסולה"), "המעקב הושהה — אין פניות עד לחידוש.")}>השהיית המעקב</button>}
+              : <button className="btn btn-ghost btn-sm" data-testid="fu-pause" onClick={() => act(() => followupApi.override(caseId, "pause", "השהיה ידנית מהקונסולה"), "המעקב הושהה, אין פניות עד לחידוש.")}>השהיית המעקב</button>}
             <button className="btn btn-ghost btn-sm" data-testid="fu-call-now" onClick={() => act(() => followupApi.callNow(caseId, "שיחה יזומה מהקונסולה"), "השיחה יצאה.")}>שיחה עכשיו</button>
           </div>
         )}
@@ -55,19 +55,19 @@ export function FollowupView({ caseId, readOnly }: { caseId: string; readOnly: b
       </div>
       <div className="grid2">
         <div className="panel" style={{ overflowX: "auto" }}>
-          <h3>מה חסר — דרישות השלמה ({v.tasks.length})</h3>
+          <h3>מה חסר, דרישות השלמה ({v.tasks.length})</h3>
           <table className="t" data-testid="fu-tasks"><thead><tr><th>דרישה</th><th>סיבה</th><th>מצב</th><th>נפתחה</th><th>נסגרה</th></tr></thead>
             <tbody>{v.tasks.map((t) => (
               <tr key={t.task_id} data-status={t.status}><td className="tiny">{t.title_he}<div className="muted ltr">{t.requirement_code}</div></td>
                 <td className="tiny ltr">{t.reason_code}</td><td className="tiny">{TASK_HE[t.status] || t.status}</td>
-                <td className="tiny ltr">{timeHe(t.created_at)}</td><td className="tiny ltr">{t.resolved_at ? timeHe(t.resolved_at) : "—"}</td></tr>))}</tbody></table>
+                <td className="tiny ltr">{timeHe(t.created_at)}</td><td className="tiny ltr">{t.resolved_at ? timeHe(t.resolved_at) : "-"}</td></tr>))}</tbody></table>
           <h3 style={{ marginTop: 14 }}>פניות ({v.attempts.length})</h3>
           {v.attempts.length === 0 ? <div className="small muted">לא נוצרה פנייה.</div> : (
             <table className="t" data-testid="fu-attempts"><thead><tr><th>זמן</th><th>ערוץ</th><th>ספק</th><th>מצב</th><th>תוצאה</th></tr></thead>
               <tbody>{v.attempts.map((a) => (
                 <tr key={a.attempt_id}><td className="tiny ltr">{timeHe(a.created_at)}</td><td className="tiny">{a.channel === "voice" ? "שיחה" : "הודעה"}</td>
-                  <td className="tiny ltr">{a.provider}{a.simulated ? " · סימולציה" : ""}</td><td className="tiny ltr">{a.status}</td>
-                  <td className="tiny" data-testid="fu-attempt-outcome">{a.outcome ? OUTCOME_HE[a.outcome] || a.outcome : "—"}{a.link_id ? " · קישור מאובטח" : ""}</td></tr>))}</tbody></table>
+                  <td className="tiny ltr">{a.provider}</td><td className="tiny ltr">{a.status}</td>
+                  <td className="tiny" data-testid="fu-attempt-outcome">{a.outcome ? OUTCOME_HE[a.outcome] || a.outcome : "-"}{a.link_id ? " · קישור מאובטח" : ""}</td></tr>))}</tbody></table>
           )}
         </div>
         <div className="panel" style={{ overflowX: "auto" }}>

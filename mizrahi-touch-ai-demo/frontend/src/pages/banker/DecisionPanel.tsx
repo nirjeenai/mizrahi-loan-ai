@@ -19,7 +19,7 @@ const NOT_SENT = "הבקשה נשמרה ומוצגת ללקוח באפליקצי
 export function DecisionPanel(props: PanelProps) {
   const [done, setDone] = useState<string | null>(null);
   const finish = (result: DeskResult, text: string) => {
-    const msg = result.duplicate ? "ההחלטה כבר נרשמה קודם — לא נוצרה רשומה כפולה." : text;
+    const msg = result.duplicate ? "ההחלטה כבר נרשמה קודם, לא נוצרה רשומה כפולה." : text;
     setDone(msg);
     props.onDone(msg);
   };
@@ -104,8 +104,8 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
           submit={(rationale) => run("accept", { rationale, acknowledged_finding_ids: b.acknowledge_finding_ids })}
           onDone={(r) => finish(r, "המסמך התקבל לשלב בדיקת המסמכים. זו אינה החלטת אשראי ואינה משנה את שלב הבקשה בבנק.")} />}
         {mode === "request_correction" && <CustomerRequestForm from={ws.case.banker.name_he} draft={item.draft} periods={periods} onCancel={() => setMode(null)}
-          title={(p) => p ? `נדרש תלוש ${monthHe(p)} — ${borrower?.first_name_he || ""}`
-            : `נדרש ${payslip ? "תלוש" : item.doc_type_he} מתוקן במקום ${item.filename}${borrower ? ` — ${borrower.first_name_he}` : ""}`}
+          title={(p) => p ? `נדרש תלוש ${monthHe(p)}, ${borrower?.first_name_he || ""}`
+            : `נדרש ${payslip ? "תלוש" : item.doc_type_he} מתוקן במקום ${item.filename}${borrower ? `, ${borrower.first_name_he}` : ""}`}
           submitLabel="שמירה והצגה ללקוח באפליקציה" testId="correction-form"
           submit={(message, period, rationale) => run("request_correction", { customer_message: message, requested_period: period || null, rationale })}
           onDone={(r) => finish(r, NOT_SENT)} />}
@@ -130,7 +130,7 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
         <TechList rows={[["רובריקה", item.ai.technical.rubric], ["מזהה הרצה", item.ai.technical.run_id], ["ספק בדיקה", item.ai.technical.provider],
           ["מודלים", item.ai.technical.models ? Object.entries(item.ai.technical.models).map(([k, v]) => `${k}: ${v}`).join(" · ") : null],
           ["גרסת פרומפט", item.ai.technical.prompt_version], ["הסתיים", item.ai.technical.finished_at],
-          ["קודי סיבה", (item.ai.technical.verdict_reason_codes || []).join(", ") || "—"], ["SHA-256", item.ai.technical.sha256],
+          ["קודי סיבה", (item.ai.technical.verdict_reason_codes || []).join(", ") || "-"], ["SHA-256", item.ai.technical.sha256],
           ["שגיאה", item.ai.technical.error]]} />
         {[...item.ai.criteria_failed, ...item.ai.criteria_uncertain, ...item.ai.criteria_passed, ...item.ai.criteria_na].map((c) => (
           <div key={c.criterion_id} className="tiny ltr-row"><span className="ltr">{c.criterion_id} · {c.outcome} · {c.decided_by}{c.reason_code ? ` · ${c.reason_code}` : ""}</span> — {c.title_he}</div>
@@ -194,9 +194,9 @@ function BulkAccept({ item, ws, finish }: { item: DocItem; ws: Workspace; finish
               <span>{p.title_he}</span><span className="ltr tiny muted">{p.filename}</span>
             </label>
           ))}
-          <label className="dp-field">נימוק פנימי {clean ? <span className="muted">(רשות)</span> : <span className="warn-text">(חובה — נרשם בכל אחד מהמסמכים)</span>}
+          <label className="dp-field">נימוק פנימי {clean ? <span className="muted">(רשות)</span> : <span className="warn-text">(חובה, נרשם בכל אחד מהמסמכים)</span>}
             <textarea className="note" value={rationale} onChange={(e) => setRationale(e.target.value)} data-testid="bulk-rationale" /></label>
-          <div className="dp-disclaimer">כל מסמך נרשם כהחלטה נפרדת עם הנימוק, הזהות והשעה. זו קבלה לשלב בדיקת המסמכים בלבד — אינה אישור הלוואה ואינה משנה את שלב הבקשה בבנק.</div>
+          <div className="dp-disclaimer">כל מסמך נרשם כהחלטה נפרדת עם הנימוק, הזהות והשעה. זו קבלה לשלב בדיקת המסמכים בלבד, אינה אישור הלוואה ואינה משנה את שלב הבקשה בבנק.</div>
           {error && <div className="dp-err" role="alert">{error}</div>}
           <div className="row"><button className="btn btn-dark btn-sm" disabled={busy || !picked.size || (!clean && !rationale.trim())} onClick={go}
             data-testid="bulk-submit">{busy && <span className="spinner" />}קבלת {picked.size} המסמכים</button>
@@ -214,7 +214,7 @@ function DocumentStatus({ item }: { item: DocItem }) {
     case "ACCEPTED":
       return <div className="dp-state ok" data-testid="document-state">התקבל על ידי {d?.actor_name} <When at={d?.created_at} />
         {d?.rationale && <div className="tiny muted">נימוק פנימי: {d.rationale}</div>}
-        <div className="tiny muted">בשלב בדיקת המסמכים בלבד — אינו אישור הלוואה.</div></div>;
+        <div className="tiny muted">בשלב בדיקת המסמכים בלבד, אינו אישור הלוואה.</div></div>;
     case "CORRECTION_REQUESTED":
       return <div className="dp-state warn" data-testid="document-state">הוחזר לתיקון · ממתין ללקוח <When at={d?.created_at} by={d?.actor_name} />
         {open && <blockquote className="dp-quote">{open.message_he}</blockquote>}</div>;
@@ -285,7 +285,7 @@ function FindingRow({ f, ws, readOnly, finish, showEvidence }: { f: DeskFinding;
           {f.status === "open" ? f.review_state_he : f.status_he}</Chip></div>
       <div className="small dfind-msg">{f.message_he}</div>
       {f.statements.map((s, i) => <div key={i} className="notice small" style={{ marginTop: 6 }}>הסבר הלקוח ({s.channel === "voice" ? "בקול" : "בצ׳אט"}, לא מאומת): {s.text}</div>)}
-      {f.not_reproduced && <div className="tiny muted">הבדיקה האחרונה אינה משחזרת ממצא זה — הוא נשאר פתוח עד להכרעתך.</div>}
+      {f.not_reproduced && <div className="tiny muted">הבדיקה האחרונה אינה משחזרת ממצא זה, הוא נשאר פתוח עד להכרעתך.</div>}
       <div className="row wrap" style={{ marginTop: 4 }}>
         {f.evidence.map((e) => (
           <button key={e.evidence_id} className="ev-link" onClick={() => showEvidence({ documentId: e.document_id, field: e.field, page: e.page })}
@@ -320,7 +320,7 @@ function MissingPanel({ item, ws, staff, readOnly, finish }: Ctx<MissingItem>) {
         <div className="dp-label">הפעולה שלך</div>
         {!open ? <button className="act-primary" onClick={() => setOpen(true)} data-testid="action-request-missing">בקשת השלמת מסמך</button>
           : <CustomerRequestForm from={ws.case.banker.name_he} draft={item.draft} onCancel={() => setOpen(false)}
-            title={() => item.period_he ? `נדרש תלוש ${item.period_he} — ${borrower?.first_name_he || ""}` : `נדרש: ${item.title_he}`}
+            title={() => item.period_he ? `נדרש תלוש ${item.period_he}, ${borrower?.first_name_he || ""}` : `נדרש: ${item.title_he}`}
             submitLabel="שמירה והצגה ללקוח באפליקציה" testId="missing-form"
             submit={(message, _p, rationale) => (rid) => item.period
               ? api.requestMissing(ws.case_id, { borrower_id: item.borrower_id!, period: item.period, customer_message: message, rationale, request_id: rid })
@@ -362,13 +362,13 @@ function CaseFindingPanel({ item, ws, staff, readOnly, finish }: Ctx<CaseFinding
       {!inc && <p className="small">{f.message_he}</p>}
       {inc && <div className={`dp-income ${inc.tone}`} data-testid="income-summary">
         <div className="small bold">{inc.summary_he}</div>
-        <div className="tiny muted">{inc.basis_he}. נבדקו: {inc.months_compared_he || "—"}{inc.months_missing?.length ? ` · חסרים: ${inc.months_missing_he}` : ""}.</div>
+        <div className="tiny muted">{inc.basis_he}. נבדקו: {inc.months_compared_he || "-"}{inc.months_missing?.length ? ` · חסרים: ${inc.months_missing_he}` : ""}.</div>
       </div>}
       {item.reopened_after && <div className="dp-state info" data-testid="reopened-after">נפתח מחדש: הנתונים השתנו מאז ההכרעה הקודמת שלך בממצא זה. ההכרעה הקודמת נשמרה בהיסטוריה.</div>}
     </section>
     <section className="dp-sec" data-testid="customer-said">
       <div className="dp-label">מה הלקוח מסר</div>
-      {f.statements.length ? f.statements.map((x, i) => <div key={i} className="notice small">הסבר הלקוח ({x.channel === "voice" ? "בקול" : x.channel === "app" ? "באפליקציה" : "בצ׳אט"}, לא מאומת — אינו ראיה): {x.text} <When at={x.created_at} /></div>)
+      {f.statements.length ? f.statements.map((x, i) => <div key={i} className="notice small">הסבר הלקוח ({x.channel === "voice" ? "בקול" : x.channel === "app" ? "באפליקציה" : "בצ׳אט"}, לא מאומת, אינו ראיה): {x.text} <When at={x.created_at} /></div>)
         : <div className="small muted">לא נמסר הסבר מהלקוח.</div>}
     </section>
     {item.open_request && <OpenRequest r={item.open_request} ws={ws} staff={staff} readOnly={readOnly} finish={finish} />}
@@ -395,7 +395,7 @@ function CaseFindingPanel({ item, ws, staff, readOnly, finish }: Ctx<CaseFinding
         })()}
         {mode === "request_missing" && item.drafts.missing && <MissingMonthsForm item={item} ws={ws} onCancel={() => setMode(null)} finish={finish} />}
         {mode === "request_explanation" && <CustomerRequestForm from={ws.case.banker.name_he} draft={item.drafts.explanation} onCancel={() => setMode(null)}
-          title={() => `נדרש הסבר או אסמכתה — ${borrower?.first_name_he || ""}`} submitLabel="שמירה והצגה ללקוח באפליקציה" testId="request-explanation-form"
+          title={() => `נדרש הסבר או אסמכתה, ${borrower?.first_name_he || ""}`} submitLabel="שמירה והצגה ללקוח באפליקציה" testId="request-explanation-form"
           note="הלקוח יוכל להשיב בכתב או לצרף מסמך. התשובה תתועד כהסבר לא מאומת, והממצא יישאר פתוח עד להחלטתך."
           submit={(message, _p, rationale) => run("request_explanation", { customer_message: message, rationale })} onDone={(r) => finish(r, NOT_SENT)} />}
         {mode === "resolve" && <ResolveForm item={item} ws={ws} onCancel={() => setMode(null)} finish={finish} />}
@@ -446,7 +446,7 @@ function MissingMonthsForm({ item, ws, onCancel, finish }: { item: CaseFindingIt
         <label key={m} className="bulk-row"><input type="checkbox" checked={months.includes(m)}
           onChange={(e) => setMonths(e.target.checked ? [...months, m].sort() : months.filter((x) => x !== m))} /><span>תלוש {monthHe(m)}</span><span /></label>
       ))}
-      <label className="dp-field">הודעה ללקוח <span className="muted">טיוטה מוצעת — אפשר לערוך</span>
+      <label className="dp-field">הודעה ללקוח <span className="muted">טיוטה מוצעת, אפשר לערוך</span>
         <textarea className="note msg" value={message} maxLength={600} onChange={(e) => setMessage(e.target.value)} data-testid="customer-message" /></label>
       <div className="tiny muted">לכל חודש נוצרת בקשה נפרדת עם כפתור העלאה משלה באפליקציה. לא נשלחת הודעת SMS, דוא״ל או התראה.</div>
       {error && <div className="dp-err" role="alert">{error}</div>}
@@ -459,7 +459,7 @@ function MissingMonthsForm({ item, ws, onCancel, finish }: { item: CaseFindingIt
 
 const RESOLVE_REASONS: { key: string; label: string; hint: string; needsDocs: boolean; needsStatement?: boolean }[] = [
   { key: "verified_with_documents", label: "אומת מול מסמכים בתיק", hint: "סמנו את המסמכים שבדקתם.", needsDocs: true },
-  { key: "explanation_supported", label: "הסבר הלקוח נתמך באסמכתה", hint: "הסבר לבדו אינו מספיק — סמנו את המסמך שתומך בו.", needsDocs: true, needsStatement: true },
+  { key: "explanation_supported", label: "הסבר הלקוח נתמך באסמכתה", hint: "הסבר לבדו אינו מספיק, סמנו את המסמך שתומך בו.", needsDocs: true, needsStatement: true },
   { key: "professional_judgment", label: "החלטה מקצועית במסגרת המדיניות", hint: "ללא אסמכתה במסמכים. נדרש נימוק מפורט, והיא נרשמת כהכרעה אנושית.", needsDocs: false },
 ];
 const MIN_OVERRIDE = 15;
@@ -506,7 +506,7 @@ function ResolveForm({ item, ws, onCancel, finish }: { item: CaseFindingItem; ws
             {!item.evidence_options.length && <div className="tiny muted">אין בתיק מסמכים שנבדקו ללווה הזה.</div>}
           </div>
         )}
-        <label className="dp-field">הנימוק שלך <span className="warn-text">(חובה{reason === "professional_judgment" ? " — נימוק מפורט" : ""})</span>
+        <label className="dp-field">הנימוק שלך <span className="warn-text">(חובה{reason === "professional_judgment" ? ", נימוק מפורט" : ""})</span>
           <textarea className="note" value={rationale} onChange={(e) => setRationale(e.target.value)} data-testid="resolve-rationale" /></label>
         {partial && (
           <label className="partial-ack" data-testid="ack-partial">
@@ -523,10 +523,10 @@ function ResolveForm({ item, ws, onCancel, finish }: { item: CaseFindingItem; ws
           <dl>
             <dt>הממצא</dt><dd>{item.finding.title_he}</dd>
             <dt>בסיס הסגירה</dt><dd>{chosen?.label}</dd>
-            <dt>מסמכים תומכים</dt><dd>{picked.length ? picked.map((o) => `${o.period_he || o.filename}${o.net ? ` (נטו ${o.net})` : ""}`).join(" · ") : "ללא — החלטה מקצועית"}</dd>
+            <dt>מסמכים תומכים</dt><dd>{picked.length ? picked.map((o) => `${o.period_he || o.filename}${o.net ? ` (נטו ${o.net})` : ""}`).join(" · ") : "ללא, החלטה מקצועית"}</dd>
             {item.has_customer_statement && <><dt>הסבר הלקוח</dt><dd>מצורף כהקשר בלבד, לא מאומת</dd></>}
             <dt>הנימוק שלך</dt><dd>{rationale.trim()}</dd>
-            {partial && <><dt>בסיס הנתונים</dt><dd className="warn-text">חלקי — {item.basis.months_compared.length} מתוך {item.basis.months_required.length} חודשים</dd></>}
+            {partial && <><dt>בסיס הנתונים</dt><dd className="warn-text">חלקי, {item.basis.months_compared.length} מתוך {item.basis.months_required.length} חודשים</dd></>}
           </dl>
           <div className="small bold">מה ישתנה בתיק</div>
           <ul className="dp-list small">{item.impact.resolve.map((l, i) => <li key={i}>{l}</li>)}</ul>
@@ -559,7 +559,7 @@ function DismissForm({ finding, impact, customer, ws, onCancel, finish }: { find
           <select value={reason} onChange={(e) => setReason(e.target.value)} data-testid="dismiss-reason">
             <option value="">בחרו סיבה</option>{DISMISS_REASONS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select></label>
-        <label className="dp-field">הנימוק שלך <span className="warn-text">(חובה — נימוק מפורט)</span>
+        <label className="dp-field">הנימוק שלך <span className="warn-text">(חובה, נימוק מפורט)</span>
           <textarea className="note" value={rationale} onChange={(e) => setRationale(e.target.value)} data-testid="rationale" /></label>
         <div className="tiny muted">דיווח על טעות של ה-AI אינו החלטה על המסמך ואינו בקשה מהלקוח.</div>
         <div className="row"><button className="btn btn-dark btn-sm" disabled={!reason || rationale.trim().length < MIN_OVERRIDE} onClick={() => setStep("confirm")}
@@ -604,7 +604,7 @@ function AcceptForm({ item, submit, onCancel, onDone }: { item: DocItem; submit:
     <div className="dp-form" data-testid="accept-form">
       {ack.length > 0 && <div className="small"><b>הממצאים הבאים ייסגרו כ״נבדק והתקבל״ עם הנימוק שלך:</b>
         <ul className="dp-list">{ack.map((f) => <li key={f.finding_id}>{f.title_he}</li>)}</ul></div>}
-      <label className="dp-field">נימוק פנימי {required ? <span className="warn-text">(חובה — {ack.length ? "יש ממצאים פתוחים" : "ה-AI לא מצא את המסמך תקין"})</span> : <span className="muted">(רשות)</span>}
+      <label className="dp-field">נימוק פנימי {required ? <span className="warn-text">(חובה, {ack.length ? "יש ממצאים פתוחים" : "ה-AI לא מצא את המסמך תקין"})</span> : <span className="muted">(רשות)</span>}
         <textarea className="note" value={rationale} onChange={(e) => setRationale(e.target.value)} data-testid="accept-rationale" /></label>
       <div className="dp-disclaimer">קבלת המסמך מסמנת אותו כנבדק בשלב בדיקת המסמכים בלבד. זו אינה החלטת אשראי, אינה אישור ההלוואה ואינה משנה את שלב הבקשה בבנק.</div>
       {s.error && <div className="dp-err" role="alert">{s.error}</div>}
@@ -651,7 +651,7 @@ function CustomerRequestForm({ draft, periods, title, from, submitLabel, note, s
             </select>
           ) : <span className="dp-static">{draft.requested_item_he}</span>}
         </label>
-        <label className="dp-field">הודעה ללקוח <span className="muted">טיוטה מוצעת מתוך נתוני הבדיקה — אפשר לערוך</span>
+        <label className="dp-field">הודעה ללקוח <span className="muted">טיוטה מוצעת מתוך נתוני הבדיקה, אפשר לערוך</span>
           <textarea className="note msg" value={message} maxLength={600} onChange={(e) => setMessage(e.target.value)} data-testid="customer-message" />
           <span className="tiny muted ltr" style={{ alignSelf: "flex-end" }}>{message.length}/600</span></label>
         <label className="dp-field">נימוק פנימי <span className="muted">(לא מוצג ללקוח, רשות)</span>
@@ -735,7 +735,7 @@ function HistoryList({ entries, bare = false }: { entries: Decision[]; bare?: bo
       {entries.map((d) => (
         <div key={d.decision_id} className="hist">
           <div className="small"><b>{d.action_he}</b> · {d.actor_name} · <span className="ltr">{d.created_at.slice(0, 16).replace("T", " ")}</span></div>
-          {d.previous_status !== d.new_status && <div className="tiny muted">{STATUS_WORD[d.previous_status || ""] || d.previous_status || "—"} ← {STATUS_WORD[d.new_status || ""] || d.new_status}</div>}
+          {d.previous_status !== d.new_status && <div className="tiny muted">{STATUS_WORD[d.previous_status || ""] || d.previous_status || "-"} ← {STATUS_WORD[d.new_status || ""] || d.new_status}</div>}
           {d.rationale && <div className="tiny">נימוק פנימי: {d.rationale}</div>}
           {d.customer_message && <div className="tiny">הודעה ללקוח: {d.customer_message}</div>}
           {d.evidence_refs.length > 0 && <div className="tiny muted">ראיות שתועדו: {d.evidence_refs.map((e) => e.field).join(", ")}</div>}

@@ -143,8 +143,8 @@ function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
       </div>
       <div className="ui-switch" role="group" aria-label="גרסת התצוגה" data-testid="banker-ui-switch">
         <button className={view === "review" ? "on" : ""} onClick={() => onView("review")} data-testid="ui-v1" title="סקירת המסמכים הקיימת">V1 · סקירה</button>
-        <button className={view === "intel" ? "on v2" : "v2"} onClick={() => onView("intel")} data-testid="ui-v2" title="Banker Intelligence V2 — תמונת מצב, ניתוח פיננסי וסימולציה">V2 · תמונת מצב JEEN</button>
-        <button className={view === "case" ? "on v3" : "v3"} onClick={() => onView("case")} data-testid="ui-v3" title="Banker Case-Centric V3 — התיק המוכן, מלמעלה למטה">V3 · תיק מוכן</button>
+        <button className={view === "intel" ? "on v2" : "v2"} onClick={() => onView("intel")} data-testid="ui-v2" title="Banker Intelligence V2, תמונת מצב, ניתוח פיננסי וסימולציה">V2 · תמונת מצב JEEN</button>
+        <button className={view === "case" ? "on v3" : "v3"} onClick={() => onView("case")} data-testid="ui-v3" title="Banker Case-Centric V3, התיק המוכן, מלמעלה למטה">V3 · תיק מוכן</button>
       </div>
       <nav className="view-tabs" aria-label="תצוגות">
         {([["review", "סקירת מסמכים"], ["followup", "מעקב השלמה"], ["conversation", "שיחה עם הלקוח"], ["technical", "יומן ופרטים טכניים"]] as [View, string][]).map(([k, label]) => (
@@ -160,7 +160,7 @@ function ConversationView({ caseId, ws }: { caseId: string; ws: Workspace }) {
   return (
     <div className="desk-page">
       <div className="panel">
-        <h3>השיחה עם הלקוחות — מקור אחד לצ׳אט ולקול</h3>
+        <h3>השיחה עם הלקוחות, מקור אחד לצ׳אט ולקול</h3>
         {ws.unattached_statements.length > 0 && (
           <div className="notice" style={{ marginBottom: 10 }}>
             <b>הסברי לקוח שלא שויכו לממצא (לא מאומתים):</b>
@@ -206,7 +206,7 @@ function TechnicalView({ caseId, onRecheck, readOnly }: { caseId: string; onRech
           <table className="t"><thead><tr><th>נוצרה</th><th>סוג</th><th>כותרת</th><th>מצב</th><th>מסמך שהתקבל</th></tr></thead>
             <tbody>{p.customer_requests.map((r: any) => (
               <tr key={r.customer_request_id}><td className="ltr tiny">{timeHe(r.created_at)}</td><td className="tiny">{r.kind}</td><td className="tiny">{r.title_he}</td>
-                <td className="tiny">{r.status}</td><td className="ltr tiny">{r.responded_document_id || "—"}</td></tr>))}</tbody></table>
+                <td className="tiny">{r.status}</td><td className="ltr tiny">{r.responded_document_id || "-"}</td></tr>))}</tbody></table>
         </div>
         <div className="panel" style={{ overflowX: "auto" }}>
           <h3>כל הממצאים, כולל סגורים ({all.length})</h3>

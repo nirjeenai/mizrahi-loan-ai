@@ -86,7 +86,7 @@ def run(page: Page) -> None:
     expect(s11.locator("[data-testid=scn-instruction-L-11]")).to_be_visible()
     labels = s11.locator("[data-testid=scn-file-label]").all_inner_texts()
     check("joint scenario: Lavi files labelled with the applicant and month, routed to עידו ← תלושי שכר (now REPLAY-recorded)",
-          labels == ["תלוש שכר — עידו לביא — יולי 2026", "תלוש שכר — עידו לביא — אוגוסט 2026"]
+          labels == ["תלוש שכר, עידו לביא, יולי 2026", "תלוש שכר, עידו לביא, אוגוסט 2026"]
           and s11.locator(".scn-upload").first.inner_text().count("עידו ← תלושי שכר") == 1 and "LIVE בלבד" not in s11.inner_text(),
           " | ".join(labels))
     ok, doc_id = same_bytes(page, s11.locator("[data-testid=scn-download]").first)
@@ -105,7 +105,7 @@ def run(page: Page) -> None:
     page.locator("[data-testid=scn-supplementary] .scn-head").click()
     supp = page.locator("[data-testid=scn-supplementary] [data-testid=scn-file-label]").all_inner_texts()
     check("supplementary files: the other Lavi payslips with Hebrew labels (one registry, no separate list)",
-          len(supp) == 9 and all(t.startswith("תלוש שכר —") for t in supp) and page.locator("[data-testid=lavi-files]").count() == 0,
+          len(supp) == 9 and all(t.startswith("תלוש שכר") for t in supp) and page.locator("[data-testid=lavi-files]").count() == 0,
           f"{len(supp)} files")
     page.locator("[data-testid=scn-supplementary]").scroll_into_view_if_needed()
     page.screenshot(path=str(OUT / "03-supplementary.png"))

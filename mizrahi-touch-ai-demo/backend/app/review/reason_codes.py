@@ -54,5 +54,5 @@ CUSTOMER_SHORT = {
 def document_text(code: str, family: str, filename: str, detail: str, uncertain: bool, fallback_title: str) -> tuple[str, str]:
     doc = DOC_HE.get(family, "המסמך")
     table = UNCERTAIN if uncertain and code in UNCERTAIN else DOCUMENT
-    title, template = table.get(code, (fallback_title, "{detail}" if not uncertain else "{detail} — לא הוכרע בבדיקת ה-AI, הועבר לבדיקת בנקאי."))
+    title, template = table.get(code, (fallback_title, "{detail}" if not uncertain else "{detail}, לא הוכרע בבדיקת ה-AI, הועבר לבדיקת בנקאי."))
     return title.format(doc=doc), template.format(doc=doc, file=filename, detail=detail)

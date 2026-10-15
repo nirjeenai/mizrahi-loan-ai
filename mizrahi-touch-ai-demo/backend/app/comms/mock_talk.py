@@ -29,7 +29,7 @@ class MockTalkProvider:
         return Capabilities(cancel_call=True, get_call=True, send_message=True, hebrew_voice=True, sandbox=True)
 
     def health(self) -> Health:
-        return Health(ok=True, detail="סימולציה — אין חיוג אמיתי")
+        return Health(ok=True, detail="ספק שיחות פנימי · ללא חיוג יוצא")
 
     def create_call(self, req: CallRequest) -> ProviderAck:
         return ProviderAck(provider_call_id=call_id(req.idempotency_key), status="QUEUED", accepted_at=req.expires_at)

@@ -22,7 +22,7 @@ const TAB: Record<string, string> = { complete_documentation: "אישור מסמ
 /** The document type on the letterhead. */
 const DOC: Record<string, string> = { complete_documentation: "אישור קבלת מסמכים", conditional_financing: "חלופות פריסה להמחשה",
   financial_clarification: "בקשת הבהרה", missing_documents: "בקשת השלמת מסמכים", [DEMO]: "אישור בקשת הלוואה" };
-const COPY_MARK = "[מסמך הדמיה (DEMO) — אינו החלטת אשראי של הבנק ואינו הסכם הלוואה. לא נשלח ללקוח.]";
+const COPY_MARK = "[מסמך הדמיה (DEMO), אינו החלטת אשראי של הבנק ואינו הסכם הלוואה. לא נשלח ללקוח.]";
 const READY = ["READY_FOR_CREDIT_REVIEW", "PREPARATION_CONFIRMED"];
 const CHIPS_READY = ["למה מומלץ להתקדם?", "מה עדיין צריך לבדוק?", "תנסח את המכתב יותר פורמלי", "תקצר את המענה"];
 const CHIPS_OTHER = ["מה ההמלצה ולמה?", "מה עדיין צריך לבדוק?", "תנסח את המכתב יותר פורמלי", "תקצר את המענה"];
@@ -164,7 +164,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   const canUndo = !!draft && lastAi?.kind === draft.kind;
   const restore = () => {
     if (!draft) return;
-    if (!window.confirm("שחזור הנוסח המקורי ימחק את השינויים בטיוטה — שלך ושל JEEN. להמשיך?")) return;
+    if (!window.confirm("שחזור הנוסח המקורי ימחק את השינויים בטיוטה, שלך ושל JEEN. להמשיך?")) return;
     setText(draft.kind, draft.message_he);
     if (lastAi?.kind === draft.kind) setLastAi(null);
   };
@@ -174,7 +174,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(full);
-      onToast({ text: "המענה הועתק. הוא לא נשלח ללקוח — השליחה נעשית בערוץ הבנק.", tone: "ok" });
+      onToast({ text: "המענה הועתק. הוא לא נשלח ללקוח, השליחה נעשית בערוץ הבנק.", tone: "ok" });
     } catch {
       onToast({ text: "ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית.", tone: "bad" });
     }
@@ -197,7 +197,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   return (
     <section className="cc-card rw" id="cc-reply" data-testid="cc-reply">
       <header className="cc-card-head rw-head">
-        <div><h2>מענה מוצע ללקוח</h2><p className="cc-sub">טיוטה מוכנה לפי מצב התיק. עורכים ידנית או עם JEEN — שום דבר לא נשלח מכאן.</p></div>
+        <div><h2>מענה מוצע ללקוח</h2><p className="cc-sub">טיוטה מוכנה לפי מצב התיק. עורכים ידנית או עם JEEN, שום דבר לא נשלח מכאן.</p></div>
         <div className="rw-switch" role="tablist" aria-label="תצוגה" data-testid="cc-pane-switch">
           <button role="tab" aria-selected={pane === "draft"} className={pane === "draft" ? "on" : ""} onClick={() => setPane("draft")} data-testid="cc-pane-draft">טיוטה</button>
           <button role="tab" aria-selected={pane === "chat"} className={pane === "chat" ? "on" : ""} onClick={() => setPane("chat")} data-testid="cc-pane-chat">

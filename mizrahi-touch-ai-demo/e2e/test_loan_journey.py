@@ -205,7 +205,7 @@ def run(page: Page, banker: Page) -> None:
 
     page.locator("[data-testid=new-demo-button]").click()
     page.locator("[data-testid=new-demo-confirm]").click()
-    expect(page.locator("[data-testid=new-demo-status]")).to_contain_text("הדמו מוכן", timeout=30000)
+    expect(page.locator("[data-testid=new-demo-status]")).to_contain_text("מוכן: התיקים ריקים", timeout=30000)
     expect(page.locator("[data-testid=readiness-state]")).to_have_text("ממתינים למסמכים לבקשת ההלוואה", timeout=15000)
     sessions()
     check("'התחל דמו חדש' empties the loan demo cases and opens the first use case (TC-01, 438839101)",
@@ -411,7 +411,7 @@ def run(page: Page, banker: Page) -> None:
     page.locator(f"[data-testid='req-{PURPOSE}'] .dl-head").click()
     row_button = page.locator(f"[data-testid='upload-{PURPOSE}']")
     check("stale quote: the file badge, its requirement and its page all ask the customer for a newer document",
-          s["outcomes"]["documents"][old]["outcome"] == "BLOCKER" and badge.inner_text() == "לא תקין — נדרש תיקון"
+          s["outcomes"]["documents"][old]["outcome"] == "BLOCKER" and badge.inner_text() == "לא תקין, נדרש תיקון"
           and row_button.inner_text().strip() == "העלאה מחדש", f"{badge.inner_text()} · {row_button.inner_text()}")
     shot(page, "16b-stale-quote")
 

@@ -151,7 +151,7 @@ def banker_step(c: httpx.Client, case: str, document_id: str, role: str) -> dict
     c.post("/api/session/demo/staff", json={}).raise_for_status()
     body = {"action": "request_correction", "customer_message": "נבקש נסח חברה שהופק ב־30 הימים האחרונים.",
             "request_id": f"verify-{role}-{document_id}"} if role == "banker_correction" else \
-        {"action": "accept", "rationale": "נבדק ידנית מול המקור — תקין לצורך הכנת התיק", "acknowledged_finding_ids": [],
+        {"action": "accept", "rationale": "נבדק ידנית מול המקור, תקין לצורך הכנת התיק", "acknowledged_finding_ids": [],
          "request_id": f"verify-{role}-{document_id}"}
     r = c.post(f"/api/banker/cases/{case}/documents/{document_id}/decision", json=body)
     r.raise_for_status()

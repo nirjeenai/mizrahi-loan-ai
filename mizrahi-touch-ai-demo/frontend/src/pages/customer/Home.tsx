@@ -90,7 +90,7 @@ export function Home() {
           <button className="banker-write" onClick={() => openAssistant(`אני רוצה לפנות ל${c.banker.name_he}`)}><IChat size={16} />כתיבת פנייה</button>
         </div>
         <button className="meet-row pressable" onClick={() => nav("/customer/meetings")} data-testid="banker-meeting"
-          aria-label={m ? `פגישה קרובה: ${m.type_he}, ${date} ${m.from}–${m.to}` : "אין פגישה מתוכננת — לבקשת תיאום"} title={m?.type_he}>
+          aria-label={m ? `פגישה קרובה: ${m.type_he}, ${date} ${m.from}–${m.to}` : "אין פגישה מתוכננת, לבקשת תיאום"} title={m?.type_he}>
           <span className="meet-ic" aria-hidden><ICalendar size={18} /></span>
           {m ? <span className="grow meet-when"><span className="meet-label">פגישה קרובה · </span><span className="ltr">{date}</span> · <span className="ltr">{m.from}–{m.to}</span></span>
             : <span className="grow meet-what">אין פגישה מתוכננת · לבקשת תיאום</span>}

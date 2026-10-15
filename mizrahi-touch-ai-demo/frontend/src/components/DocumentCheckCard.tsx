@@ -138,7 +138,7 @@ export function DocumentCheckCard() {
         const rejected = Object.entries(snap.outcomes?.documents || {}).filter(([, o]) => o.outcome === "BLOCKER" && o.by === "ai").map(([id]) => id);
         const replaceOne = correctionDocs === 1 && rejected.length === 1 ? rejected[0] : null;
         return { tone: "alert", title: correctionDocs === 1 ? "נמצא מסמך שדורש תיקון" : "נמצאו מסמכים שדורשים תיקון",
-          body: correctionDocs === 1 ? (replaceOne ? `${corrections[0].title_he} — נא להעלות מסמך חלופי. אחרי ההעלאה הבדיקה תרוץ מחדש.`
+          body: correctionDocs === 1 ? (replaceOne ? `${corrections[0].title_he}, נא להעלות מסמך חלופי. אחרי ההעלאה הבדיקה תרוץ מחדש.`
             : `${corrections[0].title_he}. אחרי העלאת מסמך מתוקן הבדיקה תרוץ מחדש.`)
             : `${correctionDocs} מסמכים דורשים תיקון או החלפה. אחרי העלאת מסמכים מתוקנים הבדיקה תרוץ מחדש.`,
           primary: replaceOne ? { label: "העלאת מסמך חלופי", run: go(`/customer/documents?replace=${encodeURIComponent(replaceOne)}`), upload: true }
@@ -147,7 +147,7 @@ export function DocumentCheckCard() {
       }
       case "MISSING_DOCUMENTS": {
         const dup = reqs.flatMap((q) => Object.entries(q.duplicates || {}))[0];
-        const dupNote = dup ? ` התקבלו ${dup[1]} תלושים ל${monthHe(dup[0])} — תלוש כפול נספר פעם אחת בלבד.` : "";
+        const dupNote = dup ? ` התקבלו ${dup[1]} תלושים ל${monthHe(dup[0])}, תלוש כפול נספר פעם אחת בלבד.` : "";
         // the backend's first upload target (the same one the assistant offers), preset to its borrower and month
         const next = nextUpload(uploads);
         const rest = next ? gaps.filter((g) => !(g.borrower === next.params.borrower_id && (!next.params.period || g.month === next.params.period))) : [];
@@ -179,20 +179,20 @@ export function DocumentCheckCard() {
       }
       case "PREPARATION_CONFIRMED":
         return { tone: "ok", title: "הכנת מסמכי הבקשה אושרה",
-          body: `האישור ניתן על ידי ${bankerName} ומתייחס להכנת המסמכים בלבד — זו אינה החלטה על ההלוואה.${banker.length
+          body: `האישור ניתן על ידי ${bankerName} ומתייחס להכנת המסמכים בלבד, זו אינה החלטה על ההלוואה.${banker.length
             ? ` ${banker.length === 1 ? "נושא אחד עדיין בבירור" : `${banker.length} נושאים עדיין בבירור`}.` : ""}`,
           primary: { label: "צפייה בסיכום", run: go("/customer/documents") },
           ask: { label: "מה השלב הבא?", prompt: "מה השלב הבא בתיק?" } };
       case "CHECKS_COMPLETE":
         return { tone: "ok", title: "כל המסמכים הנדרשים הושלמו",
-          body: `כל המסמכים לבקשת ההלוואה נמצאו תקינים בבדיקה האוטומטית. התיק מוכן לבדיקה של ${bankerName} — זו אינה החלטה על ההלוואה.`,
+          body: `כל המסמכים לבקשת ההלוואה נמצאו תקינים בבדיקה האוטומטית. התיק מוכן לבדיקה של ${bankerName}, זו אינה החלטה על ההלוואה.`,
           primary: { label: "צפייה בסיכום", run: go("/customer/documents") },
           ask: { label: "מה השלב הבא?", prompt: "מה השלב הבא בתיק?" } };
       case "ERROR": {
         const failed = docs.filter((d) => d.status === "failed");
         return { tone: "alert", title: "לא הצלחנו להשלים את הבדיקה",
           body: <>{r.counts.failed === 1 && failed.length === 1 ? <>הבדיקה של <span className="ltr">{failed[0].filename}</span> נעצרה בגלל תקלה.</>
-            : r.counts.failed ? `הבדיקה של ${r.counts.failed} מסמכים נעצרה בגלל תקלה.` : "בדיקת סט המסמכים נעצרה בגלל תקלה."} אפשר לנסות שוב, ואם זה חוזר — נשמח לעזור.</>,
+            : r.counts.failed ? `הבדיקה של ${r.counts.failed} מסמכים נעצרה בגלל תקלה.` : "בדיקת סט המסמכים נעצרה בגלל תקלה."} אפשר לנסות שוב, ואם זה חוזר, נשמח לעזור.</>,
           primary: { label: "ניסיון חוזר", run: retry },
           ask: { label: "קבלת עזרה", prompt: "הבדיקה של המסמכים שלי לא הושלמה. מה אפשר לעשות?" } };
       }
