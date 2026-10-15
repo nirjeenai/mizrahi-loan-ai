@@ -133,7 +133,7 @@ export function ApplyV2() {
                 <button className="cv2-chip cancel" disabled={busy} onClick={() => send({ action: "cancel_edit" }, "ביטול השינוי")}
                   data-testid="cv2-cancel-edit">ביטול השינוי</button>
               )}
-              {!clarifying && draft.suggestions.map((s) => (
+              {!clarifying && draft.suggestions.filter((s) => s !== "למה צריך את זה?").map((s) => (
                 <button key={s} className="cv2-chip" disabled={busy} onClick={() => send({ text: s }, s)} data-testid="cv2-suggestion">{s}</button>
               ))}
             </div>
