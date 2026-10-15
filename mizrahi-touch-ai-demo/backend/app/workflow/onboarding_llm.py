@@ -87,12 +87,14 @@ Candidate reply (used only if the bank's code accepts every fact exactly as you 
   "remaining_questions" that your facts do not fill ("summary" if none remain); ask exactly that question, in your
   own words. Do not answer policy or approval questions here and do not mention any number the customer did not say.
 - Style: warm and direct, like a helpful bank representative. Do not start with "רשמתי" or "עדכנתי"; avoid "מכיוון ש",
-  "שכן", "מהו", "הנדרש", "מעולה", "מצוין", "כדי שנוכל להמשיך/להתקדם"; no exclamation streaks; gender-neutral unless the
+  "שכן", "מהו", "הנדרש", "מצוין", "אחלה", "כדי שנוכל להמשיך/להתקדם" (for a short positive acknowledgement use
+  "מעולה", never "אחלה"); no exclamation streaks; gender-neutral unless the
   customer's words show their gender. Never say or imply an approval or an amount the bank will give."""
 
 REPLY_SYSTEM = """You are the digital assistant of Mizrahi-Tefahot's loan application. You
 are not a human and not a banker. Write ONE short reply in natural, spoken Israeli Hebrew (1-3 sentences, at most ~55
-words): warm, direct, like a helpful bank representative, not a government form. No "מעולה", no exclamation streaks,
+words): warm, direct, like a helpful bank representative, not a government form. For a short positive acknowledgement
+use "מעולה", never "אחלה"; no exclamation streaks,
 no technical words, no disclaimers unless given. Do not start with "רשמתי" or "עדכנתי"; avoid "מכיוון ש", "שכן",
 "מהו", "הנדרש", "כדי שנוכל להמשיך/להתקדם"; don't open the way the recent replies opened.
 Use ONLY the facts in the JSON you receive:
@@ -182,7 +184,7 @@ def parse_interpretation(raw: Any) -> Optional[dict]:
             unclear.append({"field": u["field"], "note_he": str(u.get("note_he") or "")[:160]})
             values.pop(u["field"], None)
     topics = [t for t in (raw.get("topics") or []) if t in TOPICS][:3]
-    candidate = " ".join(str(raw.get("reply_he") or "").split())
+    candidate = house_style(" ".join(str(raw.get("reply_he") or "").split()))
     return {"values": values, "corrections": corrections, "unclear": unclear, "topics": list(dict.fromkeys(topics)),
             "gross": raw.get("gross_income_mentioned") is True,
             "reply_he": candidate if 0 < len(candidate) <= 500 else "", "next_field": str(raw.get("next_field") or "")[:40]}
@@ -222,6 +224,14 @@ def grounded(reply: str, facts: dict) -> bool:
 _APPROVAL = re.compile(r"אושר|אושרה|מאושר|מאושרת|אישרתי|זכאי|זכאית|מובטח|מובטחת")
 
 
+_SLANG = re.compile(r"(?<![\u05d0-\u05ea])אחלה(?![\u05d0-\u05ea])")
+
+
+def house_style(text: str) -> str:
+    """The bank's wording for the assistant's replies, whatever the model wrote: "מעולה", never "אחלה"."""
+    return _SLANG.sub("מעולה", text)
+
+
 def claims_approval(text: str) -> bool:
     """An approval word with no negation in the four words before it ("לא מסגרת אשראי מאושרת" is not a claim)."""
     for m in _APPROVAL.finditer(text):
@@ -235,7 +245,7 @@ def reply(facts: dict, conv: dict, draft_id: str) -> Optional[str]:
         return None
     conv["llm_calls"] = conv.get("llm_calls", 0) + 1
     out = _call("onboarding_reply", REPLY_SYSTEM, facts, REPLY_SCHEMA, 0.4, draft_id)
-    text = " ".join(str((out or {}).get("reply_he") or "").split())
+    text = house_style(" ".join(str((out or {}).get("reply_he") or "").split()))
     if not text or len(text) > 700 or not grounded(text, facts) or claims_approval(text):
         return None
     return text

@@ -251,6 +251,15 @@ def test_an_ordinary_turn_uses_the_interpretations_reply_in_one_call(monkeypatch
     assert ch.last["text_he"] == "נעים להכיר, מיכל. מה מספר תעודת הזהות שלך?" and ch.last["engine"] == "llm"
 
 
+def test_the_assistant_says_meula_never_achla(monkeypatch):
+    ch = Chat()
+    ch.pick("loan_type", "personal")
+    _llm_on(monkeypatch, [_interp([("name", "מיכל ברק", "answer", True)], reply="אחלה, מיכל. מה מספר תעודת הזהות שלך?",
+                                  next_field="national_id")])
+    ch.say("קוראים לי מיכל ברק")
+    assert ch.last["text_he"] == "מעולה, מיכל. מה מספר תעודת הזהות שלך?"
+
+
 def test_a_candidate_that_does_not_fit_the_outcome_gets_the_second_call(monkeypatch):
     ch = Chat()
     personal(ch)
