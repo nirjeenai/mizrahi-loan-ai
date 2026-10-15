@@ -137,7 +137,7 @@ def test_a_repeated_turn_id_is_ignored():
 def test_direct_questions_get_direct_answers_and_the_pending_question_stays():
     ch = Chat()
     ch.say("אתה מבטיח לי שהבנק יאשר את ההלוואה?")
-    assert ch.last["text_he"].startswith("לא, אני לא יכול להבטיח אישור") and ch.pending == "loan_type"
+    assert ch.last["text_he"].startswith("אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה") and ch.pending == "loan_type"
     ch.say("מה מזג האוויר בתל אביב מחר?")
     assert "לא אוכל לתת תחזית מזג אוויר" in ch.last["text_he"] and ch.pending == "loan_type"
     ch.say("אני רוצה הלוואה של 300 אלף שקל.")
@@ -234,9 +234,72 @@ def _llm_on(monkeypatch, answers: list, seen: list | None = None):
     monkeypatch.setattr(g, "generate", fake)
 
 
-def _interp(facts=(), unclear=(), topics=(), gross=False):
+def _interp(facts=(), unclear=(), topics=(), gross=False, reply="", next_field=""):
     return {"facts": [dict(zip(("field", "value", "kind", "certain"), f)) for f in facts],
-            "unclear": [{"field": u, "note_he": ""} for u in unclear], "topics": list(topics), "gross_income_mentioned": gross}
+            "unclear": [{"field": u, "note_he": ""} for u in unclear], "topics": list(topics), "gross_income_mentioned": gross,
+            "reply_he": reply, "next_field": next_field}
+
+
+def test_an_ordinary_turn_uses_the_interpretations_reply_in_one_call(monkeypatch):
+    ch = Chat()
+    ch.pick("loan_type", "personal")
+    seen: list = []
+    _llm_on(monkeypatch, [_interp([("name", "מיכל ברק", "answer", True)], reply="נעים להכיר, מיכל. מה מספר תעודת הזהות שלך?",
+                                  next_field="national_id")], seen)
+    ch.say("קוראים לי מיכל ברק")
+    assert [p for p, _ in seen] == ["onboarding_interpret"] and ch.last["llm_calls"] == "1"
+    assert ch.last["text_he"] == "נעים להכיר, מיכל. מה מספר תעודת הזהות שלך?" and ch.last["engine"] == "llm"
+
+
+def test_a_candidate_that_does_not_fit_the_outcome_gets_the_second_call(monkeypatch):
+    ch = Chat()
+    personal(ch)
+    seen: list = []
+    _llm_on(monkeypatch, [
+        _interp([("amount", "1000000", "answer", True)], reply="מיליון שקל, בשמחה. בכמה תשלומים?", next_field="payments"),
+        {"reply_he": "במסלול הזה אפשר לבקש עד 250,000 ₪. כמה תרצו לבקש בטווח הזה?"},
+    ], seen)
+    ch.say("אני רוצה מיליון שקל")
+    assert [p for p, _ in seen] == ["onboarding_interpret", "onboarding_reply"] and "amount" not in ch.answers()
+    assert "250,000" in ch.last["text_he"] and "בשמחה" not in ch.last["text_he"]
+
+
+def test_the_indication_turn_can_take_one_call_and_an_approval_claim_never_passes(monkeypatch):
+    ch = Chat()
+    personal(ch)
+    ch.say("רוצה 80 אלף לרכב ל-60 תשלומים")
+    seen: list = []
+    _llm_on(monkeypatch, [
+        _interp([("income", "salaried", "answer", True), ("net", "16000", "extra", True)],
+                reply="תודה. מישהו נוסף חותם איתך על ההלוואה?", next_field="co_borrower"),
+        _interp([("co_borrower", "no", "answer", True)], reply="מצוין, ההלוואה מאושרת! הנה הסיכום.", next_field="summary"),
+        {"reply_he": "הבקשה רק על שמך. הסיכום מוכן למטה לבדיקה ולאישור — פתיחת הבקשה אינה אישור הלוואה."},
+    ], seen)
+    ch.say("אני שכירה ומרוויחה בערך 16 אלף נטו")
+    assert ch.last["llm_calls"] == "1" and ch.last["indication"]["requested_amount_ils"] == 80000
+    ch.say("לא, רק אני")
+    assert [p for p, _ in seen][-2:] == ["onboarding_interpret", "onboarding_reply"] and "מאושרת" not in ch.last["text_he"]
+
+
+def test_business_form_and_salary_in_one_message_is_not_a_contradiction(monkeypatch):
+    ch = Chat()
+    _llm_on(monkeypatch, [_interp([("loan_type", "business", "answer", True), ("business_form", "vat_exempt", "extra", True),
+                                   ("income", "salaried,self_employed", "extra", True)]), g.GeminiError("x")])
+    ch.say("אני צריך הלוואה לעסק, יש לי עוסק פטור ואני גם שכיר בחצי משרה")
+    a = ch.answers()
+    assert a["income"] == ["salaried", "self_employed"] and a["registration"] == "vat_exempt"
+    assert "מה נכון" not in ch.last["text_he"] and ch.pending == "name"
+
+
+def test_approximate_numbers_survive_a_hesitant_model(monkeypatch):
+    ch = Chat()
+    personal(ch)
+    _llm_on(monkeypatch, [_interp([("purpose", "car", "answer", True)], unclear=["amount"]), g.GeminiError("x"),
+                          _interp(unclear=["net"], gross=True), g.GeminiError("x")])
+    ch.say("רכב, צריכה בערך 80 אלף")
+    assert ch.answers()["amount"] == 80000 and "לא הייתי בטוח" not in ch.last["text_he"]
+    ch.say("אני מרוויחה 19 אלף ברוטו")
+    assert "net" not in ch.answers() and "ולא ברוטו" in ch.last["text_he"] and "בערך נכנס" not in ch.last["text_he"]
 
 
 def test_llm_proposals_are_validated_before_they_are_recorded(monkeypatch):

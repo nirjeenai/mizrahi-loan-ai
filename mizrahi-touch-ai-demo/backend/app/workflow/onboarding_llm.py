@@ -1,8 +1,10 @@
 """Gemini for the conversational questionnaire (V2): it reads the customer's Hebrew and words the reply — nothing else.
 
-Two calls per free-text turn, both through the shared client (`llm/gemini.py`: ledger, hourly budget):
-  1. `interpret` — structured proposals (facts, uncertainties, question topics) under a response schema;
-  2. `reply` — one short Hebrew message written from the *validated* outcome of the turn.
+Through the shared client (`llm/gemini.py`: ledger, hourly budget):
+  1. `interpret` — structured proposals (facts, uncertainties, question topics) under a response schema, plus a
+     candidate reply written as if every proposal were accepted and the question it expects next;
+  2. `reply` — one short Hebrew message written from the *validated* outcome of the turn. Only needed when the
+     candidate does not fit the outcome (`onboarding_chat._candidate_ok`): ordinary turns take one call.
 A proposal is only a proposal: `parse_interpretation` drops anything outside the schema, and the conversation layer
 records a fact only through `onboarding.answer` (V1 validation). A reply that cites a number which is not in the facts
 it was given is discarded (`grounded`). Every failure — switched off, no key, budget, timeout, bad JSON, ungrounded
@@ -44,7 +46,8 @@ INTERPRET_SCHEMA = S("object", properties={
                                   required=["field", "note_he"])),
     "topics": S("array", items=S("string", enum=TOPICS)),
     "gross_income_mentioned": S("boolean"),
-}, required=["facts", "unclear", "topics", "gross_income_mentioned"])
+    "reply_he": S("string"), "next_field": S("string"),
+}, required=["facts", "unclear", "topics", "gross_income_mentioned", "reply_he", "next_field"])
 REPLY_SCHEMA = S("object", properties={"reply_he": S("string")}, required=["reply_he"])
 
 INTERPRET_SYSTEM = """You read one message from a customer of a Hebrew loan-application assistant (Mizrahi-Tefahot
@@ -66,15 +69,33 @@ Fields and value formats (value is always a string):
 Rules:
 - kind: "answer" = answers the pending question; "extra" = another field volunteered; "correction" = the customer
   explicitly changes something said before (בעצם, במקום, טעיתי, לא X אלא Y, "אני לא שכיר, רק עצמאי").
-- certain=false when the customer hedges, contradicts themself or the mapping is a guess. Prefer "unclear" over guessing.
+- Numbers: an approximate number is a usable, CERTAIN value: "בערך 80 אלף", "בסביבות 16 אלף", "כ־120 אלף",
+  "משהו כמו 20 אלף", "80 בערך" -> certain=true with that number. "120 ולא 80" -> 120000 (correction).
+  Only a number you cannot state is unclear ("כמה עשרות אלפים", "לא יודע כמה").
+- A clear number outside any sensible range ("מיליון שקל") is still certain: output it; the bank's code checks limits.
+- certain=false only for semantic doubt: the customer contradicts themself, says they don't know which option fits,
+  or the mapping to an option is a guess. Approximation is NOT doubt. Prefer "unclear" over guessing an option.
+- Gross: if the customer gives a gross (ברוטו) figure, output no net fact and no net "unclear"; set
+  gross_income_mentioned=true.
+- unclear: only for a field the customer actually talked about and you could not map. Never for fields not mentioned.
 - topics: what the customer asks about (why_pending = why the current question is asked; calculate = asks to compute
   the loan / indication; explain_indication = how the shown indication was computed; approval = promises, approval,
   eligibility; interest = interest rate; change = wants to change an answer; off_topic = unrelated to the loan).
-- ID numbers are masked as [ID]; never output them."""
+- ID numbers are masked as [ID]; never output them.
+Candidate reply (used only if the bank's code accepts every fact exactly as you proposed it):
+- reply_he: 1-2 short sentences of natural, spoken Israeli Hebrew, as if all your facts were accepted: a brief,
+  specific acknowledgement (not a list), then the next question. next_field = the first field of
+  "remaining_questions" that your facts do not fill ("summary" if none remain); ask exactly that question, in your
+  own words. Do not answer policy or approval questions here and do not mention any number the customer did not say.
+- Style: warm and direct, like a helpful bank representative. Do not start with "רשמתי" or "עדכנתי"; avoid "מכיוון ש",
+  "שכן", "מהו", "הנדרש", "מעולה", "מצוין", "כדי שנוכל להמשיך/להתקדם"; no exclamation streaks; gender-neutral unless the
+  customer's words show their gender. Never say or imply an approval or an amount the bank will give."""
 
 REPLY_SYSTEM = """You are the digital assistant of Mizrahi-Tefahot's loan application (a demo with synthetic data). You
-are not a human and not a banker. Write ONE short reply in natural Israeli Hebrew (1-3 sentences, at most ~55 words):
-warm, professional, concise. No "מעולה", no exclamation streaks, no technical words, no disclaimers unless given.
+are not a human and not a banker. Write ONE short reply in natural, spoken Israeli Hebrew (1-3 sentences, at most ~55
+words): warm, direct, like a helpful bank representative — not a government form. No "מעולה", no exclamation streaks,
+no technical words, no disclaimers unless given. Do not start with "רשמתי" or "עדכנתי"; avoid "מכיוון ש", "שכן",
+"מהו", "הנדרש", "כדי שנוכל להמשיך/להתקדם"; don't open the way the recent replies opened.
 Use ONLY the facts in the JSON you receive:
 - briefly acknowledge what was recorded (do not repeat the customer's whole answer);
 - explain every rejected or unclear item using the given reason, and ask the clarification when one is given;
@@ -168,15 +189,17 @@ def parse_interpretation(raw: Any) -> Optional[dict]:
             unclear.append({"field": u["field"], "note_he": str(u.get("note_he") or "")[:160]})
             values.pop(u["field"], None)
     topics = [t for t in (raw.get("topics") or []) if t in TOPICS][:3]
+    candidate = " ".join(str(raw.get("reply_he") or "").split())
     return {"values": values, "corrections": corrections, "unclear": unclear, "topics": list(dict.fromkeys(topics)),
-            "gross": raw.get("gross_income_mentioned") is True}
+            "gross": raw.get("gross_income_mentioned") is True,
+            "reply_he": candidate if 0 < len(candidate) <= 500 else "", "next_field": str(raw.get("next_field") or "")[:40]}
 
 
 def interpret(context: dict, conv: dict, draft_id: str) -> Optional[dict]:
     if not available(conv):
         return None
     conv["llm_calls"] = conv.get("llm_calls", 0) + 1
-    return parse_interpretation(_call("onboarding_interpret", INTERPRET_SYSTEM, context, INTERPRET_SCHEMA, 700, 0.1, draft_id))
+    return parse_interpretation(_call("onboarding_interpret", INTERPRET_SYSTEM, context, INTERPRET_SCHEMA, 900, 0.2, draft_id))
 
 
 _NUM = re.compile(r"(\d[\d,]*(?:\.\d+)?)(\s*אלף)?")
@@ -203,12 +226,23 @@ def grounded(reply: str, facts: dict) -> bool:
     return True
 
 
+_APPROVAL = re.compile(r"אושר|אושרה|מאושר|מאושרת|אישרתי|זכאי|זכאית|מובטח|מובטחת")
+
+
+def claims_approval(text: str) -> bool:
+    """An approval word with no negation in the four words before it ("לא מסגרת אשראי מאושרת" is not a claim)."""
+    for m in _APPROVAL.finditer(text):
+        if not any(w in ("לא", "אינה", "אינו", "אין", "בלי") for w in text[:m.start()].split()[-4:]):
+            return True
+    return False
+
+
 def reply(facts: dict, conv: dict, draft_id: str) -> Optional[str]:
     if not available(conv):
         return None
     conv["llm_calls"] = conv.get("llm_calls", 0) + 1
     out = _call("onboarding_reply", REPLY_SYSTEM, facts, REPLY_SCHEMA, 400, 0.4, draft_id)
     text = " ".join(str((out or {}).get("reply_he") or "").split())
-    if not text or len(text) > 700 or not grounded(text, facts):
+    if not text or len(text) > 700 or not grounded(text, facts) or claims_approval(text):
         return None
     return text

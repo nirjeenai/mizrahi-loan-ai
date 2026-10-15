@@ -103,5 +103,5 @@ settings = Settings(
     onboarding_llm=os.environ.get("ONBOARDING_LLM", "0") == "1",
     onboarding_llm_model=os.environ.get("ONBOARDING_LLM_MODEL", os.environ.get("GEMINI_MODEL_AGENT", "gemini-3.8-flash")),
     onboarding_llm_max_calls_per_hour=int(os.environ.get("ONBOARDING_LLM_MAX_CALLS_PER_HOUR", "60")),
-    onboarding_llm_timeout=float(os.environ.get("ONBOARDING_LLM_TIMEOUT", "12")),
+    onboarding_llm_timeout=float(os.environ.get("ONBOARDING_LLM_TIMEOUT", "8")),
 )

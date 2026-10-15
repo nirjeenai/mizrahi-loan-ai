@@ -547,8 +547,8 @@ def _answer(topic: str, q: str, a: dict, conv: dict, pending: Optional[str]) -> 
         conv["explained"] = ind.get("key")
         return _explain(ind, a), []
     if topic == "approval":
-        return ("לא, אני לא יכול להבטיח אישור. הבנק יצטרך לבדוק את הבקשה והמסמכים לפני קבלת החלטה. "
-                "אני כן יכול לעזור לך להכין את הכול בצורה מסודרת."), []
+        return ("אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה ולהכין אותה להמשך בחינה — את ההחלטה מקבל הבנק "
+                "אחרי בדיקת הבקשה והמסמכים."), []
     if topic == "interest":
         return ("את הריבית בפועל קובע הבנק רק אחרי בדיקת הבקשה, ואין לי נתון כזה. באינדיקציה הראשונית אני משתמש "
                 f"בריבית המחשה של {indication.DEMO_ANNUAL_RATE * 100:g}% בלבד."), []
@@ -647,7 +647,14 @@ def _unclear(field: str, kind: str, conv: dict, a: dict) -> tuple[str, list[dict
         return ("זה בסדר, זה לא תמיד ברור. אם על העבודות מוציאים חשבונית או קבלה — זו הכנסה מעסק עצמאי. "
                 "אם מקבלים עליהן תלוש — זו הכנסה כשכיר. מה מתאים לך?"), acts + [
             {"label_he": "רק עסק עצמאי", "question_id": field, "value": ["self_employed"]}]
-    return f"לא הייתי בטוח לגבי {FIELD_HE.get(field, 'הפרט הזה')} — אפשר לפרט קצת?", []
+    return {"amount": "כמה בערך תרצו לבקש? גם סכום משוער מספיק.",
+            "business_amount": "כמה בערך מבקשים? גם סכום משוער מספיק.",
+            "net": "כמה בערך נכנס לך נטו בחודש? גם מספר משוער מספיק.",
+            "co_net": "כמה בערך נכנס ללווה הנוסף נטו בחודש?",
+            "payments": "בכמה תשלומים תרצו לפרוס? אפשר 36, 48, 60 או 84.",
+            "loan_type": "מדובר בהלוואה פרטית או עסקית?",
+            "purpose": "למה מיועדת ההלוואה — למשל רכב, שיפוץ או מטרה אחרת?",
+            "name": "אשמח לשם המלא — שם פרטי ושם משפחה."}.get(field, f"אפשר לפרט קצת לגבי {FIELD_HE.get(field, 'זה')}?"), []
 
 
 ERROR_LEAD = {"net": "לא רשמתי את ההכנסה: ", "co_net": "לא רשמתי את ההכנסה: "}
@@ -789,6 +796,9 @@ def _understand_llm(text: str, conv: dict, a: dict, pending: Optional[str], draf
                                          (_replies(pending, conv, a) if pending else [])]},
         "known_answers": {k: _value_he(k, val, a, short=True) for k, val in v.items()
                           if k not in ("national_id", "co_national_id", "signatory_id", "entity")},
+        "remaining_questions": [{"field": q, "prompt_he": _prompt(q, conv, a)}
+                                for q in _applicable(conv, a) if q not in v][:6],
+        "first_name": _first(a) or None,
         "recent_conversation": [{"role": m["role"], "text": llm.mask(m["text_he"])[:300]} for m in conv["messages"][-6:]],
         "customer_message": llm.mask(text),
     }
@@ -802,17 +812,36 @@ def _understand_llm(text: str, conv: dict, a: dict, pending: Optional[str], draf
         if k in det_u["values"]:
             values[k] = det_u["values"][k]
     norm = nlu.normalize(text)
-    if "ברוטו" in norm and "נטו" not in norm:
-        values.pop("net", None)
-        values.pop("co_net", None)
+    gross = ("ברוטו" in norm and "נטו" not in norm) or out["gross"]
+    if gross:
+        for k in ("net", "co_net"):
+            values.pop(k, None)
         notes.append({"kind": "gross"})
-    elif out["gross"]:
-        notes.append({"kind": "gross"})
+    unclear_fields = {u["field"] for u in out["unclear"]}
+    # a number the model hesitated on (or skipped) but the parser read plainly — "בערך 80 אלף" — is used as read;
+    # approximation is not doubt, but a hedge is: "אולי 60 תשלומים" stays a question when the model marked it unclear
+    hedged = bool(re.search(r"אולי|לא בטוח|לא יודע|מתלבט|יכול להיות|תלוי", norm))
+    for k in ("amount", "business_amount", "payments", "net", "co_net"):
+        if k in det_u["values"] and k not in values and not (gross and k in ("net", "co_net")) \
+                and not (hedged and k in unclear_fields):
+            values[k] = det_u["values"][k]
+            unclear_fields.discard(k)
+            if k in det_u["corrections"]:
+                out["corrections"].add(k)
+    unclear = []
+    for u in out["unclear"]:
+        f = u["field"]
+        if f not in unclear_fields or f in values or (gross and f in ("net", "co_net")):
+            continue
+        if f.endswith("income"):
+            unclear.append({"field": f, "kind": "income_side_jobs" if "salaried" in (det_u["values"].get(f) or []) or
+                            nlu.SIDE_JOBS.search(norm) else "income_help"})
+        elif f == pending:
+            unclear.append({"field": f, "kind": "unclear"})
     topics = [(t, norm) for t in out["topics"]]
-    unclear = [{"field": u["field"], "kind": "income_side_jobs" if u["field"].endswith("income") else "unclear",
-                "note_he": u.get("note_he")} for u in out["unclear"]]
     return {"values": values, "corrections": out["corrections"], "unclear": unclear, "topics": topics, "notes": notes,
-            "engine": "llm"}
+            "engine": "llm", "candidate": out["reply_he"], "next_field": out["next_field"],
+            "proposed": dict(out["values"])}
 
 
 # ---------------------------------------------------------------- apply
@@ -846,8 +875,10 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
         return onboarding._clean_answers(onboarding._row(draft_id)["answers"])
 
     def conflict(field: str, value: Any) -> bool:
-        """A different value for an answered field, without a correction and not the question being asked."""
-        old = _v2(conv, fresh()).get(field)
+        """A different value for a field the customer had answered BEFORE this turn, without a correction and not the
+        question being asked. Values set earlier in this same turn (e.g. business income from "עוסק פטור") are not
+        earlier answers, so "יש לי עוסק פטור ואני גם שכיר" keeps both sources."""
+        old = before.get(field)
         if old is None or old == value or field in u["corrections"] or field in (pending, focus):
             return False
         # the parser already merged income sources with the earlier answer ("גם", negation, past jobs)
@@ -873,7 +904,7 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
             out["actions"].append({"label_he": "לעבור להלוואה פרטית", "question_id": "loan_type", "value": "personal"})
             continue
         if conflict(qid, value):
-            out["conflicts"].append((qid, a.get(qid), value))
+            out["conflicts"].append((qid, before.get(qid), value))
             continue
         try:
             if not BY_ID[qid][4](a):
@@ -916,7 +947,9 @@ def _question_line(t: dict, conv: dict, a: dict) -> str:
         return ""
     if nxt != conv.get("asked") or t["changes"] or t.get("edit"):
         return _prompt(nxt, conv, a)
-    lead = "בינתיים, " if t["gross"] else "נמשיך? " if t.get("off_topic") else "אז " if t["interrupted"] else ""
+    # vary the way back to the question so consecutive interruptions don't all start with "אז"
+    lead = ("בינתיים, " if t["gross"] else "נמשיך? " if t.get("off_topic") else
+            ("", "אז ", "ולגבי הבקשה — ")[conv["seq"] % 3] if t["interrupted"] else "")
     return lead + _short(nxt, conv, a)
 
 
@@ -952,11 +985,37 @@ def _facts(t: dict, conv: dict, a: dict, customer: str) -> dict:
     }
 
 
+ID_FIELDS = {"national_id", "co_national_id", "signatory_id"}
+
+
+def _candidate_ok(u: dict, t: dict, conv: dict, a: dict, facts: dict) -> bool:
+    """The interpretation's own reply may be used only on an ordinary turn whose outcome is exactly what it assumed:
+    every fact it proposed was recorded as proposed and nothing else was added, nothing was refused, held, contradicted
+    or left unclear, no question or disclosure is needed (policy answer, indication, summary), the next question is the
+    one it asked, and every number in it is grounded. Anything else gets the second call or the deterministic reply."""
+    cand = u.get("candidate")
+    if not cand or u.get("engine") != "llm" or llm.claims_approval(cand):
+        return False
+    # a new or updated indication travels in its deterministic card (amount, verdict, disclaimer), so the text need
+    # not carry it; a withdrawal must be said in words
+    if (t["issues"] or t["answers"] or t["held"] or t["clarifying"] or t["actions"] or t["ind_event"] == "withdrawn"
+            or t["summary_text"] or any(topic != "smalltalk" for topic, _ in u["topics"])):
+        return False
+    if set(u["values"]) - ID_FIELDS != set(u.get("proposed") or {}):
+        return False
+    v = _v2(conv, a)
+    if any(v.get(k) != val for k, val in u["values"].items()):
+        return False
+    return (t["next"] or "summary") == u.get("next_field") and llm.grounded(cand, facts)
+
+
 def _llm_reply_ok(reply: str, t: dict) -> bool:
     """The indication's framing must survive the model's wording: the requested amount and a non-approval phrase."""
     if not t["ind_text"] or t["ind_event"] == "withdrawn":
         return True
     amount = f"{t['ind_snap']['requested_amount_ils']:,}"
+    if t["ind_event"] == "updated":
+        return amount in reply                  # the card carries the disclaimer, as in the deterministic update
     return amount in reply and any(p in reply for p in ("לא בדיקת זכאות", "לא אישור", "אינה אישור", "אינו אישור",
                                                        "עדיין לא", "לא הצעה"))
 
@@ -1018,6 +1077,8 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         if turn_id and turn_id in conv["turns"]:
             return view(draft_id)
         pending = _pending(conv, a)
+        calls_at_start = conv.get("llm_calls", 0)
+        u: dict[str, Any] = {}
         t: dict[str, Any] = {"changes": [], "held": [], "issues": [], "answers": [], "actions": [], "clarifying": False,
                              "interrupted": False, "gross": False, "edit": False, "ack": "", "ind_text": "",
                              "ind_event": None, "ind_snap": None, "summary_text": ""}
@@ -1118,14 +1179,18 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         reply_text, reply_engine = None, "rules"
         if use_llm_reply and not t["edit"]:
             facts = _facts(t, conv, a, customer)
-            candidate = llm.reply(facts, conv, draft_id)
-            if candidate and _llm_reply_ok(candidate, t):
-                reply_text, reply_engine = candidate, "llm"
+            if _candidate_ok(u, t, conv, a, facts):
+                reply_text, reply_engine = u["candidate"], "llm"     # one call: the interpretation's own reply
+            else:
+                candidate = llm.reply(facts, conv, draft_id)
+                if candidate and _llm_reply_ok(candidate, t):
+                    reply_text, reply_engine = candidate, "llm"
         if reply_text is None:
             reply_text = _compose_rules(t, conv, a)
         asked = t["next"] if (t["next"] and not t["clarifying"]) else None
         _say(conv, reply_text, question_id=asked, indication=t["ind_snap"], insight=t["ind_event"],
-             actions=t["actions"][:4], engine=reply_engine, understood_by=engine)
+             actions=t["actions"][:4], engine=reply_engine, understood_by=engine,
+             llm_calls=str(conv.get("llm_calls", 0) - calls_at_start))
         if asked:
             conv["asked"] = asked
         elif t["next"] is None:

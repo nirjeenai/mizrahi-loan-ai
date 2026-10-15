@@ -131,8 +131,8 @@ def defects(page: Page) -> None:
     shot(page, "02-desktop-gross")
 
     say(page, "אתה מבטיח לי שהבנק יאשר את ההלוואה?")
-    check("H · approval: a direct 'no', conditional review, the flow continues",
-          bot(page).startswith("לא, אני לא יכול להבטיח אישור") and pending(page) == "loan_type", bot(page)[:70])
+    check("H · approval: no promise, conditional review, the flow continues",
+          bot(page).startswith("אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה") and pending(page) == "loan_type", bot(page)[:70])
     say(page, "מה מזג האוויר בתל אביב מחר?")
     check("G · off-topic: short, no fabricated weather, state kept",
           "לא אוכל לתת תחזית מזג אוויר" in bot(page) and pending(page) == "loan_type", bot(page)[:70])
