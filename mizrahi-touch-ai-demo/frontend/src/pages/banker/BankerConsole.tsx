@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, AUTH_EVENT, OUTCOME_HE, timeHe, usePolling, type BankerCaseRow, type Finding, type Session, type Workspace } from "../../api";
 import { Chip, useOutsideClose, When } from "./deskUi";
@@ -102,17 +102,48 @@ export function BankerConsole() {
   );
 }
 
+/** The six official customer profiles (UC-01…06 ↔ presenter TC-01…06); with every customer-created application
+ *  (intake and onboarding ids are DEMO-LN-…) they make the main list. Every other prepared case is under
+ *  "תרחישי בדיקה נוספים". Both are filters of the server's list, so each keeps its most-recent-activity order. */
+const OFFICIAL_CASES = new Set(["DEMO-MTZ-2026-101", "DEMO-MTZ-2026-102", "DEMO-MTZ-2026-103", "DEMO-MTZ-2026-104",
+  "DEMO-MTZ-2026-105", "DEMO-MTZ-2026-106"]);
+const inMainList = (id: string) => OFFICIAL_CASES.has(id) || id.startsWith("DEMO-LN-");
+
 function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
   caseId: string; cases: BankerCaseRow[]; ws: Workspace | null; view: View; staff: string;
   onOpen: () => void; onCase: (id: string) => void; onView: (v: View) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
+  const pop = useRef<HTMLDivElement>(null);
   useOutsideClose(open, () => setOpen(false));
+  useEffect(() => {
+    if (open && more && !inMainList(caseId)) pop.current?.querySelector(".case-pop-row.on")?.scrollIntoView({ block: "nearest" });
+  }, [open, more, caseId]);
   const current = cases.find((c) => c.case_id === caseId);
+  const main = cases.filter((c) => inMainList(c.case_id));
+  const extra = cases.filter((c) => !inMainList(c.case_id));
+  const row = (c: BankerCaseRow) => {
+    const q = c.queue || {};
+    return (
+      <button key={c.case_id} role="option" aria-selected={c.case_id === caseId} className={`case-pop-row${c.case_id === caseId ? " on" : ""}`}
+        data-case={c.case_id} onClick={() => { onCase(c.case_id); setOpen(false); }}>
+        <span className="bold"><span className="ltr">{c.display_number}</span> · {c.title_he}</span>
+        <span className="small muted">{c.borrowers.join(", ")}{c.banker.staff_id && c.banker.staff_id !== staff ? ` · משויך ל${c.banker.name_he}` : ""}</span>
+        <span className="row" style={{ gap: 4, flexWrap: "wrap", marginTop: 4 }}>
+          {(q.decide || 0) + (q.judgment || 0) + (q.escalated || 0) > 0 && <Chip tone="navy">{(q.decide || 0) + (q.judgment || 0) + (q.escalated || 0)} להחלטתך</Chip>}
+          {(q.missing || 0) > 0 && <Chip tone="warn">{q.missing} חסרים</Chip>}
+          {(q.correction || 0) > 0 && <Chip tone="warn">{q.correction} בתיקון</Chip>}
+          <Chip>{c.readiness_he}</Chip>
+        </span>
+      </button>
+    );
+  };
   return (
     <div className="case-bar">
       <div className="case-switch" data-popover>
-        <button className="case-switch-btn" onClick={() => { if (!open) onOpen(); setOpen(!open); }} aria-expanded={open} aria-haspopup="listbox" data-testid="case-switch">
+        <button className="case-switch-btn" onClick={() => { if (!open) { onOpen(); setMore(!inMainList(caseId)); } setOpen(!open); }}
+          aria-expanded={open} aria-haspopup="listbox" data-testid="case-switch">
           <span className="case-no ltr">{ws?.case.display_number || current?.display_number || caseId}</span>
           <span className="case-names" title={ws?.case.title_he}>{ws?.document_profile?.company ? `${ws.document_profile.company.name_he} · ` : ""}
             {ws ? ws.case.borrowers.map((b) => b.name_he).join(" ו") : current?.borrowers.join(" ו")}</span>
@@ -121,24 +152,18 @@ function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
           <span aria-hidden>▾</span>
         </button>
         {open && (
-          <div className="case-pop" role="listbox" aria-label="תיקים בתור">
+          <div className="case-pop" role="listbox" aria-label="תיקים בתור" ref={pop}>
             <div className="case-pop-head">תיקים בתור</div>
-            {cases.map((c) => {
-              const q = c.queue || {};
-              return (
-                <button key={c.case_id} role="option" aria-selected={c.case_id === caseId} className={`case-pop-row${c.case_id === caseId ? " on" : ""}`}
-                  onClick={() => { onCase(c.case_id); setOpen(false); }}>
-                  <span className="bold"><span className="ltr">{c.display_number}</span> · {c.title_he}</span>
-                  <span className="small muted">{c.borrowers.join(", ")}{c.banker.staff_id && c.banker.staff_id !== staff ? ` · משויך ל${c.banker.name_he}` : ""}</span>
-                  <span className="row" style={{ gap: 4, flexWrap: "wrap", marginTop: 4 }}>
-                    {(q.decide || 0) + (q.judgment || 0) + (q.escalated || 0) > 0 && <Chip tone="navy">{(q.decide || 0) + (q.judgment || 0) + (q.escalated || 0)} להחלטתך</Chip>}
-                    {(q.missing || 0) > 0 && <Chip tone="warn">{q.missing} חסרים</Chip>}
-                    {(q.correction || 0) > 0 && <Chip tone="warn">{q.correction} בתיקון</Chip>}
-                    <Chip>{c.readiness_he}</Chip>
-                  </span>
+            <div data-testid="case-main">{main.map(row)}</div>
+            {extra.length > 0 && (
+              <>
+                <button className="case-pop-more" aria-expanded={more} onClick={() => setMore(!more)} data-testid="case-more-toggle">
+                  <span>תרחישי בדיקה נוספים</span>
+                  <span className="small muted">{extra.length} תיקים <span aria-hidden>{more ? "▴" : "▾"}</span></span>
                 </button>
-              );
-            })}
+                {more && <div data-testid="case-more">{extra.map(row)}</div>}
+              </>
+            )}
           </div>
         )}
       </div>

@@ -119,6 +119,9 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
 - **Case list order.** Every case list (the banker's "תיקים בתור" in V1/V2/V3, this drawer, `GET /api/cases`) puts the
   case worked on most recently first: the latest audit row except opening/viewing, tool and assistant chatter, a refused
   duplicate upload and a reset (`repo.NOT_ACTIVITY`). Cases with no activity keep their default order after them.
+  The banker's "תיקים בתור" shows the six official profiles (101–106, UC-01…06) and every customer-created application
+  (`DEMO-LN-…`) in that one order; every other prepared case (001–011) sits under a collapsed "תרחישי בדיקה נוספים",
+  in the same order. A case opened by link (the presenter's "תצוגת הבנקאית") opens the selector on its own section.
 - **New customers (`/customer/apply`).** A deterministic JEEN questionnaire (`workflow/onboarding.py`, no model) asks
   about the entity, name, purpose, income sources, VAT registration if self-employed, a co-borrower (with their income
   and a joint or separate account), and the amount and payments. A company path asks for the company name, the
