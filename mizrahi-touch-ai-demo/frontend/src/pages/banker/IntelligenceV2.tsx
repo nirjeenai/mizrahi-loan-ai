@@ -75,16 +75,16 @@ export const fmt = (v: number | string | null | undefined, unit?: string, exact 
 export const years = (m: number) => (m % 12 === 0 ? `${m / 12} שנים` : `${(m / 12).toFixed(1)} שנים`);
 
 export type MarkKind = "verified" | "reviewed" | "unverified" | "declared" | "demo" | "calc" | "assume" | "missing" | "sim";
-/** Small provenance icons: the distinction stays (document · declared · calculated · DEMO · assumption · simulation ·
+/** Small provenance icons: the distinction stays (document · declared · calculated · bank context · assumption · simulation ·
  *  missing), the noise goes. The full explanation is one click away in the source drawer. */
 export const MARK: Record<MarkKind, { icon: string; label: string; title: string }> = {
   verified: { icon: "✓", label: "מסמך", title: "חולץ ממסמך ואומת מול הקובץ" },
   reviewed: { icon: "✓", label: "נבדק", title: "חולץ ממסמך, אומת מול הקובץ, והמסמך התקבל על ידי הבנקאי" },
   unverified: { icon: "!", label: "מסמך · לא אומת", title: "חולץ ממסמך — לא אומת מול הקובץ" },
   declared: { icon: "✎", label: "מוצהר", title: "הצהרת הלקוח בבקשה — לא מאומת" },
-  demo: { icon: "DEMO", label: "דמו", title: "נתון בנקאי סינתטי להדגמה — לא נתון אמיתי ולא מאומת" },
+  demo: { icon: "בנק", label: "נתוני בנק", title: "נתון מההקשר הבנקאי של התיק — לא אומת מול מערכות הבנק" },
   calc: { icon: "ƒ", label: "חישוב", title: "חושב בקוד מנתונים אחרים — לחצו לנוסחה ולקלטים" },
-  assume: { icon: "≈", label: "הנחה", title: "הנחת הדגמה — אינה מדיניות או ריבית של הבנק" },
+  assume: { icon: "≈", label: "הנחה", title: "הנחה לצורך החישוב — אינה מדיניות או ריבית של הבנק" },
   missing: { icon: "?", label: "חסר", title: "הנתון אינו זמין" },
   sim: { icon: "◇", label: "סימולציה", title: "ערך סימולציה — לא נשמר ואינו משנה את הבקשה" },
 };
@@ -441,7 +441,7 @@ function Supporting({ ctx }: { ctx: Ctx }) {
               {r.source_ids.map((id) => <button key={id} className="bi-chipsrc" onClick={() => ctx.open(id)}><Mark kind={markOf(x.sources[id])} /></button>)}
               <button className="bi-link" onClick={() => ctx.openV1(r.v1_item)}>פתיחה</button></li>))}
         </ul>}
-        <div className="bi-unknowns"><b>לא נבדק בהדגמה:</b> {x.unknowns.map((u) => `${u.label_he} — ${u.text_he}`).join(" · ")}</div>
+        <div className="bi-unknowns"><b>לא נכלל בבדיקה:</b> {x.unknowns.map((u) => `${u.label_he} — ${u.text_he}`).join(" · ")}</div>
       </Panel>
 
       <Panel title="התחייבויות ואובליגו" testId="bi-obligations" demo={bc.available}
@@ -454,14 +454,14 @@ function Supporting({ ctx }: { ctx: Ctx }) {
           {bc.exposure && <div><span>אובליגו מאושר</span><Val ctx={ctx} d={bc.exposure.approved} testId="bi-exposure-approved" /></div>}
           {bc.exposure && <div><span>אובליגו מנוצל</span><Val ctx={ctx} d={bc.exposure.utilized} testId="bi-exposure-utilized" /></div>}
         </div>
-        {!bc.available ? <div className="bi-empty">אין נתוני הקשר בנקאי להדגמה עבור {bc.missing_for.join(", ") || "המבקשים"} — ההתחייבויות הקיימות לא ידועות, והיחס כולל רק את ההלוואה המבוקשת.</div> : <>
-          <div className="bi-src-note">מקור: {bc.fixture_ids.join(", ")} · נכון ל־<span className="ltr">{bc.observed_at}</span> · נתונים סינתטיים, לא נשלפו ממערכות הבנק{bc.missing_for.length ? ` · חסר עבור ${bc.missing_for.join(", ")}` : ""}</div>
+        {!bc.available ? <div className="bi-empty">אין נתוני הקשר בנקאי עבור {bc.missing_for.join(", ") || "המבקשים"} — ההתחייבויות הקיימות לא ידועות, והיחס כולל רק את ההלוואה המבוקשת.</div> : <>
+          <div className="bi-src-note">מקור: {bc.fixture_ids.join(", ")} · נכון ל־<span className="ltr">{bc.observed_at}</span> · לא נשלפו ממערכות הבנק{bc.missing_for.length ? ` · חסר עבור ${bc.missing_for.join(", ")}` : ""}</div>
           <table className="bi-table">
             <thead><tr><th>הלוואה קיימת</th><th>יתרת קרן</th><th>החזר חודשי</th><th>נותרו</th></tr></thead>
             <tbody>{bc.loans.length ? bc.loans.map((l) => (
               <tr key={l.id}><td>{l.type_he}<div className="tiny muted">{l.lender_he} · {l.owner_he}</div></td>
                 <td><Val ctx={ctx} d={l.outstanding} /></td><td><Val ctx={ctx} d={l.monthly} testId="bi-loan-monthly" /></td><td className="ltr">{l.remaining_payments}</td></tr>))
-              : <tr><td colSpan={4} className="muted">אין הלוואות קיימות בנתוני הדמו</td></tr>}</tbody>
+              : <tr><td colSpan={4} className="muted">אין הלוואות קיימות בהקשר הבנקאי</td></tr>}</tbody>
           </table>
           <table className="bi-table">
             <thead><tr><th>מסגרת אשראי</th><th>מסגרת</th><th>מנוצל</th><th /></tr></thead>
@@ -600,8 +600,8 @@ function DraftCard({ ctx, onToast }: { ctx: Ctx; onToast: (t: { text: string; to
 }
 
 // ---------------------------------------------------------------- the source drawer
-const KIND_HE: Record<string, string> = { document: "נתון ממסמך", declared: "הצהרת לקוח", synthetic_bank: "נתון בנקאי סינתטי (דמו)",
-  calculated: "חישוב", assumption: "הנחת הדגמה", missing: "נתון חסר" };
+const KIND_HE: Record<string, string> = { document: "נתון ממסמך", declared: "הצהרת לקוח", synthetic_bank: "נתון מההקשר הבנקאי (לא מאומת)",
+  calculated: "חישוב", assumption: "הנחה לצורך החישוב", missing: "נתון חסר" };
 
 export function SourceDrawer({ src, depth, ws, x, open, openV1, onBack, onClose }: Ctx & { src: IntelSource; depth: number; ws: Workspace; onBack: () => void; onClose: () => void }) {
   useEffect(() => {

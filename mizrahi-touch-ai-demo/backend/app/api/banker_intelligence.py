@@ -25,7 +25,7 @@ from .banker_package import VERIFIED, _month_list_he, build_workspace
 
 VERSION = "banker_intelligence.v1"
 DISCLAIMER_HE = ("תמונת מצב לתמיכה בהחלטת הבנקאי. אינה החלטת אשראי, אינה הצעה מחייבת ואינה קובעת זכאות, סכום או ריבית — "
-                 "ההחלטה בידי הבנק. נתוני ההקשר הבנקאי וההנחות הם נתוני דמו סינתטיים.")
+                 "ההחלטה בידי הבנק. נתוני ההקשר הבנקאי וההנחות אינם מאומתים מול מערכות הבנק.")
 WITNESS_HE = {"text_layer_exact": "אומת מול שכבת הטקסט של הקובץ", "vision_reread_confirmed": "אומת בקריאה חוזרת של הסריקה"}
 
 
@@ -88,9 +88,9 @@ def build(case_id: str) -> dict[str, Any]:
 
     # ------------------------------------------------------------ application
     sid_amount = src.add("app:amount", "declared", label_he="סכום ההלוואה המבוקש", value=loan.get("requested_amount_ils"),
-                         origin_he="בקשת ההלוואה — נתוני התיק במתאם הבנק להדגמה")
+                         origin_he="בקשת ההלוואה — נתוני התיק")
     sid_term = src.add("app:term", "declared", label_he="מספר תשלומים מבוקש", value=loan.get("payments"),
-                       origin_he="בקשת ההלוואה — נתוני התיק במתאם הבנק להדגמה")
+                       origin_he="בקשת ההלוואה — נתוני התיק")
     purpose_doc = next((d for d in docs if d.get("family") == "purpose_proof"), None)
     sid_price = doc_fact(purpose_doc["document_id"], "total_amount") if purpose_doc else None
     price = src.items[sid_price]["value"] if sid_price else None
@@ -202,7 +202,7 @@ def build(case_id: str) -> dict[str, Any]:
         who = names[c["borrower_id"]]["first_name_he"]
         for ln in c.get("loans", []):
             base = f"bank:{c['fixture_id']}:{ln['id']}"
-            meta = dict(fixture_id=c["fixture_id"], observed_at=c["observed_at"], source_he="הקשר בנקאי סינתטי (DEMO)",
+            meta = dict(fixture_id=c["fixture_id"], observed_at=c["observed_at"], source_he="הקשר בנקאי (לא מאומת)",
                         note_he=c["note_he"])
             loans.append({**ln, "owner_he": who,
                           "monthly": _datum(ln["monthly_payment_ils"], src.add(f"{base}:monthly", "synthetic_bank",
@@ -212,13 +212,13 @@ def build(case_id: str) -> dict[str, Any]:
         for cl in c.get("credit_lines", []):
             sid = src.add(f"bank:{c['fixture_id']}:{cl['id']}", "synthetic_bank", label_he=f"{cl['type_he']} ({cl['id']})",
                           value=cl["utilized_ils"], fixture_id=c["fixture_id"], observed_at=c["observed_at"],
-                          source_he="הקשר בנקאי סינתטי (DEMO)", note_he=c["note_he"],
+                          source_he="הקשר בנקאי (לא מאומת)", note_he=c["note_he"],
                           detail_he=f"מסגרת {_ils(cl['limit_ils'])} · מנוצל {_ils(cl['utilized_ils'])}")
             lines.append({**cl, "owner_he": who, "source_id": sid})
         ev = c.get("events") or {}
         sid_ev = src.add(f"bank:{c['fixture_id']}:events", "synthetic_bank", label_he=f"אירועי חשבון ב־12 חודשים — {who}",
                          value=ev.get("returned_checks_12m", 0), fixture_id=c["fixture_id"], observed_at=c["observed_at"],
-                         source_he="הקשר בנקאי סינתטי (DEMO)", note_he=c["note_he"],
+                         source_he="הקשר בנקאי (לא מאומת)", note_he=c["note_he"],
                          detail_he=" · ".join(ev.get("detail_he") or []) or "לא נרשמו שיקים חוזרים, פיגורים או הגבלות.")
         events.append({"owner_he": who, "returned_checks_12m": ev.get("returned_checks_12m", 0), "arrears_12m": ev.get("arrears_12m", 0),
                        "restrictions_he": ev.get("restrictions_he") or [], "detail_he": ev.get("detail_he") or [], "source_id": sid_ev})
@@ -226,7 +226,7 @@ def build(case_id: str) -> dict[str, Any]:
                  "source_id": src.add(f"bank:{c['fixture_id']}:card_spending", "synthetic_bank",
                                       label_he=f"חיובי כרטיס אשראי חודשיים — {names[c['borrower_id']]['first_name_he']}",
                                       value=c["card_spending"]["avg_monthly_ils"], fixture_id=c["fixture_id"],
-                                      observed_at=c["observed_at"], source_he="הקשר בנקאי סינתטי (DEMO)",
+                                      observed_at=c["observed_at"], source_he="הקשר בנקאי (לא מאומת)",
                                       note_he=c["card_spending"]["note_he"])}
                 for c in contexts if c.get("card_spending")]
 
@@ -234,7 +234,7 @@ def build(case_id: str) -> dict[str, Any]:
     sid_existing = None
     if existing is not None:
         sid_existing = src.add("calc:existing_debt", "calculated", label_he="החזר חודשי על הלוואות קיימות", value=existing,
-                               formula_he="סכום ההחזרים החודשיים של ההלוואות הקיימות" if loans else "אין הלוואות קיימות בנתוני הדמו",
+                               formula_he="סכום ההחזרים החודשיים של ההלוואות הקיימות" if loans else "אין הלוואות קיימות בהקשר הבנקאי",
                                inputs=[{"label_he": f"{x['type_he']} · {x['owner_he']}", "value": x["monthly_payment_ils"], "unit": "ils",
                                         "source_id": x["monthly"]["source_id"]} for x in loans],
                                note_he="חיובי כרטיס אשראי (הוצאה שוטפת) ומסגרות אשראי שאינן מנוצלות אינם החזר חוב ואינם נספרים כאן.")
@@ -265,12 +265,12 @@ def build(case_id: str) -> dict[str, Any]:
     amount, term, rate = loan.get("requested_amount_ils"), loan.get("payments"), finance.DEMO_ANNUAL_RATE_PCT
     threshold = finance.threshold_pct(business)
     sid_rate = src.add("assume:rate", "assumption", label_he="ריבית שנתית להמחשה", value=rate, unit="pct",
-                       note_he="ריבית קבועה אחת לכל החלופות — הנחת הדגמה. אינה ריבית של מזרחי־טפחות, אינה מבוססת פריים "
+                       note_he="ריבית קבועה אחת לכל החלופות — הנחה לצורך החישוב. אינה ריבית של מזרחי־טפחות, אינה מבוססת פריים "
                                "ואינה הצעה. זהה להנחה בהערכה הראשונית שבשאלון הלקוח.")
     sid_threshold = src.add("assume:dsr", "assumption", label_he="סף יחס החזר להמחשה", value=threshold, unit="pct",
                             note_he=("החזרים חודשיים כוללים עד " + _pct(threshold) + " מההכנסה נטו"
                                      + (" (הכנסה מעסק — הנחה שמרנית יותר)" if business else " (הכנסה ממשכורת)")
-                                     + ". הנחת הדגמה לצורך ההסבר בלבד — אינה מדיניות אשראי של מזרחי־טפחות ואינה קובעת זכאות."))
+                                     + ". הנחה לצורך ההסבר בלבד — אינה מדיניות אשראי של מזרחי־טפחות ואינה קובעת זכאות."))
     app = finance.schedule(amount, term, rate) if amount and term else None
     calc: dict[str, Any] = {}
     if app:
@@ -317,7 +317,7 @@ def build(case_id: str) -> dict[str, Any]:
                                               label_he="הכנסה שנותרת אחרי החזרי חוב", value=remaining,
                                               formula_he="הכנסה נטו − (החזר משוער + החזרים קיימים)",
                                               inputs=inputs[::-1],
-                                              note_he="מדד תיאורי בלבד — אינו הכנסה פנויה: הוצאות מחיה, דיור וחובות שאינם בנתוני הדמו אינם כלולים."))
+                                              note_he="מדד תיאורי בלבד — אינו הכנסה פנויה: הוצאות מחיה, דיור וחובות שאינם בהקשר הבנקאי אינם כלולים."))
     if amount and price:
         ltv = finance.ratio_pct(amount, price)
         calc["ltv"] = _datum(ltv, src.add("calc:ltv", "calculated", label_he="שיעור מימון מסכום האסמכתה", value=ltv, unit="pct",
@@ -402,13 +402,13 @@ def build(case_id: str) -> dict[str, Any]:
     if availability == "full" and docs_ready and base_sc and base_sc["combined_dsr_pct"] is not None:
         within = [s for s in scenarios if s["combined_dsr_pct"] <= threshold]
         if base_sc in within:
-            pick, why = base_sc, f"החלופה שהתבקשה ({term} תשלומים) נשארת בתוך הנחת ההדגמה ליחס ההחזר ({_pct(threshold)})."
+            pick, why = base_sc, f"החלופה שהתבקשה ({term} תשלומים) נשארת בתוך ההנחה ליחס ההחזר ({_pct(threshold)})."
         elif within:
             pick = min(within, key=lambda s: s["term_months"])
-            why = (f"בתקופה שהתבקשה יחס ההחזר המשולב ({_pct(base_sc['combined_dsr_pct'])}) מעל הנחת ההדגמה; "
+            why = (f"בתקופה שהתבקשה יחס ההחזר המשולב ({_pct(base_sc['combined_dsr_pct'])}) מעל ההנחה; "
                    f"בפריסה ל־{pick['term_months']} תשלומים הוא יורד ל־{_pct(pick['combined_dsr_pct'])}.")
         else:
-            pick, why = None, (f"בכל החלופות יחס ההחזר המשולב מעל הנחת ההדגמה ({_pct(threshold)}). "
+            pick, why = None, (f"בכל החלופות יחס ההחזר המשולב מעל ההנחה ({_pct(threshold)}). "
                                + (f"להמחשה: בסכום של עד {_ils(max_amount)} ל־{term} תשלומים היחס נשאר בתוך ההנחה." if max_amount else ""))
         suggested = {"key": pick["key"] if pick else None, "term_months": pick["term_months"] if pick else None,
                      "why_he": why, "label_he": "חלופה להמחשה לבחינת הבנקאי — לא החלטת אשראי"}
@@ -475,7 +475,7 @@ def build(case_id: str) -> dict[str, Any]:
                     "אך עלות המימון הכוללת גבוהה יותר.")
         if not docs_ready:
             fin_text += " לא מוצגת חלופה מומלצת עד להשלמת מסלול המסמכים."
-        fin_status = "ניתוח מלא על בסיס נתונים מאומתים ונתוני דמו"
+        fin_status = "ניתוח מלא על בסיס נתונים מאומתים והקשר בנקאי"
     elif availability == "provisional":
         fin_text = (f"הניתוח הפיננסי זמני. על בסיס ההכנסה שאומתה בתלושים יחס ההחזר המשולב בחלופה שהתבקשה הוא {_pct(combined)}"
                     + (f"; על בסיס ההצהרה — {_pct(alt['combined_dsr_pct'])}" if alt else "")
@@ -501,14 +501,14 @@ def build(case_id: str) -> dict[str, Any]:
             considerations.append({"text_he": f"ההכנסה של {r['first_name_he']} ({_ils(r['declared']['value'])}) מוצהרת בלבד — טרם אומתה במסמכים.",
                                    "tone": "warn", "source_ids": [r["declared"]["source_id"]]})
     if existing is not None:
-        considerations.append({"text_he": (f"התחייבויות קיימות (נתוני דמו): {len(loans)} הלוואות, החזר חודשי {_ils(existing)}"
-                                           if len(loans) != 1 else f"התחייבויות קיימות (נתוני דמו): הלוואה אחת, החזר חודשי {_ils(existing)}")
+        considerations.append({"text_he": (f"התחייבויות קיימות (הקשר בנקאי, לא מאומת): {len(loans)} הלוואות, החזר חודשי {_ils(existing)}"
+                                           if len(loans) != 1 else f"התחייבויות קיימות (הקשר בנקאי, לא מאומת): הלוואה אחת, החזר חודשי {_ils(existing)}")
                                           + (f" — {_pct(existing_dsr)} מההכנסה." if existing_dsr is not None else "."),
                                "tone": "info", "source_ids": [sid_existing] + ([calc["existing_dsr"]["source_id"]] if "existing_dsr" in calc else [])})
     if app and combined is not None:
         over = combined > threshold
         considerations.append({"text_he": (f"ההלוואה המבוקשת ({_ils(amount)} · {term} תשלומים) מוסיפה כ־{_ils(app['monthly_payment_ils'])} לחודש; "
-                                           f"יחס ההחזר המשולב {_pct(combined)} — {'מעל' if over else 'בתוך'} הנחת ההדגמה ({_pct(threshold)})."
+                                           f"יחס ההחזר המשולב {_pct(combined)} — {'מעל' if over else 'בתוך'} ההנחה ({_pct(threshold)})."
                                            + ("" if existing is not None else " היחס אינו כולל התחייבויות קיימות (אין נתונים).")),
                                "tone": "warn" if over or availability != "full" else "ok",
                                "source_ids": ["calc:proposed_payment", "calc:combined_dsr", sid_threshold]})
@@ -522,7 +522,7 @@ def build(case_id: str) -> dict[str, Any]:
                                "tone": "info", "source_ids": [exposure["utilized"]["source_id"]] + [s["source_id"] for s in spending]})
     for e in events:
         if e["returned_checks_12m"] or e["arrears_12m"] or e["restrictions_he"]:
-            considerations.append({"text_he": f"אירוע חשבון בנתוני הדמו ({e['owner_he']}): {' '.join(e['detail_he'])} יש לאמת במערכות הבנק; אינו קובע זכאות.",
+            considerations.append({"text_he": f"אירוע חשבון בהקשר הבנקאי ({e['owner_he']}): {' '.join(e['detail_he'])} יש לאמת במערכות הבנק; אינו קובע זכאות.",
                                    "tone": "warn", "source_ids": [e["source_id"]]})
 
     verify = []
@@ -535,10 +535,10 @@ def build(case_id: str) -> dict[str, Any]:
         if d["kind"] == "purpose_amount":
             verify.append({"text_he": f"לברר את ההפרש בין הסכום המבוקש לסכום בהצעת המחיר ({_ils(d['difference_ils'])}).", "v1_item": d["v1_item"]})
     if contexts:
-        verify.append({"text_he": "ההתחייבויות, המסגרות ואירועי החשבון מקורם בנתוני דמו — יש לאמת מול מערכות הבנק."})
-    verify.append({"text_he": "תנועות דפי העו״ש לא נותחו בהדגמה; לא בוצעה הצלבה בין ההתחייבויות לבין החיובים בחשבון."})
-    verify.append({"text_he": "לא נבדקו נתוני אשראי חיצוניים (אין חיבור למאגר נתוני אשראי בהדגמה)."})
-    verify.append({"text_he": f"הריבית בסימולציה ({_pct(rate)}) והסף ליחס ההחזר הם הנחות הדגמה; הריבית, הסכום והתנאים ייקבעו על ידי הבנק."})
+        verify.append({"text_he": "ההתחייבויות, המסגרות ואירועי החשבון מקורם בהקשר הבנקאי ולא אומתו — יש לאמת מול מערכות הבנק."})
+    verify.append({"text_he": "תנועות דפי העו״ש לא נותחו; לא בוצעה הצלבה בין ההתחייבויות לבין החיובים בחשבון."})
+    verify.append({"text_he": "לא נבדקו נתוני אשראי חיצוניים (אין חיבור למאגר נתוני אשראי)."})
+    verify.append({"text_he": f"הריבית בסימולציה ({_pct(rate)}) והסף ליחס ההחזר הם הנחות לצורך החישוב; הריבית, הסכום והתנאים ייקבעו על ידי הבנק."})
 
     # ------------------------------------------------------------ risks & missing information
     risks = []
@@ -555,9 +555,9 @@ def build(case_id: str) -> dict[str, Any]:
     for m in missing:
         risks.append({"kind": "missing", "title_he": m["title_he"], "text_he": m["status_he"], "tone": "miss",
                       "who_he": "חסר בתיק", "v1_item": m["v1_item"], "source_ids": []})
-    unknowns = [{"label_he": "תנועות בדפי העו״ש", "text_he": "JEEN אימת את פרטי הדף (בעלים, תקופה, יתרת סגירה) אך לא חילץ תנועות בהדגמה."},
+    unknowns = [{"label_he": "תנועות בדפי העו״ש", "text_he": "JEEN אימת את פרטי הדף (בעלים, תקופה, יתרת סגירה) אך לא חילץ תנועות."},
                 {"label_he": "הוצאות מחיה ודיור", "text_he": "אינן כלולות בחישוב; ההכנסה שנותרת היא מדד תיאורי בלבד."},
-                {"label_he": "נתוני אשראי חיצוניים", "text_he": "אין חיבור בהדגמה — לא נבדקו."}]
+                {"label_he": "נתוני אשראי חיצוניים", "text_he": "אין חיבור — לא נבדקו."}]
     if context_missing:
         unknowns.insert(0, {"label_he": "התחייבויות קיימות", "text_he": f"אין נתוני הקשר בנקאי עבור {_join_he(context_missing)}."})
 

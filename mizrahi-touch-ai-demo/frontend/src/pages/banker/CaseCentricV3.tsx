@@ -167,7 +167,7 @@ function Recommendation({ ctx, go }: { ctx: Ctx; go: (id: string) => void }) {
     target: "cc-docs", testId: "cc-attn-correction" });
   for (const k of x.risks.filter((q) => q.kind === "finding")) attention.push({ text: k.title_he, target: "cc-why", testId: "cc-attn-finding" });
   for (const e of x.bank_context.events.filter((q) => q.returned_checks_12m || q.arrears_12m || q.restrictions_he.length))
-    attention.push({ text: `אירוע חשבון בנתוני הדמו (${e.owner_he}) — לאימות במערכות הבנק`, target: "cc-fin", testId: "cc-attn-event" });
+    attention.push({ text: `אירוע חשבון בהקשר הבנקאי (${e.owner_he}) — לאימות במערכות הבנק`, target: "cc-fin", testId: "cc-attn-event" });
   return (
     <section className={`cc-rec t-${tone}`} data-testid="cc-rec" data-state={r.state}>
       <div className="cc-rec-in">
@@ -228,7 +228,7 @@ function KeyFigures({ ctx }: { ctx: Ctx }) {
         <div className="cc-fig-n">{x.loan.term.value ? `ל־${x.loan.term.value} תשלומים · ריבית להמחשה ${x.simulation.inputs.annual_rate_pct.toFixed(1)}%` : "אין בבקשה מספר תשלומים"}</div></div>
       <div className={`cc-fig${dsr != null && dsr > thr ? " warn" : ""}`} data-testid="cc-fig-dsr"><div className="cc-fig-k">יחס החזר כולל בסימולציה</div>
         <div className="cc-fig-v"><Num ctx={ctx} d={a.combined_dsr} /></div>
-        <div className="cc-fig-n">{a.combined_dsr?.value == null ? a.status_he : `הנחת הדגמה: עד ${thr}%${a.availability === "provisional" ? " · זמני" : a.availability === "partial" ? " · ניתוח חלקי" : ""}`}</div></div>
+        <div className="cc-fig-n">{a.combined_dsr?.value == null ? a.status_he : `סף משוער: עד ${thr}%${a.availability === "provisional" ? " · זמני" : a.availability === "partial" ? " · ניתוח חלקי" : ""}`}</div></div>
     </div>
   );
 }
@@ -407,7 +407,7 @@ function Financial({ ctx }: { ctx: Ctx }) {
   const gaps = x.discrepancies;
   return (
     <Card id="cc-fin" title="ניתוח פיננסי" testId="cc-financial"
-      sub="הכנסה מתלושי השכר, התחייבויות מנתוני הבנק (דמו) ויחסי החזר שחושבו בקוד."
+      sub="הכנסה מתלושי השכר, התחייבויות מההקשר הבנקאי (לא מאומת) ויחסי החזר שחושבו בקוד."
       aside={<span className={`cc-avail a-${a.availability}`} data-testid="cc-availability">{a.status_he}</span>}>
       {gaps.map((g, i) => (
         <div key={i} className={`cc-gap${g.open ? " open" : ""}`} data-testid="cc-discrepancy" data-kind={g.kind} data-open={g.open}>
@@ -481,8 +481,8 @@ function Obligations({ ctx }: { ctx: Ctx }) {
     <div className="cc-block" data-testid="cc-obligations">
       <div className="cc-block-head">
         <div>
-          <h3>התחייבויות ומסגרות אשראי {bc.available && <Tag kind="demo">נתוני דמו</Tag>}</h3>
-          {!bc.available ? <div className="cc-line cc-muted">אין נתוני הקשר בנקאי להדגמה עבור {bc.missing_for.join(", ") || "המבקשים"} — ההתחייבויות הקיימות לא ידועות,
+          <h3>התחייבויות ומסגרות אשראי {bc.available && <Tag kind="demo" />}</h3>
+          {!bc.available ? <div className="cc-line cc-muted">אין נתוני הקשר בנקאי עבור {bc.missing_for.join(", ") || "המבקשים"} — ההתחייבויות הקיימות לא ידועות,
             והיחס הכולל כולל רק את ההלוואה המבוקשת.</div>
             : <div className="cc-line">החזרים קיימים: <Num ctx={ctx} d={a.existing_debt} testId="cc-existing" /> לחודש
               {" · "}{bc.loans.length === 1 ? "הלוואה אחת" : `${bc.loans.length} הלוואות`}
@@ -499,7 +499,7 @@ function Obligations({ ctx }: { ctx: Ctx }) {
           <tbody>{bc.loans.length ? bc.loans.map((l) => (
             <tr key={l.id}><td>{l.type_he}<div className="cc-tiny">{l.lender_he} · {l.owner_he}</div></td>
               <td><Num ctx={ctx} d={l.outstanding} /></td><td><Num ctx={ctx} d={l.monthly} testId="cc-loan-monthly" /></td>
-              <td className="ltr">{l.remaining_payments}</td></tr>)) : <tr><td colSpan={4} className="cc-muted">אין הלוואות קיימות בנתוני הדמו</td></tr>}</tbody>
+              <td className="ltr">{l.remaining_payments}</td></tr>)) : <tr><td colSpan={4} className="cc-muted">אין הלוואות קיימות בהקשר הבנקאי</td></tr>}</tbody>
         </table>
         {bc.credit_lines.length > 0 && <table className="cc-table">
           <thead><tr><th>מסגרת אשראי</th><th>מסגרת</th><th>מנוצל</th><th>ניצול</th></tr></thead>
@@ -514,7 +514,7 @@ function Obligations({ ctx }: { ctx: Ctx }) {
             <span className="ltr">{money(s.avg_monthly_ils)}</span></button> בממוצע לחודש — הוצאה שוטפת, אינה החזר חוב ואינה נכללת ביחס.</li>)}
           {bc.events.filter((e) => !flagged.includes(e)).map((e) => <li key={e.source_id}>אירועי חשבון ב־12 חודשים ({e.owner_he}): ללא שיקים חוזרים, פיגורים או הגבלות.</li>)}
         </ul>
-        <div className="cc-srcnote">מקור: {bc.fixture_ids.join(", ")} · נכון ל־<span className="ltr">{bc.observed_at}</span> · נתונים סינתטיים להדגמה, לא נשלפו ממערכות הבנק
+        <div className="cc-srcnote">מקור: {bc.fixture_ids.join(", ")} · נכון ל־<span className="ltr">{bc.observed_at}</span> · לא נשלפו ממערכות הבנק
           {bc.missing_for.length ? ` · חסר עבור ${bc.missing_for.join(", ")}` : ""}</div>
       </div>}
     </div>
@@ -575,7 +575,7 @@ function Alternatives({ ctx }: { ctx: Ctx }) {
           display={`${term} · ${years(term)}`} testId="cc-wi-term" changed={term !== base.term_months} />
         <Slider label="ריבית שנתית להמחשה" value={rate} min={0} max={15} step={0.1} onChange={(v) => setRate(Math.round(v * 10) / 10)} display={`${rate.toFixed(1)}%`}
           testId="cc-wi-rate" changed={rate !== base.annual_rate_pct}
-          hint={<>ברירת מחדל <SrcText ctx={ctx} id={s.rate_source_id}>{base.annual_rate_pct.toFixed(1)}%</SrcText> · הנחת הדגמה</>} />
+          hint={<>ברירת מחדל <SrcText ctx={ctx} id={s.rate_source_id}>{base.annual_rate_pct.toFixed(1)}%</SrcText> · הנחה</>} />
         <p className="cc-whatif-n">השינויים מחושבים מיד ואינם נשמרים — הבקשה, ההכנסה וההתחייבויות אינן משתנות.</p>
       </div>}
       {changed && <div className="cc-simbadge" data-testid="cc-sim-active">סימולציה פעילה: {money(principal)} · {term} תשלומים · {rate.toFixed(1)}%</div>}
@@ -608,7 +608,7 @@ function Alternatives({ ctx }: { ctx: Ctx }) {
       {rows.length > 1 && <p className="cc-compare" data-testid="cc-compare">
         בפריסה ל־<b className="ltr">{long.term_months}</b> תשלומים ההחזר החודשי נמוך ב־<b className="ltr">{money(short.monthly_payment_ils - long.monthly_payment_ils)}</b> מאשר
         ב־<b className="ltr">{short.term_months}</b>, אך עלות המימון גבוהה ב־<b className="ltr">{money(long.total_interest_ils - short.total_interest_ils)}</b>.
-        {" "}הריבית (<SrcText ctx={ctx} id={s.rate_source_id}>{rate.toFixed(1)}%</SrcText>) והסף ליחס ההחזר (<SrcText ctx={ctx} id={s.threshold_source_id}>{thr}%</SrcText>) הם הנחות הדגמה.</p>}
+        {" "}הריבית (<SrcText ctx={ctx} id={s.rate_source_id}>{rate.toFixed(1)}%</SrcText>) והסף ליחס ההחזר (<SrcText ctx={ctx} id={s.threshold_source_id}>{thr}%</SrcText>) הם הנחות לצורך החישוב, לא תנאי הבנק.</p>}
       {x.analysis.illustrative_max_principal != null && <p className="cc-muted cc-small" data-testid="cc-max-principal">להמחשה: בהנחות אלה, סכום של עד <b className="ltr">{money(x.analysis.illustrative_max_principal)}</b> ל־{base.term_months} תשלומים
         משאיר את היחס הכולל בתוך {thr}% — אינו סכום מאושר.</p>}
     </Card>
