@@ -210,10 +210,7 @@ def answer(page: Page, qid: str, value=None, *, name=None, multi=None) -> None:
 
 
 def start_application(page: Page) -> None:
-    page.goto(f"{BASE}/customer")
-    open_presenter(page)
-    page.locator("[data-testid=presenter-new-application]").click()
-    page.locator("[data-testid=presenter-close]").click()
+    page.goto(f"{BASE}/customer/apply/classic")
     expect(page.locator("[data-testid=apply-chat]")).to_be_visible(timeout=15000)
     if page.locator("[data-testid=onb-restart]").count():
         page.locator("[data-testid=onb-restart]").click()

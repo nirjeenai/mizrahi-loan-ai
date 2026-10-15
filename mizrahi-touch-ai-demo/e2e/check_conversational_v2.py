@@ -99,8 +99,6 @@ def summary_codes(page: Page) -> list[str]:
 
 def open_v2(page: Page) -> None:
     page.goto(f"{BASE}/customer/apply")
-    expect(page.locator("[data-testid=apply-chat]")).to_be_visible(timeout=15000)
-    page.locator("[data-testid=apply-switch-v2]").click()
     expect(page.locator("[data-testid=apply-v2]")).to_be_visible(timeout=15000)
     expect(page.locator("[data-testid=cv2-pending]").first).to_be_attached(timeout=10000)
     if page.locator("[data-testid=cv2-restart]").count():
@@ -275,7 +273,7 @@ def mixed_mobile(page: Page) -> None:
 
 
 def v1_still_works(page: Page) -> None:
-    page.goto(f"{BASE}/customer/apply")
+    page.goto(f"{BASE}/customer/apply/classic")
     expect(page.locator("[data-testid=apply-chat]")).to_be_visible(timeout=15000)
     if page.locator("[data-testid=onb-restart]").count():
         page.locator("[data-testid=onb-restart]").click()

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { api, ils, type ChatAction, type ChatDraft, type ChatMessage, type ChatStage, type ChatTurn } from "../../api";
 import { useCase } from "../../caseContext";
 import { ICheck, ISend, ISpark } from "../../components/Icons";
@@ -96,12 +96,11 @@ export function ApplyV2() {
   const clarifying = !!lastAssistant?.actions?.length;
   return (
     <div className="cv2-page">
-      <div className="cv2-top">
-        <VersionSwitch v={2} />
-        {draft && draft.messages.some((m) => m.role === "user") && (
+      {draft && draft.messages.some((m) => m.role === "user") && (
+        <div className="cv2-top">
           <button className="link small cv2-restart" onClick={restart} disabled={busy} data-testid="cv2-restart">התחלה מחדש</button>
-        )}
-      </div>
+        </div>
+      )}
       <div className="card cv2" data-testid="apply-v2" data-draft={draft?.draft_id} data-engine={draft?.engine}>
         <div className="cv2-head">
           <AssistantMark size={36} />
@@ -167,15 +166,6 @@ export function ApplyHandoff() {
         אפשר להעלות אותם כאן, ואני אעזור לך להבין אם משהו חסר. פתיחת הבקשה עדיין אינה אישור הלוואה.
       </div>
       <button className="link tiny" onClick={() => nav(loc.pathname, { replace: true, state: null })} aria-label="סגירה">הבנתי</button>
-    </div>
-  );
-}
-
-export function VersionSwitch({ v }: { v: 1 | 2 }) {
-  return (
-    <div className="cv2-switch" role="group" aria-label="גרסת השאלון">
-      <Link to="/customer/apply" className={v === 1 ? "on" : ""} aria-current={v === 1 ? "page" : undefined} data-testid="apply-switch-v1">שאלון קלאסי</Link>
-      <Link to="/customer/apply/v2" className={v === 2 ? "on" : ""} aria-current={v === 2 ? "page" : undefined} data-testid="apply-switch-v2">שיחה עם העוזר</Link>
     </div>
   );
 }

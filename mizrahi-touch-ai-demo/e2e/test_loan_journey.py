@@ -434,9 +434,7 @@ def run(page: Page, banker: Page) -> None:
     shot(page, "18-stages")
 
     # ------------------------------------------------------------ start a new application (JEEN questionnaire → policy)
-    home(page)
-    page.locator("button[aria-label='תפריט']").click()
-    page.locator("[data-testid=drawer-apply]").click()
+    page.goto(f"{BASE}/customer/apply/classic")
     chat = page.locator("[data-testid=apply-chat]")
     expect(chat.locator("[data-testid=onb-question]")).to_be_visible(timeout=15000)
     if chat.locator("[data-testid=onb-restart]").count():

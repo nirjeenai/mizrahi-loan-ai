@@ -87,8 +87,9 @@ function CustomerApp() {
           <Route path="stages" element={<Stages />} />
           <Route path="meetings" element={<Meetings />} />
           <Route path="tools" element={<Tools />} />
-          <Route path="apply" element={<Apply />} />
-          <Route path="apply/v2" element={<ApplyV2 />} />
+          <Route path="apply" element={<ApplyV2 />} />
+          <Route path="apply/v2" element={<Navigate to="/customer/apply" replace />} />
+          <Route path="apply/classic" element={<Apply />} />
           <Route path="link" element={<LinkLanding />} />
         </Routes>
       </TouchShell>

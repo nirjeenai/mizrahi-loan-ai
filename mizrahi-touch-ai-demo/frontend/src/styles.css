@@ -1245,11 +1245,7 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .uc-new { border: 1px dashed var(--ok); }
 
 /* ---- conversational questionnaire (V2, /customer/apply/v2) */
-.cv2-switch { display: inline-flex; gap: 2px; background: #fff; border-radius: 999px; padding: 3px; box-shadow: var(--shadow); margin: 4px 0 2px; }
-.cv2-switch a { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--mz-muted); text-decoration: none; }
-.cv2-switch a.on { background: var(--mz-navy); color: #fff; }
-.cv2-switch a:focus-visible { outline: 2px solid var(--mz-orange); outline-offset: 1px; }
-.cv2-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 2px 8px; }
+.cv2-top { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 2px 2px 8px; }
 /* the page is at least as tall as the app's scroll area, and the chat card takes the height the other blocks leave,
    so the composer sits above the bottom navigation instead of leaving an empty band under a short card */
 /* .screen keeps 110px below its content for the 74px bottom navigation; this page reaches 28px into that reserve
