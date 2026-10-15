@@ -13,6 +13,7 @@ from ..bank.mock_bank import bank
 from ..store import repo
 from ..workflow import engine, readiness, review_desk
 from ..workflow.review_desk import DeskError
+from . import banker_intelligence
 from .banker_package import build_package, build_workspace, case_queue_counts
 
 router = APIRouter(prefix="/api/banker")
@@ -69,6 +70,13 @@ def package(case_id: str, request: Request):
 def workspace(case_id: str, request: Request):
     _reader(request, case_id)
     return build_workspace(case_id)
+
+
+@router.get("/cases/{case_id}/intelligence")
+def intelligence(case_id: str, request: Request):
+    """Banker Intelligence V2: the case briefing, financial context and scenarios. Read-only; writes nothing."""
+    _reader(request, case_id)
+    return banker_intelligence.build(case_id)
 
 
 @router.get("/cases/{case_id}/conversation")
