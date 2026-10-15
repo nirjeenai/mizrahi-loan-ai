@@ -9,8 +9,9 @@ export interface Focus { documentId: string; field?: string | null; page?: numbe
 const ACTIONABLE = ["decide", "judgment", "escalated", "correction", "missing"];
 const MONTH_TONE: Record<string, string> = { verified: "ok", accepted: "ok", in_review: "navy", missing: "miss", requested: "warn", unknown: "neutral" };
 
-export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnly, stale }: {
+export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnly, stale, openV3 }: {
   ws: Workspace; selected: string | null; onSelect: (id: string) => void; reload: () => void; staff: string; readOnly: boolean; stale: boolean;
+  openV3: () => void;
 }) {
   const byId = useMemo(() => Object.fromEntries(ws.items.map((i) => [i.id, i])), [ws.items]);
   const order = useMemo(() => ws.groups.flatMap((g) => g.items), [ws.groups]);
@@ -57,7 +58,7 @@ export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnl
       <HandoffBanner ws={ws} reload={reload} readOnly={readOnly} onToast={setToast} />
       <SummaryHeader ws={ws} onSelect={onSelect} />
       <div className="desk-grid">
-        <Queue ws={ws} byId={byId} current={current?.id} onSelect={onSelect} reload={reload} readOnly={readOnly} onToast={setToast} />
+        <Queue ws={ws} byId={byId} current={current?.id} onSelect={onSelect} reload={reload} readOnly={readOnly} onToast={setToast} openV3={openV3} />
         <section className="desk-evidence" aria-label="המסמך והראיות" data-testid="evidence-pane">
           {!current ? <div className="desk-empty">אין עדיין מסמכים בתיק. כשהלקוח יעלה מסמכים לבקשת ההלוואה, הם יופיעו כאן.</div>
             : current.kind === "document" ? <DocumentEvidence item={current} focus={focus} setFocus={setFocus} onSelect={onSelect} ws={ws} />
@@ -229,9 +230,9 @@ function IncomeLine({ income }: { income: Workspace["borrowers"][number]["income
   );
 }
 
-function Queue({ ws, byId, current, onSelect, reload, readOnly, onToast }: {
+function Queue({ ws, byId, current, onSelect, reload, readOnly, onToast, openV3 }: {
   ws: Workspace; byId: Record<string, QueueItem>; current?: string; onSelect: (id: string) => void; reload: () => void;
-  readOnly: boolean; onToast: (t: { text: string; tone: "ok" | "bad" }) => void;
+  readOnly: boolean; onToast: (t: { text: string; tone: "ok" | "bad" }) => void; openV3: () => void;
 }) {
   const [opened, setOpened] = useState<Record<string, boolean>>({});
   const waiting = ws.groups.filter((g) => DECIDE_GROUPS.includes(g.key)).reduce((n, g) => n + g.items.length, 0);
@@ -267,7 +268,7 @@ function Queue({ ws, byId, current, onSelect, reload, readOnly, onToast }: {
           </section>
         );
       })}
-      <CaseStep ws={ws} reload={reload} readOnly={readOnly} onToast={onToast} />
+      <CaseStep ws={ws} reload={reload} readOnly={readOnly} onToast={onToast} openV3={openV3} />
       </div>
     </aside>
   );
@@ -305,13 +306,16 @@ function QueueRow({ item, on, onSelect }: { item: QueueItem; on: boolean; onSele
   );
 }
 
-function CaseStep({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: () => void; readOnly: boolean;
-  onToast: (t: { text: string; tone: "ok" | "bad" }) => void }) {
+/** The case-level next step: once the documents are ready, a green call to open the same case in V3 ("תיק מוכן").
+ *  Navigation only; confirming preparation stays a separate, quieter action under it. */
+function CaseStep({ ws, reload, readOnly, onToast, openV3 }: { ws: Workspace; reload: () => void; readOnly: boolean;
+  onToast: (t: { text: string; tone: "ok" | "bad" }) => void; openV3: () => void }) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [rid, setRid] = useState(newRequestId);
   const c = ws.can_confirm;
+  const ready = !!ws.preparation || c.allowed;
   const confirm = async () => {
     setBusy(true);
     try {
@@ -322,18 +326,20 @@ function CaseStep({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: ()
     } catch (e) { onToast({ text: (e as Error).message, tone: "bad" }); } finally { setBusy(false); }
   };
   return (
-    <div className={`case-step${ws.preparation ? " done" : c.allowed ? " ready" : ""}`} data-testid="case-step">
-      <div className="case-step-eyebrow">פעולה ברמת התיק</div>
-      <div className="case-step-title">אישור הכנת מסמכי הבקשה</div>
-      <div className="tiny muted">אישור שמסמכי בקשת ההלוואה מוכנים לטיפולך. אינו החלטת אשראי ואינו משנה את שלב הבקשה בבנק.</div>
+    <div className={`case-step${ready ? " ready" : ""}`} data-testid="case-step" data-ready={ready ? "true" : "false"}>
+      <button className="case-go" disabled={!ready} onClick={openV3} data-testid="open-ready-case"
+        title={ready ? "פתיחת התיק המלא בתצוגת V3. ניווט בלבד, אינו החלטת אשראי ואינו משנה את מצב התיק." : undefined}>
+        <span className="case-go-mark" aria-hidden>✓</span>
+        <span className="case-go-label">מעבר לתיק מוכן</span>
+        <span className="case-go-arrow" aria-hidden>←</span>
+      </button>
+      {!ready && c.reason_he && <div className="case-step-why">{c.reason_he}</div>}
       {!ws.preparation && ws.preparation_stale && <div className="tiny warn-text" data-testid="preparation-stale">
         האישור מ־<When at={ws.preparation_stale.confirmed_at} /> אינו בתוקף עוד: {ws.preparation_stale.reason_he}. יש לאשר שוב אחרי הבדיקה.</div>}
-      {ws.preparation ? <div className="small ok-text">אושר <When at={ws.preparation.confirmed_at} />{ws.preparation.note ? ` · ${ws.preparation.note}` : ""}</div>
-        : !open ? (<>
-          <button className={`btn btn-sm ${c.allowed && !readOnly ? "btn-dark" : "btn-ghost"}`} disabled={!c.allowed || readOnly} onClick={() => setOpen(true)}
-            data-testid="confirm-preparation">אישור הכנה…</button>
-          {!c.allowed && c.reason_he && <div className="tiny muted">לא זמין: {c.reason_he}</div>}
-        </>) : (
+      {ws.preparation ? <div className="case-step-why ok-text">הכנת המסמכים אושרה <When at={ws.preparation.confirmed_at} />{ws.preparation.note ? ` · ${ws.preparation.note}` : ""}</div>
+        : !open ? (c.allowed && !readOnly && <button className="link tiny subtle case-step-confirm" onClick={() => setOpen(true)}
+            data-testid="confirm-preparation">אישור הכנת המסמכים…</button>)
+        : (
           <div className="stack" style={{ gap: 6 }}>
             {c.open_banker_items > 0 && <div className="tiny">{c.open_banker_items} ממצאים לשיקול דעתך יישארו פתוחים ויתועדו בחבילה.</div>}
             <textarea className="note" placeholder="הערה פנימית (רשות)" value={note} onChange={(e) => setNote(e.target.value)} />

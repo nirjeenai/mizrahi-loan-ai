@@ -1042,11 +1042,31 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .qrow-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
 .qrow-status { padding-top: 0; white-space: normal; }
 .qrow-file { color: var(--mz-muted); }
-.case-step { flex: none; margin-top: auto; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--mz-line); background: #fff; gap: 6px; }
-.case-step.ready { border-color: var(--mz-navy); box-shadow: 0 0 0 3px rgba(63, 74, 94, 0.08); }
-.case-step.done { border-color: #9fd3b8; background: var(--ok-soft); }
-.case-step-eyebrow { font-size: 10.5px; font-weight: 800; letter-spacing: 0.3px; color: var(--mz-navy); }
-.case-step-title { font-size: 13.5px; font-weight: 800; color: var(--mz-ink); }
+/* Case-level next step: a green call to open the ready case in V3; quiet and grey until the documents are ready. */
+.case-step { flex: none; margin-top: auto; padding: 14px 2px 2px; border: none; border-radius: 0; background: none; gap: 7px; align-items: stretch; }
+.case-go { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 50px; padding: 0 14px;
+  border: 1px dashed #c9ced6; border-radius: 14px; background: #f4f5f7; color: var(--mz-muted); font-size: 14.5px; font-weight: 800;
+  text-align: start; cursor: not-allowed; transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease; }
+.case-go-mark { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: #e3e6eb; color: #fff; font-size: 13px; line-height: 1; }
+.case-go-label { flex: 1; }
+.case-go-arrow { flex: none; font-size: 17px; line-height: 1; opacity: 0.5; transition: transform 0.18s ease; }
+.case-step.ready .case-go { border: 1px solid #1d7a50; background: linear-gradient(180deg, #2c9a68 0%, var(--ok) 100%); color: #fff; cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 6px 16px -6px rgba(36, 133, 90, 0.55); animation: case-go-breathe 2.8s ease-in-out infinite; }
+.case-step.ready .case-go-mark { background: rgba(255, 255, 255, 0.22); }
+.case-step.ready .case-go-arrow { opacity: 1; }
+.case-step.ready .case-go:hover { background: linear-gradient(180deg, #279160 0%, #1f7850 100%); }
+.case-step.ready .case-go:hover .case-go-arrow { transform: translateX(-4px); }
+.case-step.ready .case-go:active { transform: scale(0.985); }
+.case-step.ready .case-go:focus-visible { outline: 3px solid rgba(36, 133, 90, 0.35); outline-offset: 2px; }
+@keyframes case-go-breathe {
+  0%, 100% { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 6px 16px -6px rgba(36, 133, 90, 0.55), 0 0 0 0 rgba(36, 133, 90, 0); }
+  50% { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 8px 20px -6px rgba(36, 133, 90, 0.65), 0 0 0 6px rgba(36, 133, 90, 0.16); }
+}
+@media (prefers-reduced-motion: reduce) { .case-step.ready .case-go { animation: none; } .case-go, .case-go-arrow { transition: none; } }
+.case-step-why { font-size: 11.5px; line-height: 1.45; color: var(--mz-muted); padding: 0 4px; }
+.case-step-why.ok-text { color: var(--ok); font-weight: 600; }
+.case-step-confirm { align-self: center; }
 
 .dp-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.2px; color: var(--mz-ink); }
 .dp-sec.z-ai, .dp-sec.z-act, .dp-sec.z-info { border-inline-start: 4px solid transparent; padding-inline-start: 14px; }

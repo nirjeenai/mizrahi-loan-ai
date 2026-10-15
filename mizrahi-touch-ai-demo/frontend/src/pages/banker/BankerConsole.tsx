@@ -67,6 +67,10 @@ export function BankerConsole() {
     }, { replace: true });
   }, [setParams]);
   const reload = useCallback(() => { ws.reload(); cases.reload(); }, [ws, cases]);
+  const switchView = useCallback((v: View) => {
+    if (v === "intel" || v === "case" || v === "review") localStorage.setItem(UI_PREF, v);
+    patch({ view: v === "review" ? null : v });
+  }, [patch]);
   const w = me && ws.data && ws.data.case_id === caseId ? ws.data : null;
   const readOnly = !!w && !!w.case.banker.staff_id && w.case.banker.staff_id !== staff;
   if (!me) return (
@@ -80,10 +84,7 @@ export function BankerConsole() {
     <div className="console desk">
       <ConsoleTop active="banker" identity={`${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he}`} />
       <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff} onOpen={cases.reload}
-        onCase={(id) => patch({ case: id, item: null })} onView={(v) => {
-          if (v === "intel" || v === "case" || v === "review") localStorage.setItem(UI_PREF, v);
-          patch({ view: v === "review" ? null : v });
-        }} />
+        onCase={(id) => patch({ case: id, item: null })} onView={switchView} />
       {!w ? <div className="desk-loading">{ws.error ? <>לא הצלחנו לטעון את התיק. <button className="link" onClick={ws.reload}>ניסיון חוזר</button></> : <><span className="spinner" /> טוען את התיק…</>}</div>
         : view === "intel" || view === "case" ? (() => {
             const openV1 = (item?: string | null) => {
@@ -93,7 +94,7 @@ export function BankerConsole() {
             return view === "intel" ? <IntelligenceV2 caseId={caseId} ws={w} openV1={openV1} /> : <CaseCentricV3 caseId={caseId} ws={w} openV1={openV1} />;
           })()
         : view === "review" ? <ReviewWorkspace ws={w} selected={params.get("item")} onSelect={(id) => patch({ item: id })} reload={reload}
-            staff={staff} readOnly={readOnly} stale={!!ws.error} />
+            staff={staff} readOnly={readOnly} stale={!!ws.error} openV3={() => switchView("case")} />
           : view === "followup" ? <FollowupView caseId={caseId} readOnly={readOnly} />
           : view === "conversation" ? <ConversationView caseId={caseId} ws={w} />
             : <TechnicalView caseId={caseId} onRecheck={async () => { await api.bankerRecheck(caseId).catch(() => null); reload(); }} readOnly={readOnly} />}
