@@ -263,6 +263,11 @@ export const api = {
   bankerPackage: (caseId: string) => http<any>(`/api/banker/cases/${caseId}/package`),
   bankerWorkspace: (caseId: string) => http<Workspace>(`/api/banker/cases/${caseId}/workspace`),
   bankerConversation: (caseId: string) => http<Turn[]>(`/api/banker/cases/${caseId}/conversation`),
+  bankerIntelligence: (caseId: string) => http<Intelligence>(`/api/banker/cases/${caseId}/intelligence`),
+  bankerChat: (caseId: string, body: { message: string; history: { role: "user" | "model"; text: string }[]; draft: { kind: string; text: string } | null },
+    signal?: AbortSignal) => http<CaseChatReply>(`/api/banker/cases/${caseId}/chat`, { ...json(body), signal }),
+  bankerDemoLetter: (caseId: string, body: { acknowledge_open_issues: boolean; use_ai: boolean }, signal?: AbortSignal) =>
+    http<DemoLetter>(`/api/banker/cases/${caseId}/demo-approval-letter`, { ...json(body), signal }),
   decideDocument: (caseId: string, docId: string, body: {
     action: "accept" | "request_correction" | "escalate"; rationale?: string; customer_message?: string; requested_period?: string | null;
     acknowledged_finding_ids?: string[]; request_id: string }) =>
@@ -400,6 +405,91 @@ export interface Workspace {
   document_profile?: DocumentProfile;
 }
 export interface DeskResult { ok: boolean; duplicate: boolean; decision: Decision; customer_request?: DeskRequest | null }
+
+// ---------------------------------------------------------------- banker intelligence V2 (api/banker_intelligence.py)
+export interface Datum { value: number | null; unit: "ils" | "pct" | "months"; source_id: string | null }
+/** `origin` marks an input that has no stored source: a value the banker set in the simulator, or one computed alongside. */
+export interface SourceInput { label_he: string; value: number | null; unit: string; source_id: string | null; origin?: "sim" | "calc" }
+export interface IntelSource {
+  id: string; kind: "document" | "declared" | "synthetic_bank" | "calculated" | "assumption" | "missing";
+  label_he: string; value?: number | string | null; unit?: string; note_he?: string | null;
+  // document
+  value_raw?: string | null; document_id?: string; field?: string; filename?: string; doc_type_he?: string; period_he?: string | null;
+  verified?: boolean; witness?: string | null; witness_he?: string; page?: number | null; has_location?: boolean; ai_verdict_he?: string;
+  banker_status?: string; banker_status_he?: string; banker_reviewed?: boolean; v1_item?: string;
+  // declared · synthetic
+  origin_he?: string; fixture_id?: string; observed_at?: string; source_he?: string; detail_he?: string;
+  // calculated
+  formula_he?: string; inputs?: SourceInput[];
+}
+export interface IntelScenario {
+  key: "short" | "requested" | "long"; term_months: number; principal_ils: number; annual_rate_pct: number; monthly_payment_ils: number;
+  total_payments_ils: number; total_interest_ils: number; combined_debt_service_ils: number; combined_dsr_pct: number | null;
+  combined_includes_existing: boolean; ltv_pct: number | null; remaining_after_debt_ils: number | null;
+}
+export interface IntelDiscrepancy {
+  borrower_id: string | null; first_name_he: string | null; kind: "income" | "purpose_amount"; title_he: string; open: boolean;
+  declared: Datum; documented: Datum; difference_ils: number | null; difference_pct: number | null; tolerance_pct: number | null;
+  status_he: string; v1_item: string; explanation_he: string; action_he: string;
+}
+export interface IntelDraft { kind: string; title_he: string; message_he: string; attachments: { document_id: string; label_he: string }[] }
+/** Banker V3 "שאל את JEEN" (api/banker_chat.py). `edit` is a revision of the draft that was sent, already checked in code. */
+export interface CaseChatReply {
+  intent: "question" | "draft_edit" | "question_and_edit" | "clarification" | "declined";
+  answer_he: string; source_ids: string[]; sources: Record<string, { label_he: string; kind: IntelSource["kind"] }>;
+  edit: { kind: string; text: string; summary_he: string } | null; rejected_issues_he: string[]; repaired: boolean; model: string;
+}
+/** Banker V3 third reply (api/banker_demo_letter.py): an approval letter for a SIMULATED decision; the case is unchanged.
+ *  `source` "ai" = prose written by Gemini around code-built terms; "base" = the fixed base wording, no model. */
+export interface DemoLetter {
+  kind: "demo_approval"; title_he: string; text: string; source: "ai" | "base"; model: string | null; case_ready: boolean;
+  open_issues_he: string[]; check_issues_he: string[];
+  scenario: { label_he: string; principal_ils: number; term_months: number; annual_rate_pct: number; monthly_payment_ils: number;
+    total_payments_ils: number; total_interest_ils: number };
+}
+export interface Intelligence {
+  version: string; case_id: string; generated_at: string; disclaimer_he: string;
+  case: { display_number: string; title_he: string; banker: { name_he: string; role_he: string; staff_id?: string }; bank_stage: BankCase["bank_stage"]; submitted_at?: string };
+  applicant: { entity: string; entity_he?: string; profile_label_he?: string | null; company?: DocumentProfile["company"];
+    borrowers: { borrower_id: string; name_he: string; first_name_he: string; role?: string; role_he: string; profile_he?: string | null;
+      employer_declared_he?: string; employer_document_source_id?: string | null; income_sources: string[] }[]; co_borrowers: string[] };
+  loan: { product_he?: string; purpose_he?: string; note_he?: string; amount: Datum; term: Datum;
+    asset: { price: Datum; subject_source_id?: string | null; label_he: string } | null };
+  documents: { state: string; state_he: string; case_status?: string; progress?: { done: number; total: number; missing_units: number } | null;
+    total: number; accepted: number; awaiting_decision: number; open_findings: number;
+    missing: { title_he: string; item_he: string; status_he: string; v1_item: string; requested: boolean }[];
+    corrections: { title_he: string; item_he: string; reason_he: string; v1_item: string }[];
+    requirements: { title_he: string; family_he?: string; satisfied: boolean; state_he: string }[] };
+  income: { borrowers: { borrower_id: string; first_name_he: string; name_he: string; declared: Datum; documented_avg: Datum;
+    months: { period: string; period_he: string; net_ils: number | null; verified: boolean; source_id: string | null }[];
+    months_required: number; basis: string; quality: "verified" | "partial" | "declared" | "missing"; variability_pct: number | null;
+    chosen: Datum; unresolved_discrepancy: boolean; business_income: boolean }[]; total: Datum; business_income: boolean };
+  bank_context: { available: boolean; missing_for: string[]; source: { source: string; note_he: string }; observed_at: string | null; fixture_ids: string[];
+    accounts: { type_he: string; number: string; opened: string; holders_he: string; owner_he: string }[];
+    loans: { id: string; type_he: string; lender_he: string; original_ils: number; start: string; term_months: number; annual_rate_pct: number;
+      remaining_payments: number; end: string; owner_he: string; monthly: Datum; outstanding: Datum }[];
+    credit_lines: { id: string; kind: string; type_he: string; limit_ils: number; utilized_ils: number; owner_he: string; source_id: string }[];
+    card_spending: { owner_he: string; avg_monthly_ils: number; months: string[]; note_he: string; source_id: string }[];
+    events: { owner_he: string; returned_checks_12m: number; arrears_12m: number; restrictions_he: string[]; detail_he: string[]; source_id: string }[];
+    exposure: { approved: Datum; utilized: Datum; loans_outstanding: Datum; credit_limits_ils: number; credit_utilized_ils: number } | null };
+  analysis: { availability: "full" | "partial" | "provisional" | "unavailable"; status_he: string; reasons_he: string[];
+    existing_debt: Datum; income: Datum; proposed_payment?: Datum; total_payments?: Datum; total_interest?: Datum; existing_dsr?: Datum;
+    combined_dsr?: Datum; remaining_after_debt?: Datum; ltv?: Datum;
+    declared_alternative: { basis_he: string; income_ils: number | null; combined_dsr_pct: number | null } | null; illustrative_max_principal: number | null };
+  simulation: { inputs: { principal: number; term_months: number; annual_rate_pct: number }; income_ils: number | null; existing_debt_ils: number | null;
+    asset_price_ils: number | null; threshold_pct: number; threshold_source_id: string; rate_source_id: string; income_source_id: string | null;
+    existing_source_id: string | null; asset_source_id: string | null;
+    bounds: { term_min: number; term_max: number; step: number; principal_max: number };
+    scenarios: IntelScenario[]; suggested: { key: string | null; term_months: number | null; why_he: string; label_he: string } | null; enabled: boolean };
+  recommendation: { state: string; tone: string; headline_he: string; next_action: { kind: string; label_he: string; detail_he?: string; v1_item: string | null };
+    documentation: { status_he: string; case_status?: string };
+    financial: { availability: string; status_he: string; text_he: string; suggested: Intelligence["simulation"]["suggested"] };
+    considerations: { text_he: string; tone: string; source_ids: string[] }[]; verify: { text_he: string; v1_item?: string }[] };
+  discrepancies: IntelDiscrepancy[];
+  risks: { kind: string; title_he: string; text_he: string; tone: string; who_he: string; v1_item: string; source_ids: string[] }[];
+  unknowns: { label_he: string; text_he: string }[];
+  drafts: IntelDraft[]; recommended_draft: string | null; sources: Record<string, IntelSource>;
+}
 
 /** Poll a loader; faster while the backend reports work in progress. `failures` counts failed loads in a row and
  *  `updatedAt` is the last successful one, so a caller can tell a passing hiccup from data that is really stale.

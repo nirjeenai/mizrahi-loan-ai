@@ -1,0 +1,46 @@
+{
+  "schema": "demo_bank_financial_context.v1",
+  "source": "DEMO_BANK_FINANCIAL_CONTEXT",
+  "authoritative": false,
+  "synthetic": true,
+  "note_he": "נתוני הקשר בנקאי שאינם נשלפים ממערכות מזרחי־טפחות, ממאגר נתוני האשראי של בנק ישראל, מלשכת אשראי או מבנקאות פתוחה, ואינם עובדות מאומתות על הלקוח.",
+  "customers": {
+    "311204572": {
+      "fixture_id": "BFC-DEMO-BARAK-01",
+      "observed_at": "2026-10-11",
+      "name_he": "מיכל ברק",
+      "account": {"type_he": "חשבון עו״ש פרטי", "number": "20-614-338120", "opened": "2014-03", "holders_he": "מיכל ברק (בעלים יחידה)"},
+      "loans": [
+        {"id": "LN-DEMO-4471", "type_he": "הלוואה לכל מטרה", "lender_he": "מזרחי־טפחות", "original_ils": 64000,
+         "start": "2023-10", "term_months": 60, "annual_rate_pct": 6.0, "monthly_payment_ils": 1237.30,
+         "outstanding_ils": 27917.03, "remaining_payments": 24, "end": "2028-09"}
+      ],
+      "credit_lines": [
+        {"id": "OD-DEMO-1", "kind": "overdraft", "type_he": "מסגרת אשראי בעו״ש", "limit_ils": 15000, "utilized_ils": 0},
+        {"id": "CC-DEMO-1", "kind": "credit_card", "type_he": "כרטיס אשראי בנקאי", "limit_ils": 25000, "utilized_ils": 4850}
+      ],
+      "card_spending": {"avg_monthly_ils": 4424.68, "months": ["2026-07", "2026-08", "2026-09"],
+                         "note_he": "חיובי כרטיס חודשיים בפועל (רכישות שוטפות). אינם החזר חוב."},
+      "events": {"returned_checks_12m": 0, "arrears_12m": 0, "restrictions_he": []}
+    },
+    "DEMO-ID-001": {
+      "fixture_id": "BFC-DEMO-LEVY-01",
+      "observed_at": "2026-10-11",
+      "name_he": "עידו לוי",
+      "account": {"type_he": "חשבון עו״ש פרטי", "number": "12-345-678901", "opened": "2017-06", "holders_he": "עידו לוי (בעלים יחיד)"},
+      "loans": [
+        {"id": "LN-DEMO-2093", "type_he": "הלוואה לכל מטרה", "lender_he": "מזרחי־טפחות", "original_ils": 92000,
+         "start": "2025-04", "term_months": 48, "annual_rate_pct": 6.0, "monthly_payment_ils": 2160.62,
+         "outstanding_ils": 60052.39, "remaining_payments": 30, "end": "2029-03"}
+      ],
+      "credit_lines": [
+        {"id": "OD-DEMO-2", "kind": "overdraft", "type_he": "מסגרת אשראי בעו״ש", "limit_ils": 10000, "utilized_ils": 0},
+        {"id": "CC-DEMO-2", "kind": "credit_card", "type_he": "כרטיס אשראי בנקאי", "limit_ils": 18000, "utilized_ils": 3900}
+      ],
+      "card_spending": {"avg_monthly_ils": 4320.51, "months": ["2026-07", "2026-08", "2026-09"],
+                         "note_he": "חיובי כרטיס חודשיים בפועל (רכישות שוטפות). אינם החזר חוב."},
+      "events": {"returned_checks_12m": 1, "arrears_12m": 0, "restrictions_he": [],
+                 "detail_he": ["שיק אחד חזר ב־04.2026 (₪1,280) והוסדר באותו חודש."]}
+    }
+  }
+}
