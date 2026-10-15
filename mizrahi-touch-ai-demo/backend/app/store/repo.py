@@ -22,6 +22,31 @@ def audit_events(case_id: str, limit: int = 200) -> list[dict]:
     return rows
 
 
+# audit actions that are not work on the case: opening it, reads and tool chatter, assistant notes written while a
+# conversation is viewed, a refused duplicate upload, and a reset (which wipes the case's audit before it is logged)
+NOT_ACTIVITY = ("demo_session_started", "followup_link_redeemed", "mcp_call", "tool_call", "assistant_action_opened",
+                "assistant_action_refused", "assistant_actions_offered", "assistant_followup_posted",
+                "agent_guard_blocked", "document_upload_duplicate_file", "case_reset")
+
+
+def last_activity(case_ids: list[str]) -> dict[str, dict]:
+    """{case_id: {"event_id", "at"}} of each case's latest audited activity; cases with none are absent."""
+    if not case_ids:
+        return {}
+    # SQLite returns `at` from the row that holds MAX(event_id)
+    rows = db.query(f"SELECT case_id, MAX(event_id) AS event_id, at FROM audit"
+                    f" WHERE case_id IN ({','.join('?' * len(case_ids))}) AND action NOT IN ({','.join('?' * len(NOT_ACTIVITY))})"
+                    " GROUP BY case_id", (*case_ids, *NOT_ACTIVITY))
+    return {r["case_id"]: {"event_id": r["event_id"], "at": r["at"]} for r in rows}
+
+
+def by_latest_activity(case_ids: list[str], last: Optional[dict[str, dict]] = None) -> list[str]:
+    """Every case list's order: the most recently worked-on case first (audit order, so ties are impossible); cases
+    with no activity keep their given order after them. `last` is `last_activity(case_ids)` when already read."""
+    last = last_activity(case_ids) if last is None else last
+    return sorted(case_ids, key=lambda cid: -last[cid]["event_id"] if cid in last else 0)
+
+
 # ---------------------------------------------------------------- documents
 def insert_document(row: dict) -> None:
     with db.tx() as c:

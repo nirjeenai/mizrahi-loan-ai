@@ -79,7 +79,7 @@ export function BankerConsole() {
   return (
     <div className="console desk">
       <ConsoleTop active="banker" identity={`${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he}`} />
-      <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff}
+      <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff} onOpen={cases.reload}
         onCase={(id) => patch({ case: id, item: null })} onView={(v) => {
           if (v === "intel" || v === "case" || v === "review") localStorage.setItem(UI_PREF, v);
           patch({ view: v === "review" ? null : v });
@@ -101,9 +101,9 @@ export function BankerConsole() {
   );
 }
 
-function CaseBar({ caseId, cases, ws, view, staff, onCase, onView }: {
+function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
   caseId: string; cases: BankerCaseRow[]; ws: Workspace | null; view: View; staff: string;
-  onCase: (id: string) => void; onView: (v: View) => void;
+  onOpen: () => void; onCase: (id: string) => void; onView: (v: View) => void;
 }) {
   const [open, setOpen] = useState(false);
   useOutsideClose(open, () => setOpen(false));
@@ -111,7 +111,7 @@ function CaseBar({ caseId, cases, ws, view, staff, onCase, onView }: {
   return (
     <div className="case-bar">
       <div className="case-switch" data-popover>
-        <button className="case-switch-btn" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="listbox" data-testid="case-switch">
+        <button className="case-switch-btn" onClick={() => { if (!open) onOpen(); setOpen(!open); }} aria-expanded={open} aria-haspopup="listbox" data-testid="case-switch">
           <span className="case-no ltr">{ws?.case.display_number || current?.display_number || caseId}</span>
           <span className="case-names" title={ws?.case.title_he}>{ws?.document_profile?.company ? `${ws.document_profile.company.name_he} · ` : ""}
             {ws ? ws.case.borrowers.map((b) => b.name_he).join(" ו") : current?.borrowers.join(" ו")}</span>

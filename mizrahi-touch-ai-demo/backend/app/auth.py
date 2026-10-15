@@ -215,9 +215,9 @@ def current(request: Request):
 
 @router.get("/demo/cases")
 def demo_cases():
-    """The demo case selector: case number and title only, never case data."""
+    """The demo case selector: case number and title only, never case data; the most recently worked-on case first."""
     _demo_only()
-    return _case_rows(bank.case_ids())
+    return _case_rows(repo.by_latest_activity(bank.case_ids()))
 
 
 @router.post("/demo/customer")

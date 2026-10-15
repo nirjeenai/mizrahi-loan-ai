@@ -55,7 +55,7 @@ def health():
 @router.get("/cases")
 def cases(request: Request):
     out = []
-    for cid in auth.require_customer(request)["cases"]:
+    for cid in repo.by_latest_activity(auth.require_customer(request)["cases"]):
         c = bank.get_case(cid)
         out.append({"case_id": cid, "display_number": c["display_number"], "title_he": c["title_he"],
                     "borrowers": [b["name_he"] for b in c["borrowers"]], "readiness": readiness.compute(cid)["state_he"]})

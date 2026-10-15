@@ -47,13 +47,16 @@ def _desk(call):
 def cases(request: Request):
     auth.require_staff(request)
     out = []
-    for cid in bank.case_ids():
+    ids = bank.case_ids()
+    last = repo.last_activity(ids)
+    for cid in repo.by_latest_activity(ids, last):
         c = bank.get_case(cid)
         st = readiness.compute(cid)
         out.append({"case_id": cid, "display_number": c["display_number"], "title_he": c["title_he"],
                     "borrowers": [b["name_he"] for b in c["borrowers"]], "readiness": st["state"],
                     "readiness_he": st["state_he_banker"], "counts": st["counts"], "queue": case_queue_counts(cid),
-                    "banker": c["banker"], "handoffs": len(review_desk.open_handoffs(cid))})
+                    "banker": c["banker"], "handoffs": len(review_desk.open_handoffs(cid)),
+                    "last_activity_at": (last.get(cid) or {}).get("at")})
     return out
 
 

@@ -58,7 +58,7 @@ def test_demo_session_is_bound_to_the_picked_case_and_extended_per_case():
     assert {x["case_id"] for x in c.get("/api/session").json()["customer"]["cases"]} == {CASE, ORI_CASE}
     assert c.get(f"/api/banker/cases/{CASE}/workspace").status_code == 401        # a customer session is never staff
     assert c.post("/api/session/demo/customer", json={"case_id": "NOPE"}).status_code == 404
-    assert [x["case_id"] for x in c.get("/api/session/demo/cases").json()][:3] == [CASE, OTHER, ORI_CASE]
+    assert {CASE, OTHER, ORI_CASE} <= {x["case_id"] for x in c.get("/api/session/demo/cases").json()}
     assert "borrowers" not in json.dumps(c.get("/api/session/demo/cases").json())   # the selector list carries no case data
     c.post("/api/session/logout", json={"role": "customer"})
     assert c.get(f"/api/cases/{CASE}").status_code == 401

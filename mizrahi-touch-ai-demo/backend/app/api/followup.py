@@ -92,6 +92,7 @@ def snooze(case_id: str, body: Snooze, request: Request):
     if until <= now or until > now + timedelta(minutes=1440):
         raise HTTPException(422, "אפשר לדחות עד 24 שעות קדימה.")
     orchestrator.set_preferences(case_id, "customer", snooze_until=until.isoformat(timespec="seconds"))
+    repo.audit(case_id, "customer", "customer_followup_snoozed", case_id, {"until": until.isoformat(timespec="seconds")})
     orchestrator.on_event(case_id, "customer_snooze")
     return orchestrator.customer_view(case_id)
 
@@ -102,6 +103,7 @@ def contact_preferences(case_id: str, body: Preferences, request: Request):
     changes = body.model_dump(exclude_none=True)
     if changes:
         orchestrator.set_preferences(case_id, "customer", **changes)
+        repo.audit(case_id, "customer", "customer_contact_preferences_changed", case_id, changes)
         orchestrator.on_event(case_id, "customer_preferences")
     return orchestrator.customer_view(case_id)
 

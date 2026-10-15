@@ -366,6 +366,8 @@ export interface BankerCaseRow {
   case_id: string; display_number: string; title_he: string; borrowers: string[]; readiness: string; readiness_he: string;
   counts: Readiness["counts"]; queue: Record<string, number>;
   banker: { name_he: string; staff_id?: string };
+  /** the case's latest audited activity; rows arrive newest first */
+  last_activity_at: string | null;
 }
 export interface Decision {
   decision_id: string; target_kind: string; document_id?: string | null; finding_id?: string | null; borrower_id?: string | null;

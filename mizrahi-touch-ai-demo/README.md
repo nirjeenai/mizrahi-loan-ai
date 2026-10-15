@@ -116,6 +116,9 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
 - **Personas and "התיקים שלי".** Every case has a `persona_id` (QA cases 003–005 have none and are flagged `qa`). The
   drawer lists the open case's persona's applications. Every other case stays reachable under a collapsed "תיקי הדגמה
   ובדיקות של לקוחות אחרים". The Lavi and Levy families are separate personas.
+- **Case list order.** Every case list (the banker's "תיקים בתור" in V1/V2/V3, this drawer, `GET /api/cases`) puts the
+  case worked on most recently first: the latest audit row except opening/viewing, tool and assistant chatter, a refused
+  duplicate upload and a reset (`repo.NOT_ACTIVITY`). Cases with no activity keep their default order after them.
 - **New customers (`/customer/apply`).** A deterministic JEEN questionnaire (`workflow/onboarding.py`, no model) asks
   about the entity, name, purpose, income sources, VAT registration if self-employed, a co-borrower (with their income
   and a joint or separate account), and the amount and payments. A company path asks for the company name, the
