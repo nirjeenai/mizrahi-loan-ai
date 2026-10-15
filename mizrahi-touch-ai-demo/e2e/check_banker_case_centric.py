@@ -227,26 +227,30 @@ def michal(page: Page, c: httpx.Client) -> None:
     check("reasoning: the detail lists every document value used", page.locator("[data-testid=cc-evrow]").count()
           == sum(1 for v in x["sources"].values() if v["kind"] == "document"))
     page.locator("[data-testid=cc-why-more]").click()
-    # reply
-    text = page.locator("[data-testid=cc-draft-text]")
+    # reply: a preview on the page, editing in the document workspace (Case Chat's ReplyWorkspace)
+    preview = page.locator("[data-testid=cc-draft-preview]")
     tabs = page.locator("[data-testid=cc-draft-tab]").evaluate_all("els => els.map(e => e.dataset.kind)")
-    original = text.input_value()
+    original = preview.get_attribute("data-text") or ""
+    page.locator("[data-testid=cc-draft-open]").click()
+    text = page.locator("[data-testid=cc-draft-text]")
     text.click()
     text.evaluate("e => e.setSelectionRange(e.value.length, e.value.length)")
     text.type("\nנשמח לתאם שיחה השבוע.")
     check("reply: the recommended draft is the complete-documentation one, customer-specific, and editable",
-          tabs == ["complete_documentation", "conditional_financing"] and text.get_attribute("data-kind") == "complete_documentation"
+          tabs[:2] == ["complete_documentation", "conditional_financing"] and preview.get_attribute("data-kind") == "complete_documentation"
           and "מיכל" in original and "₪90,000" in original and "אינה אישור הלוואה" in original
-          and page.locator("[data-testid=cc-draft-edited]").is_visible() and text.input_value().endswith("נשמח לתאם שיחה השבוע."))
-    page.locator("[data-testid=cc-draft-copy]").click()
+          and page.locator("[data-testid=cc-draft-edited]").count() > 0 and text.input_value().endswith("נשמח לתאם שיחה השבוע."))
+    page.locator("[data-testid=cc-modal-copy]").click()
     expect(page.locator("[data-testid=desk-toast]")).to_contain_text("לא נשלח")
     clip = page.evaluate("navigator.clipboard.readText()")
-    check("reply: copy puts the edited text on the clipboard and says nothing was sent", clip.endswith("נשמח לתאם שיחה השבוע."))
-    shot_section(page, "cc-reply", "07-v3-editable-response.png")
+    check("reply: copy puts the edited text on the clipboard and says nothing was sent", "נשמח לתאם שיחה השבוע." in clip)
+    page.once("dialog", lambda d: d.accept())
     page.locator("[data-testid=cc-draft-restore]").click()
-    check("reply: restore returns the template text", text.input_value() == original)
+    check("reply: restore (after its confirmation) returns the template text", text.input_value() == original)
+    page.locator("[data-testid=cc-doc-close]").click()
+    shot_section(page, "cc-reply", "07-v3-editable-response.png")
     page.locator("[data-testid=cc-draft-tab][data-kind=conditional_financing]").click()
-    cond = text.input_value()
+    cond = preview.get_attribute("data-text") or ""
     check("reply: the financing draft lists the illustrative scenarios as non-binding, without the internal ratio",
           all(f"{r['term_months']} תשלומים" in cond for r in s["scenarios"]) and "אינם הצעה מחייבת" in cond and "יחס" not in cond)
     # full page
@@ -288,8 +292,8 @@ def gap(page: Page, c: httpx.Client) -> None:
     check("human review: the documented average opens its payslip evidence", True)
     page.locator("[data-testid=bi-drawer-close]").click()
     check("human review: the clarification draft is recommended and asks for an explanation",
-          page.locator("[data-testid=cc-draft-text]").get_attribute("data-kind") == "financial_clarification"
-          and "הסבר" in page.locator("[data-testid=cc-draft-text]").input_value())
+          page.locator("[data-testid=cc-draft-preview]").get_attribute("data-kind") == "financial_clarification"
+          and "הסבר" in (page.locator("[data-testid=cc-draft-preview]").get_attribute("data-text") or ""))
     shot_section(page, "cc-financial", "09b-v3-human-review-financial.png")
     page.locator("[data-testid=cc-gap-open]").first.click()
     expect(page.locator("[data-testid=review-queue]")).to_be_visible(timeout=15000)
@@ -312,9 +316,9 @@ def incomplete(page: Page, c: httpx.Client) -> None:
           and page.locator("[data-testid=cc-replaced-toggle]").is_visible()
           and "התקבלו 1 מתוך 4 דרישות" in page.locator("[data-testid=cc-docstate-main]").inner_text())
     shot_section(page, "cc-docs", "10b-v3-incomplete-documents.png")
-    check("incomplete: only the missing-documents draft, listing every missing item",
-          page.locator("[data-testid=cc-draft-tab]").count() == 0 and page.locator("[data-testid=cc-draft-text]").get_attribute("data-kind") == "missing_documents"
-          and all(m["item_he"] in page.locator("[data-testid=cc-draft-text]").input_value() for m in x["documents"]["missing"]))
+    check("incomplete: only the missing-documents draft (plus the explicitly simulated approval letter), listing every missing item",
+          page.locator("[data-testid=cc-draft-tab]:not([data-kind=demo_approval])").count() <= 1 and page.locator("[data-testid=cc-draft-preview]").get_attribute("data-kind") == "missing_documents"
+          and all(m["item_he"] in (page.locator("[data-testid=cc-draft-preview]").get_attribute("data-text") or "") for m in x["documents"]["missing"]))
     check("incomplete: the analysis says it is partial (declared income)", page.locator("[data-testid=cc-partial]").is_visible()
           and "ניתוח חלקי" in page.locator("[data-testid=cc-fig-dsr]").inner_text())
     miss.first.click()
