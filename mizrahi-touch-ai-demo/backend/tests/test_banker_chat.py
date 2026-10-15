@@ -155,7 +155,7 @@ def test_without_a_model_the_chat_says_so_and_customers_cannot_use_it(monkeypatc
 # ---------------------------------------------------------------- the third reply: approval letter for a SIMULATED decision
 def sections(**over) -> dict:
     s = {"opening_he": "בהמשך לפנייתך, ולאחר שבחנו את בקשתך ואת המסמכים שצירפת, ברצוננו לעדכן אותך.",
-         "approval_he": "בתרחיש ההדמיה המוצג כאן, בקשתך אושרה על ידי הבנקאית המטפלת בכפוף לתנאים שלהלן.",
+         "approval_he": "בקשתך אושרה על ידי הבנקאית המטפלת, בכפוף לתנאים שלהלן.",
          "terms_note_he": "הסכומים הם אומדן להמחשה, והתנאים בפועל ייקבעו במסמכי ההלוואה.",
          "conditions_intro_he": "העמדת ההלוואה כפופה לתנאים הבאים:",
          "conditions_he": ["השלמת הבדיקות הנדרשות בבנק.", "הצגת אסמכתה עדכנית למטרת ההלוואה, ככל שתידרש.", "חתימה על מסמכי ההלוואה."],
@@ -179,7 +179,7 @@ def test_the_demo_letter_takes_its_terms_from_the_calculation_and_its_prose_from
     text = out["text"]
     for v in (a["proposed_payment"]["value"], a["total_payments"]["value"], a["total_interest"]["value"], b["loan"]["amount"]["value"]):
         assert (f"₪{v:,.0f}" if float(v).is_integer() else f"₪{v:,.2f}") in text
-    assert text.startswith(letter.TITLE_HE) and letter.NOTICE_HE in text and letter.BANNER_HE in text
+    assert text.startswith(letter.TITLE_HE) and letter.NOTICE_HE in text
     assert "בקשתך אושרה" in text and out["scenario"]["term_months"] == b["loan"]["term"]["value"]
     assert brief(COMPLETE)["recommendation"]["state"] == b["recommendation"]["state"]          # the case is unchanged
 
@@ -191,6 +191,14 @@ def test_a_model_section_with_an_invented_figure_falls_back_to_the_labelled_base
     out = make().json()
     assert len(sent) == 2 and out["source"] == "base" and out["model"] is None and out["check_issues_he"]
     assert "45,000" not in out["text"] and "הועבר לחשבונך" not in out["text"]
+
+
+def test_prose_that_repeats_the_demo_framing_gets_one_repair(monkeypatch):
+    package(COMPLETE)
+    sent = model(monkeypatch, sections(approval_he="בתרחיש ההדמיה, בקשתך אושרה בכפוף לתנאים."), sections())
+    out = make().json()
+    assert len(sent) == 2 and out["source"] == "ai" and "תרחיש" not in out["text"]
+    assert out["text"].count("הדמיה") == 2                                                 # the title and the notice
 
 
 def test_a_case_that_is_not_ready_needs_an_explicit_choice_and_keeps_its_open_items(monkeypatch):
@@ -214,7 +222,7 @@ def test_approval_wording_is_accepted_only_in_the_demo_letter_and_only_with_its_
     tab1 = next(d["message_he"] for d in b["drafts"] if d["kind"] == "complete_documentation")
     assert any("אישור" in i for i in banker_chat.check_revision(tab1 + "\nבקשתך אושרה.", tab1, b, "complete_documentation"))
     assert banker_chat.check_revision(base.replace(letter.NOTICE_HE, ""), base, b, k, base)
-    assert banker_chat.check_revision(base.replace(letter.TITLE_HE, "הודעה בדבר אישור בקשת הלוואה").replace(letter.BANNER_HE, "")
+    assert banker_chat.check_revision(base.replace(letter.TITLE_HE, "הודעה בדבר אישור בקשת הלוואה")
                                       .replace(letter.NOTICE_HE, "מכתב זה אינו החלטת אשראי ואינו הסכם הלוואה."), base, b, k, base)
     for claim in ("הכסף כבר הועבר לחשבונך.", "מסמכי ההלוואה נחתמו.", "חתמת על ההסכם."):
         assert any("שלבים עתידיים" in i for i in banker_chat.check_revision(base + "\n" + claim, base, b, k, base)), claim

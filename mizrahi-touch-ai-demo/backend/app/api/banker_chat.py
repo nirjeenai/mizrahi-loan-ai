@@ -94,14 +94,14 @@ EDITING THE DRAFT
     bank's systems; you can only change the wording of the customer reply.
 12. If an edit request is ambiguous, use intent "clarification" and ask one short question.
 13. DEMO APPROVAL LETTER (only when current_draft.kind is "demo_approval"; <demo_scenario> holds its terms). This letter
-    describes a simulated banker decision, so — in this draft only — it may say the request was approved within the
-    demonstration scenario, subject to its conditions. Still:
-   - keep the title line with "הדמיה", the DEMO line and the closing notice that it is not a credit decision or a loan
-     agreement; keep every number in the terms block exactly as it is;
+    describes a simulated banker decision, so — in this draft only — it may say plainly that the request was approved,
+    subject to its conditions. Do not add demo / simulation / scenario wording to the body. Still:
+   - keep the title line with "הדמיה" and the closing notice that it is not a credit decision or a loan agreement;
+     keep every number in the terms block exactly as it is;
    - never say the loan was disbursed, money transferred, documents signed, or that a rate/amount is final or binding;
      disbursement and signing are future steps;
    - add no term the scenario does not define (collateral, vehicle lien, guarantor, insurance, fees, dates): if asked,
-     say it is not defined in the demo scenario and offer neutral wording ("ייקבע במסמכי ההלוואה, אם יידרש").
+     say it is not defined for this letter and offer neutral wording ("ייקבע במסמכי ההלוואה, אם יידרש").
    In every other draft, rule 9 applies in full: no approval wording at all.
 
 STYLE
@@ -318,7 +318,8 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
                                     {"role": "user", "parts": [{"text": "The bank's code rejected this revision:\n- " + "\n- ".join(issues)
                                                                 + "\nReturn a corrected revision of the same current draft that fixes these "
                                                                   "issues, or intent \"declined\" with an explanation if the request cannot "
-                                                                  "be done safely."}]}]
+                                                                  "be done safely. answer_he and change_summary_he describe the change "
+                                                                  "against the banker's current draft, never this rejected attempt."}]}]
                 out2 = _call(retry, trace)
                 revised2 = re.sub(r"[*`]+", "", out2.get("revised_draft_he") or "").strip()
                 issues2 = check_revision(revised2, draft["text"], intel, kind, base) if out2["intent"] in EDITS and revised2 else ["declined"]

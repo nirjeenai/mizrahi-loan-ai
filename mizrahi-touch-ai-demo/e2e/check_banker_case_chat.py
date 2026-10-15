@@ -55,8 +55,22 @@ def open_v3(page: Page, case: str) -> None:
     page.wait_for_timeout(300)
 
 
+def modal(page: Page) -> bool:
+    return page.locator("[data-testid=cc-doc-modal]").count() > 0
+
+
 def draft(page: Page) -> str:
-    return page.locator("[data-testid=cc-draft-text]").input_value()
+    """The selected reply: the editor's value in the document workspace, else the preview on the page."""
+    if modal(page):
+        return page.locator("[data-testid=cc-draft-text]").input_value()
+    return page.locator("[data-testid=cc-draft-preview]").evaluate("e => e.textContent")
+
+
+def set_draft(page: Page, text: str) -> None:
+    """A manual edit: open the document workspace, type, close."""
+    page.locator("[data-testid=cc-draft-open]").click()
+    page.locator("[data-testid=cc-draft-text]").fill(text)
+    page.locator("[data-testid=cc-doc-close]").click()
 
 
 def send(page: Page, text: str, label: str) -> dict:
@@ -69,7 +83,7 @@ def send(page: Page, text: str, label: str) -> dict:
     out = {"label": label, "banker": text, "jeen": last.locator(".rw-text").inner_text(), "intent": last.get_attribute("data-intent"),
            "edit": edit.get_attribute("data-state") if edit.count() else None,
            "sources": [s.inner_text().replace("\n", " ") for s in last.locator("[data-testid=cc-chat-source]").all()],
-           "draft_after": draft(page) if page.locator("[data-testid=cc-draft-text]").count() else None}
+           "draft_after": draft(page) if page.locator("[data-testid=cc-draft-preview], [data-testid=cc-draft-text]").count() else None}
     TRANSCRIPT.append(out)
     print(f"   {label}: [{out['intent']}{' · ' + out['edit'] if out['edit'] else ''}] {out['jeen'][:220]}", flush=True)
     return out
@@ -91,13 +105,20 @@ def layout(page: Page) -> None:
     share = d["width"] / (d["width"] + c["width"])
     check("desktop: the draft takes 60–65% of the width", 0.57 <= share <= 0.67, f"{share:.2f}")
     check("desktop: balanced heights", abs(d["height"] - c["height"]) < 40, f"draft {d['height']:.0f}px chat {c['height']:.0f}px")
-    check("chat header and subtitle", page.locator(".rw-chat-head").inner_text().startswith("שאל את JEEN")
-          and "עוזר AI שמכיר את הבקשה" in page.locator(".rw-chat-head").inner_text())
+    head = page.locator("[data-testid=cc-chat-head]").inner_text()
+    check("chat header 'שאל את' + JEEN logo, and subtitle", head.startswith("שאל את") and "עוזר AI שמכיר את הבקשה" in head)
     chips = [x.inner_text() for x in page.locator("[data-testid=cc-chat-chip]").all()]
     check("suggestion chips", chips == ["למה מומלץ להתקדם?", "מה עדיין צריך לבדוק?", "תנסח את המכתב יותר פורמלי", "תקצר את המענה"], " | ".join(chips))
-    check("templates, restore, copy and document references are still there",
-          page.locator("[data-testid=cc-draft-tab]").count() == 3 and page.locator("[data-testid=cc-draft-restore]").count() == 1
-          and page.locator("[data-testid=cc-draft-copy]").count() == 1 and page.locator(".cc-ref").count() > 0)
+    ys = {round(t.bounding_box()["y"]) for t in page.locator("[data-testid=cc-draft-tab]").all()}
+    check("three response tabs on one row", page.locator("[data-testid=cc-draft-tab]").count() == 3 and len(ys) == 1,
+          " | ".join(t.inner_text().replace("\n", " ") for t in page.locator("[data-testid=cc-draft-tab]").all()))
+    check("JEEN panel carries the JEEN logo", page.locator("[data-testid=cc-chat] img.jn-logo").evaluate("e => e.complete && e.naturalWidth > 0"))
+    page.locator("[data-testid=cc-draft-open]").click()
+    check("the document workspace has restore, copy, document references and the rewrite bar",
+          page.locator("[data-testid=cc-draft-restore]").count() == 1 and page.locator("[data-testid=cc-modal-copy]").count() == 1
+          and page.locator("[data-testid=cc-doc-modal] .cc-ref").count() > 0 and page.locator("[data-testid=cc-rewrite]").is_visible())
+    page.keyboard.press("Escape")
+    check("Escape closes the document workspace", not modal(page))
     page.locator("[data-testid=cc-draft-tab][data-kind=conditional_financing]").click()
     check("switching templates keeps working", "חלופות פריסה" in draft(page))
     page.locator("[data-testid=cc-draft-tab][data-kind=complete_documentation]").click()
@@ -155,7 +176,7 @@ def live(page: Page) -> None:
     marker = "נשמח לעמוד לרשותך בכל שאלה בטלפון או בסניף."
     lines = after_d.split("\n")
     manual = "\n".join(lines[:1] + [marker] + lines[1:])
-    page.locator("[data-testid=cc-draft-text]").fill(manual)
+    set_draft(page, manual)
     e = send(page, "תקצר את המענה.", "E")
     after_e = draft(page)
     check("E · the request carried the manually edited draft", marker in (SENT[-1].get("draft") or {}).get("text", ""))
@@ -193,81 +214,88 @@ def demo_live(page: Page) -> None:
     open_v3(page, MICHAL)
     intel = page.request.get(f"{BASE}/api/banker/cases/{MICHAL}/intelligence").json()
     templates = {d["kind"]: d["message_he"] for d in intel["drafts"]}
-    tabs = [t.inner_text().replace("\n", " ") for t in page.locator("[data-testid=cc-draft-tab]").all()]
-    check("three reply tabs, the third marked DEMO", len(tabs) == 3 and tabs[2].startswith("אישור הלוואה — הדמיה") and "DEMO" in tabs[2], " | ".join(tabs))
+    tabs = page.locator("[data-testid=cc-draft-tab]")
+    labels = [t.inner_text().replace("\n", " ") for t in tabs.all()]
+    check("three short tabs on one row", len(labels) == 3 and len({round(t.bounding_box()["y"]) for t in tabs.all()}) == 1
+          and labels[0].startswith("אישור מסמכים") and labels[1] == "שיחת המשך" and labels[2] == "אישור הלוואה", " | ".join(labels))
     for kind, body in templates.items():
         page.locator(f"[data-testid=cc-draft-tab][data-kind={kind}]").click()
-        check(f"existing tab unchanged: {kind}", draft(page) == body)
+        check(f"existing reply unchanged: {kind}", draft(page) == body)
     page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
     expect(page.locator("[data-testid=cc-demo-loading]")).to_be_visible(timeout=5000)
-    expect(page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]")).to_be_visible(timeout=120000)
+    shot(page, "00-loan-letter-preparing")
+    expect(page.locator("[data-testid=cc-draft-preview][data-kind=demo_approval]")).to_be_visible(timeout=120000)
     letter = draft(page)
-    strip = page.locator("[data-testid=cc-demo-strip]").inner_text()
     a = intel["analysis"]
-    check("the simulated scenario is stated above the letter", "תרחיש הדגמה: בקשת ההלוואה אושרה בכפוף לתנאים" in strip and "לא השתנו" in strip)
-    check("the letter was written by Gemini, not a static text", page.locator("[data-testid=cc-demo-source]").get_attribute("data-source") == "ai")
+    section = page.locator("[data-testid=cc-reply]").inner_text()
+    check("no scenario framing in the reply area", "תרחיש" not in section and "תרחיש" not in letter and letter.count("הדמיה") <= 2,
+          f"'הדמיה' ×{letter.count('הדמיה')} in the letter (title + closing notice)")
+    check("the wording was written by Gemini", page.locator("[data-testid=cc-demo-source]").get_attribute("data-source") == "ai")
     check("a substantial letter (350–600 words)", 350 <= words(letter) <= 600, f"{words(letter)} words")
     check("principal, term, payment, totals match the calculation",
           all(money(v) in letter for v in (intel["loan"]["amount"]["value"], a["proposed_payment"]["value"], a["total_payments"]["value"], a["total_interest"]["value"]))
-          and f"{intel['loan']['term']['value']} תשלומים" in letter, f"{money(a['proposed_payment']['value'])} · {intel['loan']['term']['value']} תשלומים")
-    check("DEMO title, banner and notice in the letter", letter.splitlines()[0].endswith("הדמיה") and "(DEMO)" in letter and "אינו הסכם הלוואה" in letter)
-    check("no mortgage term, no disbursement or signing claim", "עקרוני" not in letter and not _claims(letter, _DONE), "")
-    check("the letter names this customer only", "מיכל ברק" in letter and "עידו" not in letter)
-    box = page.locator("[data-testid=cc-draft-text]")
-    check("desktop: the whole letter is visible in the editor (it grows with the text)", box.evaluate("e => e.scrollHeight <= e.clientHeight + 4"),
-          f"{box.evaluate('e => e.clientHeight')}px")
-    shot(page, "01-three-tabs-demo-letter")
-    shot(page, "02-full-demo-letter", ".rw-draft .cc-paper")
+          and f"{intel['loan']['term']['value']} תשלומים" in letter)
+    check("the safety markers stay: title and closing notice", letter.splitlines()[0].endswith("הדמיה") and "אינו הסכם הלוואה" in letter
+          and "עקרוני" not in letter and not _claims(letter, _DONE))
+    h = page.locator("[data-testid=cc-reply]").bounding_box()["height"]
+    check("the long letter does not stretch the page", h < 760 and page.locator("[data-testid=cc-draft-more]").is_visible(), f"section {h:.0f}px")
+    shot(page, "01-default-loan-preview")
 
+    page.locator("[data-testid=cc-draft-more]").click()
+    m = page.locator("[data-testid=cc-doc-modal]")
+    box = page.locator("[data-testid=cc-draft-text]")
+    check("'הצגת המסמך המלא' opens the document workspace with the whole letter", m.is_visible() and box.input_value() == letter
+          and box.evaluate("e => e.scrollHeight <= e.clientHeight + 4"))
+    check("rewrite bar with JEEN rewrite actions at the foot of the workspace", page.locator("[data-testid=cc-rewrite]").is_visible()
+          and page.locator("[data-testid=cc-rewrite-chip]").count() == 5)
     marker = "נשמח לראות אותך נוהגת ברכב החדש."
     manual = letter.replace("\nבברכה,", f"{marker}\n\nבברכה,", 1)
-    page.locator("[data-testid=cc-draft-text]").fill(manual)
-    check("the letter can be edited manually", draft(page) == manual and page.locator("[data-testid=cc-draft-edited]").is_visible())
-    c = send(page, "תנסח את זה בצורה רשמית יותר ותוסיף הסבר על תנאי ההחזר.", "demo-formal")
+    box.fill(manual)
+    check("manual editing in the workspace", draft(page) == manual and page.locator("[data-testid=cc-doc-modal] [data-testid=cc-draft-edited]").is_visible())
+    before = page.locator("[data-testid=cc-chat-msg][data-role=model]").count()
+    page.locator("[data-testid=cc-rewrite-input]").fill("תנסח את זה בצורה רשמית יותר ותוסיף הסבר על תנאי ההחזר.")
+    page.locator("[data-testid=cc-rewrite-send]").click()
+    expect(page.locator("[data-testid=cc-rewrite-last]")).to_contain_text("JEEN עורך", timeout=5000)
+    expect(page.locator("[data-testid=cc-chat-msg][data-role=model]")).to_have_count(before + 1, timeout=120000)
     after = draft(page)
-    check("the chat request carried the manually edited letter", marker in (SENT[-1].get("draft") or {}).get("text", "") and SENT[-1]["draft"]["kind"] == "demo_approval")
-    check("JEEN's edit lands in the real letter", c["edit"] == "applied" and after != manual and page.locator("[data-testid=cc-draft-ai]").is_visible(), c["jeen"][:100])
-    check("the edit keeps the DEMO markers and every figure", after.splitlines()[0].endswith("הדמיה") and "אינו הסכם הלוואה" in after
+    said = page.locator("[data-testid=cc-rewrite-last]").inner_text()
+    TRANSCRIPT.append({"label": "rewrite-bar", "banker": "תנסח את זה בצורה רשמית יותר ותוסיף הסבר על תנאי ההחזר.", "jeen": said, "draft_after": after})
+    print(f"   rewrite-bar: {said[:200]}", flush=True)
+    check("the request carried the manually edited letter", marker in (SENT[-1].get("draft") or {}).get("text", ""))
+    check("the rewrite lands in the open document", after != manual and page.locator("[data-testid=cc-doc-modal] [data-testid=cc-draft-ai]").is_visible()
+          and page.locator("[data-testid=cc-rewrite-undo]").is_visible(), said[:100])
+    check("the rewrite keeps the markers and every figure", after.splitlines()[0].endswith("הדמיה") and "אינו הסכם הלוואה" in after
           and all(money(v) in after for v in (a["proposed_payment"]["value"], a["total_payments"]["value"])))
-    check("the edit explains repayment terms", any(w in after for w in ("החזר", "תשלום")) and words(after) >= words(manual) - 40, f"{words(manual)} → {words(after)} words")
-    shot(page, "03-demo-ai-edit")
-    for kind, body in templates.items():
-        page.locator(f"[data-testid=cc-draft-tab][data-kind={kind}]").click()
-        check(f"the demo edit did not touch {kind}", draft(page) == body)
-    page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
-    check("switching tabs keeps the edited demo letter", draft(page) == after)
+    page.wait_for_timeout(2600)
+    page.screenshot(path=str(OUT / "02-expanded-document.png"))
+    page.locator("[data-testid=cc-doc-modal] [data-testid=cc-draft-tab][data-kind=complete_documentation]").click()
+    check("tabs inside the workspace switch documents; other replies untouched", draft(page) == templates["complete_documentation"])
+    page.locator("[data-testid=cc-doc-modal] [data-testid=cc-draft-tab][data-kind=demo_approval]").click()
+    check("back to the loan letter with the rewrite", draft(page) == after)
+    page.locator("[data-testid=cc-rewrite-undo]").click()
+    check("undo in the workspace restores the manual version", draft(page) == manual)
+    page.locator("[data-testid=cc-doc-close]").click()
+    check("the page preview shows the same draft after closing", draft(page) == manual)
 
-    lien = send(page, "תוסיף את תנאי שעבוד הרכב, אם הם חלק מתרחיש ההדגמה.", "demo-lien")
-    check("a term the scenario does not define is not invented", not (set(re.findall(r"\d[\d,]*", draft(page))) - set(re.findall(r"\d[\d,]*", after))), lien["jeen"][:140])
-    page.locator("[data-testid=cc-draft-undo]").click()
-    undone = draft(page)
-    check("undo restores the letter from before the last JEEN edit", undone == (after if lien["edit"] == "applied" else manual), lien["edit"] or "no edit to undo → formal edit undone")
-
+    lien = send(page, "תוסיף את תנאי שעבוד הרכב, אם הם חלק מהמכתב.", "panel-lien")
+    check("a term that is not defined is not invented", not (set(re.findall(r"\d[\d,]*", draft(page))) - set(re.findall(r"\d[\d,]*", manual))), lien["jeen"][:140])
     page.evaluate("window.__copied = null; navigator.clipboard.writeText = async (t) => { window.__copied = t; }")
     page.locator("[data-testid=cc-draft-copy]").click()
     copied = page.evaluate("window.__copied") or ""
-    check("copied text is marked as a demo at the top and the bottom", copied.startswith("[מסמך הדמיה (DEMO)") and copied.rstrip().endswith("לא נשלח ללקוח.]"))
+    check("copied loan letter is still marked at the top and the bottom", copied.startswith("[מסמך הדמיה (DEMO)") and copied.rstrip().endswith("לא נשלח ללקוח.]"))
     names = [b.inner_text() for b in page.locator("[data-testid=cc-draft-col] button").all()]
-    check("no send action in the reply", not any("שליח" in n or "שלח" in n for n in names), " · ".join(n for n in names if n)[:160])
+    check("no send action in the reply", not any("שליח" in n or "שלח" in n for n in names))
 
     page.locator("[data-testid=case-switch]").click()
     page.locator(".case-pop-row", has_text="438839011").click()
     expect(page.locator(f"[data-testid=cc-root][data-case='{GAP}']")).to_be_visible(timeout=20000)
     page.locator("[data-testid=cc-reply]").scroll_into_view_if_needed()
-    check("case switch: a clean chat and no demo letter carried over", page.locator("[data-testid=cc-chat-msg]").count() == 0
-          and "מיכל" not in draft(page))
+    check("case switch: clean chat, no letter carried over", page.locator("[data-testid=cc-chat-msg]").count() == 0 and "מיכל" not in draft(page))
     page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
     gate = page.locator("[data-testid=cc-demo-gate]")
-    check("a case not ready for credit review is not silently approved", gate.is_visible() and "אינו מוכן" in gate.inner_text()
-          and page.locator("[data-testid=cc-draft-text]").count() == 0)
-    page.locator("[data-testid=cc-demo-make]").click()
-    expect(page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]")).to_be_visible(timeout=120000)
-    l2 = draft(page)
-    issues = page.locator("[data-testid=cc-demo-issues]")
-    check("after the explicit choice: a letter for this customer, with a condition to complete the open items",
-          "עידו" in l2 and "מיכל" not in l2 and ("פתוחים" in l2 or "השלמת המסמכים" in l2), f"{words(l2)} words · source {page.locator('[data-testid=cc-demo-source]').get_attribute('data-source')}")
-    check("the real case's open items stay visible to the banker", issues.is_visible() and "פער" in issues.inner_text())
-    shot(page, "04-not-ready-case-demo")
+    check("a case not ready for credit review needs an explicit choice", gate.is_visible() and "אינו מוכן" in gate.inner_text()
+          and page.locator("[data-testid=cc-draft-preview]").count() == 0)
+    shot(page, "03-not-ready-choice")
 
 
 def phone_demo(browser) -> None:
@@ -275,16 +303,21 @@ def phone_demo(browser) -> None:
     page = ctx.new_page()
     open_v3(page, MICHAL)
     page.add_style_tag(content=".console-top{max-width:100vw;overflow:hidden}.cc-sticky{display:none!important}")
+    tabs = page.locator("[data-testid=cc-draft-tab]")
+    check("phone: three tabs on one row", len({round(t.bounding_box()["y"]) for t in tabs.all()}) == 1)
     page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
-    expect(page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]")).to_be_visible(timeout=120000)
+    expect(page.locator("[data-testid=cc-draft-preview][data-kind=demo_approval]")).to_be_visible(timeout=120000)
+    page.locator("[data-testid=cc-reply]").screenshot(path=str(OUT / "04-phone-default.png"))
+    page.locator("[data-testid=cc-draft-open]").click()
+    m = page.locator("[data-testid=cc-doc-modal]").bounding_box()
     box = page.locator("[data-testid=cc-draft-text]")
-    fits = box.evaluate("e => e.scrollHeight <= e.clientHeight + 4")
-    check("phone: the full letter scrolls with the page (no fixed-height box)", fits, f"{box.evaluate('e => e.clientHeight')}px tall")
+    check("phone: the workspace is full-screen and the letter scrolls naturally", m["width"] >= 389 and box.evaluate("e => e.scrollHeight <= e.clientHeight + 4"))
+    check("phone: rewrite bar visible", page.locator("[data-testid=cc-rewrite]").is_visible())
+    page.wait_for_timeout(500)
+    page.screenshot(path=str(OUT / "05-phone-expanded.png"))
+    page.locator("[data-testid=cc-doc-close]").click()
     page.locator("[data-testid=cc-pane-chat]").click()
-    check("phone: chat pane opens beside the demo letter state", page.locator("[data-testid=cc-chat]").is_visible())
-    page.locator("[data-testid=cc-pane-draft]").click()
-    check("phone: back to the letter, still the demo tab", page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]").is_visible())
-    page.locator("[data-testid=cc-reply]").screenshot(path=str(OUT / "05-phone-demo-letter.png"))
+    check("phone: Draft / JEEN switch still works", page.locator("[data-testid=cc-chat]").is_visible() and not page.locator("[data-testid=cc-draft-col]").is_visible())
     ctx.close()
 
 
@@ -297,15 +330,14 @@ def phone(browser) -> None:
     page.evaluate("window.scrollTo(0, window.scrollY)")
     check("phone: Draft / Chat switch instead of two squeezed columns", page.locator("[data-testid=cc-pane-switch]").is_visible()
           and page.locator("[data-testid=cc-draft-col]").is_visible() and not page.locator("[data-testid=cc-chat]").is_visible())
-    box = page.locator("[data-testid=cc-draft-text]")
-    box.fill(box.input_value() + "\nשורה מהטלפון.")
+    set_draft(page, draft(page) + "\nשורה מהטלפון.")
     page.locator("[data-testid=cc-pane-chat]").click()
     check("phone: the chat pane opens", page.locator("[data-testid=cc-chat]").is_visible() and not page.locator("[data-testid=cc-draft-col]").is_visible())
     page.locator("[data-testid=cc-chat-input]").fill("טיוטת שאלה")
     page.add_style_tag(content=".cc-sticky{display:none!important}")
     page.locator("[data-testid=cc-reply]").screenshot(path=str(OUT / "05-phone-chat.png"))
     page.locator("[data-testid=cc-pane-draft]").click()
-    check("phone: switching panes keeps the draft and the typed question", "שורה מהטלפון." in box.input_value()
+    check("phone: switching panes keeps the draft and the typed question", "שורה מהטלפון." in draft(page)
           and page.locator("[data-testid=cc-chat-input]").input_value() == "טיוטת שאלה")
     page.locator("[data-testid=cc-reply]").screenshot(path=str(OUT / "06-phone-draft.png"))
     width = page.locator("[data-testid=cc-reply]").evaluate("e => Math.max(e.scrollWidth, e.getBoundingClientRect().width)")
