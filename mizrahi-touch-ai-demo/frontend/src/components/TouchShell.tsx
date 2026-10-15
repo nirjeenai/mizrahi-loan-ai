@@ -31,7 +31,6 @@ export function TouchShell({ children, onPresenter }: { children: ReactNode; onP
       <div className="phone-screen">
         <div className="phone-notch" />
         <div className="statusbar"><span>9:41</span><span>●●● ▮</span></div>
-        <div className="ribbon">הדגמת קונספט של <b>JEEN</b> · נתונים סינתטיים · לא מחובר למערכות מזרחי־טפחות</div>
         <header className="touch-header">
           <button className="icon-btn" aria-label="תפריט" onClick={() => setMenu(true)}><IMenu /></button>
           <button className="case-pill" onClick={() => setMenu(true)} aria-label="בחירת תיק">
@@ -42,7 +41,7 @@ export function TouchShell({ children, onPresenter }: { children: ReactNode; onP
         {auth.status === "signed-out" ? (
           <main className="screen">
             <div className="notice" role="status" style={{ marginTop: 16 }} data-testid="no-session">
-              אין חיבור לתיק. בסביבה זו לא מונפק חיבור הדגמה אוטומטי; הכניסה נעשית דרך מערכת הזיהוי של הבנק.</div>
+              אין חיבור לתיק. הכניסה נעשית דרך מערכת הזיהוי של הבנק.</div>
           </main>
         ) : (<>
         <main className="screen" onScroll={onScroll}>{children}</main>
@@ -94,22 +93,19 @@ function Drawer({ caseId, onPick, onClose, onPresenter }: {
         <div className="drawer-mine" data-testid="drawer-my-cases">{mine.map(row)}</div>
         {others.length > 0 && (
           <details className="drawer-others" data-testid="drawer-other-cases">
-            <summary className="small muted">תיקי הדגמה ובדיקות של לקוחות אחרים ({others.length})</summary>
+            <summary className="small muted">תיקים של לקוחות אחרים ({others.length})</summary>
             {others.map(row)}
           </details>
         )}
         <Link to="/customer/apply" onClick={onClose} data-testid="drawer-apply" style={{ color: "var(--mz-orange)", fontWeight: 700 }}>
           + בקשת הלוואה חדשה</Link>
-        <div className="small muted" style={{ marginTop: 14 }}>הדגמה</div>
-        {onPresenter && <button onClick={() => { onClose(); onPresenter(); }} data-testid="drawer-presenter">תרחישי הדגמה וקבצים להורדה</button>}
+        <div className="small muted" style={{ marginTop: 14 }}>עוד</div>
+        {onPresenter && <button onClick={() => { onClose(); onPresenter(); }} data-testid="drawer-presenter">תרחישים וקבצים להורדה</button>}
         <Link to="/banker" onClick={onClose}>תצוגת בנקאי — חבילת ראיות</Link>
         <Link to="/system" onClick={onClose}>מטריצת אינטגרציות, MCP ורובריקות</Link>
         <button onClick={async () => { if (confirm("לאפס את התיק הזה ולמחוק מסמכים, ממצאים ושיחה?")) { await api.reset(caseId); reload(); onClose(); } }}>
-          איפוס תיק ההדגמה
+          איפוס התיק
         </button>
-        <div className="tiny muted" style={{ marginTop: "auto", lineHeight: 1.6 }}>
-          הלוגו של מזרחי־טפחות נלקח מאתר הבנק הציבורי לצורך הדגמת קונספט פנימית בלבד. כל הנתונים סינתטיים.
-        </div>
       </div>
     </div>
   );

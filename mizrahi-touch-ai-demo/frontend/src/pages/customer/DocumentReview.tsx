@@ -56,7 +56,6 @@ export function DocumentReview() {
         {borrower && <span className="badge neutral">הועלה עבור {borrower.first_name_he}</span>}
         {r?.period && <span className="badge info">מודפס: {monthHe(r.period)}</span>}
         {r?.is_scanned && <span className="badge warn">סריקה</span>}
-        {r?.demo_marked && <span className="badge neutral">מסמך דמו</span>}
       </div>
       {outcome && outcome.outcome !== "IN_PROGRESS" && (
         <div className={`doc-outcome ${OUTCOME_TONE[outcome.outcome] || "info"}`} data-testid="document-outcome" data-outcome={outcome.outcome}>

@@ -85,7 +85,7 @@ export function Apply() {
         {error && <div className="notice" role="alert" style={{ margin: "8px 0 0" }}>{error}</div>}
       </div>
       {draft?.summary && <Summary draft={draft} busy={busy} onConfirm={confirm} />}
-      <div className="tiny muted" style={{ marginTop: 10 }}>{draft?.note_he} בקשת הדגמה עם נתונים סינתטיים — אינה מגיעה לבנק.</div>
+      <div className="tiny muted" style={{ marginTop: 10 }}>{draft?.note_he}</div>
     </>
   );
 }
@@ -183,7 +183,7 @@ function Summary({ draft, busy, onConfirm }: { draft: OnboardingDraft; busy: boo
           </ul>
         </div>
       ))}
-      <div className="tiny muted" style={{ lineHeight: 1.6, marginTop: 8 }}>{p.disclaimer_he} גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.
+      <div className="tiny muted" style={{ lineHeight: 1.6, marginTop: 8 }}>גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.
         אפשר לשנות כל תשובה למעלה לפני האישור.</div>
       <button className="btn btn-orange" style={{ width: "100%", marginTop: 12 }} disabled={busy} onClick={onConfirm} data-testid="onb-confirm">
         {busy && <span className="spinner" />}אישור ופתיחת הבקשה</button>

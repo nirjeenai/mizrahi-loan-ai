@@ -13,7 +13,7 @@ export function SystemPage() {
     <div className="console">
       <ConsoleTop active="system" />
       <main className="console-main" style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
-        <h2 style={{ color: "var(--mz-ink)" }}>מטריצת אינטגרציות — מה אמיתי, מה מקומי, מה נתוני הדגמה ומה חסום</h2>
+        <h2 style={{ color: "var(--mz-ink)" }}>מטריצת אינטגרציות</h2>
         <div className="panel" style={{ overflowX: "auto" }}>
           <table className="t"><thead><tr><th>רכיב</th><th>מצב</th><th>פירוט</th></tr></thead>
             <tbody>{(m?.matrix || []).map((r: any) => (<tr key={r.component}><td className="bold">{r.component}</td>

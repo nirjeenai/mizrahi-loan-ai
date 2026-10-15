@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { IBulb, IChevron, IInfo, IPhone } from "../../components/Icons";
-import { derive, HELD_EQUAL, mmss, PERIOD_HE, pct, problems, sum, totals, VARIANTS, type Lane, type Variant } from "./insightsData";
+import { IBulb, IChevron, IPhone } from "../../components/Icons";
+import { derive, mmss, pct, problems, sum, totals, VARIANTS, type Lane, type Variant } from "./insightsData";
 
 if (import.meta.env.DEV && problems().length) console.error("insightsData does not reconcile:", problems());
 
@@ -32,11 +32,6 @@ export function InsightsTab({ activeGrace, activeVersion }: { activeGrace?: numb
           <h1>מבקשה שנעצרה בגלל מסמך, לתיק שמוכן לבנקאי</h1>
           <p>כמה לקוחות חוזרים אחרי שנעצרו, כמה משלימים את המסמכים, ואיזו מדיניות מעקב נראית מבטיחה.</p>
         </div>
-        <div className="ins-synth" data-testid="synthetic-banner" role="note">
-          <IInfo size={18} />
-          <span><b>נתוני המחשה סינתטיים — אינם נתוני לקוחות אמיתיים</b>
-            <span className="ins-synth-sub">תקופת המחשה: {PERIOD_HE} · שיחות JEEN Talk מדומות, ללא חיוג</span></span>
-        </div>
       </header>
 
       <section className="ins-kpis" aria-label="מדדים מרכזיים, כל הגרסאות יחד">
@@ -50,7 +45,7 @@ export function InsightsTab({ activeGrace, activeVersion }: { activeGrace?: numb
           sub={<>{p(ready / t.cases)} מהבקשות שנעצרו</>} lane={t.ready} />
         <div className="ins-kpi-gap" aria-hidden />
         <Kpi tone="bad" label="שיחות שלא נענו" value={p(t.unanswered / t.attempts)} testId="kpi-unanswered" better="down"
-          sub={<>{n(t.unanswered)} מתוך {n(t.attempts)} ניסיונות שיחה מדומים</>} />
+          sub={<>{n(t.unanswered)} מתוך {n(t.attempts)} ניסיונות שיחה</>} />
       </section>
 
       <section className="ins-main">
@@ -58,7 +53,7 @@ export function InsightsTab({ activeGrace, activeVersion }: { activeGrace?: numb
           <div className="ins-panel-head">
             <div>
               <h2>השוואת מדיניות מעקב: כמה זמן לחכות לפני שיחה</h2>
-              <div className="ins-panel-sub" title={HELD_EQUAL.join(" · ")}>
+              <div className="ins-panel-sub">
                 {n(VARIANTS[0].cases)} בקשות לכל גרסה, והכול זהה מלבד זמן ההמתנה. בחרו גרסה כדי לראות את המסלול שלה.</div>
             </div>
           </div>
@@ -79,7 +74,7 @@ export function InsightsTab({ activeGrace, activeVersion }: { activeGrace?: numb
             <div>
               <p className="ins-insight-text">
                 <span className="ins-insight-label">תובנה</span>
-                בנתוני ההמחשה, המתנה של {n(leader.graceMinutes)} דקות לפני שיחה מציגה את שיעור ההשלמה הגבוה ביותר:
+                המתנה של {n(leader.graceMinutes)} דקות לפני שיחה מציגה את שיעור ההשלמה הגבוה ביותר:
                 {" "}<b className="ins-ready-text">{p(derive(leader).readyRate)}</b> מהבקשות מוכנות לבנקאי, לעומת
                 {" "}{others.map((o, i) => <span key={o.id}>{i ? " ו־" : ""}{p(derive(o).readyRate)} ב־{n(o.graceMinutes)} דקות</span>)}.
                 {" "}נדרש ניסוי מבוקר כדי לקבוע אם התזמון הוא הגורם.
@@ -90,14 +85,6 @@ export function InsightsTab({ activeGrace, activeVersion }: { activeGrace?: numb
 
         <Journey v={v} />
       </section>
-
-      <footer className="ins-foot">
-        <b>תנאים זהים בכל הגרסאות:</b> {HELD_EQUAL.join(" · ")}.<br />
-        <b>על הנתונים.</b> כל המספרים בעמוד זה סינתטיים ונבנו להמחשה בלבד; הם אינם מדידה של לקוחות, של שיחות או של המערכת.
-        ההשוואה אינה מוכיחה שזמן ההמתנה גורם להבדל. סימולציית המדיניות בלשונית "בדיקה וגרסאות" מחשבת החלטות תפעוליות של מנוע המעקב,
-        ואינה חוזה התנהגות של לקוחות. "מוכן לבדיקת בנקאי" פירושו שחבילת המסמכים שלמה ועברה בדיקת מסמכים; ההחלטה נשארת בידי הבנקאי
-        ואין בכך אישור הלוואה.
-      </footer>
     </div>
   );
 }
@@ -139,7 +126,7 @@ function Legend() {
       <li><i className="ins-sw pending" />חזרו, עדיין בטיפול</li>
       <li><i className="ins-sw lost" />לא חזרו</li>
       <li><i className="ins-sw bracket" />חזרו לתהליך</li>
-      <li><i className="ins-sw plain call" /><IPhone size={11} />פסים: אחרי שיחה מדומה</li>
+      <li><i className="ins-sw plain call" /><IPhone size={11} />פסים: אחרי שיחה</li>
     </ul>
   );
 }
@@ -161,7 +148,7 @@ function VariantRow({ v, on, active, onPick }: { v: Variant; on: boolean; active
         <span className="ins-bracket" style={w(d.returned, v.cases)}><span>חזרו {d.returned}</span></span>
         <span className="ins-bar">
           {seg("ready", v.ready.self, "מוכנים לבנקאי, בלי פנייה")}
-          {seg("ready call", v.ready.call, "מוכנים לבנקאי, אחרי שיחה מדומה")}
+          {seg("ready call", v.ready.call, "מוכנים לבנקאי, אחרי שיחה")}
           {seg("pending", d.inProgress, "חזרו, עדיין בטיפול")}
           {seg("lost", d.notReturned, "לא חזרו")}
         </span>
@@ -203,7 +190,7 @@ function Journey({ v }: { v: Variant }) {
             <div className="ins-step-bar">
               {s.lane ? <>
                 <span className={`ins-seg ${s.tone}`} style={w(s.lane.self, v.cases)} title={s.split ? s.split[0] : "בלי פנייה"} />
-                <span className={`ins-seg ${s.tone} call`} style={w(s.lane.call, v.cases)} title={s.split ? s.split[1] : "אחרי שיחה מדומה"} />
+                <span className={`ins-seg ${s.tone} call`} style={w(s.lane.call, v.cases)} title={s.split ? s.split[1] : "אחרי שיחה"} />
               </> : <span className={`ins-seg ${s.tone}`} style={w(s.total, v.cases)} />}
             </div>
             {s.split && <div className="ins-step-split"><span><i className="ins-sw neutral" />{s.split[0]}</span><span><i className="ins-sw neutral call" /><IPhone size={11} />{s.split[1]}</span></div>}
@@ -213,8 +200,8 @@ function Journey({ v }: { v: Variant }) {
       <div className="ins-self" data-testid="self-share">
         <b>{n(v.ready.self)} מתוך {n(d.ready)}</b> התיקים המוכנים הושלמו בלי שום פנייה; {n(v.ready.call)} אחרי שיחה.
       </div>
-      <div className="ins-calls" aria-label="אירועי שיחה מדומים בגרסה זו">
-        <div className="ins-calls-title"><IPhone size={13} /> אירועי שיחה מדומים</div>
+      <div className="ins-calls" aria-label="אירועי שיחה בגרסה זו">
+        <div className="ins-calls-title"><IPhone size={13} /> אירועי שיחה</div>
         <dl>
           <div><dt>ניסיונות שיחה</dt><dd>{n(v.calls.attempts)}</dd><span>ל־{n(d.contacted)} תיקים</span></div>
           <div className="bad"><dt>לא נענו</dt><dd>{p(d.unanswered / v.calls.attempts)}</dd><span>▼ רצוי נמוך</span></div>

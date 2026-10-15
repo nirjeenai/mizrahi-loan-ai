@@ -172,7 +172,6 @@ export function ScenarioPresenter() {
   return (
     <section className="scn-section" data-testid="scenario-presenter" aria-label="כל תרחישי הבדיקה">
       <div className="small muted">{scenarios.length} תרחישי בדיקה לבקשת הלוואה, לבדיקות ול-QA: מורידים קובץ, מעלים אותו באפליקציה מימין ומשווים לתוצאה הצפויה.</div>
-      <div className="notice small scn-disclosure" data-testid="scn-disclosure"><b>נתוני הדגמה בלבד.</b> {bundle.manifest.disclosureHe}</div>
       <div className="scn-toolbar">
         <span className="small" data-testid="scn-progress">סומנו כהועלו: <b className="ltr">{done}/{slots.length}</b> מסמכים</span>
         <ConfirmButton label="איפוס סימון בדיקות" confirmLabel="כן, לנקות סימונים" testId="scn-reset-marks"
@@ -215,8 +214,6 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
   const links = scenarioLinks(ctx, s);
   const uploaded = s.files.filter((id) => ctx.marks[markKey(s, id)]?.uploaded).length;
   const flagged = [markKey(s), ...s.files.map((id) => markKey(s, id))].some((k) => ctx.marks[k]?.mismatch);
-  const threshold = exp?.income_check?.variance_threshold_ils
-    ?? ctx.bundle.rubrics.find((r) => r.document_type === "CROSS_DOCUMENT")?.parameters?.threshold_ils;
   const bodyId = `scn-body-${s.id}`;
 
   return (
@@ -283,9 +280,6 @@ function ScenarioCard({ s, ctx, isOpen, onToggle }: { s: PresenterScenario; ctx:
               {links.length ? <div className="scn-codes">{links.map((l) => <CodeLine key={l.code} link={l} />)}</div>
                 : <div className="tiny muted">ללא קוד ממצא צפוי — ההצלחה נמדדת בחילוץ מאומת של עובדות המסמך.</div>}
               {exp && <StatusLines exp={exp} />}
-              {threshold != null && links.some((l) => l.code === "DECLARED_NET_INCOME_VARIANCE") && (
-                <div className="tiny muted">סף ההכנסה (<span className="ltr">{ils(threshold)}</span>) והפער הם כללי בדיקת דמו בלבד — לא מדיניות מזרחי־טפחות.</div>
-              )}
             </details>
             <Checks markId={markKey(s)} ctx={ctx} label="סימון מגיש לתוצאת התיק" />
           </div>
@@ -427,7 +421,7 @@ function TechDetails({ s, ctx, links }: { s: PresenterScenario; ctx: Ctx; links:
               <code className="ltr">{d.downloadPath}</code>
               <div>SHA-256 <code className="ltr" title={d.sha256}>{d.sha256.slice(0, 16)}…</code>
                 {f?.sha256_matches_manifest ? " · תואם למניפסט (נבדק בשרת)" : " · לא תואם למניפסט"}</div>
-              <div>{f?.pages ?? "—"} עמ׳ · {f?.input_mode === "image_only" ? "סרוק ללא שכבת טקסט" : "PDF דיגיטלי"}{d.isSynthetic ? " · סינתטי" : ""}</div>
+              <div>{f?.pages ?? "—"} עמ׳ · {f?.input_mode === "image_only" ? "סרוק ללא שכבת טקסט" : "PDF דיגיטלי"}</div>
               {d.expectedRequiredFollowup && <div dir="ltr">Follow-up: {d.expectedRequiredFollowup}</div>}
             </div>
           );
@@ -449,7 +443,7 @@ function TechDetails({ s, ctx, links }: { s: PresenterScenario; ctx: Ctx; links:
                 ))}
               </tbody>
             </table>
-            <div className="tiny muted">מדיניות: <code className="ltr">{income.policy}</code> · סף <span className="ltr">{ils(income.variance_threshold_ils)}</span> — לבדיקת דמו בלבד</div>
+            <div className="tiny muted">מדיניות: <code className="ltr">{income.policy}</code> · סף <span className="ltr">{ils(income.variance_threshold_ils)}</span></div>
           </>
         )}
         {rubrics.length > 0 && (

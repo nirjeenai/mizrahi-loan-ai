@@ -34,7 +34,7 @@ function AdminTop({ name }: { name?: string }) {
       <div className="console-top">
         <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
           <img className="jeen-logo-light" src="/brand/jeen-logo-light.png" alt="Jeen" /><span className="brand-title">הגדרות השלמת מסמכים · הלוואות</span></div>
-        {name && <span className="staff-chip" title="חיבור הדגמה של צוות הבנק, אותו חיבור של קונסולת הבנקאי.">מחובר/ת: {name} (הדגמה)</span>}
+        {name && <span className="staff-chip" title="חיבור צוות הבנק, אותו חיבור של קונסולת הבנקאי.">מחובר/ת: {name}</span>}
         <nav>
           <Link to="/customer">אפליקציית לקוח</Link>
           <Link to="/banker">בנקאי</Link>
@@ -42,7 +42,6 @@ function AdminTop({ name }: { name?: string }) {
           <Link to="/system">מערכת ואינטגרציות</Link>
         </nav>
       </div>
-      <div className="console-ribbon">הדגמת קונספט של JEEN · נתונים סינתטיים · אינה מערכת של מזרחי־טפחות · אין החלטת אשראי אוטומטית</div>
     </>
   );
 }
@@ -155,7 +154,7 @@ export function AdminPage() {
     <div className="console desk">
       <AdminTop />
       <div className="desk-loading">
-        {session === "none" ? <span data-testid="no-session">אין חיבור של צוות הבנק. בסביבה זו לא מונפק חיבור הדגמה אוטומטי.</span>
+        {session === "none" ? <span data-testid="no-session">אין חיבור של צוות הבנק.</span>
           : loadError ? <>לא הצלחנו לטעון את ההגדרות: {loadError} <button className="link" onClick={() => reload()}>ניסיון חוזר</button></>
             : <><span className="spinner" /> טוען הגדרות…</>}
       </div>
@@ -166,11 +165,11 @@ export function AdminPage() {
   return (
     <div className="console desk admin" data-testid="admin-page">
       <AdminTop name={settings.caller.name_he} />
-      <div className="adm-env" data-testid="env-banner">
-        <span className="bold">{settings.environment.label_he}</span>
-        <span>שיחות JEEN Talk במצב {settings.published.loan_policy.config?.talk?.mode === "simulation" ? "סימולציה — אין חיוג אמיתי" : settings.published.loan_policy.config?.talk?.mode}</span>
-        {ks.value && <Chip tone="bad" testId="kill-chip">מתג חירום פעיל: אין פניות יזומות</Chip>}
-      </div>
+      {ks.value && (
+        <div className="adm-env" data-testid="env-banner">
+          <Chip tone="bad" testId="kill-chip">מתג חירום פעיל: אין פניות יזומות</Chip>
+        </div>
+      )}
       <div className="case-bar adm-bar">
         <div className="adm-title">
           <h2>הגדרות</h2>

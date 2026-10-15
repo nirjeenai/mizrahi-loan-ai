@@ -85,7 +85,7 @@ export function FeaturedScenarios() {
   const docs = Object.fromEntries(bundle!.manifest.documents.map((d) => [d.id, d]));
   return (
     <section className="feat-section" aria-labelledby="feat-heading" data-testid="featured-scenarios">
-      <h2 id="feat-heading" className="feat-heading">תרחישים מומלצים לדמו</h2>
+      <h2 id="feat-heading" className="feat-heading">תרחישים מומלצים</h2>
       <div className="small muted feat-sub">מורידים קובץ כאן, מעלים אותו באפליקציה מימין, ומראים מה ה-AI עשה איתו.</div>
       <div className="feat-list">
         {featured.map((f, i) => (
@@ -93,7 +93,6 @@ export function FeaturedScenarios() {
             onToggle={() => setOpen((ids) => (ids.includes(f.id) ? ids.filter((x) => x !== f.id) : [...ids, f.id]))} />
         ))}
       </div>
-      {bundle!.manifest.featuredNoteHe && <div className="tiny muted feat-note">{bundle!.manifest.featuredNoteHe}</div>}
     </section>
   );
 }
@@ -184,7 +183,7 @@ export function NewDemoButton() {
         } catch (e) {
           const msg = (e as Error).message || "";
           if (!(e instanceof AccessError) && msg.includes("האיפוס יתבצע") && Date.now() - started < 60000) {
-            setNote({ tone: "warn", text: "בדיקת מסמך עדיין רצה באחד מתיקי הדמו — ממתינים לסיומה ומאפסים מיד אחריה…" });
+            setNote({ tone: "warn", text: "בדיקת מסמך עדיין רצה באחד התיקים — ממתינים לסיומה ומאפסים מיד אחריה…" });
             await new Promise((r) => window.setTimeout(r, 3000));
             continue;
           }
@@ -197,10 +196,10 @@ export function NewDemoButton() {
       openCase(FIRST_DEMO_CASE);
       nav("/customer");
       reload();
-      setNote({ tone: "ok", text: "הדמו מוכן: תיקי הדמו ריקים, ותיק 438839101 (TC-01) פתוח מימין." });
+      setNote({ tone: "ok", text: "מוכן: התיקים ריקים, ותיק 438839101 (TC-01) פתוח מימין." });
     } catch (e) {
       setNote({ tone: "bad", text: e instanceof AccessError && e.status === 401
-        ? "כדי להתחיל דמו חדש צריך להיות מחוברים לאפליקציה מימין."
+        ? "כדי להתחיל מחדש צריך להיות מחוברים לאפליקציה מימין."
         : `האיפוס לא הושלם: ${(e as Error).message}` });
     } finally {
       setBusy(false);
@@ -212,16 +211,16 @@ export function NewDemoButton() {
     <div className="new-demo" data-testid="new-demo">
       {!asking ? (
         <button type="button" className="btn btn-orange new-demo-btn" onClick={() => setAsking(true)} disabled={busy} data-testid="new-demo-button">
-          התחל דמו חדש
+          התחלה מחדש
         </button>
       ) : (
-        <div className="new-demo-confirm" role="group" aria-label="התחל דמו חדש">
-          <div className="small">תיקי הדמו (<span className="ltr">438839006–011</span> ושישת תיקי הפרופילים <span className="ltr">438839101–106</span>)
+        <div className="new-demo-confirm" role="group" aria-label="התחלה מחדש">
+          <div className="small">התיקים (<span className="ltr">438839006–011</span> ושישת תיקי הפרופילים <span className="ltr">438839101–106</span>)
             יחזרו למצב ריק: מסמכים, ממצאים, החלטות בנקאי ושיחות יימחקו.
-            תיקים אחרים, קבצי ההדגמה, המדיניות והרובריקות לא משתנים.</div>
+            תיקים אחרים, הקבצים, המדיניות והרובריקות לא משתנים.</div>
           <div className="row" style={{ gap: 6 }}>
             <button type="button" className="btn btn-orange scn-btn" disabled={busy} onClick={run} data-testid="new-demo-confirm">
-              {busy ? <span className="spinner" /> : null}כן, להתחיל דמו חדש
+              {busy ? <span className="spinner" /> : null}כן, להתחיל מחדש
             </button>
             <button type="button" className="btn btn-ghost scn-btn" disabled={busy} onClick={() => setAsking(false)}>ביטול</button>
           </div>

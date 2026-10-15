@@ -25,18 +25,17 @@ let presenterWasOpen = false;
 function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObject<HTMLButtonElement> }) {
   const { caseId } = useCase();
   return (
-    <aside className="hub-side" id="presenter-panel" aria-label="תרחישי הדגמה" data-testid="presenter-panel"
+    <aside className="hub-side" id="presenter-panel" aria-label="תרחישים" data-testid="presenter-panel"
       onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}>
       <div className="hub-side-head">
-        <span className="hub-side-title"><IPanel />תרחישי הדגמה</span>
-        <button ref={closeRef} className="icon-btn" onClick={onClose} aria-label="סגירת תרחישי ההדגמה" title="סגירה"
+        <span className="hub-side-title"><IPanel />תרחישים</span>
+        <button ref={closeRef} className="icon-btn" onClick={onClose} aria-label="סגירת התרחישים" title="סגירה"
           data-testid="presenter-close"><IClose size={20} /></button>
       </div>
       <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
         <img src="/brand/jeen-logo.png" alt="Jeen" /></div>
       <h1>טפחות טאצ׳ × JEEN</h1>
       <p className="small hub-lead">השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה — הבנקאית מחליטה.</p>
-      <div className="notice small">נתונים סינתטיים בלבד · אין חיבור למערכות מזרחי־טפחות · אין החלטת אשראי אוטומטית.</div>
       <div className="hub-bar">
         <NewDemoButton />
         <div className="hub-bar-links">
@@ -51,7 +50,7 @@ function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObje
       <details className="all-scn more-tests" data-testid="more-tests">
         <summary data-testid="more-tests-toggle">
           <span className="all-scn-title">בדיקות נוספות</span>
-          <span className="small muted">15 התרחישים המאומתים: 4 תרחישי דמו מנהלים ו־11 תרחישי בדיקה · עם קבצים להורדה</span>
+          <span className="small muted">15 התרחישים המאומתים: 4 תרחישים מנהלים ו־11 תרחישי בדיקה · עם קבצים להורדה</span>
         </summary>
         <FeaturedScenarios />
         <details className="all-scn" data-testid="all-scenarios">
@@ -94,8 +93,8 @@ function CustomerApp() {
         </Routes>
       </TouchShell>
       <button ref={toggleRef} className="presenter-toggle" onClick={() => setPresenter(!presenter)} aria-expanded={presenter}
-        aria-controls="presenter-panel" aria-label="תרחישי הדגמה" title="תרחישי הדגמה" data-testid="presenter-toggle">
-        <IPanel /><span className="presenter-toggle-label">תרחישי הדגמה</span>
+        aria-controls="presenter-panel" aria-label="תרחישים" title="תרחישים" data-testid="presenter-toggle">
+        <IPanel /><span className="presenter-toggle-label">תרחישים</span>
       </button>
       <div className="hub-scrim" onClick={() => setPresenter(false)} aria-hidden="true" data-testid="presenter-scrim" />
       <HubSide onClose={() => setPresenter(false)} closeRef={closeRef} />

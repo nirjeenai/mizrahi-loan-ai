@@ -98,7 +98,7 @@ export function LintList({ lint, path }: { lint: LintFinding[]; path: string }) 
 export function Preview({ text, vars, label = "תצוגה מקדימה" }: { text: string; vars: Settings["preview_variables"]; label?: string }) {
   return (
     <div className="adm-preview">
-      <div className="tiny muted">{label} · ערכי הדגמה</div>
+      <div className="tiny muted">{label}</div>
       <div className="adm-preview-text">{renderPreview(text, vars)}</div>
     </div>
   );

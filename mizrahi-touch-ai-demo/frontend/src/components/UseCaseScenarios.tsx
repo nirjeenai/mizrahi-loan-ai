@@ -29,7 +29,6 @@ export function UseCaseScenarios() {
   const [cases, setCases] = useState<UseCase[] | null>(null);
   const [docs, setDocs] = useState<Record<string, FixtureDoc>>({});
   const [fresh, setFresh] = useState<NewCustomerPack | null>(null);
-  const [note, setNote] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState<string[]>(readOpen);
   useEffect(() => {
@@ -37,7 +36,6 @@ export function UseCaseScenarios() {
       setCases(b.manifest.useCases || []);
       setDocs(Object.fromEntries(b.manifest.documents.map((d) => [d.id, d])));
       setFresh(b.manifest.newCustomer || null);
-      setNote(b.manifest.useCasesNoteHe || null);
     }).catch(() => setFailed(true));
   }, []);
   useEffect(() => { localStorage.setItem(OPEN_KEY, JSON.stringify(open)); }, [open]);
@@ -47,18 +45,17 @@ export function UseCaseScenarios() {
     return () => window.removeEventListener(DEMO_RESET_EVENT, collapse);
   }, []);
   const toggle = (id: string) => setOpen((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
-  if (failed) return <div className="small muted">פרופילי ההדגמה אינם זמינים בשרת (fixtures/presenter).</div>;
+  if (failed) return <div className="small muted">פרופילי הלקוח אינם זמינים בשרת (fixtures/presenter).</div>;
   if (!cases?.length) return null;
   return (
     <section className="uc-section" aria-labelledby="uc-heading" data-testid="use-cases">
-      <h2 id="uc-heading" className="feat-heading">שישה פרופילי לקוח לדמו</h2>
-      <div className="small muted feat-sub">כל פרופיל פותח תיק מוכן עם הלקוח, מטרת ההלוואה ורשימת המסמכים — וחבילת קבצים סינתטית
+      <h2 id="uc-heading" className="feat-heading">שישה פרופילי לקוח</h2>
+      <div className="small muted feat-sub">כל פרופיל פותח תיק מוכן עם הלקוח, מטרת ההלוואה ורשימת המסמכים — וחבילת קבצים
         להורדה ולהעלאה מימין.</div>
       <div className="feat-list">
         {cases.map((u) => <UseCaseCard key={u.id} u={u} docs={docs} isOpen={open.includes(u.id)} onToggle={() => toggle(u.id)} />)}
         {fresh && <NewCustomerCard p={fresh} docs={docs} isOpen={open.includes(fresh.id)} onToggle={() => toggle(fresh.id)} />}
       </div>
-      {note && <div className="tiny muted feat-note">{note}</div>}
     </section>
   );
 }
@@ -143,7 +140,6 @@ function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<s
           ))}
           {(u.notRequiredHe?.length ?? 0) > 0 && <div className="tiny muted"><b>לא נדרש: </b>{u.notRequiredHe!.join(" · ")}</div>}
           {u.noteHe && <div className="tiny muted" style={{ marginTop: 4 }}>{u.noteHe}</div>}
-          <div className="tiny muted uc-pack" data-testid="usecase-pack" data-status={u.packStatus}>{u.packNoteHe}</div>
           <div className="row" style={{ gap: 10, marginTop: 8, flexWrap: "wrap" }}>
             <a className="link small" href={`/banker?case=${encodeURIComponent(u.caseId)}`} target="_blank" rel="noreferrer"
               data-testid="usecase-banker-link">תצוגת הבנקאית (לשונית חדשה)</a>
@@ -169,7 +165,7 @@ function NewCustomerCard({ p, docs, isOpen, onToggle }: { p: NewCustomerPack; do
       <div className="feat-top"><span className="feat-badge ok">מסלול 7 · לקוח חדש</span></div>
       <h3 className="feat-title">{p.titleHe}</h3>
       <div className="feat-line"><b>לקוחה: </b>{p.personaHe} — אין לה תיק מוכן; התיק נוצר מהשאלון.</div>
-      <div className="feat-line feat-do"><b>איך מדגימים: </b>{p.instructionHe}</div>
+      <div className="feat-line feat-do"><b>איך מריצים: </b>{p.instructionHe}</div>
       <div className="feat-actions">
         <Link className="btn btn-dark scn-btn" to="/customer/apply" data-testid="usecase-new-start">פתיחת השאלון מימין</Link>
         <button type="button" className="link feat-more" aria-expanded={isOpen} onClick={onToggle} data-testid="usecase-new-toggle">
@@ -182,7 +178,6 @@ function NewCustomerCard({ p, docs, isOpen, onToggle }: { p: NewCustomerPack; do
           <ul className="feat-bullets">{p.answersHe.map((a) => <li key={a}>{a}</li>)}</ul>
           <div className="scn-label">קבצים להורדה</div>
           <StepList steps={p.steps} docs={docs} testId="usecase-new-files" />
-          <div className="tiny muted">{p.noteHe}</div>
         </div>
       )}
     </article>

@@ -33,7 +33,6 @@ export function FollowupView({ caseId, readOnly }: { caseId: string; readOnly: b
           <span className="row wrap" style={{ gap: 6 }}>
             <Chip tone="navy"><span data-testid="fu-plan-state" data-state={v.plan.state}>{PLAN_HE[v.plan.state] || v.plan.state}</span></Chip>
             <Chip>{v.case_status}</Chip>
-            {v.simulated && <Chip tone="info">JEEN Talk מדומה — ללא חיוג</Chip>}
             {v.kill_switch && <Chip tone="bad">מתג חירום פעיל</Chip>}
             <span className="tiny muted ltr">{v.plan.policy_version}</span>
           </span>
@@ -49,7 +48,7 @@ export function FollowupView({ caseId, readOnly }: { caseId: string; readOnly: b
           <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
             {paused ? <button className="btn btn-ghost btn-sm" data-testid="fu-resume" onClick={() => act(() => followupApi.override(caseId, "resume", "חידוש המעקב מהקונסולה"), "המעקב חודש.")}>חידוש המעקב</button>
               : <button className="btn btn-ghost btn-sm" data-testid="fu-pause" onClick={() => act(() => followupApi.override(caseId, "pause", "השהיה ידנית מהקונסולה"), "המעקב הושהה — אין פניות עד לחידוש.")}>השהיית המעקב</button>}
-            <button className="btn btn-ghost btn-sm" data-testid="fu-call-now" onClick={() => act(() => followupApi.callNow(caseId, "שיחה יזומה מהקונסולה"), "השיחה המדומה יצאה.")}>שיחה עכשיו (מדומה)</button>
+            <button className="btn btn-ghost btn-sm" data-testid="fu-call-now" onClick={() => act(() => followupApi.callNow(caseId, "שיחה יזומה מהקונסולה"), "השיחה יצאה.")}>שיחה עכשיו</button>
           </div>
         )}
         {note && <div className="small" role="status" style={{ marginTop: 6 }} data-testid="fu-note">{note}</div>}

@@ -107,7 +107,7 @@ def pane_checks(browser: Browser, manifest: dict) -> None:
     # the app obtaining its demo session (POST /api/session/demo/…) is not a write of case data
     page.on("request", lambda r: writes.append(f"{r.method} {r.url}") if r.method != "GET" and "/api/session/" not in r.url else None)
     page.goto(f"{BASE}/customer")
-    expect(page.locator(".ribbon")).to_contain_text("הדגמת קונספט")
+    expect(page.locator(".touch-header")).to_be_visible()
     expect(page.locator("[data-testid=readiness-state]")).to_be_visible(timeout=15000)
     pane = page.locator("[data-testid=scenario-presenter]")
     check("the 10 scenarios sit in 'כל תרחישי הבדיקה', collapsed by default, below the featured scenarios",
@@ -134,9 +134,8 @@ def pane_checks(browser: Browser, manifest: dict) -> None:
           f"{old.count()} files · {old_dl.suggested_filename}")
     check("existing banker / system links still in the pane", page.locator(".hub-bar a", has_text="תצוגת הבנקאית").count() == 1
           and page.locator(".hub-bar a", has_text="מערכת ואינטגרציות").count() == 1)
-    expect(pane).to_contain_text("נתוני הדגמה בלבד")
-    expect(pane).to_contain_text(manifest["disclosureHe"])
-    check("pane marks data as synthetic and expected ≠ actual", True)
+    expect(pane).not_to_contain_text("נתוני הדגמה בלבד")
+    check("pane no longer carries the synthetic-data disclosure", "נתונים סינתטיים" not in pane.inner_text())
 
     # accordion structure
     titles = [page.locator(f"[data-testid=scn-toggle-{s['id']}] .scn-title").inner_text() for s in scenarios]

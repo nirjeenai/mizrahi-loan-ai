@@ -7,7 +7,7 @@ import { FieldErrors, Lock, NumberField, Toggle } from "./ui";
 const DAYS: [string, string][] = [["SUN", "א׳"], ["MON", "ב׳"], ["TUE", "ג׳"], ["WED", "ד׳"], ["THU", "ה׳"], ["FRI", "ו׳"], ["SAT", "שבת"]];
 const AFTER_APP: [string, string[]][] = [["שיחה קולית", ["voice"]], ["הודעה", ["message"]], ["שיחה, ואז הודעה", ["voice", "message"]],
   ["הודעה, ואז שיחה", ["message", "voice"]], ["ללא ערוץ נוסף", []]];
-const MODE_HE: Record<string, string> = { simulation: "סימולציה (ספק מדומה, ללא חיוג)", off: "כבוי", live: "חי (ספק JEEN Talk אמיתי)" };
+const MODE_HE: Record<string, string> = { simulation: "סימולציה", off: "כבוי", live: "חי (ספק JEEN Talk)" };
 
 export function FollowupTab({ work, edit, bar, settings, onKillSwitch }: KindProps & {
   settings: Settings; onKillSwitch: (paused: boolean, reason: string) => Promise<void>;

@@ -44,7 +44,6 @@ export function RequestDetails() {
           <div className="kv"><span>הכנסה נטו מוצהרת</span><span className="ltr">{ils(b.declared_net_monthly_ils)}</span></div>
         </div>
       ))}
-      <div className="tiny muted" style={{ marginTop: 12 }}>נתוני הבקשה הם נתונים סינתטיים להדגמה.</div>
     </>
   );
 }
@@ -86,7 +85,6 @@ export function Stages() {
             );
           })}
         </ol>
-        <div className="st-foot">שמות השלבים מוצגים להמחשה בהדגמה זו.</div>
       </section>
 
       <section className="card st-card" aria-labelledby="st-jeen">

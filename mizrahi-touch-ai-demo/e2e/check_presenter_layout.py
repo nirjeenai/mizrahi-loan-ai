@@ -95,9 +95,9 @@ def desktop(page: Page, w: int, h: int) -> None:
     load(page)
     g = geo(page)
     toggle = page.locator("[data-testid=presenter-toggle]")
-    check(f"{tag}: presenter starts collapsed; the toggle 'תרחישי הדגמה' is visible",
+    check(f"{tag}: presenter starts collapsed; the toggle 'תרחישים' is visible",
           state(page) == "closed" and not page.locator(".hub-side").is_visible() and toggle.is_visible()
-          and toggle.get_attribute("aria-expanded") == "false" and "תרחישי הדגמה" in toggle.inner_text())
+          and toggle.get_attribute("aria-expanded") == "false" and "תרחישים" in toggle.inner_text())
     closed_phone = g["phone"]
     check(f"{tag}: phone centred in the window, original frame size, toggle clear of it, no sideways scroll",
           abs((g["phone"]["l"] + g["phone"]["r"]) / 2 - g["vw"] / 2) <= 1 and g["phone"]["w"] == 410

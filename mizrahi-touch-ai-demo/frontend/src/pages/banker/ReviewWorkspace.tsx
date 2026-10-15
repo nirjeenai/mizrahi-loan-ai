@@ -143,9 +143,9 @@ function SummaryHeader({ ws, onSelect }: { ws: Workspace; onSelect: (id: string)
         <b className="ltr">{s.payslips_verified}/{s.payslips_required}</b>
         <span><span className="sum-label">תלושים נדרשים מאומתים</span><span className="sum-sub">התקבלו על ידך: {s.payslips_accepted}</span></span>
       </div>}
-      <div className="sum-fact" title="נתון שלב הבקשה מגיע ממערכת הבנק (בהדגמה: מתאם דמו, לא סמכותי). פעולות בקונסולה אינן משנות אותו.">
+      <div className="sum-fact" title="שלב הבקשה כפי שהוא רשום בתיק. פעולות בקונסולה אינן משנות אותו.">
         <span className="sum-label">שלב רשמי בבנק</span>
-        <span className="sum-value" data-testid="bank-stage">{stage.label_he} ({stage.index}/{stage.of}) <span className="sum-demo">דמו</span></span>
+        <span className="sum-value" data-testid="bank-stage">{stage.label_he} ({stage.index}/{stage.of})</span>
       </div>
       <div className="sum-fact">
         <span className="sum-label">בדיקת מסמכי הבקשה</span>

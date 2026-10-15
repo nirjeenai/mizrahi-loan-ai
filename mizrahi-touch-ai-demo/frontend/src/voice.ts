@@ -64,7 +64,7 @@ async function browserSttAvailable(): Promise<boolean> {
 
 export class BrowserVoice implements VoiceChannel {
   id = "browser" as const;
-  label = "קול בדפדפן (הדגמה)";
+  label = "קול בדפדפן";
   private sttMode: "browser" | "server" | "none" | null = null;
 
   async capability(): Promise<VoiceCapability> {

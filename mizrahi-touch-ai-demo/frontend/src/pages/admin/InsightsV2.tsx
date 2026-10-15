@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { IInfo, IPhone } from "../../components/Icons";
-import { derive, HELD_EQUAL, mmss, PERIOD_HE, pct, sum, totals, VARIANTS, type Variant } from "./insightsData";
+import { IPhone } from "../../components/Icons";
+import { derive, mmss, pct, sum, totals, VARIANTS, type Variant } from "./insightsData";
 import "./insightsV2.css";
 
 /** Dashboard V2 of "ביצועים ותובנות": the same synthetic dataset as V1 (insightsData.ts), a different presentation. */
@@ -28,11 +28,6 @@ export function InsightsV2({ activeGrace, activeVersion }: { activeGrace?: numbe
           <div className="ins2-eyebrow">JEEN · מעקב השלמת מסמכים בבקשת הלוואה</div>
           <h1>מבקשה שנעצרה בגלל מסמך, לתיק שמוכן לבנקאי</h1>
         </div>
-        <div className="ins2-synth" role="note" data-testid="synthetic-banner">
-          <IInfo size={16} />
-          <span><b>נתוני המחשה סינתטיים — אינם נתוני לקוחות אמיתיים</b>
-            <small>{PERIOD_HE} · שיחות JEEN Talk מדומות, ללא חיוג</small></span>
-        </div>
       </header>
 
       <section className="ins2-hero" aria-label="המסלול של כל הבקשות שנעצרו, כל הגרסאות יחד">
@@ -47,7 +42,7 @@ export function InsightsV2({ activeGrace, activeVersion }: { activeGrace?: numbe
         <div className="ins2-friction" data-testid="kpi-unanswered">
           <span className="ins2-friction-label"><IPhone size={13} /> שיחות שלא נענו</span>
           <span className="ins2-friction-value">{p(t.unanswered / t.attempts)}</span>
-          <span className="ins2-friction-note">{n(t.unanswered)} מתוך {n(t.attempts)} ניסיונות שיחה מדומים</span>
+          <span className="ins2-friction-note">{n(t.unanswered)} מתוך {n(t.attempts)} ניסיונות שיחה</span>
           <span className="ins2-down">▼ רצוי נמוך</span>
         </div>
       </section>
@@ -56,7 +51,7 @@ export function InsightsV2({ activeGrace, activeVersion }: { activeGrace?: numbe
         <div className="ins2-card ins2-compare" data-testid="policy-compare">
           <div className="ins2-kicker">השוואת מדיניות מעקב · כמה זמן לחכות לפני שיחה</div>
           <h2 className="ins2-headline" data-testid="insight">
-            בהמחשה, המתנה של {n(leader.graceMinutes)} דקות מובילה: <em>{p(derive(leader).readyRate)}</em> מהבקשות מוכנות לבנקאי
+            המתנה של {n(leader.graceMinutes)} דקות מובילה: <em>{p(derive(leader).readyRate)}</em> מהבקשות מוכנות לבנקאי
           </h2>
           <p className="ins2-caveat">
             לעומת {others.map((o, i) => <span key={o.id}>{i ? " ו־" : ""}{p(derive(o).readyRate)} ב־{n(o.graceMinutes)} דקות</span>)}.
@@ -86,12 +81,6 @@ export function InsightsV2({ activeGrace, activeVersion }: { activeGrace?: numbe
 
         <Journey v={v} />
       </section>
-
-      <footer className="ins2-foot">
-        כל המספרים בעמוד סינתטיים ונבנו להמחשה; אין בהם מדידה של לקוחות, של שיחות או של המערכת. תנאים זהים בכל הגרסאות: {HELD_EQUAL.join(" · ")}.
-        סימולציית המדיניות בלשונית "בדיקה וגרסאות" מחשבת החלטות תפעוליות בלבד ואינה חוזה התנהגות לקוחות.
-        "מוכן לבדיקת בנקאי" פירושו חבילת מסמכים שלמה שעברה בדיקת מסמכים; ההחלטה בידי הבנקאי, ואין בכך אישור הלוואה.
-      </footer>
     </div>
   );
 }
@@ -177,7 +166,7 @@ function Journey({ v }: { v: Variant }) {
             <span className="ins2-funnel-track">
               {r.lane ? <>
                 <span className={`ins2-fill ${r.tone}`} style={width(r.lane.self, v.cases)} title={`בלי פנייה: ${r.lane.self}`} />
-                <span className={`ins2-fill ${r.tone} call`} style={width(r.lane.call, v.cases)} title={`אחרי שיחה מדומה: ${r.lane.call}`} />
+                <span className={`ins2-fill ${r.tone} call`} style={width(r.lane.call, v.cases)} title={`אחרי שיחה: ${r.lane.call}`} />
               </> : <span className={`ins2-fill ${r.tone}`} style={width(r.total, v.cases)} />}
             </span>
             <span className="ins2-funnel-value">{n(r.total)}{r.rate !== null && <small>{p(r.rate)}</small>}</span>
@@ -191,12 +180,12 @@ function Journey({ v }: { v: Variant }) {
           <span className="ins2-path-note">מוכנים לבנקאי · {n(v.returned.self)} חזרו בזמן ההמתנה</span>
         </div>
         <div className="ins2-path">
-          <span className="ins2-path-head"><i className="ins2-sw ready call" /><IPhone size={12} />אחרי שיחה מדומה</span>
+          <span className="ins2-path-head"><i className="ins2-sw ready call" /><IPhone size={12} />אחרי שיחה</span>
           <span className="ins2-path-value">{n(v.ready.call)}</span>
           <span className="ins2-path-note">מוכנים לבנקאי · מתוך {n(d.contacted)} שקיבלו פנייה</span>
         </div>
       </div>
-      <dl className="ins2-contact" aria-label="אירועי שיחה מדומים בגרסה זו">
+      <dl className="ins2-contact" aria-label="אירועי שיחה בגרסה זו">
         <div><dt>פניות שנחסכו</dt><dd>{n(v.returned.self)}</dd></div>
         <div className="bad"><dt>שיחות שלא נענו <span className="ins2-down">▼</span></dt><dd>{p(d.unanswered / v.calls.attempts)}</dd></div>
         <div><dt>ניסיונות שיחה</dt><dd>{n(v.calls.attempts)}</dd></div>

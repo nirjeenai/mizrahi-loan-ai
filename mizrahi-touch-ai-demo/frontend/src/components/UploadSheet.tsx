@@ -178,7 +178,7 @@ export function UploadSheet() {
               )}
             </div>
             {requirement?.hint_he && <div className="tiny muted" data-testid="upload-hint">{requirement.hint_he}</div>}
-            {human && <div className="tiny upload-human" data-testid="upload-human-review">סוג מסמך זה אינו נבדק ב-AI בהדגמה — הקובץ יישמר
+            {human && <div className="tiny upload-human" data-testid="upload-human-review">סוג מסמך זה אינו נבדק ב-AI — הקובץ יישמר
               ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}.</div>}
             {sameKind.length > 1 && requirement?.account_id == null && (<>
               <div className="small bold">עבור מי המסמך?</div>
@@ -231,7 +231,7 @@ export function UploadSheet() {
               {busy ? <span className="spinner" /> : null}{human ? "העלאה לבדיקת הבנקאי" : "העלאה ובדיקה חכמה"}
             </button>
             <div className="tiny muted" style={{ lineHeight: 1.6 }}>
-              המסמך נשמר בתיק ההדגמה בלבד ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית — לא קבלת המסמך על ידי הבנק.
+              המסמך נשמר בתיק ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית — לא קבלת המסמך על ידי הבנק.
             </div>
           </>)}
           {doc && (<>
@@ -242,7 +242,7 @@ export function UploadSheet() {
                 הקובץ צורף לבקשה של {snap?.case.banker.name_he}. אחרי הבדיקה החכמה הוא יחזור אליה לבדיקה.</div>}
               {stored ? (
                 <div className="doc-outcome info" style={{ marginTop: 10 }} data-testid="upload-stored" data-outcome="HUMAN_REVIEW_PENDING">
-                  המסמך נשמר בתיק ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}. לסוג מסמך זה אין בדיקת AI בהדגמה, ולכן הוא לא סומן ״תקין״.
+                  המסמך נשמר בתיק ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}. לסוג מסמך זה אין בדיקת AI, ולכן הוא לא סומן ״תקין״.
                 </div>
               ) : (<>
               <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.png" alt="" />עיבוד מסמכים באמצעות JEEN</div>

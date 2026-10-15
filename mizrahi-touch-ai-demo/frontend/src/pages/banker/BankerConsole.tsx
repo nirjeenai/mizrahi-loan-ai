@@ -13,7 +13,7 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
       <div className="console-top">
         <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
           <img className="jeen-logo-light" src="/brand/jeen-logo-light.png" alt="Jeen" /><span className="brand-title">קונסולת בנקאי אשראי · הלוואות</span></div>
-        {identity && <span className="staff-chip" title="הזהות נקבעת בשרת (חיבור הדגמה ללא סיסמה) ונרשמת בכל החלטה.">{identity}</span>}
+        {identity && <span className="staff-chip" title="הזהות נקבעת בשרת ונרשמת בכל החלטה.">{identity}</span>}
         <nav>
           <Link to="/customer" className={active === "customer" ? "on" : ""}>אפליקציית לקוח</Link>
           <Link to="/banker" className={active === "banker" ? "on" : ""}>בנקאי</Link>
@@ -21,7 +21,6 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
           <Link to="/admin" data-testid="nav-admin">הגדרות</Link>
         </nav>
       </div>
-      <div className="console-ribbon">הדגמת קונספט של JEEN · נתונים סינתטיים · אינה מערכת של מזרחי־טפחות · אין החלטת אשראי אוטומטית</div>
     </>
   );
 }
@@ -64,12 +63,12 @@ export function BankerConsole() {
     <div className="console desk">
       <ConsoleTop active="banker" />
       <div className="desk-loading">{session === undefined ? <span className="spinner" />
-        : <span data-testid="no-session">אין חיבור של צוות הבנק. בסביבה זו לא מונפק חיבור הדגמה אוטומטי.</span>}</div>
+        : <span data-testid="no-session">אין חיבור של צוות הבנק.</span>}</div>
     </div>
   );
   return (
     <div className="console desk">
-      <ConsoleTop active="banker" identity={`${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he} (הדגמה)`} />
+      <ConsoleTop active="banker" identity={`${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he}`} />
       <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff}
         onCase={(id) => patch({ case: id, item: null })} onView={(v) => patch({ view: v === "review" ? null : v })} />
       {!w ? <div className="desk-loading">{ws.error ? <>לא הצלחנו לטעון את התיק. <button className="link" onClick={ws.reload}>ניסיון חוזר</button></> : <><span className="spinner" /> טוען את התיק…</>}</div>
@@ -207,8 +206,8 @@ function TechnicalView({ caseId, onRecheck, readOnly }: { caseId: string; onRech
             <div className="crit" key={c.criterion_id}><span className={`badge ${c.outcome}`}>{OUTCOME_HE[c.outcome]}</span>
               <div><div className="bold small">{c.title_he} <span className="crit-id">{c.criterion_id} · {c.decided_by}</span></div><div className="small muted">{c.explanation_he}</div></div></div>
           ))}
-          <div className="small" style={{ marginTop: 10 }}>{p.disclaimers_he.map((d: string) => <div key={d}>• {d}</div>)}
-            <div className="muted" style={{ marginTop: 6 }}>לא נבדק בהדגמה: {p.not_evaluated.join(" · ")}</div></div>
+          <div className="small" style={{ marginTop: 10 }}>{p.disclaimers_he.filter((d: string) => !d.includes("סינתט")).map((d: string) => <div key={d}>• {d}</div>)}
+            <div className="muted" style={{ marginTop: 6 }}>לא נכלל בבדיקה: {p.not_evaluated.join(" · ")}</div></div>
         </div>
         <div className="panel" style={{ overflowX: "auto" }}>
           <h3>יומן ביקורת</h3>

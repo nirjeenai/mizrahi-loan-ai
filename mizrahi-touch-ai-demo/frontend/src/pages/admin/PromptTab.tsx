@@ -42,7 +42,7 @@ export function PromptTab({ prompt, policy, settings }: { prompt: KindProps; pol
           <Preview text={p.opening_locked || ""} vars={settings.preview_variables} label="פתיח" />
           <Preview text={p.instructions || ""} vars={settings.preview_variables} label="הנחיות" />
           <div className="tiny muted" style={{ margin: "8px 0" }}>
-            ערכי ההדגמה: {Object.entries(settings.preview_variables).map(([k, v]) => `${k} = ${Array.isArray(v) ? v.join(", ") : v}`).join(" · ")}
+            ערכים: {Object.entries(settings.preview_variables).map(([k, v]) => `${k} = ${Array.isArray(v) ? v.join(", ") : v}`).join(" · ")}
           </div>
           <button className="btn btn-ghost btn-sm" disabled title="שיחת בדיקה עם הסוכנת תתאפשר בשלב מאוחר יותר">שיחת בדיקה (בקרוב)</button>
         </div>

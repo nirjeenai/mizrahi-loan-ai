@@ -108,9 +108,9 @@ def main() -> int:
         ctx = browser.new_context(viewport={"width": 1366, "height": 940}, locale="he-IL", permissions=["microphone"])
         page = ctx.new_page()
         page.goto(f"{BASE}/customer?voice=server")
-        expect(page.locator(".ribbon")).to_contain_text("הדגמת קונספט")
+        expect(page.locator(".touch-header")).to_be_visible()
         expect(page.locator("[data-testid=readiness-state]")).to_have_text("ממתינים להעלאת תלושי שכר", timeout=15000)
-        check("app loads with concept label and empty AI state", True)
+        check("app loads with an empty AI state", True)
 
         # 1–3 · upload the initial set through the UI (digital + scanned), real Gemini review
         page.locator(".bottom-nav button", has_text="מסמכים").click()

@@ -146,7 +146,7 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
           {(r.alternatives_he?.length ?? 0) > 0 && (
             <p className="dl-note" data-testid="req-alternatives"><b>מתקבל גם: </b>{r.alternatives_he!.join(" · ")}</p>
           )}
-          {human && <p className="dl-note dl-human" data-testid="req-human-review">סוג מסמך זה אינו נבדק ב-AI בהדגמה: הקובץ נשמר בתיק
+          {human && <p className="dl-note dl-human" data-testid="req-human-review">סוג מסמך זה אינו נבדק ב-AI: הקובץ נשמר בתיק
             ועובר לבדיקת {snap.case.banker.name_he}. הוא לא יסומן ״תקין״ אוטומטית.</p>}
           {findings.map((f) => <div key={f.finding_id} className="small" style={{ marginTop: 6, lineHeight: 1.55 }}>• {f.message_he}</div>)}
           <div className="req-actions">
@@ -431,7 +431,7 @@ export function Documents() {
                     </button>
                     {isOpen && (
                       <div className="dl-body">
-                        <p className="dl-note">בהדגמה זו המסמך מטופל ישירות מול הבנק ואינו נבדק באפליקציה. בהמשך הבדיקה החכמה של JEEN תכסה גם אותו.</p>
+                        <p className="dl-note">המסמך מטופל ישירות מול הבנק ואינו נבדק באפליקציה.</p>
                         <button className="link req-more" onClick={() => openAssistant(`מה צריך לדעת על ${name}?`)}>שאלו את העוזר<IChevron size={14} /></button>
                       </div>
                     )}

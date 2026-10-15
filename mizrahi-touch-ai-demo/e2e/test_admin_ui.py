@@ -62,7 +62,8 @@ def main() -> int:
             page.request.post(f"{API}/followups/pause", data={"paused": False, "reason": "e2e start"})
         page.reload()
         expect(page.get_by_test_id("admin-page")).to_be_visible()
-        check("environment banner", "סביבת הדגמה · נתונים סינתטיים" in page.get_by_test_id("env-banner").inner_text())
+        text = page.locator("[data-testid=admin-page]").inner_text()
+        check("environment banner removed", "נתונים סינתטיים" not in text and "אין חיוג אמיתי" not in text and "סביבת הדגמה" not in text)
         check("no persona switcher, demo staff session", "מחובר/ת:" in page.locator(".console-top").inner_text())
         shot(page, "01-documents")
 
