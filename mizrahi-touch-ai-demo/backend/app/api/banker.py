@@ -13,7 +13,7 @@ from ..bank.mock_bank import bank
 from ..store import repo
 from ..workflow import engine, readiness, review_desk
 from ..workflow.review_desk import DeskError
-from . import banker_intelligence
+from . import banker_chat, banker_intelligence
 from .banker_package import build_package, build_workspace, case_queue_counts
 
 router = APIRouter(prefix="/api/banker")
@@ -77,6 +77,36 @@ def intelligence(case_id: str, request: Request):
     """Banker Intelligence V2: the case briefing, financial context and scenarios. Read-only; writes nothing."""
     _reader(request, case_id)
     return banker_intelligence.build(case_id)
+
+
+class ChatTurn(BaseModel):
+    role: Literal["user", "model"]
+    text: str = Field(..., max_length=4000)
+
+
+class ChatDraft(BaseModel):
+    kind: str = Field(..., max_length=60)
+    text: str = Field(..., max_length=6000)
+
+
+class ChatMessage(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+    history: list[ChatTurn] = Field(default_factory=list, max_length=24)
+    draft: Optional[ChatDraft] = None
+
+
+@router.post("/cases/{case_id}/chat")
+def chat(case_id: str, body: ChatMessage, request: Request):
+    """Banker V3 "שאל את JEEN": answers about this case and may propose a checked revision of the draft the banker sent.
+    Writes nothing to the case; the browser applies a returned revision to its own editor."""
+    _reader(request, case_id)
+    try:
+        return banker_chat.respond(case_id, body.message, [t.model_dump() for t in body.history],
+                                   body.draft.model_dump() if body.draft else None)
+    except banker_chat.ChatUnavailable as exc:
+        raise HTTPException(503, str(exc)) from None
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from None
 
 
 @router.get("/cases/{case_id}/conversation")

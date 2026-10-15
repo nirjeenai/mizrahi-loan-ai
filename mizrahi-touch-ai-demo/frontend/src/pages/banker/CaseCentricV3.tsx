@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { api, timeHe, usePolling, type Datum, type DocItem, type IntelSource, type Intelligence, type MissingItem, type Workspace } from "../../api";
 import { EvidenceViewer, FactList } from "../../components/EvidenceViewer";
 import { scenarios as simulate, type Scenario } from "../../finance";
 import { Toast } from "./deskUi";
-import { DRAFT_NOTE, fmt, MARK, markOf, money, pct, SC_LABEL, scenarioSource, Slider, SourceDrawer, years, type Ctx, type MarkKind } from "./IntelligenceV2";
+import { fmt, MARK, markOf, money, pct, SC_LABEL, scenarioSource, Slider, SourceDrawer, years, type Ctx, type MarkKind } from "./IntelligenceV2";
+import { ReplyWorkspace } from "./ReplyWorkspace";
 import "./intelligence.css";
 import "./casecentric.css";
 
@@ -49,7 +50,7 @@ export function CaseCentricV3({ caseId, ws, openV1 }: { caseId: string; ws: Work
         <Recommendation ctx={ctx} go={go} />
         <Alternatives ctx={ctx} />
         <Reasoning ctx={ctx} />
-        <Reply ctx={ctx} onToast={setToast} />
+        <ReplyWorkspace key={x.case_id} ctx={ctx} onToast={setToast} />
         <p className="cc-foot">{x.disclaimer_he} · עודכן <span className="ltr">{timeHe(x.generated_at)}</span></p>
       </div>
       {stack.length > 0 && <SourceDrawer src={stack[stack.length - 1]} depth={stack.length} ws={ws} ctx={ctx}
@@ -651,65 +652,5 @@ function ConsSources({ ctx, ids }: { ctx: Ctx; ids: string[] }) {
     <span className="cc-cons-src">{[...by.entries()].map(([k, list]) => (
       <button key={k} className="cc-srctext" onClick={() => list.slice().reverse().forEach((s) => ctx.open(s))} data-testid="cc-cons-src" data-kind={k}
         title={list.map((s) => s.label_he).join(" · ")}>{MARK[k].label}{list.length > 1 ? ` ×${list.length}` : ""}</button>))}</span>
-  );
-}
-
-// ---------------------------------------------------------------- G · the reply to the customer
-function Reply({ ctx, onToast }: { ctx: Ctx; onToast: (t: { text: string; tone: "ok" | "bad" }) => void }) {
-  const { x } = ctx;
-  const [kind, setKind] = useState<string | null>(x.recommended_draft);
-  const [texts, setTexts] = useState<Record<string, string>>({});
-  const [refs, setRefs] = useState<Record<string, boolean>>({});
-  const area = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => { setKind(x.recommended_draft); setTexts({}); setRefs({}); }, [x.case_id, x.recommended_draft]);
-  const draft = x.drafts.find((d) => d.kind === kind) || x.drafts[0];
-  const text = draft ? texts[draft.kind] ?? draft.message_he : "";
-  useLayoutEffect(() => {
-    const el = area.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight + 2}px`;
-  }, [text]);
-  if (!draft) return <Card id="cc-reply" title="מענה מוצע ללקוח" testId="cc-reply"><div className="cc-empty">אין טיוטה מתאימה למצב התיק כרגע.</div></Card>;
-  const edited = texts[draft.kind] != null && texts[draft.kind] !== draft.message_he;
-  const chosen = draft.attachments.filter((a) => refs[`${draft.kind}:${a.document_id}`]);
-  const full = chosen.length ? `${text}\n\nמסמכים בתיק שההודעה מתייחסת אליהם: ${chosen.map((a) => a.label_he).join(" · ")}` : text;
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(full);
-      onToast({ text: "המענה הועתק. הוא לא נשלח ללקוח — השליחה נעשית בערוץ הבנק.", tone: "ok" });
-    } catch {
-      onToast({ text: "ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית.", tone: "bad" });
-    }
-  };
-  return (
-    <Card id="cc-reply" title="מענה מוצע ללקוח" testId="cc-reply" sub="טיוטה שהוכנה ממצב התיק. אפשר לערוך ולהעתיק — שום דבר לא נשלח מכאן.">
-      {x.drafts.length > 1 && <div className="cc-dtabs" role="tablist">
-        {x.drafts.map((d) => (
-          <button key={d.kind} role="tab" aria-selected={d.kind === draft.kind} className={d.kind === draft.kind ? "on" : ""} onClick={() => setKind(d.kind)}
-            data-testid="cc-draft-tab" data-kind={d.kind}>{d.title_he}{d.kind === x.recommended_draft && <span className="cc-rec-pill">מומלץ</span>}</button>
-        ))}
-      </div>}
-      <div className="cc-paper">
-        <div className="cc-paper-bar">
-          <b>{draft.title_he}</b><span className="cc-muted">{DRAFT_NOTE[draft.kind]}</span>
-          {edited && <span className="cc-edited" data-testid="cc-draft-edited">נערך על ידך</span>}
-          <button className="cc-link" disabled={!edited} onClick={() => setTexts({ ...texts, [draft.kind]: draft.message_he })} data-testid="cc-draft-restore">שחזור הנוסח</button>
-        </div>
-        <textarea ref={area} className="cc-paper-text" value={text} onChange={(e) => setTexts({ ...texts, [draft.kind]: e.target.value })} dir="rtl"
-          data-testid="cc-draft-text" data-kind={draft.kind} aria-label="טיוטת המענה ללקוח" />
-      </div>
-      {draft.attachments.length > 0 && <div className="cc-refs">
-        <span className="cc-refs-k">הפניה למסמכים בתיק (רשות):</span>
-        {draft.attachments.map((a) => {
-          const k = `${draft.kind}:${a.document_id}`;
-          return <label key={k} className={`cc-ref${refs[k] ? " on" : ""}`}><input type="checkbox" checked={!!refs[k]} onChange={() => setRefs({ ...refs, [k]: !refs[k] })} />{a.label_he}</label>;
-        })}
-      </div>}
-      <div className="cc-dbar">
-        <button className="cc-primary" onClick={copy} data-testid="cc-draft-copy">העתקת המענה</button>
-        <span className="cc-muted cc-small">אין שליחה אוטומטית ואין אישור מסירה. הנוסח נבנה מתבנית קבועה — לא מטקסט של מודל, ובלי יחסי החזר או הערות פנימיות.</span>
-      </div>
-    </Card>
   );
 }

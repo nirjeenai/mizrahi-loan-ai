@@ -238,6 +238,8 @@ export const api = {
   bankerWorkspace: (caseId: string) => http<Workspace>(`/api/banker/cases/${caseId}/workspace`),
   bankerConversation: (caseId: string) => http<Turn[]>(`/api/banker/cases/${caseId}/conversation`),
   bankerIntelligence: (caseId: string) => http<Intelligence>(`/api/banker/cases/${caseId}/intelligence`),
+  bankerChat: (caseId: string, body: { message: string; history: { role: "user" | "model"; text: string }[]; draft: { kind: string; text: string } | null },
+    signal?: AbortSignal) => http<CaseChatReply>(`/api/banker/cases/${caseId}/chat`, { ...json(body), signal }),
   decideDocument: (caseId: string, docId: string, body: {
     action: "accept" | "request_correction" | "escalate"; rationale?: string; customer_message?: string; requested_period?: string | null;
     acknowledged_finding_ids?: string[]; request_id: string }) =>
@@ -397,6 +399,12 @@ export interface IntelDiscrepancy {
   status_he: string; v1_item: string; explanation_he: string; action_he: string;
 }
 export interface IntelDraft { kind: string; title_he: string; message_he: string; attachments: { document_id: string; label_he: string }[] }
+/** Banker V3 "שאל את JEEN" (api/banker_chat.py). `edit` is a revision of the draft that was sent, already checked in code. */
+export interface CaseChatReply {
+  intent: "question" | "draft_edit" | "question_and_edit" | "clarification" | "declined";
+  answer_he: string; source_ids: string[]; sources: Record<string, { label_he: string; kind: IntelSource["kind"] }>;
+  edit: { kind: string; text: string; summary_he: string } | null; rejected_issues_he: string[]; repaired: boolean; model: string;
+}
 export interface Intelligence {
   version: string; case_id: string; generated_at: string; disclaimer_he: string;
   case: { display_number: string; title_he: string; banker: { name_he: string; role_he: string; staff_id?: string }; bank_stage: BankCase["bank_stage"]; submitted_at?: string };
