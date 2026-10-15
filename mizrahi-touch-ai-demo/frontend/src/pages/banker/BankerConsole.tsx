@@ -3,11 +3,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import { api, AUTH_EVENT, OUTCOME_HE, timeHe, usePolling, type BankerCaseRow, type Finding, type Session, type Workspace } from "../../api";
 import { Chip, useOutsideClose, When } from "./deskUi";
 import { FollowupView } from "./FollowupView";
+import { CaseCentricV3 } from "./CaseCentricV3";
 import { IntelligenceV2 } from "./IntelligenceV2";
 import { ReviewWorkspace } from "./ReviewWorkspace";
 
-type View = "intel" | "review" | "followup" | "conversation" | "technical";
-/** The banker's last choice between the classic review (V1) and the intelligence briefing (V2); V1 when never chosen. */
+type View = "intel" | "case" | "review" | "followup" | "conversation" | "technical";
+/** The banker's last choice between the classic review (V1), the intelligence briefing (V2) and the case workspace (V3); V1 when never chosen. */
 const UI_PREF = "mz.banker.ui";
 
 export function ConsoleTop({ active, identity }: { active: "customer" | "banker" | "system"; identity?: string }) {
@@ -32,7 +33,8 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
 export function BankerConsole() {
   const [params, setParams] = useSearchParams();
   const caseId = params.get("case") || localStorage.getItem("mz.banker.case") || "DEMO-MTZ-2026-001";
-  const view = (params.get("view") as View) || (localStorage.getItem(UI_PREF) === "intel" ? "intel" : "review");
+  const pref = localStorage.getItem(UI_PREF);
+  const view = (params.get("view") as View) || (pref === "intel" || pref === "case" ? pref : "review");
   // the console works on a staff session; in demo mode it obtains the demo banker's session without a login
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const ensureSession = useCallback(async () => {
@@ -74,14 +76,17 @@ export function BankerConsole() {
       <ConsoleTop active="banker" identity={`${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he}`} />
       <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff}
         onCase={(id) => patch({ case: id, item: null })} onView={(v) => {
-          if (v === "intel" || v === "review") localStorage.setItem(UI_PREF, v);
+          if (v === "intel" || v === "case" || v === "review") localStorage.setItem(UI_PREF, v);
           patch({ view: v === "review" ? null : v });
         }} />
       {!w ? <div className="desk-loading">{ws.error ? <>לא הצלחנו לטעון את התיק. <button className="link" onClick={ws.reload}>ניסיון חוזר</button></> : <><span className="spinner" /> טוען את התיק…</>}</div>
-        : view === "intel" ? <IntelligenceV2 caseId={caseId} ws={w} openV1={(item) => {
-            localStorage.setItem(UI_PREF, "review");
-            patch({ view: null, item: item || null });
-          }} />
+        : view === "intel" || view === "case" ? (() => {
+            const openV1 = (item?: string | null) => {
+              localStorage.setItem(UI_PREF, "review");
+              patch({ view: null, item: item || null });
+            };
+            return view === "intel" ? <IntelligenceV2 caseId={caseId} ws={w} openV1={openV1} /> : <CaseCentricV3 caseId={caseId} ws={w} openV1={openV1} />;
+          })()
         : view === "review" ? <ReviewWorkspace ws={w} selected={params.get("item")} onSelect={(id) => patch({ item: id })} reload={reload}
             staff={staff} readOnly={readOnly} stale={!!ws.error} />
           : view === "followup" ? <FollowupView caseId={caseId} readOnly={readOnly} />
@@ -134,6 +139,7 @@ function CaseBar({ caseId, cases, ws, view, staff, onCase, onView }: {
       <div className="ui-switch" role="group" aria-label="גרסת התצוגה" data-testid="banker-ui-switch">
         <button className={view === "review" ? "on" : ""} onClick={() => onView("review")} data-testid="ui-v1" title="סקירת המסמכים הקיימת">V1 · סקירה</button>
         <button className={view === "intel" ? "on v2" : "v2"} onClick={() => onView("intel")} data-testid="ui-v2" title="Banker Intelligence V2 — תמונת מצב, ניתוח פיננסי וסימולציה">V2 · תמונת מצב JEEN</button>
+        <button className={view === "case" ? "on v3" : "v3"} onClick={() => onView("case")} data-testid="ui-v3" title="Banker Case-Centric V3 — התיק המוכן, מלמעלה למטה">V3 · תיק מוכן</button>
       </div>
       <nav className="view-tabs" aria-label="תצוגות">
         {([["review", "סקירת מסמכים"], ["followup", "מעקב השלמה"], ["conversation", "שיחה עם הלקוח"], ["technical", "יומן ופרטים טכניים"]] as [View, string][]).map(([k, label]) => (
