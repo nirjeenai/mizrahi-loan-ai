@@ -1196,8 +1196,11 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .cv2-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 2px 8px; }
 /* the page is at least as tall as the app's scroll area, and the chat card takes the height the other blocks leave,
    so the composer sits above the bottom navigation instead of leaving an empty band under a short card */
-.cv2-page { min-height: 100%; display: flex; flex-direction: column; }
-.cv2 { flex: 1 0 auto; padding: 8px 0 12px; display: flex; flex-direction: column; }
+/* .screen keeps 110px below its content for the 74px bottom navigation; this page reaches 28px into that reserve
+   (and gives the same 28px back as a negative margin, so nothing new scrolls): an 8px line remains above the tabs */
+.cv2-page { min-height: calc(100% + 28px); margin-bottom: -28px; display: flex; flex-direction: column; }
+.cv2 { flex: 1 0 auto; margin-bottom: 0; padding: 8px 0 12px; display: flex; flex-direction: column; }
+.cv2-page > .cv2-summary { margin-top: 12px; }
 .cv2-head { display: flex; align-items: center; gap: 9px; padding: 0 14px 8px; }
 .cv2-id { display: flex; flex-direction: column; line-height: 1.25; }
 .cv2-id b { font-size: 14px; color: var(--mz-ink); }

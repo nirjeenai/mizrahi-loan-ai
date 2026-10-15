@@ -149,7 +149,6 @@ export function ApplyV2() {
         {error && <div className="notice" role="alert" style={{ margin: "8px 10px 0" }} data-testid="cv2-error">{error}</div>}
       </div>
       {draft?.summary && !p && <Summary draft={draft} busy={busy} onEdit={(q, label) => send({ question_id: q, action: "edit" }, `שינוי ${label}`)} onConfirm={confirm} />}
-      <div className="tiny muted" style={{ marginTop: 10 }}>{draft?.note_he}</div>
     </div>
   );
 }
