@@ -63,7 +63,7 @@ def draft(page: Page) -> str:
     """The selected reply: the editor's value in the document workspace, else the preview on the page."""
     if modal(page):
         return page.locator("[data-testid=cc-draft-text]").input_value()
-    return page.locator("[data-testid=cc-draft-preview]").evaluate("e => e.textContent")
+    return page.locator("[data-testid=cc-draft-preview]").get_attribute("data-text") or ""
 
 
 def set_draft(page: Page, text: str) -> None:

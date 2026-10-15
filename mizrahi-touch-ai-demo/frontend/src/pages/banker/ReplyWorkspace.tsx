@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { api, type CaseChatReply, type DemoLetter, type IntelDraft } from "../../api";
-import { DRAFT_NOTE, MARK, markOf, type Ctx } from "./IntelligenceV2";
+import { LetterBody, LetterSheet } from "./BankLetter";
+import { MARK, markOf, type Ctx } from "./IntelligenceV2";
 import "./replyworkspace.css";
 
 type Toast = (t: { text: string; tone: "ok" | "bad" }) => void;
@@ -18,7 +19,9 @@ const DEMO = "demo_approval";
 /** Tab labels: short enough for one row of three. */
 const TAB: Record<string, string> = { complete_documentation: "אישור מסמכים", conditional_financing: "שיחת המשך",
   financial_clarification: "בקשת הבהרה", missing_documents: "השלמת מסמכים", [DEMO]: "אישור הלוואה" };
-const NOTE: Record<string, string> = { ...DRAFT_NOTE, [DEMO]: "מכתב אישור מפורט עם עיקרי התנאים. הכנתו אינה משנה את סטטוס התיק." };
+/** The document type on the letterhead. */
+const DOC: Record<string, string> = { complete_documentation: "אישור קבלת מסמכים", conditional_financing: "חלופות פריסה להמחשה",
+  financial_clarification: "בקשת הבהרה", missing_documents: "בקשת השלמת מסמכים", [DEMO]: "אישור בקשת הלוואה" };
 const COPY_MARK = "[מסמך הדמיה (DEMO) — אינו החלטת אשראי של הבנק ואינו הסכם הלוואה. לא נשלח ללקוח.]";
 const READY = ["READY_FOR_CREDIT_REVIEW", "PREPARATION_CONFIRMED"];
 const CHIPS_READY = ["למה מומלץ להתקדם?", "מה עדיין צריך לבדוק?", "תנסח את המכתב יותר פורמלי", "תקצר את המענה"];
@@ -206,16 +209,12 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
           {!draft ? <div className="cc-empty">אין טיוטה מתאימה למצב התיק כרגע. אפשר עדיין לשאול את JEEN על התיק.</div> : <>
             {tabs.length > 1 && tabRow}
             <div className={`rw-doc${flash && byJeen ? " rw-flash" : ""}`}>
-              {demoPending ? <DemoGate demo={demo} ready={ready} onMake={(ack, ai) => void makeLetter(ack, ai)} /> : <>
-                <div className="rw-doc-head">
-                  <div className="rw-doc-t"><b>{draft.title_he}</b><span>{NOTE[draft.kind]}</span></div>
-                  {status}
-                </div>
-                <Preview text={text} kind={draft.kind} demo={isDemo} onOpen={() => setOpen(true)} />
-              </>}
+              {demoPending ? <DemoGate demo={demo} ready={ready} onMake={(ack, ai) => void makeLetter(ack, ai)} />
+                : <Preview text={text} kind={draft.kind} demo={isDemo} onOpen={() => setOpen(true)} />}
             </div>
             <div className="rw-foot">
               <div className="rw-foot-meta">
+                {status}
                 {isDemo && demo.letter && <LetterMeta demo={demo} onRegenerate={regenerate} />}
                 {canUndo && <button className="cc-link" onClick={undo} data-testid="cc-draft-undo">בטל שינוי של JEEN</button>}
                 {chosen.length > 0 && <span className="cc-muted">{chosen.length === 1 ? "מסמך אחד מצורף" : `${chosen.length} מסמכים מצורפים`}</span>}
@@ -233,7 +232,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
       </div>
 
       {open && draft && !demoPending && (
-        <DocModal title={draft.title_he} customer={x.applicant.borrowers.map((b) => b.name_he).join(" ו")} tabs={tabRow} status={status}
+        <DocModal title={draft.title_he} docType={DOC[draft.kind] || draft.title_he} demo={isDemo} customer={x.applicant.borrowers.map((b) => b.name_he).join(" ו")} tabs={tabRow} status={status}
           text={text} onText={(v) => setText(draft.kind, v)} flash={!!flash && byJeen} onClose={() => setOpen(false)}
           actions={<>
             {canUndo && <button className="cc-link" onClick={undo} data-testid="cc-modal-undo">בטל שינוי של JEEN</button>}
@@ -263,7 +262,10 @@ function Preview({ text, kind, demo, onOpen }: { text: string; kind: string; dem
   }, [text]);
   return (
     <div className={`rw-prev${clipped ? " clipped" : ""}`}>
-      <div ref={box} className={`rw-prev-text${demo ? " letter" : ""}`} data-testid="cc-draft-preview" data-kind={kind} onClick={onOpen} dir="rtl">{text}</div>
+      <div ref={box} className="rw-prev-desk" data-testid="cc-draft-preview" data-kind={kind} data-text={text} onClick={onOpen} dir="rtl"
+        title="פתיחה לעריכה">
+        <LetterSheet docType={DOC[kind] || ""} demo={demo} compact><LetterBody text={text} /></LetterSheet>
+      </div>
       {clipped && <button className="rw-prev-more" onClick={onOpen} data-testid="cc-draft-more">הצגת המסמך המלא</button>}
     </div>
   );
@@ -377,16 +379,17 @@ function EditState({ m, latest, onUndo, onApply }: { m: Msg; latest: boolean; on
 }
 
 // ---------------------------------------------------------------- the document workspace
-function DocModal({ title, customer, tabs, status, text, onText, flash, onClose, actions, refs, rewrite }: {
-  title: string; customer: string; tabs: ReactNode; status: ReactNode; text: string; onText: (v: string) => void; flash: boolean;
-  onClose: () => void; actions: ReactNode; refs: ReactNode; rewrite: ReactNode }) {
+function DocModal({ title, docType, demo, customer, tabs, status, text, onText, flash, onClose, actions, refs, rewrite }: {
+  title: string; docType: string; demo: boolean; customer: string; tabs: ReactNode; status: ReactNode; text: string; onText: (v: string) => void;
+  flash: boolean; onClose: () => void; actions: ReactNode; refs: ReactNode; rewrite: ReactNode }) {
   const area = useRef<HTMLTextAreaElement>(null);
+  const [mode, setMode] = useState<"edit" | "view">("edit");
   useLayoutEffect(() => {
     const el = area.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight + 2}px`;
-  }, [text]);
+  }, [text, mode]);
   const close = useRef(onClose);
   close.current = onClose;
   useEffect(() => {
@@ -409,11 +412,21 @@ function DocModal({ title, customer, tabs, status, text, onText, flash, onClose,
           <div className="rw-modal-tabs">{tabs}</div>
           <button className="rw-x" onClick={onClose} aria-label="סגירה" data-testid="cc-doc-close">×</button>
         </header>
-        <div className="rw-modal-tools">{status}<span className="rw-modal-acts">{actions}</span></div>
+        <div className="rw-modal-tools">
+          <div className="rw-mode" role="tablist" aria-label="תצוגה" data-testid="cc-doc-mode">
+            <button role="tab" aria-selected={mode === "edit"} className={mode === "edit" ? "on" : ""} onClick={() => setMode("edit")} data-testid="cc-doc-mode-edit">עריכה</button>
+            <button role="tab" aria-selected={mode === "view"} className={mode === "view" ? "on" : ""} onClick={() => setMode("view")} data-testid="cc-doc-mode-view">תצוגת מכתב</button>
+          </div>
+          {status}<span className="rw-modal-acts">{actions}</span>
+        </div>
         <div className="rw-modal-body">
-          <div className={`rw-sheet${flash ? " rw-flash" : ""}`}>
-            <textarea ref={area} className="rw-sheet-text" value={text} onChange={(e) => onText(e.target.value)} dir="rtl"
-              data-testid="cc-draft-text" aria-label="טיוטת המענה ללקוח" />
+          <div className={`rw-sheet${flash ? " rw-flash" : ""}${mode === "edit" ? " editing" : ""}`}>
+            <LetterSheet docType={docType} demo={demo}>
+              {mode === "edit"
+                ? <textarea ref={area} className="bl-edit" value={text} onChange={(e) => onText(e.target.value)} dir="rtl"
+                  data-testid="cc-draft-text" aria-label="טיוטת המענה ללקוח" />
+                : <div className="rw-view" onClick={() => setMode("edit")} title="לחיצה לעריכה" data-testid="cc-doc-view"><LetterBody text={text} /></div>}
+            </LetterSheet>
           </div>
           {refs}
         </div>
