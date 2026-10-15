@@ -69,6 +69,32 @@ export interface OnboardingDraft {
   summary: null | { profile: DocumentProfile; policy_version: string; title_he: string; loan: LoanDetails;
     requirements: Pick<Requirement, "code" | "title_he" | "family" | "family_he" | "owner_he" | "owner_type" | "why_he" | "alternatives_he" | "intake" | "required">[] };
 }
+/** Conversational questionnaire (V2): the same draft as OnboardingDraft, with a transcript, stages and a DEMO indication. */
+export interface ChatIndication {
+  max_amount_ils: number; requested_amount_ils: number; within: boolean; requested_monthly_ils: number; payments: number;
+  declared_net_ils: number; co_borrower_pending: boolean;
+}
+export interface ChatReply { label_he: string; value: unknown }
+/** A quick reply under a message: answers a question (question_id + value) or sends a text. */
+export interface ChatAction { label_he: string; question_id?: string; value?: unknown; text?: string }
+export interface ChatMessage {
+  id: number; role: "assistant" | "user"; kind: "text" | "question" | "insight" | "withdrawn" | "summary"; text_he: string;
+  question_id?: string; indication?: ChatIndication & { key: string }; insight?: "new" | "updated" | "withdrawn";
+  stale?: boolean; actions?: ChatAction[]; engine?: "llm" | "rules"; understood_by?: "llm" | "rules";
+}
+export interface ChatStage { id: string; label_he: string; state: "done" | "current" | "upcoming"; total: number; answered: number }
+export interface ChatDraft {
+  draft_id: string; status: "draft" | "confirmed"; case_id: string | null; first_name_he: string | null; note_he: string;
+  messages: ChatMessage[]; stages: ChatStage[]; indication: ChatIndication | null; suggestions: string[]; actions: ChatAction[];
+  loan: { type?: "personal" | "business" | null; form?: "vat_exempt" | "vat_registered" | "company" | null };
+  engine: "llm" | "rules";
+  pending: null | { question_id: string; kind: OnboardingQuestion["kind"]; prompt_he: string; replies: ChatReply[];
+    placeholder_he: string; editing: boolean; current_he: string | null };
+  summary: null | (NonNullable<OnboardingDraft["summary"]> & {
+    lines: { label_he: string; value_he: string; question_id: string }[]; intro_he: string });
+}
+export type ChatTurn = ({ text: string } | { question_id: string; value: unknown; label_he?: string }
+  | { question_id?: string; action: "edit" | "cancel_edit" }) & { turn_id?: string };
 /** The customer's next step, computed by the backend (readiness.customer_status) with explicit precedence. */
 export type CustomerStatus = "NO_PAYSLIPS_REQUIRED" | "AWAITING_UPLOAD" | "ERROR" | "PROCESSING" | "REVALIDATING"
   | "CORRECTION_REQUIRED" | "MISSING_DOCUMENTS" | "PREPARATION_CONFIRMED" | "BANKER_REVIEW" | "CHECKS_COMPLETE";
@@ -253,6 +279,12 @@ export const api = {
   onboarding: (draftId: string) => http<OnboardingDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}`),
   onboardingAnswer: (draftId: string, questionId: string, value: unknown) =>
     http<OnboardingDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/answers`, json({ question_id: questionId, value })),
+  chatStart: () => http<ChatDraft>(`/api/demo/onboarding/v2`, { method: "POST" }),
+  chat: (draftId: string) => http<ChatDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2`),
+  chatTurn: (draftId: string, turn: ChatTurn) =>
+    http<ChatDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2/turn`, json(turn)),
+  chatConfirm: (draftId: string) =>
+    http<{ case_id: string; created: boolean }>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2/confirm`, { method: "POST" }),
   onboardingConfirm: (draftId: string) =>
     http<{ case_id: string; created: boolean }>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/confirm`, { method: "POST" }),
   requestRequirement: (caseId: string, code: string, body: { customer_message: string; rationale?: string; request_id: string }) =>

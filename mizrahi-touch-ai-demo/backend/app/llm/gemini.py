@@ -53,12 +53,16 @@ def _calls_last_hour() -> int:
 
 def generate(model: str, contents: list[dict], *, purpose: str, run_id: Optional[str] = None,
              system: Optional[str] = None, schema: Optional[dict] = None, tools: Optional[list[dict]] = None,
-             thinking: str = "low", temperature: float = 0.0, timeout: float = 120.0) -> dict:
+             thinking: str = "low", temperature: float = 0.0, timeout: float = 120.0,
+             max_output_tokens: Optional[int] = None, attempts: int = 3, budget: bool = True) -> dict:
+    """`budget=False` (the customer onboarding conversation) skips the hourly budget; the call is still in the ledger."""
     if not settings.gemini_api_key:
         raise GeminiError("GEMINI_API_KEY is not configured")
-    if _calls_last_hour() >= settings.max_llm_calls_per_hour:
+    if budget and _calls_last_hour() >= settings.max_llm_calls_per_hour:
         raise BudgetExceeded(f"hourly Gemini call budget reached ({settings.max_llm_calls_per_hour})")
     gen: dict[str, Any] = {"temperature": temperature, "thinkingConfig": {"thinkingLevel": thinking}}
+    if max_output_tokens:
+        gen["maxOutputTokens"] = max_output_tokens
     if schema is not None:
         gen["responseMimeType"] = "application/json"
         gen["responseSchema"] = schema
@@ -71,14 +75,15 @@ def generate(model: str, contents: list[dict], *, purpose: str, run_id: Optional
     headers = {"x-goog-api-key": settings.gemini_api_key, "Content-Type": "application/json",
                "User-Agent": "mizrahi-touch-jeen-demo/0.1"}
     last_error = ""
-    for attempt in range(3):
+    for attempt in range(attempts):
         started = time.monotonic()
         try:
             resp = httpx.post(ENDPOINT.format(model=model), headers=headers, json=body, timeout=timeout)
         except httpx.HTTPError as exc:
             last_error = f"{type(exc).__name__}: {exc}"
             _record(model, purpose, run_id, {}, int((time.monotonic() - started) * 1000), False, last_error)
-            time.sleep(1.5 * (attempt + 1) ** 2)
+            if attempt + 1 < attempts:
+                time.sleep(1.5 * (attempt + 1) ** 2)
             continue
         latency = int((time.monotonic() - started) * 1000)
         if resp.status_code == 200:
@@ -90,7 +95,7 @@ def generate(model: str, contents: list[dict], *, purpose: str, run_id: Optional
             return data
         last_error = f"HTTP {resp.status_code}: {resp.text[:300]}"
         _record(model, purpose, run_id, {}, latency, False, last_error)
-        if resp.status_code not in RETRYABLE:
+        if resp.status_code not in RETRYABLE or attempt + 1 >= attempts:
             break
         time.sleep(1.5 * (attempt + 1) ** 2)
     raise GeminiError(last_error or "Gemini call failed")

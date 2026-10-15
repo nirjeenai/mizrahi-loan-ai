@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, ils, type OnboardingDraft, type OnboardingQuestion } from "../../api";
 import { useCase } from "../../caseContext";
 import { ICheck } from "../../components/Icons";
+import { VersionSwitch } from "./ApplyV2";
 
 const DRAFT_KEY = "mz.onboarding.draft.v1";
 
@@ -54,6 +55,7 @@ export function Apply() {
 
   return (
     <>
+      <VersionSwitch v={1} />
       <div className="page-title">בקשת הלוואה חדשה</div>
       <p className="page-sub">כמה שאלות קצרות, ואחריהן נציג בדיוק אילו מסמכים נדרשים — לפני שהבקשה נפתחת.</p>
       <div className="card onb" data-testid="apply-chat" data-draft={draft?.draft_id}>
