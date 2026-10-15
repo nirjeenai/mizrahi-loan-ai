@@ -170,18 +170,42 @@ function Recommendation({ ctx, go }: { ctx: Ctx; go: (id: string) => void }) {
     attention.push({ text: `אירוע חשבון בנתוני הדמו (${e.owner_he}) — לאימות במערכות הבנק`, target: "cc-fin", testId: "cc-attn-event" });
   return (
     <section className={`cc-rec t-${tone}`} data-testid="cc-rec" data-state={r.state}>
-      <div className="cc-rec-top">
+      <div className="cc-rec-in">
+        <div className="cc-rec-top"><span className="cc-jeen">המלצת JEEN</span></div>
         <span className="cc-rec-mark" aria-hidden>{tone === "ok" ? "✓" : tone === "neutral" ? "…" : "!"}</span>
-        <span className="cc-jeen">המלצת JEEN</span>
+        <h2 data-testid="cc-rec-title">{TITLE[r.state] || r.documentation.status_he}</h2>
+        <p data-testid="cc-rec-text">{r.headline_he}</p>
+        <RecBasis ctx={ctx} />
+        {attention.length > 0 && <ul className="cc-attn" data-testid="cc-attention">
+          {attention.map((a, i) => <li key={i} data-testid={a.testId}><span>{a.text}</span>
+            <button className="cc-link" onClick={() => go(a.target)}>לפרטים</button></li>)}
+        </ul>}
+        <div className="cc-rec-nb" data-testid="cc-rec-disclaimer">המלצה לבנקאי בלבד — אינה אישור אשראי</div>
       </div>
-      <h2 data-testid="cc-rec-title">{TITLE[r.state] || r.documentation.status_he}</h2>
-      <p data-testid="cc-rec-text">{r.headline_he}</p>
-      {attention.length > 0 && <ul className="cc-attn" data-testid="cc-attention">
-        {attention.map((a, i) => <li key={i} data-testid={a.testId}><span>{a.text}</span>
-          <button className="cc-link" onClick={() => go(a.target)}>לפרטים</button></li>)}
-      </ul>}
-      <div className="cc-rec-nb" data-testid="cc-rec-disclaimer">המלצה לבנקאי בלבד — אינה אישור אשראי</div>
     </section>
+  );
+}
+
+/** What the conclusion rests on: the document requirements, the income basis and the combined ratio, each in its true state. */
+function RecBasis({ ctx }: { ctx: Ctx }) {
+  const { x } = ctx;
+  const p = x.documents.progress;
+  const rows = x.income.borrowers;
+  const a = x.analysis;
+  const thr = x.simulation.threshold_pct;
+  const docsOk = !!p && p.total > 0 && p.done >= p.total;
+  const income = rows.some((q) => q.unresolved_discrepancy) ? { v: "פער פתוח", t: "warn" }
+    : rows.some((q) => q.quality === "declared") ? { v: "מוצהרת בלבד", t: "warn" }
+      : rows.length && rows.every((q) => q.quality === "verified") ? { v: "מאומתת בתלושים", t: "ok" } : { v: "חלקית", t: "warn" };
+  const dsr = a.combined_dsr?.value;
+  return (
+    <dl className="cc-basis" data-testid="cc-rec-basis">
+      <div className={docsOk ? "ok" : "warn"}><dt>דרישות מסמכים</dt>
+        <dd>{p && p.total ? (docsOk ? <><span className="ltr">{p.done}/{p.total}</span> הושלמו</> : <>{p.done} מתוך {p.total}</>) : "—"}</dd></div>
+      <div className={income.t}><dt>בסיס ההכנסה</dt><dd>{income.v}</dd></div>
+      <div className={dsr == null ? "" : dsr > thr || a.availability !== "full" ? "warn" : "ok"}><dt>יחס החזר כולל</dt>
+        <dd><Num ctx={ctx} d={a.combined_dsr} /> <span className="cc-basis-n">{a.availability === "provisional" ? "זמני" : a.availability === "partial" ? "חלקי" : `עד ${thr}%`}</span></dd></div>
+    </dl>
   );
 }
 
@@ -598,41 +622,55 @@ function Reasoning({ ctx }: { ctx: Ctx }) {
   const [more, setMore] = useState(false);
   const open = x.risks.filter((k) => k.kind !== "missing");
   const docSources = Object.values(x.sources).filter((s) => s.kind === "document");
+  // case actions first (they open V1), then the standing limits of the analysis
+  const verify = [...r.verify].sort((a, b) => Number(!!b.v1_item) - Number(!!a.v1_item));
   return (
-    <Card id="cc-why" title="נימוקי ההמלצה ותנאים להתקדמות" testId="cc-reasoning">
-      <div className="cc-cols">
-        <div>
-          <h3>ממצאים עיקריים</h3>
-          <ul className="cc-cons" data-testid="cc-considerations">{r.considerations.map((c, i) => (
-            <li key={i} className={`c-${c.tone}`} data-testid="cc-consideration"><span>{c.text_he}</span>
-              <ConsSources ctx={ctx} ids={c.source_ids} />
-            </li>))}</ul>
-        </div>
-        <div>
-          <h3>נדרש לפני החלטה</h3>
-          <ul className="cc-verify" data-testid="cc-verify">{r.verify.map((v, i) => <li key={i}>{v.v1_item
-            ? <button className="cc-link" onClick={() => ctx.openV1(v.v1_item)}>{v.text_he}</button> : v.text_he}</li>)}</ul>
-        </div>
-      </div>
+    <Card id="cc-why" title="נימוקי ההמלצה ותנאים להתקדמות" testId="cc-reasoning" sub="על מה ההמלצה נשענת, ומה עוד צריך לאמת לפני החלטה.">
       {open.length > 0 && <ul className="cc-risks" data-testid="cc-risks">{open.map((k, i) => (
         <li key={i}><span className="cc-risk-who">{k.who_he}</span><span><b>{k.title_he}</b>{k.text_he ? ` — ${k.text_he}` : ""}</span>
           <button className="cc-link" onClick={() => ctx.openV1(k.v1_item)}>פתיחה</button></li>))}</ul>}
-      <Toggle open={more} onClick={() => setMore(!more)} testId="cc-why-more">{more ? "הסתר פירוט ונימוקים" : "הצג פירוט ונימוקים"}</Toggle>
-      {more && <div className="cc-cols cc-why-more" data-testid="cc-why-detail">
-        <div>
-          <h3>נתונים שחולצו ממסמכים ושימשו בניתוח</h3>
+      <div className="cc-why-grid">
+        <section className="cc-why-panel" aria-labelledby="cc-why-cons">
+          <header className="cc-why-h"><h3 id="cc-why-cons">ממצאים עיקריים</h3><span className="cc-why-n">{r.considerations.length}</span></header>
+          <ul className="cc-cons" data-testid="cc-considerations">{r.considerations.map((c, i) => (
+            <li key={i} className={`c-${c.tone}`} data-testid="cc-consideration">
+              <span className="cc-cons-dot" aria-hidden />
+              <div className="cc-cons-body"><p>{c.text_he}</p><ConsSources ctx={ctx} ids={c.source_ids} /></div>
+            </li>))}</ul>
+        </section>
+        <section className="cc-why-panel cond" aria-labelledby="cc-why-verify">
+          <header className="cc-why-h"><h3 id="cc-why-verify">נדרש לפני החלטה</h3><span className="cc-why-n">{verify.length}</span></header>
+          <ul className="cc-verify" data-testid="cc-verify">{verify.map((v, i) => (
+            <li key={i} className={v.v1_item ? "is-action" : ""}><span className="cc-check" aria-hidden />
+              <div><span>{v.text_he}</span>
+                {v.v1_item && <button className="cc-verify-go" onClick={() => ctx.openV1(v.v1_item)}>פתיחה בסקירת המסמכים ←</button>}</div>
+            </li>))}</ul>
+          <footer className="cc-why-foot">
+            <span>ההחלטה נרשמת בסקירת המסמכים, עם נימוק וביומן.</span>
+            <button className="cc-why-cta" onClick={() => ctx.openV1(r.next_action.v1_item)} data-testid="cc-why-cta">מעבר לטיפול בתיק ←</button>
+          </footer>
+        </section>
+      </div>
+      <button className="cc-disclose" onClick={() => setMore(!more)} aria-expanded={more} data-testid="cc-why-more">
+        <span className="cc-disclose-t">{more ? "הסתר פירוט ונימוקים" : "הצג פירוט ונימוקים"}</span>
+        <span className="cc-disclose-h">נתונים שחולצו ממסמכים · מה לא נבדק · סימוני מקור</span>
+        <span aria-hidden className="cc-chev">{more ? "▴" : "▾"}</span>
+      </button>
+      {more && <div className="cc-why-detail" data-testid="cc-why-detail">
+        <section>
+          <h4>נתונים שחולצו ממסמכים ושימשו בניתוח</h4>
           {docSources.length ? <ul className="cc-evlist" data-testid="cc-evlist">{docSources.map((s) => (
             <li key={s.id}><button className="cc-evrow" onClick={() => ctx.open(s)} data-testid="cc-evrow" data-field={s.field}>
               <span>{s.label_he}</span><span className="ltr">{s.value_raw}</span><Tag kind={markOf(s)} /></button></li>))}</ul>
             : <div className="cc-empty">אין עדיין נתונים שחולצו ממסמכים.</div>}
-        </div>
-        <div>
-          <h3>מה לא נבדק</h3>
-          <ul className="cc-unknowns">{x.unknowns.map((u, i) => <li key={i}><b>{u.label_he}:</b> {u.text_he}</li>)}</ul>
-          <h3>סימוני מקור</h3>
+        </section>
+        <section>
+          <h4>מה לא נבדק</h4>
+          <dl className="cc-unknowns">{x.unknowns.map((u, i) => <div key={i}><dt>{u.label_he}</dt><dd>{u.text_he}</dd></div>)}</dl>
+          <h4>סימוני מקור</h4>
           <ul className="cc-legend">{(["reviewed", "verified", "declared", "demo", "calc", "assume"] as MarkKind[]).map((k) => (
             <li key={k}><Tag kind={k} /> {MARK[k].title}</li>))}</ul>
-        </div>
+        </section>
       </div>}
     </Card>
   );
@@ -650,7 +688,7 @@ function ConsSources({ ctx, ids }: { ctx: Ctx; ids: string[] }) {
   if (!by.size) return null;
   return (
     <span className="cc-cons-src">{[...by.entries()].map(([k, list]) => (
-      <button key={k} className="cc-srctext" onClick={() => list.slice().reverse().forEach((s) => ctx.open(s))} data-testid="cc-cons-src" data-kind={k}
+      <button key={k} className={`cc-chip k-${k}`} onClick={() => list.slice().reverse().forEach((s) => ctx.open(s))} data-testid="cc-cons-src" data-kind={k}
         title={list.map((s) => s.label_he).join(" · ")}>{MARK[k].label}{list.length > 1 ? ` ×${list.length}` : ""}</button>))}</span>
   );
 }

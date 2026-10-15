@@ -109,11 +109,15 @@ def michal(page: Page, c: httpx.Client) -> None:
           == "התיק הושלם מבחינת מסמכים. על בסיס הנתונים שנאספו ניתן להתקדם לבחינת בקשת האשראי. נבחנו 3 חלופות מימון לצורך סימולציה. קביעת זכאות, סכום ותנאים מחייבת אימות נוסף והחלטת הבנק."
           and page.locator("[data-testid=cc-rec-disclaimer]").inner_text() == "המלצה לבנקאי בלבד — אינה אישור אשראי"
           and "ההלוואה אושרה" not in rec.inner_text() and page.locator("[data-testid=cc-attention]").count() == 0)
-    box, col = rec.bounding_box(), page.locator(".cc-page").bounding_box()
-    centred = abs((box["x"] + box["width"] / 2) - (col["x"] + col["width"] / 2)) < 2
-    check("complete: the card is centered and narrower than the column, its text centered",
-          centred and box["width"] < col["width"] - 100 and rec.evaluate("e => getComputedStyle(e).textAlign") == "center",
-          f"card {box['width']:.0f}px in a {col['width']:.0f}px column")
+    box, why_box = rec.bounding_box(), page.locator("[data-testid=cc-reasoning]").bounding_box()
+    inner = page.locator("[data-testid=cc-rec] .cc-rec-in").bounding_box()
+    check("complete: the card shares the column's edges with the cards around it; its content is centered",
+          abs(box["x"] - why_box["x"]) < 1 and abs(box["width"] - why_box["width"]) < 1
+          and abs((inner["x"] + inner["width"] / 2) - (box["x"] + box["width"] / 2)) < 2
+          and rec.evaluate("e => getComputedStyle(e).textAlign") == "center", f"card {box['width']:.0f}px · content {inner['width']:.0f}px")
+    basis = page.locator("[data-testid=cc-rec-basis]").inner_text()
+    check("complete: the basis row shows what the conclusion rests on — 4/4 documents, verified income, the API's combined ratio",
+          "4/4" in basis and "מאומתת בתלושים" in basis and f"{a['combined_dsr']['value']:.1f}%" in basis, basis.replace("\n", " · "))
     shot_section(page, "cc-rec", "13-v3-recommendation-card.png")
     figs = (num(page, "[data-testid=cc-fig-income] .cc-num"), num(page, "[data-testid=cc-fig-payment] .cc-num"), num(page, "[data-testid=cc-fig-dsr] .cc-num"))
     check("complete: the three key figures are the API's income, payment and combined ratio",
@@ -216,9 +220,13 @@ def michal(page: Page, c: httpx.Client) -> None:
           why.locator("[data-testid=cc-consideration]").count() == len(x["recommendation"]["considerations"])
           and why.locator("[data-testid=cc-verify] li").count() == len(x["recommendation"]["verify"])
           and page.locator("[data-testid=cc-why-detail]").count() == 0)
+    check("reasoning: case actions come first in the conditions, each with its own link into V1",
+          why.locator("[data-testid=cc-verify] li").first.get_attribute("class") == "is-action"
+          and why.locator(".cc-verify-go").count() == sum(1 for v in x["recommendation"]["verify"] if v.get("v1_item")))
     page.locator("[data-testid=cc-why-more]").click()
     check("reasoning: the detail lists every document value used", page.locator("[data-testid=cc-evrow]").count()
           == sum(1 for v in x["sources"].values() if v["kind"] == "document"))
+    page.locator("[data-testid=cc-why-more]").click()
     # reply
     text = page.locator("[data-testid=cc-draft-text]")
     tabs = page.locator("[data-testid=cc-draft-tab]").evaluate_all("els => els.map(e => e.dataset.kind)")
