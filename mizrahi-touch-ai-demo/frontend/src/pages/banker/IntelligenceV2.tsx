@@ -46,19 +46,19 @@ export function IntelligenceV2({ caseId, ws, openV1 }: { caseId: string; ws: Wor
   );
 }
 
-interface Ctx { x: Intelligence; open: (s: string | IntelSource | null | undefined) => void; openV1: (item?: string | null) => void }
+export interface Ctx { x: Intelligence; open: (s: string | IntelSource | null | undefined) => void; openV1: (item?: string | null) => void }
 
 // ---------------------------------------------------------------- formatting and provenance marks
 const nf0 = new Intl.NumberFormat("he-IL", { maximumFractionDigits: 0 });
 const nf2 = new Intl.NumberFormat("he-IL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const money = (v?: number | null, exact = false) => (v == null ? "—" : `₪${(exact ? nf2 : nf0).format(v)}`);
-const pct = (v?: number | null) => (v == null ? "—" : `${v.toFixed(1)}%`);
-const fmt = (v: number | string | null | undefined, unit?: string, exact = false) =>
+export const pct = (v?: number | null) => (v == null ? "—" : `${v.toFixed(1)}%`);
+export const fmt = (v: number | string | null | undefined, unit?: string, exact = false) =>
   v == null ? "—" : typeof v === "string" ? v : unit === "pct" ? pct(v) : unit === "months" ? `${v} תשלומים` : money(v, exact);
-const years = (m: number) => (m % 12 === 0 ? `${m / 12} שנים` : `${(m / 12).toFixed(1)} שנים`);
+export const years = (m: number) => (m % 12 === 0 ? `${m / 12} שנים` : `${(m / 12).toFixed(1)} שנים`);
 
-type MarkKind = "verified" | "reviewed" | "unverified" | "declared" | "demo" | "calc" | "assume" | "missing" | "sim";
-const MARK: Record<MarkKind, { label: string; title: string }> = {
+export type MarkKind = "verified" | "reviewed" | "unverified" | "declared" | "demo" | "calc" | "assume" | "missing" | "sim";
+export const MARK: Record<MarkKind, { label: string; title: string }> = {
   verified: { label: "מסמך ✓", title: "חולץ ממסמך ואומת מול הקובץ" },
   reviewed: { label: "נבדק ✓✓", title: "חולץ ממסמך, אומת מול הקובץ, והמסמך התקבל על ידי הבנקאי" },
   unverified: { label: "מסמך", title: "חולץ ממסמך — לא אומת מול הקובץ" },
@@ -69,12 +69,12 @@ const MARK: Record<MarkKind, { label: string; title: string }> = {
   missing: { label: "חסר", title: "הנתון אינו זמין" },
   sim: { label: "סימולציה", title: "ערך שהוזן בסימולציה — לא נשמר ואינו משנה את הבקשה" },
 };
-function markOf(s?: IntelSource | null): MarkKind {
+export function markOf(s?: IntelSource | null): MarkKind {
   if (!s) return "missing";
   if (s.kind === "document") return s.banker_reviewed ? "reviewed" : s.verified ? "verified" : "unverified";
   return ({ declared: "declared", synthetic_bank: "demo", calculated: "calc", assumption: "assume", missing: "missing" } as Record<string, MarkKind>)[s.kind] || "missing";
 }
-function Mark({ kind }: { kind: MarkKind }) {
+export function Mark({ kind }: { kind: MarkKind }) {
   return <span className={`bi-mark m-${kind}`} title={MARK[kind].title} data-testid="bi-mark" data-mark={kind}>{MARK[kind].label}</span>;
 }
 
@@ -329,7 +329,30 @@ function Kpi({ ctx, label, d, note, tone, testId }: { ctx: Ctx; label: string; d
 }
 
 // ---------------------------------------------------------------- scenarios and What-if
-const SC_LABEL: Record<string, string> = { short: "תקופה קצרה", requested: "לפי הבקשה", long: "תקופה ארוכה" };
+export const SC_LABEL: Record<string, string> = { short: "תקופה קצרה", requested: "לפי הבקשה", long: "תקופה ארוכה" };
+
+/** The calculation behind one scenario figure, as a source the drawer opens: formula, inputs and where each input came from. */
+export function scenarioSource(s: Intelligence["simulation"], r: Scenario, what: "pay" | "dsr" | "total",
+  principal: number, term: number, rate: number): IntelSource {
+  const base = s.inputs;
+  const inP: SourceInput = { label_he: "קרן (P)", value: principal, unit: "ils", source_id: principal === base.principal ? "app:amount" : null, origin: "sim" };
+  const inN: SourceInput = { label_he: "תשלומים (n)", value: r.term_months, unit: "months", source_id: r.term_months === base.term_months ? "app:term" : null,
+    origin: r.term_months === term ? "sim" : "calc" };
+  const inR: SourceInput = { label_he: "ריבית שנתית", value: rate, unit: "pct", source_id: rate === base.annual_rate_pct ? s.rate_source_id : null, origin: "sim" };
+  const pay: SourceInput = { label_he: "החזר חודשי", value: r.monthly_payment_ils, unit: "ils", source_id: null, origin: "calc" };
+  if (what === "pay") return { id: `sim:pay:${r.key}`, kind: "calculated", label_he: `החזר חודשי — ${r.term_months} תשלומים`, value: r.monthly_payment_ils,
+    unit: "ils", formula_he: "P·r ÷ (1 − (1 + r)^−n), r = ריבית שנתית ÷ 12", inputs: [inP, inN, inR],
+    note_he: "חושב בדפדפן באותה נוסחה ובאותו עיגול כמו בשרת. ערכי סימולציה אינם נשמרים." };
+  if (what === "total") return { id: `sim:total:${r.key}`, kind: "calculated", label_he: `עלות המימון — ${r.term_months} תשלומים`, value: r.total_interest_ils,
+    unit: "ils", formula_he: "החזר חודשי × n − P", inputs: [pay, inN, inP],
+    note_he: "מחושב מההחזר הלא מעוגל — התשלום האחרון סופג את עיגול האגורות. בריבית 0% עלות המימון היא 0." };
+  return { id: `sim:dsr:${r.key}`, kind: "calculated", label_he: `יחס החזר משולב — ${r.term_months} תשלומים`, value: r.combined_dsr_pct, unit: "pct",
+    formula_he: "(החזר משוער + החזרים קיימים) ÷ הכנסה נטו × 100",
+    inputs: [pay,
+      { label_he: "החזרים קיימים", value: s.existing_debt_ils, unit: "ils", source_id: s.existing_source_id },
+      { label_he: "הכנסה נטו", value: s.income_ils, unit: "ils", source_id: s.income_source_id }],
+    note_he: r.combined_includes_existing ? null : "אין נתוני התחייבויות קיימות — היחס כולל רק את ההלוואה המבוקשת." };
+}
 
 function Simulator({ ctx }: { ctx: Ctx }) {
   const { x } = ctx;
@@ -348,25 +371,7 @@ function Simulator({ ctx }: { ctx: Ctx }) {
   const thr = s.threshold_pct;
   const dsrs = rows.map((r) => r.combined_dsr_pct).filter((v): v is number => v != null);
   const provisional = x.analysis.availability !== "full";
-  const calcSource = (r: Scenario, what: "pay" | "dsr" | "total"): IntelSource => {
-    const inP: SourceInput = { label_he: "קרן (P)", value: principal, unit: "ils", source_id: principal === base.principal ? "app:amount" : null, origin: "sim" };
-    const inN: SourceInput = { label_he: "תשלומים (n)", value: r.term_months, unit: "months", source_id: r.term_months === base.term_months ? "app:term" : null,
-      origin: r.term_months === term ? "sim" : "calc" };
-    const inR: SourceInput = { label_he: "ריבית שנתית", value: rate, unit: "pct", source_id: rate === base.annual_rate_pct ? s.rate_source_id : null, origin: "sim" };
-    const pay: SourceInput = { label_he: "החזר חודשי", value: r.monthly_payment_ils, unit: "ils", source_id: null, origin: "calc" };
-    if (what === "pay") return { id: `sim:pay:${r.key}`, kind: "calculated", label_he: `החזר חודשי — ${r.term_months} תשלומים`, value: r.monthly_payment_ils,
-      unit: "ils", formula_he: "P·r ÷ (1 − (1 + r)^−n), r = ריבית שנתית ÷ 12", inputs: [inP, inN, inR],
-      note_he: "חושב בדפדפן באותה נוסחה ובאותו עיגול כמו בשרת. ערכי סימולציה אינם נשמרים." };
-    if (what === "total") return { id: `sim:total:${r.key}`, kind: "calculated", label_he: `עלות המימון — ${r.term_months} תשלומים`, value: r.total_interest_ils,
-      unit: "ils", formula_he: "החזר חודשי × n − P", inputs: [pay, inN, inP],
-      note_he: "מחושב מההחזר הלא מעוגל — התשלום האחרון סופג את עיגול האגורות. בריבית 0% עלות המימון היא 0." };
-    return { id: `sim:dsr:${r.key}`, kind: "calculated", label_he: `יחס החזר משולב — ${r.term_months} תשלומים`, value: r.combined_dsr_pct, unit: "pct",
-      formula_he: "(החזר משוער + החזרים קיימים) ÷ הכנסה נטו × 100",
-      inputs: [pay,
-        { label_he: "החזרים קיימים", value: s.existing_debt_ils, unit: "ils", source_id: s.existing_source_id },
-        { label_he: "הכנסה נטו", value: s.income_ils, unit: "ils", source_id: s.income_source_id }],
-      note_he: r.combined_includes_existing ? null : "אין נתוני התחייבויות קיימות — היחס כולל רק את ההלוואה המבוקשת." };
-  };
+  const calcSource = (r: Scenario, what: "pay" | "dsr" | "total") => scenarioSource(s, r, what, principal, term, rate);
   return (
     <Section title="חלופות מימון וסימולציה" testId="bi-simulator"
       sub={<>הלוואה בריבית קבועה (שפיצר). כל שינוי מחושב מחדש מיד — <b>אינו משנה את הבקשה, ההכנסה או ההתחייבויות</b>, ואינו הצעה של הבנק.</>}
@@ -422,7 +427,7 @@ function Simulator({ ctx }: { ctx: Ctx }) {
   );
 }
 
-function Slider({ label, value, min, max, step, onChange, display, testId, changed, hint }: {
+export function Slider({ label, value, min, max, step, onChange, display, testId, changed, hint }: {
   label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void; display: string; testId: string; changed: boolean; hint?: ReactNode }) {
   return (
     <label className={`bi-slider${changed ? " changed" : ""}`}>
@@ -481,7 +486,7 @@ function EvidenceRisks({ ctx }: { ctx: Ctx }) {
 }
 
 // ---------------------------------------------------------------- banker action and the editable draft
-const DRAFT_NOTE: Record<string, string> = {
+export const DRAFT_NOTE: Record<string, string> = {
   complete_documentation: "אישור קבלה והעברה לבדיקת הבנק — ללא התחייבות לאישור.",
   missing_documents: "בקשה מדויקת לפריטים שחסרים בתיק.",
   financial_clarification: "בקשת הבהרה על פער מתועד — בלי הנימוק הפנימי.",
@@ -542,7 +547,7 @@ function ActionPanel({ ctx, onToast }: { ctx: Ctx; onToast: (t: { text: string; 
 const KIND_HE: Record<string, string> = { document: "נתון ממסמך", declared: "הצהרת לקוח", synthetic_bank: "נתון בנקאי סינתטי (דמו)",
   calculated: "חישוב", assumption: "הנחת הדגמה", missing: "נתון חסר" };
 
-function SourceDrawer({ src, depth, ws, ctx, onBack, onClose }: { src: IntelSource; depth: number; ws: Workspace; ctx: Ctx; onBack: () => void; onClose: () => void }) {
+export function SourceDrawer({ src, depth, ws, ctx, onBack, onClose }: { src: IntelSource; depth: number; ws: Workspace; ctx: Ctx; onBack: () => void; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
