@@ -231,7 +231,8 @@ def journey_b(page: Page, banker: Page) -> None:
     page.goto(f"{BASE}/customer")
     notice = page.locator("[data-testid=followup-notice]")
     expect(notice).to_be_visible(timeout=15000)
-    check("B · the customer's home says the bank is calling (simulation)", "מדומה" in notice.inner_text(), notice.inner_text()[:80])
+    check("B · the customer's home says the bank is calling (the attempt above is recorded as simulated)",
+          any(t in notice.inner_text() for t in ("מתקשרים אליכם", "בשיחה איתכם")), notice.inner_text()[:80])
     shot(page, "B-customer-call-notice")
     sim(page, "sim-outcome-LINK_SENT")
     v = wait_plan(case, ("AWAITING_CUSTOMER",))
