@@ -4,7 +4,7 @@ twice; a double click), direct answers (approval, weather, the amount limit), se
 proactive indication framed on the requested amount, a reload, corrections and an edit from the summary, ambiguous
 side jobs, a contextual policy question, one case on a double confirmation, the Documents handoff, V1 unchanged.
 
-Isolated stack only. It runs whichever understanding the backend has: with ONBOARDING_LLM unset (the default) every
+Isolated stack only. It runs whichever understanding the backend has: with no Gemini key (as below) every
 reply comes from the deterministic path, and the results say so (`engine`). No review runs.
 
     # from backend/ — fresh DATA_DIR, Gemini switched off

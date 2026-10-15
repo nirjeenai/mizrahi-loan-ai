@@ -454,7 +454,7 @@ def onboarding_v2_get(draft_id: str):
 
 @router.post("/demo/onboarding/{draft_id}/v2/turn")
 def onboarding_v2_turn(draft_id: str, body: OnboardingTurn):
-    """One customer turn → one assistant message: a quick reply, free text (Gemini when ONBOARDING_LLM=1, else the
+    """One customer turn → one assistant message: a quick reply, free text (Gemini by default, else the
     deterministic parser; the questionnaire validates either way) or an edit action. A repeated turn_id is a no-op."""
     return _onboarding(onboarding_chat.turn, draft_id, body.text, body.question_id, body.value, body.label_he, body.action,
                        body.turn_id)

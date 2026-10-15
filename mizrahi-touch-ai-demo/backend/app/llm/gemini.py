@@ -54,10 +54,11 @@ def _calls_last_hour() -> int:
 def generate(model: str, contents: list[dict], *, purpose: str, run_id: Optional[str] = None,
              system: Optional[str] = None, schema: Optional[dict] = None, tools: Optional[list[dict]] = None,
              thinking: str = "low", temperature: float = 0.0, timeout: float = 120.0,
-             max_output_tokens: Optional[int] = None, attempts: int = 3) -> dict:
+             max_output_tokens: Optional[int] = None, attempts: int = 3, budget: bool = True) -> dict:
+    """`budget=False` (the customer onboarding conversation) skips the hourly budget; the call is still in the ledger."""
     if not settings.gemini_api_key:
         raise GeminiError("GEMINI_API_KEY is not configured")
-    if _calls_last_hour() >= settings.max_llm_calls_per_hour:
+    if budget and _calls_last_hour() >= settings.max_llm_calls_per_hour:
         raise BudgetExceeded(f"hourly Gemini call budget reached ({settings.max_llm_calls_per_hour})")
     gen: dict[str, Any] = {"temperature": temperature, "thinkingConfig": {"thinkingLevel": thinking}}
     if max_output_tokens:

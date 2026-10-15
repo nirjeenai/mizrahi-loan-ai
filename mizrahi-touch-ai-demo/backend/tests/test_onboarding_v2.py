@@ -348,7 +348,7 @@ def test_llm_conflicts_need_a_correction_and_gross_is_never_net(monkeypatch):
     assert "net" not in ch.answers() and "ולא ברוטו" in ch.last["text_he"]
 
 
-def test_id_numbers_never_reach_the_model_and_the_call_cap_holds(monkeypatch):
+def test_id_numbers_never_reach_the_model_and_the_switch_turns_it_off(monkeypatch):
     ch = Chat()
     ch.pick("loan_type", "personal")
     ch.say("מיכל ברק")
@@ -357,7 +357,7 @@ def test_id_numbers_never_reach_the_model_and_the_call_cap_holds(monkeypatch):
     ch.say("המספר שלי 123456782")
     assert ch.answers()["national_id"] == "123456782"
     assert seen and all("123456782" not in payload for _, payload in seen)
-    monkeypatch.setattr(llm, "settings", dataclasses.replace(llm.settings, onboarding_llm_max_calls_per_hour=0))
+    monkeypatch.setattr(llm, "settings", dataclasses.replace(llm.settings, onboarding_llm=False))
     calls = len(seen)
     ch.say("לרכב")
     assert len(seen) == calls and ch.last["understood_by"] == "rules"

@@ -1,13 +1,14 @@
 """Gemini for the conversational questionnaire (V2): it reads the customer's Hebrew and words the reply — nothing else.
 
-Through the shared client (`llm/gemini.py`: ledger, hourly budget):
+On by default (ONBOARDING_LLM=0 turns it off). Through the shared client (`llm/gemini.py`: every call in the ledger;
+the customer conversation is exempt from the app's hourly budget and has no call or token quota of its own):
   1. `interpret` — structured proposals (facts, uncertainties, question topics) under a response schema, plus a
      candidate reply written as if every proposal were accepted and the question it expects next;
   2. `reply` — one short Hebrew message written from the *validated* outcome of the turn. Only needed when the
      candidate does not fit the outcome (`onboarding_chat._candidate_ok`): ordinary turns take one call.
 A proposal is only a proposal: `parse_interpretation` drops anything outside the schema, and the conversation layer
 records a fact only through `onboarding.answer` (V1 validation). A reply that cites a number which is not in the facts
-it was given is discarded (`grounded`). Every failure — switched off, no key, budget, timeout, bad JSON, ungrounded
+it was given is discarded (`grounded`). Every failure — switched off, no key, timeout, bad JSON, ungrounded
 reply — returns None, and the caller falls back to the deterministic path. ID numbers never reach the model."""
 from __future__ import annotations
 
@@ -15,7 +16,6 @@ import json
 import re
 from typing import Any, Optional
 
-from .. import db
 from ..config import settings
 from ..llm import gemini as g
 
@@ -33,7 +33,6 @@ ENUMS = {"loan_type": {"personal", "business"}, "business_form": {"vat_exempt", 
 NUMBERS = {"amount", "business_amount", "payments", "net", "co_net"}
 LISTS = {"income", "co_income"}
 NAMES = {"name", "co_name", "signatory"}
-MAX_CALLS_PER_DRAFT = 80
 _ID = re.compile(r"\bDEMO[\s-]*ID[\s-]*\d{3}\b|(?<!\d)\d{9}(?!\d)|(?<!\d)\d{2,3}[-\s]\d{3}[-\s]\d{3,4}(?!\d)", re.I)
 
 S = g.S
@@ -114,29 +113,23 @@ def enabled() -> bool:
     return bool(settings.onboarding_llm and settings.gemini_api_key)
 
 
-def _calls_last_hour() -> int:
-    row = db.one("SELECT COUNT(*) AS n FROM llm_calls WHERE purpose LIKE 'onboarding_%' AND at >= datetime('now', '-1 hour')")
-    return int(row["n"]) if row else 0
-
-
 def available(conv: dict) -> bool:
-    return (enabled() and conv.get("llm_calls", 0) < MAX_CALLS_PER_DRAFT
-            and _calls_last_hour() < settings.onboarding_llm_max_calls_per_hour)
+    """No call quota for the customer conversation (hourly, per conversation or per token): only the technical
+    safeguards in `_call` — a single attempt, a timeout, schema-checked output — and the fallback on any failure."""
+    return enabled()
 
 
 def mask(text: str) -> str:
     return _ID.sub("[ID]", text or "")
 
 
-def _call(purpose: str, system: str, payload: dict, schema: dict, max_tokens: int, temperature: float,
-          draft_id: str) -> Optional[dict]:
-    """One bounded call: a single attempt, a short timeout and capped output. Any failure is None."""
+def _call(purpose: str, system: str, payload: dict, schema: dict, temperature: float, draft_id: str) -> Optional[dict]:
+    """One call: a single attempt and a timeout, outside the app's hourly Gemini budget. Any failure is None."""
     try:
         data = g.generate(settings.onboarding_llm_model,
                           [{"role": "user", "parts": [g.text_part(json.dumps(payload, ensure_ascii=False))]}],
                           purpose=purpose, run_id=draft_id, system=system, schema=schema, thinking="low",
-                          temperature=temperature, timeout=settings.onboarding_llm_timeout,
-                          max_output_tokens=max_tokens, attempts=1)
+                          temperature=temperature, timeout=settings.onboarding_llm_timeout, attempts=1, budget=False)
         out = g.response_json(data)
         return out if isinstance(out, dict) else None
     except (g.GeminiError, ValueError, TypeError):
@@ -199,7 +192,7 @@ def interpret(context: dict, conv: dict, draft_id: str) -> Optional[dict]:
     if not available(conv):
         return None
     conv["llm_calls"] = conv.get("llm_calls", 0) + 1
-    return parse_interpretation(_call("onboarding_interpret", INTERPRET_SYSTEM, context, INTERPRET_SCHEMA, 900, 0.2, draft_id))
+    return parse_interpretation(_call("onboarding_interpret", INTERPRET_SYSTEM, context, INTERPRET_SCHEMA, 0.2, draft_id))
 
 
 _NUM = re.compile(r"(\d[\d,]*(?:\.\d+)?)(\s*אלף)?")
@@ -241,7 +234,7 @@ def reply(facts: dict, conv: dict, draft_id: str) -> Optional[str]:
     if not available(conv):
         return None
     conv["llm_calls"] = conv.get("llm_calls", 0) + 1
-    out = _call("onboarding_reply", REPLY_SYSTEM, facts, REPLY_SCHEMA, 400, 0.4, draft_id)
+    out = _call("onboarding_reply", REPLY_SYSTEM, facts, REPLY_SCHEMA, 0.4, draft_id)
     text = " ".join(str((out or {}).get("reply_he") or "").split())
     if not text or len(text) > 700 or not grounded(text, facts) or claims_approval(text):
         return None

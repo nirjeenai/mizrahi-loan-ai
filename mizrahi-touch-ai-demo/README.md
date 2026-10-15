@@ -141,15 +141,16 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
     contradicts an earlier answer without a correction; compose writes a single reply: acknowledgement, issues or
     clarification, answers, the indication sentence and the next question (or a short re-ask). A repeated `turn_id`
     is ignored, and the page sends one turn at a time.
-  - *Gemini (opt-in).* With `ONBOARDING_LLM=1` and a key, `workflow/onboarding_llm.py` makes two bounded calls per
-    free-text turn through `llm/gemini.py` (ledger, hourly budget): `interpret` (response schema: fields, values,
-    kind answer/extra/correction, certainty, unclear fields, topics, gross flag) and `reply` (one Hebrew message from
-    the validated outcome only). Proposals outside the schema, uncertain ones and anything V1 validation refuses are
+  - *Gemini (on by default; `ONBOARDING_LLM=0` turns it off).* With a key, `workflow/onboarding_llm.py` calls Gemini
+    through `llm/gemini.py` (every call in the ledger): `interpret` (response schema: fields, values, kind
+    answer/extra/correction, certainty, unclear fields, topics, gross flag, plus a candidate reply and the next
+    question it expects) and, only when that candidate does not fit the validated outcome, `reply` (one Hebrew
+    message from the outcome only) — ordinary turns take one call. Proposals outside the schema, uncertain ones and anything V1 validation refuses are
     not recorded; ID numbers are matched by pattern and masked before any call; a net figure is never taken from a
     gross one; a reply citing a number that is not in its facts, or dropping the indication's non-approval wording,
-    is discarded. Controls: `ONBOARDING_LLM_MODEL` (default `GEMINI_MODEL_AGENT`), `ONBOARDING_LLM_MAX_CALLS_PER_HOUR`
-    (60, ledger purposes `onboarding_*`), 80 calls per draft, `ONBOARDING_LLM_TIMEOUT` (8 s), one attempt, capped
-    output. Any failure falls back to the deterministic path without losing progress; each message records
+    is discarded. No call, token or conversation quota, and exempt from `GEMINI_MAX_CALLS_PER_HOUR`; technical
+    safeguards only: `ONBOARDING_LLM_TIMEOUT` (8 s), one attempt, schema-checked output, a 500-character message;
+    model `ONBOARDING_LLM_MODEL` (default `GEMINI_MODEL_AGENT`). Any failure falls back to the deterministic path without losing progress; each message records
     `understood_by` and `engine` (`llm` | `rules`).
   - *Deterministic path* (`workflow/onboarding_nlu.py`, the default): several facts per message — loan type and
     business form when named, purpose, amount, payments (also "לחמש שנים"), income sources with negation, past jobs
