@@ -1,18 +1,19 @@
 """Live end-to-end journey against a running backend (real Gemini calls, synthetic documents).
 
-Usage:  backend/.venv/bin/python backend/tests/live_journey.py [--scene initial|correction|negative|all] [--reset]
-Prints document verdicts, criteria and case findings so a run is auditable."""
+Usage:  LIVE_BASE=http://127.0.0.1:<isolated port> backend/.venv/bin/python backend/tests/live_journey.py [--scene initial|correction|negative|all] [--reset]
+Prints document verdicts, criteria and case findings so a run is auditable. Refuses the main data (e2e/isolation.py)."""
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
 
 import httpx
 
-BASE = "http://127.0.0.1:8791"
+BASE = os.environ.get("LIVE_BASE", "http://127.0.0.1:8791")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "e2e"))
 import demo_auth  # noqa: E402
 demo_auth.install(BASE)                                  # the service has no anonymous access

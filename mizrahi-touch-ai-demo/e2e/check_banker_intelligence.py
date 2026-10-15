@@ -23,9 +23,12 @@ from pathlib import Path
 import httpx
 from playwright.sync_api import Page, expect, sync_playwright
 
+import isolation
+
 BASE = os.environ.get("BI_BASE", "http://127.0.0.1:5844")
 if any(p in BASE for p in (":8790", ":8791", ":5192")):
     sys.exit(f"refusing to run against {BASE}: use an isolated stack")
+isolation.require_isolated(BASE)
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / "backend"))
 from app.workflow import finance  # noqa: E402  the canonical arithmetic the browser must reproduce

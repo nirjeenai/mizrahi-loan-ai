@@ -16,9 +16,12 @@ from pathlib import Path
 
 import httpx
 
+import isolation
+
 BASE = os.environ.get("POLICY_BASE", "http://127.0.0.1:8799")
 if any(p in BASE for p in (":8790", ":8791")):
     sys.exit(f"refusing to run against {BASE}: use an isolated stack")
+isolation.require_isolated(BASE)
 ADMIN = "/api/admin/loan-completion"
 CASE = "DEMO-MTZ-2026-009"
 FIX = Path(__file__).resolve().parents[1] / "fixtures" / "presenter"

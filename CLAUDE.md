@@ -54,10 +54,11 @@ Run:
 - **:8790 belongs to Mizrahi #1** (the original mortgage demo, `/Users/nakash/Desktop/מזרחי`). Never point anything
   at :8790 and never edit that folder. Session cookies here are `mzl_*` so the two apps don't overwrite each other.
 Ask the user first — real Gemini calls and/or changes to demo data or dependencies:
-- `./run.sh test` (pytest, then E2E against :8791: ~37 Gemini calls; **resets demo cases 001, 003 and 005**).
+- `./run.sh test` (pytest, then E2E on its own backend: `TEST_PORT` default 8811, fresh DATA_DIR; ~37 Gemini calls).
 - `./run.sh reset`, `POST /api/cases/{id}/reset` (wipe a case), `./run.sh setup`, `npm install`, `pip install`.
 - `fixtures/generate.py` (regenerates PDFs and changes SHA-256s the presenter manifest verifies).
 - Any E2E suite: use the `run-stack` skill and an isolated DATA_DIR; never run a case-resetting suite against :8791.
+ Writing suites refuse a backend whose `/api/health` says `"data": "main"` (`e2e/isolation.py`); `E2E_ALLOW_MAIN=1` only on request.
 There is no linter, formatter, frontend unit-test runner or CI. Do not invent `npm test`, `ruff` or `eslint` runs.
 
 ## Boundaries that must hold

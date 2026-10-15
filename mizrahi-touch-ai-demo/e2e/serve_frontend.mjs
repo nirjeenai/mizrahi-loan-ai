@@ -2,7 +2,7 @@
 // backend. Lets browser QA run against an isolated backend without touching frontend/dist.
 //
 //   node e2e/serve_frontend.mjs <outDir> <port> <backendUrl>
-//   node e2e/serve_frontend.mjs e2e/artifacts/ai-card/web 5841 http://127.0.0.1:8791
+//   node e2e/serve_frontend.mjs e2e/artifacts/ai-card/web 5841 http://127.0.0.1:8792   (an isolated backend)
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";

@@ -27,12 +27,15 @@ from pathlib import Path
 
 from playwright.sync_api import BrowserContext, Page, Route, expect, sync_playwright
 
+import isolation
+
 A = os.environ.get("RES_A", "http://127.0.0.1:8792")
 B = os.environ.get("RES_B", "http://127.0.0.1:8795")
 ROUNDS = int(os.environ.get("RES_ROUNDS", "3"))
 for base in (A, B):
     if any(p in base for p in (":8790", ":8791", ":5192")):
         sys.exit(f"refusing to run against {base}: use isolated stacks")
+    isolation.require_isolated(base)
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "artifacts" / "resilience"
 OUT.mkdir(parents=True, exist_ok=True)

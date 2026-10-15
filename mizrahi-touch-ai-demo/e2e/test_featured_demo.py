@@ -27,7 +27,10 @@ from pathlib import Path
 import httpx
 from playwright.sync_api import Page, expect, sync_playwright
 
+import isolation
+
 BASE = os.environ.get("FEATURED_E2E_BASE", "http://127.0.0.1:5846")
+isolation.require_isolated(BASE)
 ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("FEATURED_DATA", ROOT / "artifacts" / "featured" / "data-replay")).resolve()
 ART = ROOT / "artifacts" / "featured"

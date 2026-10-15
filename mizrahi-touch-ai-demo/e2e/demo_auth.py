@@ -20,6 +20,8 @@ from typing import Any, Optional
 
 import httpx
 
+import isolation
+
 _original = httpx.Client.request
 _bases: list[str] = []
 _tokens: dict[tuple, Optional[str]] = {}
@@ -84,6 +86,7 @@ def _request(self: httpx.Client, method: str, url: Any, **kw: Any) -> httpx.Resp
 
 def install(*bases: str) -> None:
     for b in bases:
+        isolation.require_isolated(b)
         if b and b.rstrip("/") not in _bases:
             _bases.append(b.rstrip("/"))
     httpx.Client.request = _request

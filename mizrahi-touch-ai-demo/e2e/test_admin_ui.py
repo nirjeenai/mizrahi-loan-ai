@@ -15,12 +15,15 @@ from pathlib import Path
 
 from playwright.sync_api import Page, expect, sync_playwright
 
+import isolation
+
 BASE = os.environ.get("ADMIN_BASE") or os.environ.get("MZ_API") or "http://127.0.0.1:8797"
 API = f"{BASE}/api/admin/loan-completion"
 ART = Path(__file__).resolve().parent / "artifacts" / "agent-c"
 RESULTS: list[tuple[str, bool, str]] = []
 if any(p in BASE for p in (":8790", ":8791", ":8796", ":8798", ":8801")):
     sys.exit(f"refusing to run against {BASE}: not Agent C's stack")
+isolation.require_isolated(BASE)
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:

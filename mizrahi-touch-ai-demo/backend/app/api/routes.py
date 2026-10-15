@@ -49,7 +49,8 @@ def _doc_view(d: dict, with_result: bool = True) -> dict:
 
 @router.get("/health")
 def health():
-    return {"ok": True, "provider": settings.review_provider, "simulation_date": settings.simulation_date}
+    return {"ok": True, "provider": settings.review_provider, "simulation_date": settings.simulation_date,
+            "data": "main" if settings.main_data else "isolated"}
 
 
 @router.get("/cases")

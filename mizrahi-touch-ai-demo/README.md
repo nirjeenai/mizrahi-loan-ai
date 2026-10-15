@@ -334,7 +334,7 @@ Prerequisites: Python 3.12, Node 20+, Google Chrome (fixtures and browser tests 
 | `http://127.0.0.1:8791/system` | Integration matrix (LIVE / LOCAL / DEMO / BLOCKED), Gemini usage ledger, live MCP self-test, rubrics |
 | `http://127.0.0.1:8791/mcp` | Mortgage Case MCP server (Streamable HTTP, POST only) |
 
-Other commands: `./run.sh dev` (Vite on :5192 proxying to :8791, with backend reload), `./run.sh test` (unit, browser E2E and MCP checks against a running backend; it resets cases 001, 003 and 005), and `./run.sh reset` (demo case and QA case back to nothing uploaded).
+Other commands: `./run.sh dev` (Vite on :5192 proxying to :8791, with backend reload), `./run.sh test` (unit tests, then browser E2E and MCP checks on a backend of their own — `TEST_PORT`, default 8811, fresh data — so the running app's cases are never touched; every suite that writes refuses a backend on the main data, see `e2e/isolation.py`), and `./run.sh reset` (demo case and QA case back to nothing uploaded).
 
 To start a presentation from an already-reviewed case instead of uploading live, run `backend/.venv/bin/python backend/tests/live_journey.py --reset --scene initial`. It uploads the six initial documents through the API, and the review takes about 50 s.
 

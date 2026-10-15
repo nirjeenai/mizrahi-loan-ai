@@ -21,7 +21,10 @@ from pathlib import Path
 
 import httpx
 
+import isolation
+
 BASE = os.environ.get("REPLAY_BASE", "http://127.0.0.1:8798")
+isolation.require_isolated(BASE)
 ROOT = Path(__file__).resolve().parent
 PRESENTER = ROOT.parent / "fixtures" / "presenter"
 MANIFEST = json.loads((PRESENTER / "presenter_scenarios_manifest.json").read_text(encoding="utf8"))

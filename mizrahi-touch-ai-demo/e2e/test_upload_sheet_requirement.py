@@ -19,8 +19,12 @@ from pathlib import Path
 import httpx
 from playwright.sync_api import Page, Route, expect, sync_playwright
 
+import isolation
+
 BASE = os.environ.get("PRESENTER_BASE", "http://127.0.0.1:5846")
 API = os.environ.get("REPLAY_API", "http://127.0.0.1:8798")
+isolation.require_isolated(BASE)
+isolation.require_isolated(API)
 ROOT = Path(__file__).resolve().parent
 CASE, ID, BANK, PURPOSE = "DEMO-MTZ-2026-005", "ID_CARD:BRW-A", "BANK_STATEMENTS:ACC-1", "PURPOSE_PROOF"
 RESULTS: list[tuple[str, bool, str]] = []

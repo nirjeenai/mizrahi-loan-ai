@@ -131,5 +131,6 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 | `backend/tests/test_loan_review.py`, `test_recorded_reviews.py`, `test_intake.py` | loan requirements, family checks, coverage gaps, wrong type, the real provider on recorded LIVE answers, intake |
 | `e2e/replay/record_live.py` | records LIVE Gemini answers for new fixtures (paid; only with the user's OK) |
 | `e2e/coexistence_check.py` | #2 (:8791/:5192) next to #1 (:8790): every request stays on #2's origin |
-| `e2e/*.py` | browser suites (real Chrome, mostly real Gemini) — ports, env vars and resets in `.claude/skills/run-stack/SKILL.md`; `e2e/demo_auth.py` gives their API calls sessions |
+| `e2e/*.py` | browser suites (real Chrome, mostly real Gemini) — ports, env vars and resets in `.claude/skills/run-stack/SKILL.md`; `e2e/demo_auth.py` gives their API calls sessions; `e2e/isolation.py` (called by `demo_auth.install` and every other writing suite) refuses a backend whose `/api/health` reports `"data": "main"` (`config.main_data`) |
+| `backend/tests/test_case_sync.py` | one case catalogue: every prepared case and a chat-confirmed application in the banker list, the case selector and V1/V2/V3 at once; `/api/health` main vs isolated |
 | `backend/tests/live_journey.py` | not a test: uploads scenes to a running backend (real Gemini) |

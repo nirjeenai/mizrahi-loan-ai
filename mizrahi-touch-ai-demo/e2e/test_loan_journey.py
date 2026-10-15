@@ -24,7 +24,10 @@ from pathlib import Path
 import httpx
 from playwright.sync_api import Page, expect, sync_playwright
 
+import isolation
+
 BASE = os.environ.get("LOAN_E2E_BASE", "http://127.0.0.1:5843")
+isolation.require_isolated(BASE)
 ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("LOAN_DATA", ROOT / "artifacts" / "loan" / "data-replay")).resolve()
 ART = ROOT / "artifacts" / "loan"

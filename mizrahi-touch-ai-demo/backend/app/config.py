@@ -51,6 +51,11 @@ class Settings:
         return self.data_dir / "mortgage_case_service.sqlite3"
 
     @property
+    def main_data(self) -> bool:
+        """The default DATA_DIR (backend/data): the user's own instance. Isolated stacks and tests set DATA_DIR."""
+        return self.data_dir.resolve() == (BACKEND_DIR / "data").resolve()
+
+    @property
     def uploads_dir(self) -> Path:
         return self.data_dir / "uploads"
 

@@ -63,8 +63,12 @@ node e2e/serve_frontend.mjs e2e/artifacts/<suite>/web-<tag> <FPORT> http://127.0
 | `test_ai_card.py after` | `CARD_QA_BASE` (:5841) + `CARD_QA_ERROR_BASE` (:5842, backend with `GEMINI_MAX_CALLS_PER_HOUR=0`) | yes | resets every case it uses | see docstring |
 | `screens.py`, `banker_screens.py`, `banker_visual.py` | fixed :8791 / `BANKER_SHOTS_BASE` / `BANKER_VISUAL_BASE` | no | none (screenshots) | short |
 
-Each suite's docstring has its exact command; follow it when it differs from this table.
-`./run.sh test` runs pytest, `test_journey`, `test_mcp_sdk` and `test_presenter` against :8791 — it resets 001, 003 and 005.
+Each suite's docstring has its exact command; follow it when it differs from this table. The (:8791) defaults above
+no longer run: every suite that writes stops when the backend behind its base URL reports `"data": "main"` in
+`/api/health` (`e2e/isolation.py`, also through a `serve_frontend.mjs` proxy); pass the isolated stack's URL.
+`E2E_ALLOW_MAIN=1` lifts it, only when the user asks for a run on their own data.
+`./run.sh test` runs pytest, then `test_journey`, `test_mcp_sdk` and `test_presenter` on its own backend
+(`TEST_PORT`, default 8811, fresh DATA_DIR `e2e/artifacts/run-test/data`); it still spends real Gemini calls.
 
 ## 4. Evidence and debugging
 - Results and screenshots land in `e2e/artifacts/` (gitignored): `e2e-results.json` (journey), `mcp-sdk-results.json`,

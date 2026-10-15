@@ -3,7 +3,7 @@
 #   ./run.sh setup   install backend + frontend, build the app, generate fixtures, create backend/.env
 #   ./run.sh start   serve API + MCP + built app on http://127.0.0.1:8791 (default)
 #   ./run.sh dev     Vite dev server on :5192 (proxies /api and /mcp) + backend on :8791
-#   ./run.sh test    unit tests, browser end-to-end journey (real Gemini), MCP SDK checks, presenter pane checks — backend must be running
+#   ./run.sh test    unit tests, then browser journey (real Gemini), MCP SDK and presenter checks on their own backend (TEST_PORT, default 8811, fresh DATA_DIR)
 #   ./run.sh reset   clear the demo case and the QA case back to "not checked"
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -41,9 +41,18 @@ dev() {
 
 run_tests() {
   (cd "$ROOT/backend" && ./.venv/bin/python -m pytest -q tests)
-  "$PY" "$ROOT/e2e/test_journey.py"
-  "$PY" "$ROOT/e2e/test_mcp_sdk.py"
-  "$PY" "$ROOT/e2e/test_presenter.py"
+  # the browser suites upload, review and reset cases: they get their own backend on fresh data, never the main one
+  local port="${TEST_PORT:-8811}" data="$ROOT/e2e/artifacts/run-test/data" base pid
+  base="http://127.0.0.1:$port"
+  if curl -fsS "$base/api/health" >/dev/null 2>&1; then echo "port $port is in use: set TEST_PORT"; exit 1; fi
+  rm -rf "$data"
+  (cd "$ROOT/backend" && DATA_DIR="$data" exec ./.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port "$port") &
+  pid=$!
+  trap "kill $pid 2>/dev/null" EXIT
+  for _ in $(seq 60); do curl -fsS "$base/api/health" >/dev/null 2>&1 && break; sleep 0.5; done
+  E2E_BASE="$base" "$PY" "$ROOT/e2e/test_journey.py"
+  E2E_BASE="$base" "$PY" "$ROOT/e2e/test_mcp_sdk.py"
+  PRESENTER_BASE="$base" "$PY" "$ROOT/e2e/test_presenter.py"
 }
 
 reset() {
