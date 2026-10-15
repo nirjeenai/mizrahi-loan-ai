@@ -10,6 +10,7 @@ import { ReviewWorkspace } from "./ReviewWorkspace";
 type View = "intel" | "case" | "review" | "followup" | "conversation" | "technical";
 /** The banker's last choice between the classic review (V1), the intelligence briefing (V2) and the case workspace (V3); V1 when never chosen. */
 const UI_PREF = "mz.banker.ui";
+const CASE_PREF = "mz.banker.case";
 
 export function ConsoleTop({ active, identity }: { active: "customer" | "banker" | "system"; identity?: string }) {
   return (
@@ -32,7 +33,7 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
 
 export function BankerConsole() {
   const [params, setParams] = useSearchParams();
-  const caseId = params.get("case") || localStorage.getItem("mz.banker.case") || "DEMO-MTZ-2026-001";
+  const caseId = params.get("case") || "";
   const pref = localStorage.getItem(UI_PREF);
   const view = (params.get("view") as View) || (pref === "intel" || pref === "case" ? pref : "review");
   // the console works on a staff session; in demo mode it obtains the demo banker's session without a login
@@ -56,9 +57,8 @@ export function BankerConsole() {
   const staff = me?.staff_id || "";
   // nothing is polled until a staff member signs in
   const cases = usePolling<BankerCaseRow[] | null>(() => (me ? api.bankerCases() : Promise.resolve(null)), [staff], () => false);
-  const ws = usePolling<Workspace | null>(() => (me ? api.bankerWorkspace(caseId) : Promise.resolve(null)), [caseId, staff],
+  const ws = usePolling<Workspace | null>(() => (me && caseId ? api.bankerWorkspace(caseId) : Promise.resolve(null)), [caseId, staff],
     (w) => !!w && (w.summary.processing > 0 || ["CHECKING", "RECHECKING"].includes(w.review_state.state)));
-  useEffect(() => { localStorage.setItem("mz.banker.case", caseId); }, [caseId]);
   const patch = useCallback((next: Record<string, string | null>) => {
     setParams((prev) => {
       const p = new URLSearchParams(prev);
@@ -66,6 +66,23 @@ export function BankerConsole() {
       return p;
     }, { replace: true });
   }, [setParams]);
+  // no case in the URL: the remembered one if it still exists, else the top of the main list; written into the URL so
+  // the open case does not change when the list reorders. Only a case someone chose is remembered, never that default.
+  const list = cases.data;
+  const remembered = localStorage.getItem(CASE_PREF);
+  const defaulted = useRef<string | null>(null);
+  useEffect(() => {
+    if (caseId || !list) return;
+    const keep = list.some((c) => c.case_id === remembered) ? remembered : null;
+    const pick = keep || (list.find((c) => inMainList(c.case_id)) || list[0])?.case_id;
+    defaulted.current = keep ? null : pick || null;
+    if (pick) patch({ case: pick });
+  }, [caseId, list, remembered, patch]);
+  useEffect(() => { if (caseId && caseId !== defaulted.current) localStorage.setItem(CASE_PREF, caseId); }, [caseId]);
+  const chooseCase = useCallback((id: string) => {
+    localStorage.setItem(CASE_PREF, id);
+    patch({ case: id, item: null });
+  }, [patch]);
   const reload = useCallback(() => { ws.reload(); cases.reload(); }, [ws, cases]);
   const switchView = useCallback((v: View) => {
     if (v === "intel" || v === "case" || v === "review") localStorage.setItem(UI_PREF, v);
@@ -84,7 +101,7 @@ export function BankerConsole() {
     <div className="console desk">
       <ConsoleTop active="banker" identity={`${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he}`} />
       <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff} onOpen={cases.reload}
-        onCase={(id) => patch({ case: id, item: null })} onView={switchView} />
+        onCase={chooseCase} onView={switchView} />
       {!w ? <div className="desk-loading">{ws.error ? <>לא הצלחנו לטעון את התיק. <button className="link" onClick={ws.reload}>ניסיון חוזר</button></> : <><span className="spinner" /> טוען את התיק…</>}</div>
         : view === "intel" || view === "case" ? (() => {
             const openV1 = (item?: string | null) => {

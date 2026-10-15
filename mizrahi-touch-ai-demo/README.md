@@ -122,6 +122,8 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   The banker's "תיקים בתור" shows the six official profiles (101–106, UC-01…06) and every customer-created application
   (`DEMO-LN-…`) in that one order; every other prepared case (001–011) sits under a collapsed "תרחישי בדיקה נוספים",
   in the same order. A case opened by link (the presenter's "תצוגת הבנקאית") opens the selector on its own section.
+  `/banker` without a case opens the case the banker last chose (if it still exists), else the most recently active
+  case of the main list; that default is not remembered, so the next visit again opens the latest case.
 - **New customers (`/customer/apply`).** A deterministic JEEN questionnaire (`workflow/onboarding.py`, no model) asks
   about the entity, name, purpose, income sources, VAT registration if self-employed, a co-borrower (with their income
   and a joint or separate account), and the amount and payments. A company path asks for the company name, the

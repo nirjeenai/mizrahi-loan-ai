@@ -2,7 +2,8 @@
 the main list is the six official profiles (UC-01…06) and every customer-created application, most recent activity
 first; every other prepared case is under a collapsed "תרחישי בדיקה נוספים". A new chat application and a meaningful
 update move a case to the top of its list without a reload; a hidden case opened by a link (as the presenter does) is
-shown as the selected case, with its section open.
+shown as the selected case, with its section open. /banker without a case opens the remembered case if it still exists,
+else the most recently active main-list case (a default that is not remembered); a case in the URL always wins.
 
     cd backend && GEMINI_API_KEY= GEMINI_MAX_CALLS_PER_HOUR=0 ONBOARDING_LLM=0 VISIONTRACE_MCP_KEY= \\
         DATA_DIR=../e2e/artifacts/case-selector/data ./.venv/bin/python -m uvicorn app.main:app --port 8812   # fresh data
@@ -60,6 +61,49 @@ def chat_application(api: httpx.Client, name: str) -> str:
     out = api.post(f"/api/demo/onboarding/{draft}/v2/confirm").json()
     assert out["created"], out
     return out["case_id"]
+
+
+def opened(page: Page, path: str = "/banker") -> str:
+    """The case the console settles on: the URL's case once the workspace of that case is shown."""
+    page.goto(f"{BASE}{path}")
+    expect(page.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
+    page.wait_for_timeout(400)
+    return page.evaluate("new URLSearchParams(location.search).get('case')")
+
+
+def default_selection(browser, note, order, numbers) -> None:
+    """/banker without a case: the remembered case if it still exists, else the most recently active main-list case;
+    that default is never remembered, an explicit URL always wins."""
+    top_main = lambda: next(c for c in order() if c in OFFICIAL or c.startswith("DEMO-LN-"))  # noqa: E731
+    fresh = browser.new_context(viewport={"width": 1440, "height": 900}, locale="he-IL")
+    page = fresh.new_page()
+    first = opened(page)
+    check("first visit (nothing chosen): opens the most recently active main-list case, not 001",
+          first == top_main() and first not in LEGACY, f"{first} vs {top_main()}")
+    number = next(r["display_number"] for r in numbers() if r["case_id"] == first)
+    check("…and the case bar shows it", number in page.locator("[data-testid=case-switch]").inner_text(), number)
+    same = True
+    for v, root in (("ui-v2", "bi-brief"), ("ui-v3", "cc-root"), ("ui-v1", "review-queue")):
+        page.locator(f"[data-testid={v}]").click()
+        expect(page.locator(f"[data-testid={root}]")).to_be_visible(timeout=20000)
+        same = same and f"case={first}" in page.url
+    check("V1, V2 and V3 keep the default case", same)
+
+    note("DEMO-MTZ-2026-106")
+    again = opened(page)
+    check("the default is not remembered: after an update elsewhere, the next visit opens the new top case",
+          again == "DEMO-MTZ-2026-106", again)
+    check("an explicit case in the URL is respected", opened(page, "/banker?case=DEMO-MTZ-2026-005") == "DEMO-MTZ-2026-005")
+
+    open_selector(page)
+    page.locator("[data-testid=case-main] .case-pop-row[data-case='DEMO-MTZ-2026-103']").click()
+    expect(page.locator("[data-testid=case-switch]")).to_contain_text("438839103", timeout=15000)
+    note("DEMO-MTZ-2026-101")
+    check("a chosen case is remembered on return, even after other cases were updated", opened(page) == "DEMO-MTZ-2026-103")
+    page.evaluate("localStorage.setItem('mz.banker.case', 'DEMO-LN-9999-GONE')")
+    gone = opened(page)
+    check("a remembered case that no longer exists falls back to the top of the main list", gone == "DEMO-MTZ-2026-101", gone)
+    fresh.close()
 
 
 def main() -> int:
@@ -139,6 +183,7 @@ def main() -> int:
             expect(page.locator(f"[data-testid={root}]")).to_be_visible(timeout=20000)
             same = same and "438839004" in bar.inner_text()
         check("V1, V2 and V3 keep the hidden case selected", same)
+        default_selection(browser, note, order, lambda: staff.get("/api/banker/cases").json())
         browser.close()
     passed = sum(ok for _, ok, _ in RESULTS)
     print(f"\n{passed}/{len(RESULTS)} case-selector checks passed · isolated stack, no Gemini")
