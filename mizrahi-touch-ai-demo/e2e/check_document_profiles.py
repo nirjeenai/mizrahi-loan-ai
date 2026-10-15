@@ -99,16 +99,17 @@ def prepared_cases(page: Page) -> None:
         card = page.locator(f"[data-testid=usecase-{u['id']}]")
         card.scroll_into_view_if_needed()
         card.locator("[data-testid=usecase-open-case]").click()
-        profile = page.locator(f"[data-testid=document-profile][data-use-case={u['useCaseId']}]")
-        expect(profile).to_be_visible(timeout=20000)
-        expect(page.locator(".touch-header .case-pill")).to_contain_text(u["caseDisplay"], timeout=10000)
+        expect(page.locator(".touch-header .case-pill")).to_contain_text(u["caseDisplay"], timeout=20000)
+        expect(page.locator("[data-testid=required-docs]")).to_be_visible()
+        screen = page.locator("main.screen").inner_text()
         expected = [r["code"] for r in u["requirements"]]
         got = required_rows(page)
         check(f"{u['id']} opens case {u['caseDisplay']} with exactly the manifest checklist", sorted(got) == sorted(expected),
               f"app={got}")
-        people = profile.locator("[data-testid=profile-applicant] b").all_inner_texts()
-        check(f"{u['id']} persona is consistent: profile names match the presenter card ({u['personaHe']})",
-              people and all(p.split()[0] in u["personaHe"] for p in people), " / ".join(people))
+        individual = u["useCaseId"] != "UC-06"
+        check(f"{u['id']} documents omit the request profile card; income update is offered only for an individual",
+              page.locator("[data-testid=document-profile]").count() == 0 and "פרופיל המסמכים של הבקשה" not in screen
+              and "loan_policy@" not in screen and page.locator("[data-testid=profile-edit]").is_visible() == individual)
         if not card.locator("[data-testid=usecase-requirements]").count():
             card.locator("[data-testid=usecase-toggle]").click()
         card_codes = card.locator("[data-testid=usecase-req]").evaluate_all("els => els.map(e => e.getAttribute('data-code'))")
@@ -117,18 +118,13 @@ def prepared_cases(page: Page) -> None:
         app_human = page.locator("[data-testid=required-docs] li[data-intake=human_review]").evaluate_all(
             "els => els.map(e => e.getAttribute('data-testid').replace(/^req-/, ''))")
         check(f"{u['id']} documents without a rubric are marked for the banker's review", sorted(app_human) == sorted(human))
-        if u["useCaseId"] == "UC-06":
-            check("UC-06 shows the limited, banker-assisted business path", profile.locator("[data-testid=banker-assisted]").is_visible()
-                  and "חיתום" in profile.inner_text() and "ש.ג. מערכות מיזוג" in profile.inner_text())
-        if u["useCaseId"] == "UC-05":
-            check("UC-05 names רחל as an account holder who is not a borrower",
-                  "אינה לווה" in profile.locator("[data-testid=profile-other-holder]").inner_text())
         page.locator("[data-testid=presenter-panel]").evaluate("e => e.scrollTop = 0")
         card.scroll_into_view_if_needed()
         shot(page, f"{u['id']}-{u['useCaseId']}")
     # "התיקים שלי" follows the demonstrated persona
     page.locator("[data-testid=usecase-TC-01] [data-testid=usecase-open-case]").click()
-    expect(page.locator("[data-testid=document-profile][data-use-case=UC-01]")).to_be_visible(timeout=15000)
+    expect(page.locator(".touch-header .case-pill")).to_contain_text("438839101", timeout=15000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible()
     page.locator("[data-testid=presenter-close]").click()
     mine, head = drawer_cases(page)
     check("'התיקים שלי' for מיכל ברק lists her two applications only (renovation 002 + car 101)",
@@ -138,7 +134,8 @@ def prepared_cases(page: Page) -> None:
     close_drawer(page)
     open_presenter(page)
     page.locator("[data-testid=usecase-TC-05] [data-testid=usecase-open-case]").click()
-    expect(page.locator("[data-testid=document-profile][data-use-case=UC-05]")).to_be_visible(timeout=15000)
+    expect(page.locator(".touch-header .case-pill")).to_contain_text("438839105", timeout=15000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible()
     page.locator("[data-testid=presenter-close]").click()
     mine, head = drawer_cases(page)
     check("switching the scenario switches the persona: 'התיקים שלי' for the Sterns lists case 105 only",
@@ -165,7 +162,8 @@ def human_review_upload(page: Page) -> None:
     open_presenter(page)
     card = page.locator("[data-testid=usecase-TC-06]")
     card.locator("[data-testid=usecase-open-case]").click()
-    expect(page.locator("[data-testid=document-profile][data-use-case=UC-06]")).to_be_visible(timeout=15000)
+    expect(page.locator(".touch-header .case-pill")).to_contain_text("438839106", timeout=15000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible()
     if not card.locator("[data-testid=usecase-requirements]").count():
         card.locator("[data-testid=usecase-toggle]").click()
     card.locator("[data-testid=usecase-reset]").click()
@@ -232,7 +230,7 @@ def confirm_and_open(page: Page) -> str:
     before = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
     # two clicks in the same tick, before React re-renders the button as busy: both requests reach the server
     page.locator("[data-testid=onb-confirm]").evaluate("b => { b.click(); b.click(); }")
-    expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible(timeout=20000)
     after = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
     check("confirming (clicked twice) creates exactly one case", after == before + 1, f"{before} → {after}")
     return page.locator(".touch-header .case-pill").inner_text()
@@ -264,7 +262,7 @@ def onboarding(page: Page) -> None:
     check("'התיקים שלי' shows the new customer's application (and nobody else's)", len(mine) == 1 and "דנה רז" in head,
           f"{mine} · {head}")
     page.reload()
-    expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible(timeout=20000)
     check("the created case persists across a reload", sorted(required_rows(page)) == sorted(codes))
     # upload targets of a generated case feed the real review pipeline (REPLAY answer for this recorded file)
     row = page.locator("[data-testid='req-ID_CARD:BRW-A']")
@@ -346,8 +344,10 @@ def onboarding(page: Page) -> None:
           and {"COMPANY_EXTRACT", "SIGNATORY_AUTHORITY", "COMPANY_FINANCIALS"} <= set(codes), str(codes))
     shot(page, "onboarding-summary-company")
     confirm_and_open(page)
-    check("the company case opens on the limited banker-assisted path",
-          page.locator("[data-testid=banker-assisted]").is_visible())
+    rows = required_rows(page)
+    check("the company case opens on its document checklist, without an income-source editor",
+          page.locator("[data-testid=profile-edit]").count() == 0 and "PAYSLIPS:BRW-A" not in rows
+          and {"COMPANY_EXTRACT", "SIGNATORY_AUTHORITY", "COMPANY_FINANCIALS"} <= set(rows), str(rows))
     shot(page, "created-case-company")
 
 

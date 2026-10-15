@@ -13,40 +13,23 @@ const LOAN_ICON: Record<string, ReactNode> = { id_document: <IPerson size={18} /
 export const uploadable = (r: Requirement) => r.evaluated_by_ai || r.intake === "human_review";
 const DONE_STATES = ["extracted", "preparation_confirmed", "checking", "accepted_by_banker"];
 
-/** Who the checklist was composed for, from the case's document profile — the same inputs the policy read. */
-function ProfileCard() {
+/** Income-source correction for an individual borrower, inside the required-documents list.
+ *  The same policy recomposes the checklist on the server; uploaded documents stay. */
+function IncomeSources() {
   const { snap } = useCase();
   const [editing, setEditing] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const p = snap?.case.document_profile;
-  if (!snap || !p) return null;
-  const version = snap.readiness.requirements[0]?.policy_version;
+  if (!snap || !p || p.entity !== "individual") return null;
   return (
-    <section className="dx-profile" data-testid="document-profile" data-entity={p.entity} data-use-case={p.use_case || undefined}>
-      <div className="dx-profile-head">
-        <span className="bold small">פרופיל המסמכים של הבקשה</span>
-        {p.profile_label_he && <span className="badge info" data-testid="profile-label">{p.profile_label_he}</span>}
-      </div>
-      {p.company && <div className="small" data-testid="profile-company"><b>{p.company.name_he}</b> · <span className="ltr">{p.company.company_number}</span> · {p.company.signatory_role_he}: {p.company.signatory_he}</div>}
-      <ul className="dx-profile-people">
-        {p.applicants.map((a) => (
-          <li key={a.borrower_id} data-testid="profile-applicant" data-borrower={a.borrower_id}>
-            <b>{a.name_he}</b> · {a.role_he}{a.profile_he && a.profile_he !== a.role_he ? ` · ${a.profile_he}` : ""}</li>
-        ))}
-        {p.accounts.flatMap((acc) => acc.other_holders_he).map((h) => <li key={h} className="muted" data-testid="profile-other-holder">{h}</li>)}
-      </ul>
-      {p.banker_assisted && (
-        <div className="notice navy small" data-testid="banker-assisted">מסלול עסקי מוגבל בליווי {snap.case.banker.name_he}: אוספים כאן את מסמכי
-          הזיהוי והדוחות של החברה, והבנקאית ממשיכה את הטיפול. אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
-      )}
-      {p.entity === "individual" && !editing && (
-        <button className="link small dx-profile-edit" onClick={() => { setEditing(true); setResult(null); }} data-testid="profile-edit">
+    <div className="dl-income" data-testid="income-sources">
+      {!editing && (
+        <button className="link subtle small dx-profile-edit" onClick={() => { setEditing(true); setResult(null); }} data-testid="profile-edit">
           עדכון מקורות ההכנסה</button>
       )}
       {editing && <ProfileEditor onDone={(text) => { setEditing(false); setResult(text); }} />}
       {result && <div className="notice navy small" role="status" data-testid="profile-change-result">{result}</div>}
-      <div className="tiny muted dx-profile-note">{p.disclaimer_he}{version ? <> · <span className="ltr">{version}</span></> : null}</div>
-    </section>
+    </div>
   );
 }
 
@@ -293,7 +276,6 @@ export function Documents() {
       {linkNote && <div className="notice" role="status" style={{ marginBottom: 12 }} data-testid="link-note">{linkNote}</div>}
       <ApplyHandoff />
       {tab === "list" && (<>
-        <ProfileCard />
         {requests.length > 0 && (<>
           <div className="section-label" id="sec-requests">בקשות מ{snap.case.banker.name_he}</div>
           {requests.map((q) => {
@@ -371,6 +353,7 @@ export function Documents() {
             </span>
             <span className={`dl-toggle${listOpen ? " open" : ""}`} aria-hidden><IChevronDown size={18} /></span>
           </button>
+          <IncomeSources />
           {listOpen && (
             <ul className="dl-list" id="dl-list">
               {loanDocs.filter((r) => r.family === "id_document").map((r) => (

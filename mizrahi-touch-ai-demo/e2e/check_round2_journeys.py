@@ -177,7 +177,8 @@ RETRIES: list[str] = []
 def open_case(page: Page, tc: str) -> None:
     presenter(page)
     card(page, tc).locator("[data-testid=usecase-open-case]").click()
-    expect(page.locator("[data-testid=document-profile]")).to_have_attribute("data-use-case", USE[tc]["useCaseId"], timeout=20000)
+    expect(page.locator(".touch-header .case-pill")).to_contain_text(USE[tc]["caseDisplay"], timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible()
     close_presenter(page)
 
 
@@ -279,13 +280,10 @@ def run_tc(page: Page, banker: Page, tc: str) -> None:
     reset_case(page, tc)
     files = download_pack(page, tc)
     open_case(page, tc)
-    profile = page.locator("[data-testid=document-profile]")
-    names = profile.locator("[data-testid=profile-applicant] b").all_inner_texts()
-    check(f"{tc} · the app shows {u['personaHe']} with the checklist of the profile",
-          all(n.split()[0] in u["personaHe"] for n in names) and
+    check(f"{tc} · documents for {u['caseDisplay']} show the profile checklist",
+          u["caseDisplay"] in page.locator(".touch-header .case-pill").inner_text() and
           sorted(page.locator("[data-testid=required-docs] li.dl-row").evaluate_all(
-              "els => els.map(e => e.getAttribute('data-testid').replace(/^req-/, ''))")) == sorted(r["code"] for r in u["requirements"]),
-          " / ".join(names))
+              "els => els.map(e => e.getAttribute('data-testid').replace(/^req-/, ''))")) == sorted(r["code"] for r in u["requirements"]))
     seen: list[str] = []
     for st in u["steps"]:
         if st.get("optional"):
@@ -501,7 +499,7 @@ def new_customer(page: Page, banker: Page) -> None:
     shot(page, "NEW-summary")
     before = len(api.get("/api/session/demo/cases").json())
     page.locator("[data-testid=onb-confirm]").evaluate("b => { b.click(); b.click(); }")
-    expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible(timeout=20000)
     rows = api.get("/api/session/demo/cases").json()
     case = next(r["case_id"] for r in rows if r.get("applicants_he") == ["נטע אלון"])
     check("new customer · one persisted case for a double-clicked confirmation", len(rows) == before + 1, case)
@@ -586,9 +584,11 @@ def mobile(browser) -> None:
     page.goto(f"{BASE}/customer")
     page.evaluate("localStorage.setItem('mz.case', 'DEMO-MTZ-2026-105')")
     page.goto(f"{BASE}/customer/documents")
-    expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=document-profile]")).to_have_count(0)
+    expect(page.locator("[data-testid=profile-edit]")).to_be_visible()
     over = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
-    check("mobile 390×844 · TC-05 documents with the profile card: RTL, no sideways scroll",
+    check("mobile 390×844 · TC-05 documents without the profile card: RTL, no sideways scroll",
           over <= 0 and page.evaluate("document.documentElement.dir") == "rtl", f"overflow {over}")
     shot(page, "mobile-TC-05-documents")
     ctx.close()

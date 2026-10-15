@@ -1183,14 +1183,12 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .onb-reqs { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .onb-reqs li { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.45; }
 .onb-why { display: block; margin-top: 1px; }
-.dx-profile { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
-.dx-profile-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.dx-profile-people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
-.dx-profile-note { line-height: 1.5; }
 .dl-human { color: var(--info); }
 .upload-human { color: var(--info); background: var(--info-soft); border-radius: 8px; padding: 6px 9px; line-height: 1.5; }
 .case-profile { flex: none; font-size: 12px; font-weight: 700; color: var(--info); background: var(--info-soft); border-radius: 999px; padding: 1px 8px; }
 .case-profile.assisted { color: var(--jeen); background: var(--jeen-soft); }
+.dl-income { padding: 0 14px 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.dl-income .dx-profile-editor, .dl-income .notice { align-self: stretch; }
 .dx-profile-edit { align-self: flex-start; }
 .dx-profile-editor { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--mz-line-soft); padding-top: 10px; }
 .dl-inactive { padding: 10px 12px; opacity: 0.85; }

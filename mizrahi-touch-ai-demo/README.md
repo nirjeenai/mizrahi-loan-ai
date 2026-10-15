@@ -204,7 +204,7 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
     declared income.
   - מיכל ברק's seeded ID number failed the check digit and was corrected to `311204572` (cases 002 and 101).
 - **Profile change after confirmation.** `POST /api/cases/{id}/profile` (`workflow/profile_change.py`; "עדכון מקורות
-  ההכנסה" in the profile card on Documents) stores the new income profile as the case's overlay (`profile_overlays`,
+  ההכנסה", a link in the required-documents section on Documents) stores the new income profile as the case's overlay (`profile_overlays`,
   cleared by a case reset), and `compose` recomposes the checklist under the pinned policy version. New requirements
   appear at once. An obsolete requirement's documents and reviews are kept: they are listed as "לא נדרש עוד" for the
   customer and as an inactive row in the banker's matrix, and are left out of the evaluated set. Its customer-action
