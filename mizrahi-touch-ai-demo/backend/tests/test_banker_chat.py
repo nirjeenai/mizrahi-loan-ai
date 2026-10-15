@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from app import db
+from app import auth, db
 from app.api import banker_chat
 from app.api import banker_demo_letter as letter
 from app.bank.mock_bank import bank
@@ -147,7 +147,7 @@ def test_without_a_model_the_chat_says_so_and_customers_cannot_use_it(monkeypatc
     r = ask("מה ההכנסה?", draft)
     assert r.status_code == 503 and "GEMINI_API_KEY" in r.json()["detail"]
     customer = client_for(COMPLETE)
-    customer.cookies.delete("mzl_staff")
+    customer.cookies.delete(auth.COOKIES["staff"])
     r = customer.post(f"/api/banker/cases/{COMPLETE}/chat", json={"message": "x", "history": [], "draft": None})
     assert r.status_code in (401, 403)
 

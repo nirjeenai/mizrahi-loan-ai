@@ -60,8 +60,13 @@ export function AdminPage() {
 
   useEffect(() => {
     (async () => {
-      let s = await adminApi.session().catch(() => null);
-      if (s && !s.staff && s.demo_identity && await adminApi.demoStaff().catch(() => null)) s = await adminApi.session().catch(() => null);
+      let s: Awaited<ReturnType<typeof adminApi.session>> | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (attempt) await new Promise((r) => setTimeout(r, 600 * attempt));
+        s = await adminApi.session().catch(() => null);
+        if (s && !s.staff && s.demo_identity && await adminApi.demoStaff().catch(() => null)) s = await adminApi.session().catch(() => null);
+        if (s && (s.staff || !s.demo_identity)) break;
+      }
       setSession(s?.staff ? "ok" : "none");
     })();
   }, []);

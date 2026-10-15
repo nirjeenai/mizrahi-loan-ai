@@ -27,8 +27,20 @@ from .bank.mock_bank import bank
 from .config import settings
 from .store import repo
 
-# Browsers scope cookies by host, not port: these names must differ from Mizrahi #1's (mz_*) on 127.0.0.1.
-COOKIES = {"customer": "mzl_customer", "staff": "mzl_staff"}
+class _CookieNames:
+    """Browsers scope cookies by host, not port, so every instance of this app on 127.0.0.1 (the main one, isolated
+    stacks, previews) would share one cookie name and overwrite each other's sessions, each signed with its own
+    DATA_DIR secret. The name carries a tag derived from this instance's secret: stable across restarts, distinct per
+    instance, and distinct from Mizrahi #1's mz_*."""
+
+    def __getitem__(self, role: str) -> str:
+        tag = hashlib.sha256(b"mzl-cookie:" + settings.session_secret).hexdigest()[:8]
+        return f"mzl_{role}_{tag}"
+
+
+COOKIES = _CookieNames()
+# Every 401 names the session that would satisfy it, so the app can renew exactly that one and retry once.
+AUTH_HEADER = "X-Auth-Required"
 NEED_CUSTOMER = "נדרש חיבור לתיק."
 NEED_STAFF = "נדרש חיבור של איש צוות הבנק."
 NOT_YOURS = "התיק אינו שייך לחיבור הנוכחי."
@@ -98,10 +110,14 @@ def _known_case(case_id: str) -> dict:
         raise HTTPException(404, "no such case") from None
 
 
+def unauthorized(detail: str, *roles: str) -> HTTPException:
+    return HTTPException(401, detail, headers={AUTH_HEADER: ", ".join(roles)})
+
+
 def require_customer(request: Request) -> dict:
     c = customer(request)
     if not c:
-        raise HTTPException(401, NEED_CUSTOMER)
+        raise unauthorized(NEED_CUSTOMER, "customer")
     return c
 
 
@@ -116,7 +132,7 @@ def require_customer_case(request: Request, case_id: str) -> dict:
 def require_staff(request: Request) -> dict:
     s = staff(request)
     if not s:
-        raise HTTPException(401, NEED_STAFF)
+        raise unauthorized(NEED_STAFF, "staff")
     return s
 
 
@@ -134,6 +150,8 @@ def require_reader(request: Request, case_id: str) -> tuple[str, dict]:
     if s:
         _known_case(case_id)
         return "staff", s
+    if not customer(request):
+        raise unauthorized(NEED_CUSTOMER, "staff", "customer")
     return "customer", require_customer_case(request, case_id)
 
 
@@ -142,6 +160,8 @@ def require_case_actor(request: Request, case_id: str) -> tuple[str, dict]:
     s = staff(request)
     if s:
         return "staff", require_assigned_staff(request, case_id)
+    if not customer(request):
+        raise unauthorized(NEED_CUSTOMER, "staff", "customer")
     return "customer", require_customer_case(request, case_id)
 
 

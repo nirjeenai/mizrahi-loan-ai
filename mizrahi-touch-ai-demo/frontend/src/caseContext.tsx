@@ -46,17 +46,28 @@ export function CaseProvider({ children }: { children: ReactNode }) {
   const [caseId, setCaseIdState] = useState(() => localStorage.getItem("mz.case") || CASE_ID_DEFAULT);
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [expired, setExpired] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   const caseRef = useRef(caseId);
   caseRef.current = caseId;
-  // the session must cover the selected case: ask the service for one (demo mode) when it does not
+  const run = useRef(0);
+  // the session must cover the selected case: ask the service for one (demo mode) when it does not. A run that a newer
+  // case selection superseded is dropped, so a slow answer for the previous case never marks the current one expired.
   const ensureSession = useCallback(async () => {
+    const mine = ++run.current;
     const want = caseRef.current;
-    let s = await api.session().catch(() => null);
-    if (s && !s.customer?.cases.some((c) => c.case_id === want) && s.demo_identity) {
-      const issued = await api.demoCustomer(want).catch(() => null);
-      if (issued) s = await api.session().catch(() => null);
+    const covers = (s: Session | null) => !!s?.customer?.cases.some((c) => c.case_id === want);
+    let s: Session | null = null;
+    for (let attempt = 0; attempt < 3 && mine === run.current; attempt++) {
+      if (attempt) await new Promise((r) => setTimeout(r, 600 * attempt));
+      s = await api.session().catch(() => null);
+      if (s && !covers(s) && s.demo_identity && await api.demoCustomer(want).then(() => true, () => false)) {
+        s = await api.session().catch(() => null);
+      }
+      if (s && (covers(s) || !s.demo_identity)) break;
     }
-    setExpired(!!s && !s.customer?.cases.some((c) => c.case_id === want));
+    if (mine !== run.current) return;
+    setSessionError(s ? null : "השרת אינו זמין כרגע.");
+    setExpired(!!s && !covers(s));
     setSession(s);
   }, []);
   useEffect(() => { ensureSession(); }, [caseId, ensureSession]);
@@ -85,9 +96,10 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     auth: { status: session === undefined || (!ready && !expired) ? "loading" : ready ? "signed-in" : "signed-out", customer, expired,
       wantCase: null },
     openCase,
-    caseId, setCaseId, snap: current, docs: current ? (docs.data || []).filter((d) => d.case_id === caseId) : [], error: snap.error,
+    caseId, setCaseId, snap: current, docs: current ? (docs.data || []).filter((d) => d.case_id === caseId) : [],
+    error: snap.error || sessionError,
     stale: !!current && !!snap.error && snap.failures >= 2, updatedAt: snap.updatedAt,
-    reload: () => { snap.reload(); docs.reload(); },
+    reload: () => { if (sessionError) ensureSession(); snap.reload(); docs.reload(); },
     assistant, openAssistant: (prompt) => { setAssistantOrigin(null); setAssistant({ open: true, prompt }); },
     closeAssistant: () => setAssistant({ open: false }),
     upload, openUpload: (borrowerId, preset) => setUpload((u) => ({ open: true, borrowerId, ...preset, nonce: u.nonce + 1 })),

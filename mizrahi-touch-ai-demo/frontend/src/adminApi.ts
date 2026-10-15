@@ -1,4 +1,5 @@
 /** The Admin Settings API (`/api/admin/loan-completion`, CONTRACTS §7). Every call rides the staff session cookie. */
+import { request } from "./api";
 
 export type Kind = "loan_policy" | "talk_prompt";
 export type Json = Record<string, any>;
@@ -58,7 +59,7 @@ export class AdminError extends Error {
 }
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, { credentials: "same-origin", ...init });
+  const res = await request(path, init);
   if (!res.ok) {
     let detail: any = null;
     try { detail = (await res.json()).detail; } catch { /* not json */ }

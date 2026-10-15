@@ -46,10 +46,11 @@ def upload(c: TestClient, case: str, borrower: str, name: str, **data):
 # ---------------------------------------------------------------- G-01 customer identity and case isolation
 def test_demo_session_is_bound_to_the_picked_case_and_extended_per_case():
     c = TestClient(app)
-    assert c.get(f"/api/cases/{CASE}").status_code == 401                         # no session, no data
+    denied = c.get(f"/api/cases/{CASE}")
+    assert denied.status_code == 401 and denied.headers[auth.AUTH_HEADER] == "customer"   # no session, no data
     r = c.post("/api/session/demo/customer", json={"case_id": CASE})
     cookie = r.headers["set-cookie"]
-    assert r.status_code == 200 and cookie.startswith("mzl_customer=") and "HttpOnly" in cookie and "SameSite=strict" in cookie
+    assert r.status_code == 200 and cookie.startswith(f"{auth.COOKIES['customer']}=") and "HttpOnly" in cookie and "SameSite=strict" in cookie
     assert [x["case_id"] for x in c.get("/api/session").json()["customer"]["cases"]] == [CASE]
     assert c.get(f"/api/cases/{CASE}").status_code == 200
     assert c.get(f"/api/cases/{ORI_CASE}").status_code == 403                     # another case needs its own pick

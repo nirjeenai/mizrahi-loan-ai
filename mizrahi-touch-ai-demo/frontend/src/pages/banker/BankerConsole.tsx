@@ -38,8 +38,13 @@ export function BankerConsole() {
   // the console works on a staff session; in demo mode it obtains the demo banker's session without a login
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const ensureSession = useCallback(async () => {
-    let s = await api.session().catch(() => null);
-    if (s && !s.staff && s.demo_identity && await api.demoStaff().catch(() => null)) s = await api.session().catch(() => null);
+    let s: Session | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt) await new Promise((r) => setTimeout(r, 600 * attempt));
+      s = await api.session().catch(() => null);
+      if (s && !s.staff && s.demo_identity && await api.demoStaff().catch(() => null)) s = await api.session().catch(() => null);
+      if (s && (s.staff || !s.demo_identity)) break;
+    }
     setSession(s);
   }, []);
   useEffect(() => {

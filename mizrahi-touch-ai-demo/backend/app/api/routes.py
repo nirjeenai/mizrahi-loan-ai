@@ -225,7 +225,7 @@ def _document(request: Request, document_id: str) -> dict:
     d = repo.document(document_id)
     if not d:
         if not (auth.staff(request) or auth.customer(request)):
-            raise HTTPException(401, auth.NEED_CUSTOMER)
+            raise auth.unauthorized(auth.NEED_CUSTOMER, "staff", "customer")
         raise HTTPException(404, "no such document")
     auth.require_reader(request, d["case_id"])
     return d
@@ -568,7 +568,7 @@ def presenter_demo_reset(request: Request):
         raise HTTPException(403, "איפוס תיקים כבוי בסביבה זו.")
     s, c = auth.staff(request), auth.customer(request)
     if not (s or c):
-        raise HTTPException(401, auth.NEED_CUSTOMER)
+        raise auth.unauthorized(auth.NEED_CUSTOMER, "staff", "customer")
     try:
         return demo.reset_executive_cases(f"banker:{s['staff_id']}" if s else "presenter")
     except demo.DemoBusy:

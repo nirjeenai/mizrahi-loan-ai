@@ -172,11 +172,60 @@ export class AccessError extends Error {
   status: number;
   constructor(status: number, message: string) { super(message); this.status = status; }
 }
-/** Fired on every 401 so the app can show its sign-in screen; the session cookie is HttpOnly, so this is the only signal. */
+/** Fired on a 401 the app could not recover from; the session cookie is HttpOnly, so this is the only signal. */
 export const AUTH_EVENT = "mz-auth-required";
 
+type Role = "customer" | "staff";
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** The session a screen uses when a 401 accepts either: the banker console, admin and system pages work as staff. */
+const pageRole = (): Role => (/^\/(banker|admin|system)/.test(window.location.pathname) ? "staff" : "customer");
+const caseOf = (path: string) => {
+  const m = path.match(/^\/api\/cases\/([^/?#]+)/);
+  return m ? decodeURIComponent(m[1]) : localStorage.getItem("mz.case") || CASE_ID_DEFAULT;
+};
+const renewing = new Map<string, Promise<boolean>>();
+/** Demo mode: obtain the session a 401 named (the customer one for the request's case). Concurrent 401s share one
+ *  renewal; false when the service issues no demo sessions or cannot be reached. */
+function renew(role: Role, path: string): Promise<boolean> {
+  const caseId = role === "customer" ? caseOf(path) : "";
+  const key = `${role}:${caseId}`;
+  let p = renewing.get(key);
+  if (!p) {
+    p = fetch(role === "staff" ? "/api/session/demo/staff" : "/api/session/demo/customer", {
+      method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(role === "staff" ? {} : { case_id: caseId }),
+    }).then((r) => r.ok, () => false).finally(() => renewing.delete(key));
+    renewing.set(key, p);
+  }
+  return p;
+}
+const TRANSIENT = new Set([502, 503, 504]);
+
+/** fetch for the app's API. A read is retried twice on a network error or 502/503/504 (a backend restarting); a 401
+ *  renews the session it names once and repeats the request once — the server refused it before doing anything, so
+ *  repeating a write is safe. Anything else, and a second 401, goes back to the caller unchanged. */
+export async function request(path: string, init?: RequestInit): Promise<Response> {
+  const read = !init?.method || ["GET", "HEAD"].includes(init.method.toUpperCase());
+  let res!: Response;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await fetch(path, { credentials: "same-origin", ...init });
+      if (!(read && TRANSIENT.has(res.status) && attempt < 2)) break;
+    } catch (e) {
+      if (!read || attempt >= 2) throw e;
+    }
+    await sleep(attempt ? 1200 : 400);
+  }
+  if (res.status === 401 && !path.startsWith("/api/session")) {
+    const roles = (res.headers.get("X-Auth-Required") || "").split(",").map((r) => r.trim()).filter(Boolean) as Role[];
+    const role = roles.includes(pageRole()) ? pageRole() : roles[0];
+    if (role && await renew(role, path)) res = await fetch(path, { credentials: "same-origin", ...init });
+  }
+  return res;
+}
+
 export async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, { credentials: "same-origin", ...init });
+  const res = await request(path, init);
   if (!res.ok) {
     let detail = `${res.status}`;
     try { const body = await res.json(); detail = body.detail || JSON.stringify(body); } catch { /* not json */ }
@@ -233,7 +282,7 @@ export const api = {
       `/api/cases/${caseId}/documents`, { method: "POST", body });
   },
   resolveAction: async (caseId: string, actionId: string, turnId?: string): Promise<AppAction> => {
-    const res = await fetch(`/api/cases/${caseId}/actions/resolve`, {
+    const res = await request(`/api/cases/${caseId}/actions/resolve`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action_id: actionId, turn_id: turnId }) });
     const body = await res.json().catch(() => ({}));
     if (res.ok && body.action) return body.action as AppAction;
