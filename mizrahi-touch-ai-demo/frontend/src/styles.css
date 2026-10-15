@@ -1097,6 +1097,11 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .console-top .brand { gap: 8px; }
 .console-top .brand .jeen-logo-light { height: 19px; display: block; }
 .console-top .brand .brand-title { margin-inline-start: 6px; padding-inline-start: 12px; border-inline-start: 1px solid rgba(255, 255, 255, 0.22); }
+@media (max-width: 900px) {
+  /* the console bar (brand, identity, four links) is wider than a phone: wrap it instead of scrolling the page sideways */
+  .console-top { flex-wrap: wrap; row-gap: 6px; padding: 8px 12px; }
+  .console-top nav { flex-wrap: wrap; margin-inline-start: 0; }
+}
 .cobrand { display: flex; align-items: center; gap: 10px; }
 .cobrand img:first-child { height: 30px; }
 .cobrand img:last-child { height: 26px; }
