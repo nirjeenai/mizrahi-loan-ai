@@ -104,7 +104,7 @@ export function ApplyV2() {
       </div>
       <div className="card cv2" data-testid="apply-v2" data-draft={draft?.draft_id} data-engine={draft?.engine}>
         <div className="cv2-head">
-          <AssistantMark size={30} />
+          <AssistantMark size={36} />
           <div className="cv2-id"><b>העוזר הדיגיטלי</b><span>מזרחי־טפחות · בקשת הלוואה</span></div>
         </div>
         {draft && <Stages stages={draft.stages} />}
@@ -200,9 +200,16 @@ function Stages({ stages }: { stages: ChatStage[] }) {
   );
 }
 
-/** The assistant's mark: a digital identity, not a person's portrait. */
+/** The assistant's avatar (a synthetic banking-assistant portrait, always labelled "העוזר הדיגיטלי"); the spark mark
+ *  is the fallback when the image cannot load. */
 export function AssistantMark({ size = 26 }: { size?: number }) {
-  return <span className="cv2-mark" style={{ width: size, height: size }} aria-hidden="true"><ISpark size={Math.round(size * 0.55)} /></span>;
+  const [broken, setBroken] = useState(false);
+  return (
+    <span className={`cv2-mark${broken ? "" : " photo"}`} style={{ width: size, height: size }} aria-hidden="true">
+      {broken ? <ISpark size={Math.round(size * 0.55)} />
+        : <img src="/people/digital-assistant.jpg" alt="" onError={() => setBroken(true)} />}
+    </span>
+  );
 }
 
 function Message({ m, grouped, latest, onAsk, disabled, actions, onAction }: {
