@@ -218,7 +218,7 @@ def salaried(page: Page) -> None:
 
     before = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
     page.locator("[data-testid=cv2-confirm]").evaluate("b => { b.click(); b.click(); }")
-    expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible(timeout=20000)
     after = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
     check("L · confirming (clicked twice) creates exactly one case", after == before + 1, f"{before} → {after}")
     rows = page.locator("[data-testid=required-docs] li.dl-row").evaluate_all(
@@ -304,7 +304,7 @@ def v1_still_works(page: Page) -> None:
     check("M · V1 questionnaire unchanged (entity first, same checklist)",
           codes == ["ID_CARD:BRW-A", "PAYSLIPS:BRW-A", "BANK_STATEMENTS:ACC-1", "PURPOSE_PROOF"], str(codes))
     page.locator("[data-testid=onb-confirm]").click()
-    expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
+    expect(page.locator("[data-testid=required-docs]")).to_be_visible(timeout=20000)
     check("M · V1 confirmation opens Documents without the V2 note", page.locator("[data-testid=cv2-handoff]").count() == 0)
 
 

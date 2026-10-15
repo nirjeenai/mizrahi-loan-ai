@@ -480,6 +480,9 @@ def new_customer(page: Page, banker: Page) -> None:
           and all(p.read_bytes() == (PRESENTER / DOCS[i]["downloadPath"]).read_bytes() for i, p in files.items()))
     c.locator("[data-testid=usecase-new-start]").click()
     close_presenter(page)
+    expect(page.locator(".cv2-page")).to_be_visible(timeout=15000)      # the assistant chat is the new-application flow
+    check("new customer · the presenter's start opens the assistant chat", page.url.rstrip("/").endswith("/customer/apply"), page.url)
+    page.goto(f"{BASE}/customer/apply/classic")                         # the deterministic questionnaire this path drives
     expect(page.locator("[data-testid=apply-chat]")).to_be_visible(timeout=15000)
     if page.locator("[data-testid=onb-restart]").count():
         page.locator("[data-testid=onb-restart]").click()
