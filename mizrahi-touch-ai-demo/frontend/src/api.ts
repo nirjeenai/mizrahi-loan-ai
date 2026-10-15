@@ -264,6 +264,10 @@ export const api = {
   bankerWorkspace: (caseId: string) => http<Workspace>(`/api/banker/cases/${caseId}/workspace`),
   bankerConversation: (caseId: string) => http<Turn[]>(`/api/banker/cases/${caseId}/conversation`),
   bankerIntelligence: (caseId: string) => http<Intelligence>(`/api/banker/cases/${caseId}/intelligence`),
+  bankerChat: (caseId: string, body: { message: string; history: { role: "user" | "model"; text: string }[]; draft: { kind: string; text: string } | null },
+    signal?: AbortSignal) => http<CaseChatReply>(`/api/banker/cases/${caseId}/chat`, { ...json(body), signal }),
+  bankerDemoLetter: (caseId: string, body: { acknowledge_open_issues: boolean; use_ai: boolean }, signal?: AbortSignal) =>
+    http<DemoLetter>(`/api/banker/cases/${caseId}/demo-approval-letter`, { ...json(body), signal }),
   decideDocument: (caseId: string, docId: string, body: {
     action: "accept" | "request_correction" | "escalate"; rationale?: string; customer_message?: string; requested_period?: string | null;
     acknowledged_finding_ids?: string[]; request_id: string }) =>
@@ -429,6 +433,20 @@ export interface IntelDiscrepancy {
   status_he: string; v1_item: string; explanation_he: string; action_he: string;
 }
 export interface IntelDraft { kind: string; title_he: string; message_he: string; attachments: { document_id: string; label_he: string }[] }
+/** Banker V3 "שאל את JEEN" (api/banker_chat.py). `edit` is a revision of the draft that was sent, already checked in code. */
+export interface CaseChatReply {
+  intent: "question" | "draft_edit" | "question_and_edit" | "clarification" | "declined";
+  answer_he: string; source_ids: string[]; sources: Record<string, { label_he: string; kind: IntelSource["kind"] }>;
+  edit: { kind: string; text: string; summary_he: string } | null; rejected_issues_he: string[]; repaired: boolean; model: string;
+}
+/** Banker V3 third reply (api/banker_demo_letter.py): an approval letter for a SIMULATED decision; the case is unchanged.
+ *  `source` "ai" = prose written by Gemini around code-built terms; "base" = the fixed base wording, no model. */
+export interface DemoLetter {
+  kind: "demo_approval"; title_he: string; text: string; source: "ai" | "base"; model: string | null; case_ready: boolean;
+  open_issues_he: string[]; check_issues_he: string[];
+  scenario: { label_he: string; principal_ils: number; term_months: number; annual_rate_pct: number; monthly_payment_ils: number;
+    total_payments_ils: number; total_interest_ils: number };
+}
 export interface Intelligence {
   version: string; case_id: string; generated_at: string; disclaimer_he: string;
   case: { display_number: string; title_he: string; banker: { name_he: string; role_he: string; staff_id?: string }; bank_stage: BankCase["bank_stage"]; submitted_at?: string };
