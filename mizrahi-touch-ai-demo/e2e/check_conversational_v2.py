@@ -175,13 +175,18 @@ def salaried(page: Page) -> None:
     check("J · proactive indication framed on the requested amount (deterministic 248,000 theoretical max)",
           card.count() == 1 and card.first.get_attribute("data-requested") == "80000" and card.first.get_attribute("data-max") == "248000"
           and "הבקשה שלך ל־80,000 ₪ נראית אפשרית להמשך בדיקה ראשונית" in bot(page), bot(page)[:90])
-    check("J · disclaimer: not an eligibility check or approval", "לא בדיקת זכאות או אישור" in bot(page)
-          and "לא מסגרת אשראי" in card.first.inner_text())
+    visible = card.first.inner_text()
+    check("J · the card leads with the request and the monthly payment; the ceiling is not on its face",
+          "80,000" in visible and "1,550" in visible and "248,000" not in visible and "לא אישור הלוואה" in visible, visible[:80])
+    card.first.locator("[data-testid=cv2-insight-more]").click()
+    details = card.first.locator("[data-testid=cv2-insight-facts]").inner_text()
+    check("J · disclaimer: not an eligibility check or approval; the ceiling and inputs are one tap away",
+          "לא בדיקת זכאות או אישור" in bot(page) and "לא מסגרת אשראי" in details and "248,000" in details
+          and "16,000" in details and "30%" in details and "6%" in details, details[:90])
     card.first.scroll_into_view_if_needed()
     shot(page, "03-desktop-indication")
-    before = items(page)
-    page.locator("[data-testid=cv2-explain]").click()
-    settle(page, before)
+    check("J · the indication card has no 'איך חישבת' button", page.locator("[data-testid=cv2-explain]").count() == 0)
+    say(page, "איך חישבת את האינדיקציה?")
     text = bot(page)
     check("J · the explanation shows the real inputs and assumptions",
           "16,000" in text and "30%" in text and "6%" in text and "1,550" in text and pending(page) == "co_borrower", text[:90])

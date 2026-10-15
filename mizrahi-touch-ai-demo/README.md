@@ -173,11 +173,66 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
     income are declared (never for a company): up to 30% of declared net income (25% with business income) as the
     monthly repayment, 6% illustrative annual rate, rounded down to 1,000 ₪, capped at 250,000 ₪. Presented around
     the requested amount ("הבקשה שלך ל־80,000 ₪ נראית אפשרית להמשך בדיקה ראשונית"), with the estimated repayment and
-    the formula's theoretical maximum marked "לא מסגרת אשראי"; recalculated or withdrawn after material changes,
-    older cards marked out of date; "איך חישבת" lists inputs and assumptions. No credit, account or obligation data.
-  API: `POST /api/demo/onboarding/v2`, `GET …/{draft}/v2`, `POST …/{draft}/v2/turn` (`text`, or `question_id` +
-  `value`, or `action: edit | cancel_edit`; optional `turn_id`), `POST …/{draft}/v2/confirm` (V1's confirmation +
-  the loan category).
+    the term. The card leads with the requested amount, the monthly repayment and the term, then one status band
+    (can continue / above the preliminary estimate, continue and the bank will check) and the bank's path with the
+    customer on its first step ("הערכה → מסמכים → בדיקת הבנק → החלטת הבנק"); the declared income, the formula's
+    share and rate, its theoretical maximum ("לא מסגרת אשראי") and the caveats sit behind "איך הגענו לזה".
+    Recalculated or withdrawn after material changes; an older card folds into one struck-through line. Asking
+    "איך חישבת?" in the chat still gives the full explanation. No credit, account or obligation data.
+  - *Loan simulator in the chat* (`workflow/loan_sim.py`, `loan_calc.py`, `loan_products.py`; card
+    `components/LoanSimulator.tsx`). Right after the purpose, the amount and term questions are replaced by one
+    interactive card in the assistant's column, under the bubble: a product picker in its head, the estimated monthly
+    repayment with a principal / interest ribbon, amount and term as editable values over sliders, the product's own
+    fields, one-line rule notes, the product's extra options behind one row, and "זה התרחיש שלי"; once confirmed it
+    folds into a single line ("שינוי" reopens it). Moving a control
+    recalculates in the browser (`frontend/src/loanCalc.ts`, a port of the server engine; a pytest compiles it and
+    checks parity) and saves an unconfirmed draft without a message (`POST …/v2/simulation`); confirming is one turn
+    (`action: simulate_confirm`) that records `amount` (or `business_amount`) and `payments` through `onboarding.answer`
+    — those answers are the one confirmed scenario for the summary, the case and the banker; the card's extra inputs
+    (product, vehicle price, deferral, repayment method) are stored on the case as `loan.simulation`, marked as a
+    candidate product and an illustration. The questionnaire's term is any whole number of months from 2 to 120.
+    - *Products* (`backend/loan_products/products.demo.v1.json`, checked against the bank's public pages on
+      2026-10-15): car and electric car (up to 85% of the vehicle price, up to 60 months — no absolute amount cap is
+      invented; the price is asked for, or the customer marks that there is no final price yet), celebration (≤100,000 ₪,
+      ≤84 months), instant (≤125,000 ₪, 2–72 months, first payment deferrable up to 3 months, no early-repayment fee),
+      solar (≤100,000 ₪, ≤120 months, varied rate tracks), all-purpose (no published unsecured limits: the property-
+      secured 70% / 4–30 years terms are explicitly not applied), a sole-proprietor business loan and the company path
+      (no published terms: demo ranges). Each limit carries its basis (`verified` / `demo` / `flow`) and its source
+      page in the registry; the card itself stays compact and shows only the rate tag and the rule that applies. The purpose maps to candidate products (car → car,
+      electric, instant, all-purpose; celebration → celebration, instant, all-purpose; renovation / other →
+      all-purpose, instant, solar); "הלוואה ברגע", "חשמלי", "סולארי", "לשמחות", "לכל מטרה" select one, also as the
+      first message. The selection is the customer's exploration, never the bank's product decision.
+    - *Engine* (`loan_calc.py`, `Decimal`): annuity (Shpitzer, re-amortized on a rate change), equal principal,
+      interest-only and balloon; nominal or effective annual rates; deferral with an explicit policy (capitalized,
+      interest-only, accrued-paid-with-the-first-installment; term inclusive or exclusive) — never a free holiday;
+      monthly and upfront fees kept apart from interest. Rounding: exact cash flow, totals rounded once, installments
+      to agorot, the last one reconciles (100,000 ₪ · 48 · 8% → 2,441.29 a month, 117,182.03 in total). The customer UI
+      shows only what a product supports: deferral on the instant loan (its mechanics are unpublished, so the card says
+      the policy is an illustration), a rate what-if on solar, a repayment-method choice on all-purpose and solar
+      (labelled as an illustration). The schedule (`rows`, `loan_calc.yearly`) stays in the engine and the API; the
+      in-chat card does not show a schedule table or an assumptions block.
+    - *Rate source* (`loan_products.rate_for`): bank quote → pricing configuration → the labelled 6% illustrative
+      rate (the same as the indication and the banker briefing; `LOAN_SIM_ILLUSTRATIVE_RATE=0` turns it off) →
+      unknown. No product has a quote or pricing in this demo; the company path has no rate, so its card selects an
+      amount and a term and shows no repayment figure.
+    - *Conversation ↔ card.* "בעצם רק 80 אלף", "אני רוצה לפרוס ל־60 תשלומים" (a change verb makes a stated amount or
+      term a correction), a product word, a vehicle price, "לדחות … ב־3 חודשים", "מאשר" — each updates the live card,
+      which moves down with the reply; earlier cards become a one-line record. Product rules apply to stated values
+      like to slider values (a refused term offers the product's maximum or another product); a change that breaks the
+      confirmed scenario reopens the card for re-confirmation. Turns that carry scenario figures are worded by the
+      deterministic composer; the model's proposals that reuse a scenario number (a target, existing repayments, a
+      price) are dropped, and the interpretation prompt says those are not facts.
+    - *Personal picture (V2)*: with a declared net income, the card adds the share of income going to loan repayments,
+      what is left, existing monthly repayments (declared in the chat or on the card, `CUSTOMER_DECLARED`) and a
+      shorter / chosen / longer term comparison. A target ("עד 2,500 בחודש") runs a reverse search: the shortest term in
+      the product's range that meets it, else a lower amount at the longest term, else "no matching scenario"; it is
+      offered as an action and never applied silently. No threshold and no verdict: an informational budget indicator.
+  API: `POST /api/demo/onboarding/v2`, `GET …/{draft}/v2` (now with `simulation`), `POST …/{draft}/v2/turn` (`text`, or
+  `question_id` + `value`, or `action: edit | cancel_edit | simulate_confirm | simulate_apply` with `simulation`;
+  optional `turn_id`), `POST …/{draft}/v2/simulation` (the card's draft, no message), `POST …/{draft}/v2/confirm`
+  (V1's confirmation + the loan category + `loan.simulation`).
+  Tests: `backend/tests/test_loan_simulator.py` (engine, rules, conversation, browser parity) and the mobile browser
+  suite `e2e/check_loan_simulator.py` (isolated stack, no model).
 - **Business path.** The company case is limited by design: identification, a representative financial checklist,
   intake, and a banker-assisted marker in the app and the banker console. Consumer rules carry
   `entity: ["individual"]`, so none of them apply to a company, and there is no business underwriting.

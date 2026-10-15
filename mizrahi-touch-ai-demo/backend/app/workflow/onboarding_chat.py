@@ -29,7 +29,7 @@ from ..policy import store
 from ..review import deterministic as det
 from ..review import rubrics
 from ..util import now_iso
-from . import indication, onboarding, onboarding_llm as llm, onboarding_nlu as nlu
+from . import indication, loan_sim, onboarding, onboarding_llm as llm, onboarding_nlu as nlu
 from .onboarding import BY_ID, OnboardingError
 
 LOAN_FIELDS = ("loan_type", "business_form")
@@ -77,7 +77,7 @@ BANK_WORDS = ("הלוואה", "בנק", "מסמך", "ריבית", "תשלום", 
 # ---------------------------------------------------------------- state
 def _new_conv() -> dict:
     return {"messages": [], "focus": None, "shown": None, "explained": None, "asked": None, "seq": 0,
-            "summary_for": None, "loan": {}, "held": {}, "turns": [], "llm_calls": 0}
+            "summary_for": None, "loan": {}, "held": {}, "turns": [], "llm_calls": 0, "sim": {}}
 
 
 def _load(draft_id: str) -> tuple[dict, dict, dict]:
@@ -184,7 +184,14 @@ def _sole(conv: dict, a: dict) -> bool:
     return loan.get("type") == "business" and loan.get("form") in ("vat_exempt", "vat_registered")
 
 
+def _sim_question(qid: Optional[str], conv: dict, a: dict) -> bool:
+    """Amount and term are asked together, as the loan simulator card, once the purpose is known."""
+    return qid in loan_sim.SIM_FIELDS and loan_sim.applies(conv, a)
+
+
 def _prompt(qid: str, conv: dict, a: dict) -> str:
+    if _sim_question(qid, conv, a):
+        return loan_sim.intro(conv, a) if not loan_sim._sim(conv)["shown"] else loan_sim.reprompt()
     first, co = _first(a), _first(a, "co_name") or "הלווה הנוסף"
     sources = a.get("income") or []
     purpose = a.get("purpose")
@@ -225,6 +232,8 @@ SHORT = {"loan_type": "מדובר בהלוואה פרטית או עסקית?", "
 
 
 def _short(qid: str, conv: dict, a: dict) -> str:
+    if _sim_question(qid, conv, a):
+        return loan_sim.reprompt()
     return SHORT.get(qid) or _prompt(qid, conv, a).split(" (")[0]
 
 
@@ -277,9 +286,10 @@ def _value_he(qid: str, v: Any, a: dict, short: bool = False) -> str:
     return onboarding._answer_he(qid, v)
 
 
-def _ack(changes: list[tuple[str, Any, Any]], a: dict, conv: dict) -> str:
-    """A short, contextual acknowledgement of what this turn recorded (the deterministic composer)."""
-    new = [(q, v) for q, old, v in changes if old is None and v is not None]
+def _ack(changes: list[tuple[str, Any, Any]], a: dict, conv: dict, skip_new: frozenset = frozenset()) -> str:
+    """A short, contextual acknowledgement of what this turn recorded (the deterministic composer). `skip_new`: new
+    facts the next line already speaks about (the simulator's introduction names the purpose)."""
+    new = [(q, v) for q, old, v in changes if old is None and v is not None and q not in skip_new]
     upd = [(q, old, v) for q, old, v in changes if old is not None and v is not None]
     parts: list[str] = []
     ids = {q for q, _ in new}
@@ -510,6 +520,10 @@ def _topic(q: str) -> str:
     if any(p in t for p in ("איך הגעת", "איך חישבת", "איך חושב", "מה החישוב", "איך זה מחושב", "על סמך מה",
                             "מאיפה הסכום", "מאיפה המספר", "למה הסכום", "איך הגעתם", "מה ההנחות")):
         return "explain_indication"
+    if any(p in t for p in ("כמה אשלם", "כמה אצטרך לשלם", "כמה ההחזר", "מה ההחזר", "כמה יוצא בחודש", "כמה זה בחודש",
+                            "מה התשלום החודשי", "כמה התשלום החודשי", "סך הכול אשלם", "סך הכל אשלם", "כמה אחזיר",
+                            "ביחס להכנסה", "על התקציב", "מה הסימולציה", "כמה ריבית אשלם", "כמה ריבית אני משלם")):
+        return "scenario"
     if any(p in t for p in ("מבטיח", "הבטחה", "יאשר", "תאשר", "מאושר", "אישרו", "יאושר", "זכאי", "זכאית", "כמה אפשר לקבל",
                             "כמה אוכל לקבל", "כמה אני יכול", "כמה אני יכולה", "מה המקסימום", "מה הסיכוי", "יסרבו")):
         return "approval"
@@ -546,12 +560,15 @@ def _answer(topic: str, q: str, a: dict, conv: dict, pending: Optional[str]) -> 
     if topic == "explain_indication":
         conv["explained"] = ind.get("key")
         return _explain(ind, a), []
+    if topic == "scenario":
+        conv["sim_touch"] = True
+        return loan_sim.scenario_answer(conv, a, pending), []
     if topic == "approval":
         return ("אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה ולהכין אותה להמשך בחינה, את ההחלטה מקבל הבנק "
                 "אחרי בדיקת הבקשה והמסמכים."), []
     if topic == "interest":
-        return ("את הריבית בפועל קובע הבנק רק אחרי בדיקת הבקשה, ואין לי נתון כזה. באינדיקציה הראשונית אני משתמש "
-                f"בריבית המחשה של {indication.DEMO_ANNUAL_RATE * 100:g}% בלבד."), []
+        return ("את הריבית בפועל קובע הבנק רק אחרי בדיקת הבקשה, ואין לי נתון כזה. בסימולציה ובאינדיקציה הראשונית אני "
+                f"משתמש בריבית המחשה של {indication.DEMO_ANNUAL_RATE * 100:g}% בלבד."), []
     if topic == "calculate":
         if ind["available"]:
             return "האינדיקציה הראשונית כבר מוצגת בשיחה, ואפשר לשאול אותי איך חישבתי אותה.", []
@@ -652,7 +669,7 @@ def _unclear(field: str, kind: str, conv: dict, a: dict) -> tuple[str, list[dict
             "business_amount": "כמה בערך מבקשים? גם סכום משוער מספיק.",
             "net": "כמה בערך נכנס לך נטו בחודש? גם מספר משוער מספיק.",
             "co_net": "כמה בערך נכנס ללווה הנוסף נטו בחודש?",
-            "payments": "בכמה תשלומים תרצו לפרוס? אפשר 36, 48, 60 או 84.",
+            "payments": "בכמה תשלומים תרצו לפרוס? למשל 36, 48 או 60.",
             "loan_type": "מדובר בהלוואה פרטית או עסקית?",
             "purpose": "למה מיועדת ההלוואה, למשל רכב, שיפוץ או מטרה אחרת?",
             "name": "אשמח לשם המלא, שם פרטי ושם משפחה."}.get(field, f"אפשר לפרט קצת לגבי {FIELD_HE.get(field, 'זה')}?"), []
@@ -663,7 +680,8 @@ ERROR_LEAD = {"net": "לא רשמתי את ההכנסה: ", "co_net": "לא רש
 
 def _error_text(qid: str, msg: str, value: Any = None) -> str:
     if qid == "payments":
-        return "אפשר לבחור 36, 48, 60 או 84 תשלומים. מה מתאים לך?"
+        lo, hi = onboarding.PAYMENT_BOUNDS
+        return f"אפשר לבחור בין {lo} ל־{hi} תשלומים. מה מתאים לך?"
     if qid in ("amount", "business_amount") and isinstance(value, int):
         lo, hi = onboarding.NUMBER_BOUNDS[qid]
         limit = f"של עד {_ils(hi)}" if value > hi else f"של {_ils(lo)} לפחות"
@@ -722,7 +740,8 @@ def _indication_event(conv: dict, a: dict) -> tuple[Optional[str], Optional[dict
         if shown and shown.get("key") == ind["key"]:
             return None, None, ""
         snap = {k: ind[k] for k in ("key", "max_amount_ils", "requested_amount_ils", "within", "requested_monthly_ils",
-                                    "payments", "declared_net_ils", "co_borrower_pending")}
+                                    "payments", "declared_net_ils", "co_borrower_pending", "ratio", "annual_rate",
+                                    "business_income")}
         conv["shown"] = {"key": ind["key"]}
         updated = bool(shown and shown.get("key"))
         req = _ils(ind["requested_amount_ils"])
@@ -765,7 +784,12 @@ def _summary_lines(conv: dict, a: dict) -> list[dict]:
                      ("חשבון עו״ש", "משותף" if a["accounts"] == "joint" else "נפרד לכל לווה", "accounts")]
         else:
             rows.append(("לווה נוסף", "אין, הבקשה רק על שמך", "co_borrower"))
-    return [{"label_he": l, "value_he": v, "question_id": q} for l, v, q in rows]
+    out = [{"label_he": l, "value_he": v, "question_id": q} for l, v, q in rows]
+    sim = loan_sim.summary_line(conv, a)
+    if sim:
+        at = next(i for i, r in enumerate(out) if r["question_id"] == "payments") + 1
+        out.insert(at, sim)
+    return out
 
 
 # ---------------------------------------------------------------- understanding
@@ -789,7 +813,11 @@ def _understand_rules(text: str, conv: dict, a: dict, pending: Optional[str]) ->
             "engine": "rules"}
 
 
-def _understand_llm(text: str, conv: dict, a: dict, pending: Optional[str], draft_id: str) -> Optional[dict]:
+def _understand_llm(text: str, conv: dict, a: dict, pending: Optional[str], draft_id: str,
+                    det_text: Optional[str] = None, sim_numbers: frozenset = frozenset()) -> Optional[dict]:
+    """`det_text` is the message without the numbers the simulator claimed (a target payment, existing repayments, a
+    vehicle price); the model still reads the whole message, but a figure it proposes that IS one of those numbers is
+    not an amount, a term or an income."""
     v = _v2(conv, a)
     context = {
         "pending_question": {"field": pending, "prompt_he": _prompt(pending, conv, a) if pending else None,
@@ -807,8 +835,11 @@ def _understand_llm(text: str, conv: dict, a: dict, pending: Optional[str], draf
     if out is None:
         return None
     values, notes = dict(out["values"]), []
+    claimed = {k for k in ("amount", "business_amount", "payments", "net", "co_net") if values.get(k) in sim_numbers}
+    for k in claimed:
+        values.pop(k)
     # deterministic guards around the model: ID numbers by pattern only, never a net figure from a gross one
-    det_u = nlu.understand(text, v, pending)
+    det_u = nlu.understand(det_text if det_text is not None else text, v, pending)
     for k in ("national_id", "co_national_id", "signatory_id"):
         if k in det_u["values"]:
             values[k] = det_u["values"][k]
@@ -842,7 +873,7 @@ def _understand_llm(text: str, conv: dict, a: dict, pending: Optional[str], draf
     topics = [(t, norm) for t in out["topics"]]
     return {"values": values, "corrections": out["corrections"], "unclear": unclear, "topics": topics, "notes": notes,
             "engine": "llm", "candidate": out["reply_he"], "next_field": out["next_field"],
-            "proposed": dict(out["values"])}
+            "proposed": {k: x for k, x in out["values"].items() if k not in claimed}}
 
 
 # ---------------------------------------------------------------- apply
@@ -882,6 +913,8 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
         old = before.get(field)
         if old is None or old == value or field in u["corrections"] or field in (pending, focus):
             return False
+        if field in loan_sim.SIM_FIELDS and u.get("sim_change"):
+            return False                                  # "אני רוצה לפרוס ל־60 תשלומים" changes the scenario
         # the parser already merged income sources with the earlier answer ("גם", negation, past jobs)
         return not (u["engine"] == "rules" and field in ("income", "co_income"))
 
@@ -913,6 +946,11 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
                 conv["held"][qid] = value
                 out["held"].append(qid)
                 continue
+            rule = loan_sim.check_answer(conv, a, qid, onboarding._validate(qid, value))
+            if rule:
+                out["rejected"].append((qid, rule[0]))
+                out["actions"] += rule[1]
+                continue
             onboarding.answer(draft_id, qid, value)
         except OnboardingError as exc:
             out["rejected"].append((qid, _error_text(qid, exc.message_he, value)))
@@ -928,6 +966,11 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
             continue
         conv["held"].pop(qid)
         try:
+            rule = loan_sim.check_answer(conv, a, qid, onboarding._validate(qid, value))
+            if rule:
+                out["rejected"].append((qid, rule[0]))
+                out["actions"] += rule[1]
+                continue
             onboarding.answer(draft_id, qid, value)
         except OnboardingError as exc:
             out["rejected"].append((qid, _error_text(qid, exc.message_he, value)))
@@ -955,7 +998,7 @@ def _question_line(t: dict, conv: dict, a: dict) -> str:
 
 
 def _compose_rules(t: dict, conv: dict, a: dict) -> str:
-    parts = [p for p in [t["ack"]] + t["issues"] + t["answers"] + [t["ind_text"]] if p]
+    parts = [p for p in [t["ack"]] + t["issues"] + t["answers"] + [t.get("sim_text", ""), t["ind_text"]] if p]
     if t["summary_text"]:
         parts.append(t["summary_text"])
     q = _question_line(t, conv, a)
@@ -1030,13 +1073,16 @@ def view(draft_id: str) -> dict[str, Any]:
     ind = _indication(a)
     current_key = ind.get("key") if ind["available"] else None
     messages = []
+    live_sim = next((m["id"] for m in reversed(conv["messages"]) if m.get("simulator")), None)
     for m in conv["messages"]:
         snap = m.get("indication")
-        messages.append({**m, "stale": bool(snap) and snap.get("key") != current_key})
+        extra = {"simulator": {**m["simulator"], "live": m["id"] == live_sim}} if m.get("simulator") else {}
+        messages.append({**m, **extra, "stale": bool(snap) and snap.get("key") != current_key})
     last_actions = next((m.get("actions") for m in reversed(messages) if m["role"] == "assistant"), None)
+    simulation = loan_sim.view(conv, a, pending) if row["status"] == "draft" else None
     suggestions: list[str] = []
-    if ind["available"] and conv.get("explained") != ind["key"]:
-        suggestions.append("איך חישבת את האינדיקציה?")
+    if simulation and simulation["status"] == "confirmed" and simulation["context"]["net_income"]:
+        suggestions.append("מה ההחזר ביחס להכנסה שלי?")
     if pending:
         suggestions.append("למה צריך את זה?")
     v = _v2(conv, a)
@@ -1044,7 +1090,9 @@ def view(draft_id: str) -> dict[str, Any]:
     out: dict[str, Any] = {
         "draft_id": draft_id, "status": row["status"], "case_id": row["case_id"], "updated_at": row["updated_at"],
         "first_name_he": first or None, "messages": messages, "engine": "llm" if llm.enabled() else "rules",
-        "pending": {"question_id": pending, "kind": "choice" if pending in LOAN_FIELDS else BY_ID[pending][1],
+        "simulation": simulation,
+        "pending": {"question_id": pending, "kind": "simulator" if _sim_question(pending, conv, a)
+                    else "choice" if pending in LOAN_FIELDS else BY_ID[pending][1],
                     "prompt_he": _prompt(pending, conv, a), "replies": _replies(pending, conv, a),
                     "placeholder_he": _placeholder(pending), "editing": bool(focus and focus == pending),
                     "current_he": _value_he(pending, v[pending], a) if pending in v else None} if pending else None,
@@ -1068,9 +1116,46 @@ def start() -> dict[str, Any]:
     return view(onboarding.start()["draft_id"])
 
 
+def _sim_action(draft_id: str, conv: dict, a: dict, t: dict, kind: str, simulation: Optional[dict],
+                pending: Optional[str]) -> dict:
+    """The card's confirmation (or a suggested change from a quick action): product rules, then amount and payments
+    through the questionnaire. A suggested change to a scenario that is still a draft only moves the draft."""
+    if not loan_sim.applies(conv, a):
+        raise OnboardingError("עוד אין סימולציה לאשר")
+    t["sim_touch"] = True
+    current = {**loan_sim.draft_params(conv, a), "product": loan_sim.product(conv, a)["id"]}
+    if kind == "simulate_apply" and loan_sim.status(conv, a, pending) == "pending":
+        loan_sim.save_draft(conv, a, {**current, **loan_sim.clean(simulation)})
+        loan_sim._sim(conv)["rev"] += 1
+        prm = loan_sim.draft_params(conv, a)
+        t["sim_text"] = (f"עדכנתי בסימולציה: {_ils(prm['amount'])} ב־{prm['term']} תשלומים. "
+                         + loan_sim.monthly_sentence(conv, a, prm) + " אם זה מתאים, אפשר לאשר.")
+        return a
+    base = ({**(loan_sim.confirmed_params(conv, a) or current), "product": current["product"]}
+            if kind == "simulate_apply" else current)
+    before = _v2(conv, a)
+    found, prm = loan_sim.confirm(draft_id, conv, a, {**base, **loan_sim.clean(simulation)})
+    a = onboarding._clean_answers(onboarding._row(draft_id)["answers"])
+    if found:
+        msg, acts = loan_sim.issues_text(found)
+        t["issues"].append(msg)
+        t["actions"] += acts
+        return a
+    if conv.get("focus") in loan_sim.SIM_FIELDS:
+        conv["focus"] = None
+    after = _v2(conv, a)
+    t["changes"] = [(k, before.get(k), after.get(k)) for k in ORDER if k != "entity" and before.get(k) != after.get(k)
+                    and after.get(k) is not None]
+    t["sim_text"] = loan_sim.confirmed_text(conv, a, prm)
+    return a
+
+
 def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] = None, value: Any = None,
-         label_he: Optional[str] = None, action: Optional[str] = None, turn_id: Optional[str] = None) -> dict[str, Any]:
-    """One customer turn → exactly one assistant message. A repeated `turn_id` (a double submit) changes nothing."""
+         label_he: Optional[str] = None, action: Optional[str] = None, turn_id: Optional[str] = None,
+         simulation: Optional[dict] = None) -> dict[str, Any]:
+    """One customer turn → exactly one assistant message. A repeated `turn_id` (a double submit) changes nothing.
+    `action`: edit · cancel_edit · simulate_confirm (the card's scenario in `simulation`) · simulate_apply (a suggested
+    change in `simulation`)."""
     with _lock:
         row, a, conv = _load(draft_id)
         if row["status"] != "draft":
@@ -1082,23 +1167,49 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         u: dict[str, Any] = {}
         t: dict[str, Any] = {"changes": [], "held": [], "issues": [], "answers": [], "actions": [], "clarifying": False,
                              "interrupted": False, "gross": False, "edit": False, "ack": "", "ind_text": "",
-                             "ind_event": None, "ind_snap": None, "summary_text": ""}
+                             "ind_event": None, "ind_snap": None, "summary_text": "", "sim_text": "",
+                             "sim_touch": False}
+        conv.pop("sim_touch", None)
         engine, customer = "rules", ""
         use_llm_reply = False
+        su: dict[str, Any] = {}
+        if action is None and question_id is None and text:
+            su = loan_sim.understand(" ".join(str(text).split())[:MAX_TEXT], conv, a, pending)
+            if su.get("confirm"):
+                action = "simulate_confirm"
 
         if action in ("edit", "cancel_edit"):
             if action == "edit":
-                if question_id not in BY_ID and question_id not in LOAN_FIELDS or question_id not in _v2(conv, a):
+                if question_id == "simulation" and loan_sim.applies(conv, a):
+                    conv["focus"] = loan_sim.amount_field(conv, a)
+                    customer = "שינוי הסימולציה"
+                    t["answers"].append("בטח, אפשר לשנות את התרחיש בסימולציה ולאשר מחדש.")
+                    t["edit"] = True
+                    _say(conv, customer, role="user")
+                elif question_id not in BY_ID and question_id not in LOAN_FIELDS or question_id not in _v2(conv, a):
                     raise OnboardingError("אי אפשר לערוך את הפרט הזה")
-                conv["focus"] = question_id
-                customer = f"שינוי {FIELD_HE[question_id]}"
-                t["answers"].append(f"בטח. כרגע רשום: {_value_he(question_id, _v2(conv, a)[question_id], a)}.")
-                t["edit"] = True
+                else:
+                    conv["focus"] = question_id
+                    customer = f"שינוי {FIELD_HE[question_id]}"
+                    t["answers"].append(f"בטח. כרגע רשום: {_value_he(question_id, _v2(conv, a)[question_id], a)}.")
+                    t["edit"] = True
+                    _say(conv, customer, role="user")
             else:
                 conv["focus"] = None
                 customer = "ביטול השינוי"
                 t["answers"].append("בסדר, השארתי את מה שהיה.")
+                _say(conv, customer, role="user")
+        elif action in ("simulate_confirm", "simulate_apply"):
+            if text and su.get("confirm"):
+                customer = " ".join(str(text).split())[:MAX_TEXT]
+            else:
+                prm = {**loan_sim.draft_params(conv, a), **loan_sim.clean(simulation)} if loan_sim.applies(conv, a) else {}
+                customer = (label_he or "")[:80] or (
+                    f"זה התרחיש שלי: {_ils(prm['amount'])} ב־{prm['term']} תשלומים" if prm else "אישור הסימולציה")
             _say(conv, customer, role="user")
+            a = _sim_action(draft_id, conv, a, t, action, simulation, pending)
+            if t["changes"]:
+                t["ind_event"], t["ind_snap"], t["ind_text"] = _indication_event(conv, a)
         else:
             if question_id is not None:
                 if question_id not in BY_ID and question_id not in LOAN_FIELDS:
@@ -1111,20 +1222,43 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 customer = " ".join(str(text or "").split())[:MAX_TEXT]
                 if not customer:
                     raise OnboardingError("ההודעה ריקה")
-                u = _understand_llm(customer, conv, a, pending, draft_id) or _understand_rules(customer, conv, a, pending)
+                masked = su.get("masked", customer)
+                u = (_understand_llm(customer, conv, a, pending, draft_id, masked, frozenset(su.get("numbers") or ()))
+                     or _understand_rules(masked, conv, a, pending))
                 engine = u["engine"]
                 use_llm_reply = engine == "llm"
+                u["sim_change"] = bool(su.get("change_intent"))
+                if su.get("product") and "loan_type" not in _v2(conv, a) and "loan_type" not in u["values"]:
+                    u["values"]["loan_type"] = "personal"   # "הלוואה ברגע" names a personal-loan product
             _say(conv, customer, role="user")
+            sim_before = loan_sim.applies(conv, a)
+            sim_notes = loan_sim.apply_text(conv, a, su) if su else []
             res = _apply(draft_id, conv, a, u, pending)
             a = res["a"]
+            if su and not sim_before and loan_sim.applies(conv, a):
+                sim_notes = list(dict.fromkeys([n for n in sim_notes if n != "product"] + loan_sim.apply_text(conv, a, su)))
             t["changes"], t["held"], t["actions"] = res["changes"], res["held"], res["actions"]
-            t["ack"] = _ack(t["changes"], a, conv)
+            moved = loan_sim.sync_answers(conv, a, t["changes"])
+            nxt = _pending(conv, a)
+            if sim_notes and loan_sim.status(conv, a, nxt) == "confirmed":
+                conf = loan_sim.confirmed_params(conv, a)
+                if conf and loan_sim.lp.issues(loan_sim.product(conv, a), conf["amount"], conf["term"], conf.get("asset_price")):
+                    conv["focus"] = loan_sim.amount_field(conv, a)      # the changed scenario needs a re-confirmation
+                    nxt = _pending(conv, a)
+            intro_next = _sim_question(nxt, conv, a) and not loan_sim._sim(conv)["shown"]
+            t["ack"] = _ack(t["changes"], a, conv, frozenset({"purpose", "company_purpose"}) if intro_next else frozenset())
+            sim_text, sim_acts = loan_sim.notes_text(conv, a, sim_notes, nxt)
+            if moved and loan_sim.status(conv, a, nxt) == "confirmed" and not sim_notes:
+                sim_text = loan_sim.monthly_sentence(conv, a)
+            t["sim_text"], t["sim_touch"] = sim_text, bool(sim_notes or moved)
+            t["actions"] += sim_acts
             if t["held"]:
                 t["ack"] = (t["ack"] + " " if t["ack"] else "") + (
                     f"הבנתי, {_and([_value_he(k, conv['held'][k], a) for k in t['held']])}. אשמור את זה להמשך.")
             for qid, msg in res["rejected"]:
                 t["issues"].append(msg)
                 t["clarifying"] = t["clarifying"] or qid == pending
+                t["sim_touch"] = t["sim_touch"] or (qid in loan_sim.SIM_FIELDS and loan_sim.applies(conv, a))
             for qid, old, new in res["conflicts"]:
                 t["issues"].append(f"רק לוודא, קודם רשמתי {_value_he(qid, old, a, short=True)}, ועכשיו הבנתי "
                                    f"{_value_he(qid, new, a, short=True)}. מה נכון?")
@@ -1146,7 +1280,7 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
             for topic, q in u["topics"]:
                 if topic == "calculate" and t["gross"]:
                     continue                       # the gross explanation already answers "can you compute from it?"
-                if topic == "other_banking" and (t["changes"] or t["issues"] or len(u["topics"]) > 1):
+                if topic == "other_banking" and (t["changes"] or t["issues"] or t["sim_text"] or len(u["topics"]) > 1):
                     continue                       # no "no verified information" next to a real answer
                 if topic == "change" and t["changes"]:
                     continue
@@ -1155,10 +1289,10 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 if reply:
                     t["answers"].append(reply)
                 t["actions"] += acts
-            t["interrupted"] = bool(t["issues"] or t["answers"])
+            t["interrupted"] = bool(t["issues"] or t["answers"] or t["sim_text"])
             if t["changes"]:
                 t["ind_event"], t["ind_snap"], t["ind_text"] = _indication_event(conv, a)
-            if not (t["changes"] or t["held"] or t["issues"] or t["answers"]):
+            if not (t["changes"] or t["held"] or t["issues"] or t["answers"] or t["sim_text"] or t["sim_touch"]):
                 greet = nlu.normalize(customer).strip("!.,? ")
                 if greet in ("שלום", "היי", "הי", "בוקר טוב", "ערב טוב", "אהלן"):
                     t["answers"].append("שלום!")
@@ -1178,7 +1312,8 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 conv["summary_for"] = sig
 
         reply_text, reply_engine = None, "rules"
-        if use_llm_reply and not t["edit"]:
+        # a turn that carries scenario figures is worded by the deterministic composer: the numbers come from the engine
+        if use_llm_reply and not t["edit"] and not t["sim_text"]:
             facts = _facts(t, conv, a, customer)
             if _candidate_ok(u, t, conv, a, facts):
                 reply_text, reply_engine = u["candidate"], "llm"     # one call: the interpretation's own reply
@@ -1189,9 +1324,14 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         if reply_text is None:
             reply_text = _compose_rules(t, conv, a)
         asked = t["next"] if (t["next"] and not t["clarifying"]) else None
+        # the card travels with the reply while it is the open question, and whenever this turn changed the scenario
+        attach = _sim_question(t["next"], conv, a) or t["sim_touch"] or conv.pop("sim_touch", False)
+        sim_snap = loan_sim.snapshot(conv, a, t["next"]) if attach else None
+        if sim_snap:
+            loan_sim._sim(conv)["shown"] += 1
         _say(conv, reply_text, question_id=asked, indication=t["ind_snap"], insight=t["ind_event"],
              actions=t["actions"][:4], engine=reply_engine, understood_by=engine,
-             llm_calls=str(conv.get("llm_calls", 0) - calls_at_start))
+             llm_calls=str(conv.get("llm_calls", 0) - calls_at_start), simulator=sim_snap)
         if asked:
             conv["asked"] = asked
         elif t["next"] is None:
@@ -1200,6 +1340,20 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
             conv["turns"].append(turn_id)
         _save(draft_id, conv)
     return view(draft_id)
+
+
+def save_simulation(draft_id: str, draft: dict) -> dict[str, Any]:
+    """The card's unconfirmed scenario while the customer explores it: no message, no answer, no model call. Returns
+    the server's own evaluation of it (the card computes the same figures locally for instant feedback)."""
+    with _lock:
+        row, a, conv = _load(draft_id)
+        if row["status"] != "draft":
+            raise OnboardingError("הבקשה כבר נפתחה, אי אפשר לשנות את התשובות", 409)
+        if not loan_sim.applies(conv, a):
+            raise OnboardingError("עוד אין סימולציה לשמור", 409)
+        loan_sim.save_draft(conv, a, draft)
+        _save(draft_id, conv)
+        return {"simulation": loan_sim.view(conv, a, _pending(conv, a))}
 
 
 def annotate_case(draft_id: str, case_id: str) -> None:
@@ -1213,5 +1367,8 @@ def annotate_case(draft_id: str, case_id: str) -> None:
     application = db.jload(app_row["application"])
     application["loan_category"] = loan["type"]
     application["business_form"] = loan.get("form")
+    sim = loan_sim.for_case(conv, onboarding._clean_answers(row["answers"]))
+    if sim:
+        application.setdefault("loan", {})["simulation"] = sim
     with db.tx() as c:
         c.execute("UPDATE demo_applications SET application=? WHERE case_id=?", (db.jdump(application), case_id))

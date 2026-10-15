@@ -87,6 +87,9 @@ QUESTIONS: list[tuple[str, str, str, Callable[[], list[dict]] | list[dict], Call
 ]
 BY_ID = {q[0]: q for q in QUESTIONS}
 NUMBER_BOUNDS = {"net": (0, 200000), "co_net": (0, 200000), "amount": (5000, 250000), "business_amount": (20000, 3000000)}
+# the term is any whole number of months in the flow's bounds (the chips are suggestions); a product's own term limits
+# are checked by the loan simulator (workflow/loan_sim.py) once the purpose is known
+PAYMENT_BOUNDS = (2, 120)
 
 
 def _options(q: tuple) -> list[dict]:
@@ -113,6 +116,14 @@ def _validate(qid: str, value: Any) -> Any:
         raise OnboardingError("שאלה לא מוכרת")
     kind = q[1]
     allowed = [o["value"] for o in _options(q)]
+    if qid == "payments":
+        lo, hi = PAYMENT_BOUNDS
+        if isinstance(value, bool) or not isinstance(value, (int, float, str)) or not str(value).strip().isdigit():
+            raise OnboardingError(f"נא לבחור מספר תשלומים בין {lo} ל־{hi}")
+        n = int(str(value).strip())
+        if not lo <= n <= hi:
+            raise OnboardingError(f"נא לבחור מספר תשלומים בין {lo} ל־{hi}")
+        return n
     if kind == "choice":
         if value not in allowed:
             raise OnboardingError("נא לבחור אחת מהאפשרויות")

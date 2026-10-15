@@ -1323,26 +1323,54 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 @keyframes cv2-dot { 50% { opacity: 1; transform: translateY(-2px); } }
 
 /* The indication is an illustration, not an offer: a dashed "draft" frame, struck through once it is out of date. */
-.cv2-insight { align-self: stretch; box-sizing: border-box; background: #fff; border: 1.5px dashed var(--mz-orange-ring); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
-.cv2-insight-verdict { font-size: 13.5px; font-weight: 800; }
-.cv2-insight-verdict.ok { color: var(--ok); }
-.cv2-insight-verdict.warn { color: var(--warn); }
-.cv2-insight-facts { margin: 2px 0 0; display: flex; flex-direction: column; gap: 3px; }
-.cv2-insight-facts > div { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; }
-.cv2-insight-facts dt { color: var(--mz-muted); }
-.cv2-insight-facts dd { margin: 0; color: var(--mz-ink); font-weight: 700; text-align: left; }
-.cv2-insight-note { font-size: 11.5px; line-height: 1.55; color: var(--mz-muted); }
-.cv2-insight.stale .cv2-insight-facts, .cv2-insight.stale .cv2-insight-note, .cv2-insight.stale .cv2-insight-verdict { display: none; }
-.cv2-insight-eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 800; color: var(--warn); letter-spacing: 0.01em; }
-.cv2-insight-figure { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; color: var(--mz-ink); }
-.cv2-insight-figure b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-.cv2-insight-figure .pre, .cv2-insight-figure .post { font-size: 13px; color: var(--mz-muted); font-weight: 700; }
-.cv2-insight-text { font-size: 13px; line-height: 1.6; color: var(--mz-text); white-space: pre-wrap; }
-.cv2-insight .cv2-chip { align-self: flex-start; }
-.cv2-insight.stale { border-color: var(--mz-line); background: var(--mz-bg); }
-.cv2-insight.stale .cv2-insight-eyebrow { color: var(--mz-muted); }
-.cv2-insight.stale .cv2-insight-figure b { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--mz-muted); font-size: 20px; }
-.cv2-insight.stale .cv2-insight-text { display: none; }
+/* the preliminary assessment (IndicationCard): what was asked · what it costs a month · may I go on · where the
+   decision sits. Attached to the assistant like its own bubble (tucked corner toward the avatar), on the JEEN wash;
+   the status band carries the verdict colour, the path shows the decision three steps away. */
+.cv2-insight { --ia-ink: #1d2130; --ia-muted: #7a7486; --ia-line: #ece6f2; --ia-ok: #1d6b41; --ia-ok-bg: #eef7f1; --ia-warn: #8a4a06; --ia-warn-bg: #fff5e8;
+  align-self: stretch; box-sizing: border-box; display: flex; flex-direction: column; padding: 11px 13px 4px; border: 1px solid var(--ia-line);
+  border-radius: 16px; border-start-start-radius: 6px; background: linear-gradient(180deg, #fbf8fd 0, #fff 96px); color: var(--ia-ink);
+  box-shadow: 0 1px 2px rgba(30, 35, 50, 0.04), 0 6px 18px -12px rgba(60, 40, 90, 0.2); }
+.cv2-insight .ltr { direction: ltr; unicode-bidi: isolate; }
+.ia-head { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: var(--ia-ink); }
+.ia-head img { width: 14px; height: 14px; }
+.ia-not { margin-inline-start: auto; font-size: 10.5px; font-weight: 700; color: var(--ia-muted); }
+.ia-amount { display: flex; align-items: baseline; gap: 8px; margin-top: 8px; line-height: 1; }
+.ia-amount b { display: inline-flex; align-items: baseline; gap: 4px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.ia-amount i { font-style: normal; font-size: 16px; font-weight: 700; color: var(--ia-muted); }
+.ia-k { font-size: 12px; font-weight: 700; color: var(--ia-muted); }
+.ia-monthly { margin: 6px 0 0; font-size: 13.5px; color: var(--mz-text); }
+.ia-monthly b { font-weight: 800; color: var(--ia-ink); font-variant-numeric: tabular-nums; }
+.ia-dot { margin: 0 6px; color: #c9c3d1; }
+.ia-status { display: flex; align-items: flex-start; gap: 9px; margin-top: 11px; padding: 9px 10px; border-radius: 12px; background: var(--ia-ok-bg); }
+.ia-status > div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ia-status b { font-size: 13px; font-weight: 800; color: var(--ia-ok); }
+.ia-status span:not(.ia-icon) { font-size: 11.5px; color: #3f5a49; }
+.ia-icon { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--ia-ok); color: #fff; font-size: 12px; font-weight: 800; margin-top: 1px; }
+.cv2-insight.warn .ia-status { background: var(--ia-warn-bg); }
+.cv2-insight.warn .ia-status b { color: var(--ia-warn); }
+.cv2-insight.warn .ia-status span:not(.ia-icon) { color: #6b4a1f; }
+.cv2-insight.warn .ia-icon { background: #e08a1e; }
+/* the bank's path: the customer is on step one; the decision is the last dot */
+.ia-path { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 12px 0 0; padding: 0; }
+.ia-path li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: var(--ia-muted); text-align: center; line-height: 1.2; }
+.ia-path li i { position: relative; z-index: 1; width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1.5px #d6cfdd; }
+.ia-path li + li::before { content: ""; position: absolute; top: 4px; inset-inline-end: 50%; width: 100%; height: 1.5px; background: #e6e0ec; }
+.ia-path li.here { color: var(--ia-ink); font-weight: 800; }
+.ia-path li.here i { background: var(--ia-ink); box-shadow: 0 0 0 3px #efe7f6; }
+.ia-path li:last-child { color: #5d5868; }
+.ia-more { align-self: center; min-height: 36px; margin-top: 4px; padding: 0 10px; border: none; background: none; font: inherit; font-size: 12px; font-weight: 700; color: var(--mz-navy); cursor: pointer; }
+.ia-more span { display: inline-block; width: 12px; margin-inline-start: 3px; color: var(--ia-muted); }
+.ia-more:focus-visible { outline: 3px solid var(--mz-orange-ring); outline-offset: 2px; border-radius: 8px; }
+.ia-facts { margin: 0 0 8px; padding: 8px 10px; border-radius: 10px; background: #faf9fc; display: flex; flex-direction: column; gap: 5px; }
+.ia-facts > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12px; }
+.ia-facts dt { color: var(--ia-muted); }
+.ia-facts dd { margin: 0; font-weight: 800; color: var(--ia-ink); text-align: left; white-space: nowrap; }
+.ia-facts small { margin-inline-start: 5px; font-size: 10.5px; font-weight: 600; color: var(--ia-muted); }
+.ia-facts p { margin: 3px 0 0; font-size: 11px; line-height: 1.55; color: var(--ia-muted); }
+/* superseded: one quiet line */
+.cv2-insight.stale { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px 10px; background: var(--mz-bg); border-color: transparent; box-shadow: none; }
+.ia-old { font-size: 12px; font-weight: 700; color: var(--ia-muted); text-decoration-thickness: 1.5px; }
+.ia-badge { margin-inline-start: auto; font-size: 10.5px; font-weight: 800; color: var(--ia-muted); background: #fff; border-radius: 999px; padding: 1px 8px; }
 
 /* sticky insets count from inside .screen's padding: nav (74px + safe area) minus padding (110px + safe area) */
 .cv2-composer { position: sticky; bottom: -36px; z-index: 3; background: #fff; border-top: 1px solid var(--mz-line-soft); padding: 4px 0 10px; box-shadow: 0 -8px 12px -12px rgba(50, 60, 75, 0.4); border-radius: 0 0 var(--radius) var(--radius); }
@@ -1367,6 +1395,6 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 @media (max-width: 420px) {
   .cv2-log { padding-inline: 8px; }
   .cv2-stages .lbl { font-size: 10.5px; }
-  .cv2-insight-figure b { font-size: 23px; }
+  .ia-amount b { font-size: 27px; }
 }
 @media (prefers-reduced-motion: reduce) { .cv2-typing i { animation: none; opacity: 0.7; } }

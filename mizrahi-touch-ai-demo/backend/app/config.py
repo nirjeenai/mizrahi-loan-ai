@@ -45,6 +45,7 @@ class Settings:
     onboarding_llm: bool
     onboarding_llm_model: str
     onboarding_llm_timeout: float
+    loan_sim_illustrative_rate: bool
 
     @property
     def db_path(self) -> Path:
@@ -107,4 +108,7 @@ settings = Settings(
     onboarding_llm=os.environ.get("ONBOARDING_LLM", "1") == "1",
     onboarding_llm_model=os.environ.get("ONBOARDING_LLM_MODEL", os.environ.get("GEMINI_MODEL_AGENT", "gemini-3.8-flash")),
     onboarding_llm_timeout=float(os.environ.get("ONBOARDING_LLM_TIMEOUT", "8")),
+    # loan simulator: without a bank quote or pricing config it shows repayments at a labelled illustrative rate;
+    # LOAN_SIM_ILLUSTRATIVE_RATE=0 shows the unknown-rate state instead (amount and term only, no repayment figure)
+    loan_sim_illustrative_rate=os.environ.get("LOAN_SIM_ILLUSTRATIVE_RATE", "1") == "1",
 )

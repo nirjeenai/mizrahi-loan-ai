@@ -24,7 +24,7 @@ FIELDS = ["loan_type", "business_form", "name", "purpose", "company_purpose", "a
           "accounts", "company_name", "signatory"]
 TOPICS = ["why_pending", "why_payslips", "missing_payslip", "why_registration", "add_coborrower", "documents",
           "remaining", "approval", "banker", "privacy", "explain_indication", "calculate", "interest", "change",
-          "other_banking", "off_topic", "smalltalk"]
+          "scenario", "other_banking", "off_topic", "smalltalk"]
 ENUMS = {"loan_type": {"personal", "business"}, "business_form": {"vat_exempt", "vat_registered", "company"},
          "purpose": {"car", "renovation", "celebration", "other"},
          "company_purpose": {"business_equipment", "working_capital"},
@@ -65,6 +65,9 @@ Fields and value formats (value is always a string):
 - registration, co_registration: vat_exempt | vat_registered
 - net, co_net: monthly NET income in ILS, digits. Never from a gross (ברוטו) figure: then set gross_income_mentioned.
 - co_borrower: yes | no ; accounts: joint | separate ; company_name: text
+- NOT facts (the bank's loan simulator reads them itself): a monthly payment the customer wants to stay under
+  ("עד 2,500 בחודש", "לא לעבור החזר של 2,500"), existing monthly loan repayments, a vehicle price, deferral months.
+  Never output those numbers as amount, payments or net.
 Rules:
 - kind: "answer" = answers the pending question; "extra" = another field volunteered; "correction" = the customer
   explicitly changes something said before (בעצם, במקום, טעיתי, לא X אלא Y, "אני לא שכיר, רק עצמאי").
@@ -79,7 +82,8 @@ Rules:
 - unclear: only for a field the customer actually talked about and you could not map. Never for fields not mentioned.
 - topics: what the customer asks about (why_pending = why the current question is asked; calculate = asks to compute
   the loan / indication; explain_indication = how the shown indication was computed; approval = promises, approval,
-  eligibility; interest = interest rate; change = wants to change an answer; off_topic = unrelated to the loan).
+  eligibility; interest = interest rate; change = wants to change an answer; scenario = asks what the simulated loan
+  costs, e.g. the monthly payment, the total or how it compares to their income; off_topic = unrelated to the loan).
 - ID numbers are masked as [ID]; never output them.
 Candidate reply (used only if the bank's code accepts every fact exactly as you proposed it):
 - reply_he: 1-2 short sentences of natural, spoken Israeli Hebrew, as if all your facts were accepted: a brief,

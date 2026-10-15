@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api, ils, type ChatAction, type ChatDraft, type ChatMessage, type ChatStage, type ChatTurn } from "../../api";
 import { useCase } from "../../caseContext";
 import { ICheck, ISend, ISpark } from "../../components/Icons";
+import { LoanSimulator, SimulatorSnapshot } from "../../components/LoanSimulator";
 
 const DRAFT_KEY = "mz.onboarding.draft.v2";
 
@@ -55,12 +56,16 @@ export function ApplyV2() {
   }, [complete]);
 
   const inFlight = useRef(false);
+  // the simulator card saves its draft with a debounce; a pending save is sent before the next turn reads the draft
+  const flushSim = useRef<(() => Promise<void>) | null>(null);
+  const registerFlush = useCallback((fn: (() => Promise<void>) | null) => { flushSim.current = fn; }, []);
   const send = async (turn: ChatTurn, shown: string | null, fromInput = false) => {
     // a ref, not state: two clicks in the same tick must not both send; the turn id makes a retried request a no-op
     if (!draft || inFlight.current) return;
     inFlight.current = true;
     setBusy(true); setError(null); setEcho(shown);
     try {
+      await flushSim.current?.();
       setDraft(await api.chatTurn(draft.draft_id, { ...turn, turn_id: crypto.randomUUID() }));
       if (fromInput) setText("");
     } catch (e) { setError((e as Error).message); }
@@ -70,7 +75,8 @@ export function ApplyV2() {
       if (fromInput) requestAnimationFrame(() => input.current?.focus());
     }
   };
-  const act = (a: ChatAction) => a.text ? send({ text: a.text }, a.label_he)
+  const act = (a: ChatAction) => a.simulation ? send({ action: "simulate_apply", simulation: a.simulation, label_he: a.label_he }, a.label_he)
+    : a.text ? send({ text: a.text }, a.label_he)
     : send({ question_id: a.question_id!, value: a.value, label_he: a.label_he }, a.label_he);
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -91,7 +97,6 @@ export function ApplyV2() {
 
   const p = draft?.pending;
   const lastAssistant = draft ? [...draft.messages].reverse().find((m) => m.role === "assistant") : undefined;
-  const latestInsight = draft ? [...draft.messages].reverse().find((m) => m.indication) : undefined;
   // while the assistant asks a clarification, its own choices are the only buttons on screen
   const clarifying = !!lastAssistant?.actions?.length;
   return (
@@ -109,17 +114,24 @@ export function ApplyV2() {
         {draft && <Stages stages={draft.stages} />}
         <div className="chat-log cv2-log" ref={log} aria-live="polite" data-testid="cv2-log">
           {!draft && !error && <div className="bubble assistant"><span className="spinner" /></div>}
-          {draft?.messages.map((m, i) => (
-            <Message key={m.id} m={m} latest={m.id === latestInsight?.id} grouped={i > 0 && draft.messages[i - 1].role === "assistant"}
-              onAsk={(t) => send({ text: t }, t)} disabled={busy}
-              actions={m.id === lastAssistant?.id ? m.actions : undefined} onAction={act} />
-          ))}
+          {draft?.messages.flatMap((m, i) => {
+            const row = (
+              <Message key={m.id} m={m} grouped={i > 0 && draft.messages[i - 1].role === "assistant"} disabled={busy}
+                actions={m.id === lastAssistant?.id ? m.actions : undefined} onAction={act} />
+            );
+            if (!m.simulator) return [row];
+            const card = m.simulator.live && draft.simulation && draft.status === "draft"
+              ? <LoanSimulator key={`sim-${m.id}`} sim={draft.simulation} draftId={draft.draft_id} busy={busy} registerFlush={registerFlush}
+                  onConfirm={(simulation, label) => send({ action: "simulate_confirm", simulation, label_he: label }, label)} />
+              : <SimulatorSnapshot key={`sim-${m.id}`} s={m.simulator} />;
+            return [row, card];
+          })}
           {echo && <div className="bubble user">{echo}</div>}
           {busy && <div className="bubble assistant cv2-typing" aria-label="העוזר כותב"><i /><i /><i /></div>}
         </div>
         {draft?.status === "draft" && (
           <div className="cv2-composer" ref={composer}>
-            {p && p.replies.length > 0 && !clarifying && (
+            {p && p.kind !== "simulator" && p.replies.length > 0 && !clarifying && (
               <div className="onb-replies cv2-replies" role="group" aria-label={p.prompt_he} data-testid="cv2-pending" data-question={p.question_id}>
                 {p.replies.map((r) => (
                   <button key={r.label_he} className="onb-reply" disabled={busy} data-testid="cv2-reply" data-value={JSON.stringify(r.value)}
@@ -127,7 +139,7 @@ export function ApplyV2() {
                 ))}
               </div>
             )}
-            {p && (p.replies.length === 0 || clarifying) && <span hidden data-testid="cv2-pending" data-question={p.question_id} />}
+            {p && (p.kind === "simulator" || p.replies.length === 0 || clarifying) && <span hidden data-testid="cv2-pending" data-question={p.question_id} data-kind={p.kind} />}
             <div className="cv2-suggest">
               {p?.editing && (
                 <button className="cv2-chip cancel" disabled={busy} onClick={() => send({ action: "cancel_edit" }, "ביטול השינוי")}
@@ -139,7 +151,8 @@ export function ApplyV2() {
             </div>
             <form className="cv2-input" onSubmit={submit}>
               <input ref={input} className="input" value={text} onChange={(e) => setText(e.target.value)} maxLength={500}
-                placeholder={p?.placeholder_he || "אפשר לשאול אותי כל שאלה על הבקשה…"} enterKeyHint="send" autoComplete="off"
+                placeholder={p?.kind === "simulator" ? "אפשר גם לכתוב, למשל: רק 80 אלף, או עד 2,500 בחודש"
+                  : p?.placeholder_he || "אפשר לשאול אותי כל שאלה על הבקשה…"} enterKeyHint="send" autoComplete="off"
                 aria-label="הודעה לעוזר" data-testid="cv2-input" />
               <button className="cv2-send" disabled={busy || !text.trim()} aria-label="שליחה" data-testid="cv2-send"><ISend size={18} /></button>
             </form>
@@ -202,8 +215,8 @@ export function AssistantMark({ size = 26 }: { size?: number }) {
   );
 }
 
-function Message({ m, grouped, latest, onAsk, disabled, actions, onAction }: {
-  m: ChatMessage; grouped: boolean; latest: boolean; onAsk: (t: string) => void; disabled: boolean;
+function Message({ m, grouped, disabled, actions, onAction }: {
+  m: ChatMessage; grouped: boolean; disabled: boolean;
   actions?: ChatAction[]; onAction: (a: ChatAction) => void;
 }) {
   if (m.role === "user") return <div className="bubble user" data-testid="cv2-msg" data-kind="user">{m.text_he}</div>;
@@ -212,7 +225,7 @@ function Message({ m, grouped, latest, onAsk, disabled, actions, onAction }: {
     <div className={`cv2-row${grouped ? " grouped" : ""}`}>
       {grouped ? <span className="cv2-mark-space" /> : <AssistantMark />}
       <div className="cv2-stack">
-        {m.indication && <IndicationCard m={m} latest={latest} disabled={disabled} onAsk={onAsk} />}
+        {m.indication && <IndicationCard m={m} />}
         {!legacyInsight && (
           <div className={`bubble assistant${m.kind === "withdrawn" || m.insight === "withdrawn" ? " cv2-muted" : ""}${actions?.length ? " has-actions" : ""}`}
             data-testid="cv2-msg" data-kind={m.kind} data-question={m.question_id} data-engine={m.engine}>
@@ -229,28 +242,61 @@ function Message({ m, grouped, latest, onAsk, disabled, actions, onAction }: {
   );
 }
 
-/** The DEMO indication, framed around what the customer asked for; the theoretical maximum is secondary. */
-function IndicationCard({ m, latest, disabled, onAsk }: { m: ChatMessage; latest: boolean; disabled: boolean; onAsk: (t: string) => void }) {
+const nis = (n: number) => `${Math.round(n).toLocaleString("en-US")} ₪`;
+const BANK_PATH = ["הערכה", "מסמכים", "בדיקת הבנק", "החלטת הבנק"];
+
+/** The DEMO preliminary assessment, read in three seconds: what was requested, what it costs a month, whether to go
+ *  on. The bank's process sits under it as a path with the customer on its first step, so a preliminary assessment is
+ *  never read as a decision. The formula's inputs, the theoretical ceiling and the caveats live behind "איך הגענו לזה". */
+function IndicationCard({ m }: { m: ChatMessage }) {
   const ind = m.indication!;
+  const [open, setOpen] = useState(false);
+  if (m.stale) {
+    return (
+      <div className="cv2-insight stale" data-testid="cv2-insight" data-stale="1" data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils}>
+        <span className="ia-k">הערכה קודמת</span>
+        <s className="ia-old">{nis(ind.requested_amount_ils)}</s>
+        <span className="ia-k">· {ind.payments} תשלומים</span>
+        <span className="ia-badge" data-testid="cv2-insight-stale">עודכנה</span>
+      </div>
+    );
+  }
   return (
-    <div className={`cv2-insight${m.stale ? " stale" : ""}`} data-testid="cv2-insight" data-stale={m.stale ? "1" : "0"}
-      data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils}>
-      <div className="cv2-insight-eyebrow">
-        <span>אינדיקציה ראשונית</span>
-        {m.stale && <span className="badge neutral" data-testid="cv2-insight-stale">עודכנה</span>}
+    <div className={`cv2-insight ${ind.within ? "ok" : "warn"}`} data-testid="cv2-insight" data-stale="0"
+      data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils} role="group" aria-label="הערכה ראשונית לבקשה">
+      <div className="ia-head">
+        <img src="/brand/jeen-mark.png" alt="" aria-hidden />
+        <span>הערכה ראשונית</span>
+        <span className="ia-not">לא אישור הלוואה</span>
       </div>
-      <div className="cv2-insight-figure">
-        <span className="pre">הבקשה ל־</span><b className="ltr">{ils(ind.requested_amount_ils)}</b>
+      <div className="ia-amount" data-testid="cv2-insight-amount">
+        <span className="ia-k">ביקשת</span>
+        <b><span className="ltr">{ind.requested_amount_ils.toLocaleString("en-US")}</span><i>₪</i></b>
       </div>
-      <div className={`cv2-insight-verdict ${ind.within ? "ok" : "warn"}`}>
-        {ind.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שההערכה הראשונית מראה כאפשרי"}</div>
-      <dl className="cv2-insight-facts">
-        <div><dt>החזר חודשי משוער</dt><dd><span className="ltr">{ils(ind.requested_monthly_ils)}</span> · {ind.payments} תשלומים</dd></div>
-        <div><dt>תקרה תיאורטית בנוסחה (לא מסגרת אשראי)</dt><dd><span className="ltr">{ils(ind.max_amount_ils)}</span></dd></div>
-      </dl>
-      <div className="cv2-insight-note">לפי ההכנסה נטו שמסרת והנחות חישוב כלליות בלבד. זו לא בדיקת זכאות ולא אישור, הבנק יבדוק מסמכים והתחייבויות.</div>
-      {latest && !m.stale && (
-        <button className="cv2-chip" disabled={disabled} onClick={() => onAsk("איך חישבת את האינדיקציה?")} data-testid="cv2-explain">איך חישבת?</button>
+      <p className="ia-monthly" data-testid="cv2-insight-monthly">
+        כ־<b>{nis(ind.requested_monthly_ils)}</b> בחודש<span className="ia-dot">·</span>{ind.payments} תשלומים
+      </p>
+      <div className="ia-status" data-testid="cv2-insight-status">
+        <span className="ia-icon" aria-hidden>{ind.within ? <ICheck size={13} /> : "!"}</span>
+        <div>
+          <b>{ind.within ? "אפשר להמשיך לבדיקת הבנק" : "גבוה מההערכה הראשונית"}</b>
+          <span>{ind.within ? "הצעד הבא: עוד כמה פרטים, ואז מסמכים" : "אפשר להמשיך כך, הבנק יבדוק את הבקשה"}</span>
+        </div>
+      </div>
+      <ol className="ia-path" aria-label="השלבים עד החלטת הבנק">
+        {BANK_PATH.map((s, i) => <li key={s} className={i === 0 ? "here" : ""} aria-current={i === 0 ? "step" : undefined}><i />{s}</li>)}
+      </ol>
+      <button className="ia-more" aria-expanded={open} onClick={() => setOpen((o) => !o)} data-testid="cv2-insight-more">
+        איך הגענו לזה <span aria-hidden>{open ? "−" : "+"}</span>
+      </button>
+      {open && (
+        <dl className="ia-facts" data-testid="cv2-insight-facts">
+          <div><dt>הכנסה נטו שמסרת</dt><dd>{nis(ind.declared_net_ils)}<small>הצהרה</small></dd></div>
+          {ind.ratio != null && <div><dt>חלק מההכנסה להחזר (הנחה)</dt><dd>{Math.round(ind.ratio * 100)}%</dd></div>}
+          {ind.annual_rate != null && <div><dt>ריבית להמחשה</dt><dd>{+(ind.annual_rate * 100).toFixed(2)}% לשנה</dd></div>}
+          <div><dt>תקרה תיאורטית בנוסחה</dt><dd>{nis(ind.max_amount_ils)}<small>לא מסגרת אשראי</small></dd></div>
+          <p>{ind.co_borrower_pending ? "ההכנסה של הלווה הנוסף עוד לא נכללה. " : ""}לפי מה שמסרת והנחות חישוב כלליות בלבד, בלי נתוני אשראי, חשבונות או התחייבויות. זו לא בדיקת זכאות ולא אישור.</p>
+        </dl>
       )}
     </div>
   );

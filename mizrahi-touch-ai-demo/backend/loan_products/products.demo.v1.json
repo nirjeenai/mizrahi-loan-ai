@@ -1,0 +1,120 @@
+{
+  "config_version": "loan-products.demo.v1",
+  "checked_on": "2026-10-15",
+  "note": "Simulator configuration for the conversational application. Facts marked \"verified\" were read from the bank's public product pages on checked_on; they describe advertised products, not a customer's eligibility or rate. Everything marked \"demo\" or \"flow\" is an engineering default of this demo, not a Mizrahi-Tefahot term. No product here carries a bank rate or a fee: none is published.",
+  "flow_bounds": {
+    "amount": {"min": 5000, "max": 250000, "step": 1000},
+    "business_amount": {"min": 20000, "max": 3000000, "step": 10000},
+    "term": {"min": 2, "max": 120}
+  },
+  "products": [
+    {
+      "id": "car", "label_he": "הלוואה לרכב", "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": ["עד 85% מימון", "תקופה עד 60 חודשים", "לרכב חדש או יד שנייה"],
+      "amount": {"max_financing_ratio": 0.85, "ratio_basis": "verified"},
+      "term": {"min": 12, "min_basis": "demo", "max": 60, "max_basis": "verified"},
+      "asset": {"label_he": "מחיר הרכב", "hint_he": "לבדיקת שיעור המימון במסלול"},
+      "features": {"repayment_models": ["annuity"], "deferral": null, "variable_rate": null, "fees": []},
+      "defaults": {"amount": 80000, "term": 60},
+      "rate": "illustrative"
+    },
+    {
+      "id": "electric_car", "label_he": "הלוואה לרכב חשמלי", "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": ["עד 85% מימון", "תקופה עד 60 חודשים"],
+      "amount": {"max_financing_ratio": 0.85, "ratio_basis": "verified"},
+      "term": {"min": 12, "min_basis": "demo", "max": 60, "max_basis": "verified"},
+      "asset": {"label_he": "מחיר הרכב", "hint_he": "לבדיקת שיעור המימון במסלול"},
+      "features": {"repayment_models": ["annuity"], "deferral": null, "variable_rate": null, "fees": []},
+      "defaults": {"amount": 120000, "term": 60},
+      "rate": "illustrative"
+    },
+    {
+      "id": "happy_event", "label_he": "הלוואה לשמחות", "short_he": "שמחות",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/happy-event-loan/",
+      "verified_he": ["עד 100,000 ₪", "תקופה עד 7 שנים (84 חודשים)"],
+      "amount": {"max": 100000, "max_basis": "verified"},
+      "term": {"min": 12, "min_basis": "demo", "max": 84, "max_basis": "verified"},
+      "asset": null,
+      "features": {"repayment_models": ["annuity"], "deferral": null, "variable_rate": null, "fees": []},
+      "defaults": {"amount": 50000, "term": 48},
+      "rate": "illustrative"
+    },
+    {
+      "id": "express", "label_he": "הלוואה ברגע", "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": ["עד 125,000 ₪", "תקופה של 2 עד 72 חודשים", "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+                      "פטור מעמלת פירעון מוקדם"],
+      "amount": {"max": 125000, "max_basis": "verified"},
+      "term": {"min": 2, "min_basis": "verified", "max": 72, "max_basis": "verified"},
+      "asset": null,
+      "features": {
+        "repayment_models": ["annuity"],
+        "deferral": {"max_months": 3, "basis": "verified", "verified_policy": null,
+                     "illustrative_policies": ["capitalized", "interest_only"], "default_policy": "capitalized",
+                     "term_includes_deferral": false, "term_basis": "demo"},
+        "variable_rate": null, "fees": []
+      },
+      "defaults": {"amount": 50000, "term": 36},
+      "rate": "illustrative"
+    },
+    {
+      "id": "solar", "label_he": "הלוואה למתקן סולארי", "short_he": "סולארי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/financing-solar-installations-loan/",
+      "verified_he": ["עד 100,000 ₪", "תקופה עד 120 חודשים", "ריבית במסלולים מגוונים"],
+      "amount": {"max": 100000, "max_basis": "verified"},
+      "term": {"min": 12, "min_basis": "demo", "max": 120, "max_basis": "verified"},
+      "asset": null,
+      "features": {"repayment_models": ["annuity", "equal_principal"], "models_basis": "demo", "deferral": null,
+                   "variable_rate": {"basis": "verified", "note_he": "בעמוד המוצר: ריבית במסלולים מגוונים. תנאי המסלולים לא פורסמו, ולכן כאן רק תרחיש מה־אם."},
+                   "fees": []},
+      "defaults": {"amount": 60000, "term": 96},
+      "rate": "illustrative"
+    },
+    {
+      "id": "all_purpose", "label_he": "הלוואה לכל מטרה", "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": ["לכל מטרה, לטווח קצר או ארוך"],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount": {},
+      "term": {"min": 12, "min_basis": "demo", "max": 84, "max_basis": "demo"},
+      "asset": null,
+      "features": {"repayment_models": ["annuity", "equal_principal"], "models_basis": "demo", "deferral": null,
+                   "variable_rate": null, "fees": []},
+      "defaults": {"amount": 50000, "term": 48},
+      "rate": "illustrative"
+    },
+    {
+      "id": "business_sole", "label_he": "הלוואה לבעלי עסקים", "short_he": "לעסק",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/",
+      "verified_he": [],
+      "amount": {},
+      "term": {"min": 12, "min_basis": "demo", "max": 84, "max_basis": "demo"},
+      "asset": null,
+      "features": {"repayment_models": ["annuity"], "deferral": null, "variable_rate": null, "fees": []},
+      "defaults": {"amount": 80000, "term": 48},
+      "rate": "illustrative"
+    },
+    {
+      "id": "company", "label_he": "מימון לחברה, בליווי בנקאי/ת", "short_he": "חברה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/",
+      "verified_he": [],
+      "amount_field": "business_amount",
+      "amount": {},
+      "term": {"min": 12, "min_basis": "demo", "max": 120, "max_basis": "demo"},
+      "asset": null,
+      "features": {"repayment_models": ["annuity"], "deferral": null, "variable_rate": null, "fees": []},
+      "defaults": {"amount": 300000, "term": 60},
+      "rate": "unavailable"
+    }
+  ],
+  "candidates": {
+    "car": ["car", "electric_car", "express", "all_purpose"],
+    "celebration": ["happy_event", "express", "all_purpose"],
+    "renovation": ["all_purpose", "express", "solar"],
+    "other": ["all_purpose", "express", "solar"],
+    "_sole_business": ["business_sole"],
+    "_company": ["company"]
+  }
+}

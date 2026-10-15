@@ -1,3 +1,4 @@
+import type { Afford as SimAfford, Issue as SimIssue, Params as SimParams, Product as SimProduct, Rate as SimRate, Result as SimResult, Target as SimTarget } from "./loanCalc";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export const CASE_ID_DEFAULT = "DEMO-MTZ-2026-001";
@@ -61,7 +62,7 @@ export interface DocumentProfile {
   accounts: { account_id: string; label_he: string; holders: string[]; other_holders_he: string[] }[];
 }
 export interface OnboardingOption { value: string | number; label_he: string }
-export interface OnboardingQuestion { question_id: string; kind: "choice" | "multi" | "name" | "text" | "number"; prompt_he: string; options: OnboardingOption[] }
+export interface OnboardingQuestion { question_id: string; kind: "choice" | "multi" | "name" | "text" | "number" | "simulator"; prompt_he: string; options: OnboardingOption[] }
 export interface OnboardingDraft {
   draft_id: string; status: "draft" | "confirmed"; case_id: string | null; note_he: string;
   asked: { question_id: string; prompt_he: string; kind: string; answer: unknown; answer_he: string }[];
@@ -73,13 +74,35 @@ export interface OnboardingDraft {
 export interface ChatIndication {
   max_amount_ils: number; requested_amount_ils: number; within: boolean; requested_monthly_ils: number; payments: number;
   declared_net_ils: number; co_borrower_pending: boolean;
+  /** the formula's assumptions, on messages saved since they were added */
+  ratio?: number; annual_rate?: number; business_income?: boolean;
 }
 export interface ChatReply { label_he: string; value: unknown }
 /** A quick reply under a message: answers a question (question_id + value) or sends a text. */
-export interface ChatAction { label_he: string; question_id?: string; value?: unknown; text?: string }
+export interface ChatAction { label_he: string; question_id?: string; value?: unknown; text?: string;
+  /** a suggested scenario change (amount / term) for the loan simulator */
+  simulation?: Partial<SimParams> }
+/** One message's record of the loan simulator card it carried; only the latest one is live. */
+export interface SimSnapshot { status: "pending" | "confirmed"; product_he: string; amount: number; term: number;
+  monthly_payment: number | null; rev: number; live: boolean }
+export interface SimEval { result: (Omit<SimResult, "rows"> & { yearly: { year: number; from_month: string; to_month: string; paid: number;
+    interest: number; principal: number; balance: number }[] }) | null;
+  issues: SimIssue[]; affordability: SimAfford | null; comparison: { term: number; monthly_payment: number; total_interest: number; chosen: boolean }[];
+  target: SimTarget | null; rate: SimRate }
+/** The loan simulator inside the conversation: candidate products (rules + sources), the draft and confirmed scenarios,
+ *  the server's evaluation of each and the customer-declared context. Amount and term are questionnaire answers. */
+export interface Simulation {
+  status: "pending" | "confirmed"; editing: boolean; rev: number; product_id: string; candidates: SimProduct[];
+  amount_field: "amount" | "business_amount"; purpose: string | null;
+  draft: SimParams; draft_eval: SimEval; confirmed: SimParams | null; confirmed_eval: SimEval | null;
+  context: { net_income: number | null; net_parts: { who: string; net_ils: number }[]; co_borrower_pending: boolean;
+    obligations: number | null; target_monthly: number | null; source: "CUSTOMER_DECLARED" };
+  start_month: string; config_version: string; checked_on: string;
+}
 export interface ChatMessage {
   id: number; role: "assistant" | "user"; kind: "text" | "question" | "insight" | "withdrawn" | "summary"; text_he: string;
   question_id?: string; indication?: ChatIndication & { key: string }; insight?: "new" | "updated" | "withdrawn";
+  simulator?: SimSnapshot;
   stale?: boolean; actions?: ChatAction[]; engine?: "llm" | "rules"; understood_by?: "llm" | "rules";
 }
 export interface ChatStage { id: string; label_he: string; state: "done" | "current" | "upcoming"; total: number; answered: number }
@@ -88,13 +111,16 @@ export interface ChatDraft {
   messages: ChatMessage[]; stages: ChatStage[]; indication: ChatIndication | null; suggestions: string[]; actions: ChatAction[];
   loan: { type?: "personal" | "business" | null; form?: "vat_exempt" | "vat_registered" | "company" | null };
   engine: "llm" | "rules";
+  simulation: Simulation | null;
   pending: null | { question_id: string; kind: OnboardingQuestion["kind"]; prompt_he: string; replies: ChatReply[];
     placeholder_he: string; editing: boolean; current_he: string | null };
   summary: null | (NonNullable<OnboardingDraft["summary"]> & {
     lines: { label_he: string; value_he: string; question_id: string }[]; intro_he: string });
 }
 export type ChatTurn = ({ text: string } | { question_id: string; value: unknown; label_he?: string }
-  | { question_id?: string; action: "edit" | "cancel_edit" }) & { turn_id?: string };
+  | { question_id?: string; action: "edit" | "cancel_edit" }
+  | { action: "simulate_confirm" | "simulate_apply"; simulation: Partial<SimParams> & { product?: string }; label_he?: string })
+  & { turn_id?: string };
 /** The customer's next step, computed by the backend (readiness.customer_status) with explicit precedence. */
 export type CustomerStatus = "NO_PAYSLIPS_REQUIRED" | "AWAITING_UPLOAD" | "ERROR" | "PROCESSING" | "REVALIDATING"
   | "CORRECTION_REQUIRED" | "MISSING_DOCUMENTS" | "PREPARATION_CONFIRMED" | "BANKER_REVIEW" | "CHECKS_COMPLETE";
@@ -337,6 +363,8 @@ export const api = {
   chat: (draftId: string) => http<ChatDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2`),
   chatTurn: (draftId: string, turn: ChatTurn) =>
     http<ChatDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2/turn`, json(turn)),
+  chatSimulation: (draftId: string, draft: Partial<SimParams> & { product?: string; obligations?: number | null }) =>
+    http<{ simulation: Simulation }>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2/simulation`, json({ draft })),
   chatConfirm: (draftId: string) =>
     http<{ case_id: string; created: boolean }>(`/api/demo/onboarding/${encodeURIComponent(draftId)}/v2/confirm`, { method: "POST" }),
   onboardingConfirm: (draftId: string) =>
