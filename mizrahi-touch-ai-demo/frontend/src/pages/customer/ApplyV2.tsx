@@ -95,7 +95,7 @@ export function ApplyV2() {
   // while the assistant asks a clarification, its own choices are the only buttons on screen
   const clarifying = !!lastAssistant?.actions?.length;
   return (
-    <>
+    <div className="cv2-page">
       <div className="cv2-top">
         <VersionSwitch v={2} />
         {draft && draft.messages.some((m) => m.role === "user") && (
@@ -150,7 +150,7 @@ export function ApplyV2() {
       </div>
       {draft?.summary && !p && <Summary draft={draft} busy={busy} onEdit={(q, label) => send({ question_id: q, action: "edit" }, `שינוי ${label}`)} onConfirm={confirm} />}
       <div className="tiny muted" style={{ marginTop: 10 }}>{draft?.note_he}</div>
-    </>
+    </div>
   );
 }
 

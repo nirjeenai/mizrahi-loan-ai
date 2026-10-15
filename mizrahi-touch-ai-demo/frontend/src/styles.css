@@ -1194,7 +1194,10 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .cv2-switch a.on { background: var(--mz-navy); color: #fff; }
 .cv2-switch a:focus-visible { outline: 2px solid var(--mz-orange); outline-offset: 1px; }
 .cv2-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 2px 8px; }
-.cv2 { padding: 8px 0 12px; display: flex; flex-direction: column; }
+/* the page is at least as tall as the app's scroll area, and the chat card takes the height the other blocks leave,
+   so the composer sits above the bottom navigation instead of leaving an empty band under a short card */
+.cv2-page { min-height: 100%; display: flex; flex-direction: column; }
+.cv2 { flex: 1 0 auto; padding: 8px 0 12px; display: flex; flex-direction: column; }
 .cv2-head { display: flex; align-items: center; gap: 9px; padding: 0 14px 8px; }
 .cv2-id { display: flex; flex-direction: column; line-height: 1.25; }
 .cv2-id b { font-size: 14px; color: var(--mz-ink); }
@@ -1223,7 +1226,7 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .cv2-stages li.done .lbl { color: var(--mz-navy); }
 .cv2-caption { text-align: center; margin-top: 8px; }
 
-.cv2-log { overflow: visible; min-height: 120px; padding: 14px 12px 10px; }
+.cv2-log { flex: 1 0 auto; overflow: visible; min-height: 120px; padding: 14px 12px 10px; }
 .cv2-question { border-inline-start: 3px solid var(--mz-orange); }
 .cv2-muted { background: var(--mz-bg); box-shadow: none; color: var(--mz-muted); }
 .cv2-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
