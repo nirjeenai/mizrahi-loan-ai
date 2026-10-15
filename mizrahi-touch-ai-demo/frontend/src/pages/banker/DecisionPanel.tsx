@@ -72,23 +72,26 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
   const primary = primaryDocAction(item);
   const tone = item.attention ? "warn" : item.ai.verdict === "VALID" ? "ok" : "neutral";
   const toggle = (a: DocAction) => setMode(mode === a ? null : a);
+  const context = item.findings.length > 0 || item.ai.criteria_failed.length + item.ai.criteria_uncertain.length + item.ai.criteria_passed.length > 0
+    || item.requests.length > 0;
   return (<>
-    <section className="dp-sec dp-summary" data-testid="ai-summary">
-      <div className="dp-head"><span className="dp-title">סיכום בדיקת AI</span><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" /></div>
+    <section className="dp-sec dp-summary z-ai" data-testid="ai-summary">
+      <div className="dp-head"><span className="dp-eyebrow">סיכום בדיקת AI</span><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" /></div>
       <div className={`dp-callout ${tone}`} data-testid="attention">
         {item.ai.attention_he.map((t, i) => <p key={i} className={i === 0 ? "lead" : ""}>{t}</p>)}
       </div>
-      <div className="dp-statusline">
-        <span className={`status-dot ${VERDICT_TONE[item.ai.verdict || ""] || "neutral"}`} data-testid="ai-verdict">בדיקת AI: {item.ai.verdict_he}</span>
-        <span className="sep" aria-hidden>·</span>
-        <span className={`status-dot ${BANKER_TONE[b.status]}`} data-testid="banker-status">{b.status_he}</span>
+      <div className="dp-facts">
+        <div className="dp-fact"><span className="dp-fact-label">בדיקת AI</span>
+          <span className={`status-dot ${VERDICT_TONE[item.ai.verdict || ""] || "neutral"}`} data-testid="ai-verdict">{item.ai.verdict_he}</span></div>
+        <div className="dp-fact"><span className="dp-fact-label">החלטת הבנקאי</span>
+          <span className={`status-dot ${BANKER_TONE[b.status]}`} data-testid="banker-status">{b.status_he}</span></div>
       </div>
       {item.ai.security_flags.length > 0 && <div className="notice small">טקסט חשוד שזוהה במסמך (לא בוצע): {item.ai.security_flags[0]}</div>}
     </section>
     <DocumentStatus item={item} />
     {b.allowed_actions.length > 0 && (
-      <section className="dp-sec dp-decide" data-testid="decision-actions">
-        <div className="dp-label">ההחלטה שלך על המסמך</div>
+      <section className="dp-sec dp-decide z-act" data-testid="decision-actions">
+        <div className="dp-eyebrow">ההחלטה שלך על המסמך</div>
         {primary && (() => {
           const a = DOC_ACTIONS.find((x) => x.key === primary)!;
           return <button className={`act-primary${mode === a.key ? " on" : ""}`} disabled={!can(a.key)} onClick={() => toggle(a.key)} data-testid={a.testId}>{a.label}</button>;
@@ -116,8 +119,9 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
         {!mode && can("accept") && <BulkAccept item={item} ws={ws} finish={finish} />}
       </section>
     )}
-    <Criteria item={item} />
+    {context && <div className="dp-divider">פירוט הבדיקה</div>}
     <FindingsList findings={item.findings} ws={ws} readOnly={readOnly} finish={finish} showEvidence={showEvidence} />
+    <Criteria item={item} />
     {/* a correction request still open can be withdrawn here; the document then returns to the banker's decision */}
     {item.requests.filter((r) => r.status === "OPEN").map((r) => (
       <OpenRequest key={r.customer_request_id} r={r} ws={ws} staff={staff} readOnly={readOnly} finish={finish} />))}
@@ -240,7 +244,7 @@ function Criteria({ item }: { item: DocItem }) {
   if (!bad.length && !passed.length) return null;
   return (
     <section className="dp-sec">
-      <div className="dp-label">קריטריונים</div>
+      <div className="dp-label">קריטריוני הבדיקה</div>
       {bad.map((c) => (
         <div key={c.criterion_id} className={`crit2 ${c.outcome}`}><span className="crit2-mark" aria-hidden>{c.outcome === "FAIL" ? "✕" : "?"}</span>
           <div><div className="small bold">{c.title_he}</div><div className="tiny muted">{c.explanation_he}</div></div></div>
@@ -308,16 +312,16 @@ function MissingPanel({ item, ws, staff, readOnly, finish }: Ctx<MissingItem>) {
   const [open, setOpen] = useState(false);
   const borrower = ws.case.borrowers.find((b) => b.borrower_id === item.borrower_id);
   return (<>
-    <section className="dp-sec">
-      <div className="dp-label">מסמך חסר</div>
+    <section className="dp-sec z-info">
+      <div className="dp-eyebrow">מסמך חסר</div>
       <div className="row wrap"><Chip tone={item.open_request ? "warn" : "neutral"} testId="missing-status">{item.status_he}</Chip>
         {item.family_he && <Chip>{item.family_he}</Chip>}{borrower && <Chip>{borrower.name_he}</Chip>}</div>
       <p className="small">{item.explanation_he}</p>
     </section>
     {item.open_request && <OpenRequest r={item.open_request} ws={ws} staff={staff} readOnly={readOnly} finish={finish} />}
     {(item.allowed_actions.includes("request_missing") || item.allowed_actions.includes("request_requirement")) && !readOnly && (
-      <section className="dp-sec dp-decide" data-testid="decision-actions">
-        <div className="dp-label">הפעולה שלך</div>
+      <section className="dp-sec dp-decide z-act" data-testid="decision-actions">
+        <div className="dp-eyebrow">הפעולה שלך</div>
         {!open ? <button className="act-primary" onClick={() => setOpen(true)} data-testid="action-request-missing">בקשת השלמת מסמך</button>
           : <CustomerRequestForm from={ws.case.banker.name_he} draft={item.draft} onCancel={() => setOpen(false)}
             title={() => item.period_he ? `נדרש תלוש ${item.period_he}, ${borrower?.first_name_he || ""}` : `נדרש: ${item.title_he}`}
@@ -351,8 +355,8 @@ function CaseFindingPanel({ item, ws, staff, readOnly, finish }: Ctx<CaseFinding
   const borrower = ws.case.borrowers.find((b) => b.borrower_id === item.borrower_id);
   const inc = item.income;
   return (<>
-    <section className="dp-sec">
-      <div className="dp-label">ממצא ברמת התיק</div>
+    <section className="dp-sec z-ai">
+      <div className="dp-head"><span className="dp-eyebrow">ממצא ברמת התיק</span><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" /></div>
       <div className="row wrap">
         <Chip tone={f.status === "open" ? "navy" : "neutral"}>{f.status === "open" ? f.review_state_he : f.status_he}</Chip>
         {item.escalated && <Chip tone="info">בהמשך בירור</Chip>}
@@ -376,8 +380,8 @@ function CaseFindingPanel({ item, ws, staff, readOnly, finish }: Ctx<CaseFinding
       <section className="dp-sec"><div className="dp-next" data-testid="next-step"><b>{rec.title_he}</b><span>{rec.body_he}</span></div></section>
     )}
     {item.allowed_actions.length > 0 && !readOnly && (
-      <section className="dp-sec dp-decide" data-testid="decision-actions">
-        <div className="dp-label">ההחלטה שלך</div>
+      <section className="dp-sec dp-decide z-act" data-testid="decision-actions">
+        <div className="dp-eyebrow">ההחלטה שלך</div>
         {f.status === "open" && rec && <div className="dp-next" data-testid="next-step"><b>{rec.title_he}</b><span>{rec.body_he}</span></div>}
         {(() => {
           const lead = FINDING_MODES.find((m) => m.key === rec?.action && item.allowed_actions.includes(m.key));

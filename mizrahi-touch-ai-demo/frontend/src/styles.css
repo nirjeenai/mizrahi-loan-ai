@@ -1022,6 +1022,56 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .kf.static.warn .kf-value { color: var(--warn); }
 .kf.static .kf-value { white-space: normal; }
 
+/* ---------- Banker workspace: who owns each block — JEEN purple = what the AI found, navy = the banker's decision,
+   grey = supporting context. Right pane = the case's documents (navigation), left pane = review and decision. ---------- */
+.pane-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 52px; padding: 9px 16px;
+  background: #fff; border-bottom: 1px solid var(--mz-line); }
+.pane-title-wrap { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.pane-title { font-size: 14px; font-weight: 800; color: var(--mz-ink); }
+.pane-sub { font-size: 11.5px; font-weight: 600; color: var(--mz-muted); }
+.pane-sub.lead { color: #c45a00; }
+.desk-panel .pane-head .pane-sub { background: var(--mz-bg); border-radius: 999px; padding: 1px 9px; }
+.desk-queue { display: flex; flex-direction: column; padding: 0; }
+.queue-body { flex: 1 0 auto; display: flex; flex-direction: column; padding: 12px 10px 16px; }
+.queue-group { flex: none; box-shadow: 0 1px 2px rgba(50, 60, 75, 0.04); }
+.queue-group.tier-act { border-inline-start: 3px solid var(--mz-navy); }
+.queue-group.tier-wait { background: #fbfbfc; box-shadow: none; }
+.queue-group.tier-done { background: transparent; box-shadow: none; }
+.queue-group.tier-start:not(:first-child) { margin-top: 8px; }
+.queue-group.tier-wait .qrow-title, .queue-group.tier-done .qrow-title { font-weight: 600; }
+.qrow-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
+.qrow-status { padding-top: 0; white-space: normal; }
+.qrow-file { color: var(--mz-muted); }
+.case-step { flex: none; margin-top: auto; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--mz-line); background: #fff; gap: 6px; }
+.case-step.ready { border-color: var(--mz-navy); box-shadow: 0 0 0 3px rgba(63, 74, 94, 0.08); }
+.case-step.done { border-color: #9fd3b8; background: var(--ok-soft); }
+.case-step-eyebrow { font-size: 10.5px; font-weight: 800; letter-spacing: 0.3px; color: var(--mz-navy); }
+.case-step-title { font-size: 13.5px; font-weight: 800; color: var(--mz-ink); }
+
+.dp-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.2px; color: var(--mz-ink); }
+.dp-sec.z-ai, .dp-sec.z-act, .dp-sec.z-info { border-inline-start: 4px solid transparent; padding-inline-start: 14px; }
+.dp-sec.z-ai { border-inline-start-color: var(--jeen); background: #fcfbff; }
+.dp-sec.z-ai .dp-eyebrow { color: var(--jeen); }
+.dp-sec.z-act { border-inline-start-color: var(--mz-navy); background: #f7f8fa; border-bottom: 1px solid var(--mz-line); }
+.dp-sec.z-act .dp-eyebrow { color: var(--mz-navy); }
+.dp-sec.z-info { border-inline-start-color: #b8bfca; }
+.dp-sec.z-ai .dp-callout { background: #fff; border: 1px solid var(--mz-line-soft); border-inline-start: 3px solid var(--mz-line); }
+.dp-sec.z-ai .dp-callout.ok { border-inline-start-color: var(--ok); }
+.dp-sec.z-ai .dp-callout.warn { border-inline-start-color: var(--mz-orange); }
+.dp-callout p.lead { font-size: 13.5px; line-height: 1.55; }
+.dp-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.dp-fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; background: #fff; border: 1px solid var(--mz-line-soft); border-radius: 8px; padding: 6px 10px; }
+.dp-fact-label { font-size: 10.5px; font-weight: 600; color: var(--mz-muted); }
+.dp-fact .status-dot { font-size: 12.5px; font-weight: 700; color: var(--mz-ink); }
+.dp > .dp-state { margin: 0; border-radius: 0; padding: 10px 16px; border-inline-start: 4px solid var(--mz-navy); }
+.dp-divider { display: flex; align-items: center; gap: 10px; padding: 16px 16px 0; font-size: 11px; font-weight: 800; letter-spacing: 0.3px; color: var(--mz-muted); }
+.dp-divider::after { content: ""; flex: 1; height: 1px; background: var(--mz-line); }
+.dp-divider + .dp-sec { padding-top: 10px; }
+
+.kf-caption { width: 100%; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 800; color: var(--mz-muted); }
+.kf-legend { font-weight: 600; }
+.kf-legend b { color: var(--ok); }
+
 /* ---------- Jeen co-branding ---------- */
 .brand-x { color: #9aa4b4; font-weight: 400; font-size: 15px; line-height: 1; }
 .console-top .brand { gap: 8px; }

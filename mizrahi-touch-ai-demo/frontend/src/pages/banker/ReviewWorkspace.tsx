@@ -65,6 +65,10 @@ export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnl
                 : <FindingEvidence item={current} focus={focus} setFocus={setFocus} ws={ws} />}
         </section>
         <aside className="desk-panel" aria-label="סיכום והחלטה" data-testid="decision-panel">
+          <header className="pane-head">
+            <span className="pane-title">סקירה והחלטה</span>
+            {current && <span className="pane-sub">{current.kind === "document" ? "מסמך" : current.kind === "missing" ? "דרישה חסרה" : "ממצא ברמת התיק"}</span>}
+          </header>
           {current && <DecisionPanel key={current.id} item={current} ws={ws} staff={staff} readOnly={readOnly} focus={focus}
             onDone={(text) => { setToast({ text, tone: "ok" }); reload(); }} onError={(text) => setToast({ text, tone: "bad" })}
             onNext={nextActionable} hasNext={actionable.some((id) => id !== current.id)} showEvidence={showEvidence} />}
@@ -230,20 +234,28 @@ function Queue({ ws, byId, current, onSelect, reload, readOnly, onToast }: {
   readOnly: boolean; onToast: (t: { text: string; tone: "ok" | "bad" }) => void;
 }) {
   const [opened, setOpened] = useState<Record<string, boolean>>({});
-  const waiting = ws.groups.filter((g) => ["decide", "judgment", "escalated"].includes(g.key)).reduce((n, g) => n + g.items.length, 0);
+  const waiting = ws.groups.filter((g) => DECIDE_GROUPS.includes(g.key)).reduce((n, g) => n + g.items.length, 0);
+  let lastTier = "";
   return (
     <aside className="desk-queue" aria-label="תור הבדיקה" data-testid="review-queue">
-      <div className="queue-head">
-        <span className="bold">{waiting ? `${waiting} ממתינים להחלטתך` : "אין פריטים שממתינים להחלטתך"}</span>
-        <span className="kbd-hint" title="מעבר בין פריטים במקלדת">J / K · N לפריט הבא</span>
-      </div>
+      <header className="pane-head">
+        <span className="pane-title-wrap">
+          <span className="pane-title">מסמכי התיק</span>
+          <span className={`pane-sub${waiting ? " lead" : ""}`}>{waiting ? `${waiting} ממתינים להחלטתך` : "אין פריטים שממתינים להחלטתך"}</span>
+        </span>
+        <span className="kbd-hint" title="מעבר בין פריטים במקלדת: J / K, ו-N לפריט הבא שדורש החלטה">J / K · N</span>
+      </header>
+      <div className="queue-body">
       {ws.groups.map((g) => {
         if (!g.items.length) return null;
         const collapsible = COLLAPSED.includes(g.key);
         const expanded = !collapsible || !!opened[g.key] || (!!current && g.items.includes(current));
         const summary = g.key === "missing" ? missingSummary(g.items.map((id) => byId[id]).filter(Boolean)) : null;
+        const tier = DECIDE_GROUPS.includes(g.key) ? "act" : g.key === "done" ? "done" : "wait";
+        const tierStart = tier !== lastTier;
+        lastTier = tier;
         return (
-          <section key={g.key} className={`queue-group g-${g.key}`} data-testid={`queue-group-${g.key}`}>
+          <section key={g.key} className={`queue-group g-${g.key} tier-${tier}${tierStart ? " tier-start" : ""}`} data-testid={`queue-group-${g.key}`}>
             <button className="queue-group-head" onClick={collapsible ? () => setOpened({ ...opened, [g.key]: !expanded }) : undefined}
               title={g.hint_he} aria-expanded={collapsible ? expanded : undefined} tabIndex={collapsible ? 0 : -1}>
               <span className="count">{g.items.length}</span><span className="queue-group-title">{g.title_he}</span>
@@ -256,10 +268,12 @@ function Queue({ ws, byId, current, onSelect, reload, readOnly, onToast }: {
         );
       })}
       <CaseStep ws={ws} reload={reload} readOnly={readOnly} onToast={onToast} />
+      </div>
     </aside>
   );
 }
 
+const DECIDE_GROUPS = ["decide", "judgment", "escalated"];
 const COLLAPSED = ["missing", "done"];
 
 function missingSummary(items: QueueItem[]): string {
@@ -280,11 +294,13 @@ function QueueRow({ item, on, onSelect }: { item: QueueItem; on: boolean; onSele
       aria-current={on ? "true" : undefined} data-testid="queue-item" data-item-id={item.id} data-kind={item.kind}>
       <span className="qrow-main">
         <span className="qrow-title">{item.attention && <span className="attn-dot" aria-label="דורש תשומת לב" />}{item.title_he}</span>
+        <span className="qrow-meta">
+          <span className={`qrow-status ${status.tone}`}>{status.text}</span>
+          {item.kind === "document" && item.replaces && <span className="qrow-note">מסמך חלופי</span>}
+        </span>
         {meta && <span className={`qrow-file${item.kind === "document" ? " ltr" : ""}`}>{meta}</span>}
-        {item.kind === "document" && item.replaces && <span className="qrow-note">מסמך חלופי</span>}
         {item.attention && item.kind === "document" && item.ai.attention_he[0] && <span className="qrow-why">{item.ai.attention_he[0]}</span>}
       </span>
-      <span className={`qrow-status ${status.tone}`}>{status.text}</span>
     </button>
   );
 }
@@ -306,14 +322,16 @@ function CaseStep({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: ()
     } catch (e) { onToast({ text: (e as Error).message, tone: "bad" }); } finally { setBusy(false); }
   };
   return (
-    <div className="case-step" data-testid="case-step">
-      <div className="bold small">שלב תיק: אישור הכנת מסמכי הבקשה</div>
+    <div className={`case-step${ws.preparation ? " done" : c.allowed ? " ready" : ""}`} data-testid="case-step">
+      <div className="case-step-eyebrow">פעולה ברמת התיק</div>
+      <div className="case-step-title">אישור הכנת מסמכי הבקשה</div>
       <div className="tiny muted">אישור שמסמכי בקשת ההלוואה מוכנים לטיפולך. אינו החלטת אשראי ואינו משנה את שלב הבקשה בבנק.</div>
       {!ws.preparation && ws.preparation_stale && <div className="tiny warn-text" data-testid="preparation-stale">
         האישור מ־<When at={ws.preparation_stale.confirmed_at} /> אינו בתוקף עוד: {ws.preparation_stale.reason_he}. יש לאשר שוב אחרי הבדיקה.</div>}
       {ws.preparation ? <div className="small ok-text">אושר <When at={ws.preparation.confirmed_at} />{ws.preparation.note ? ` · ${ws.preparation.note}` : ""}</div>
         : !open ? (<>
-          <button className="btn btn-ghost btn-sm" disabled={!c.allowed || readOnly} onClick={() => setOpen(true)} data-testid="confirm-preparation">אישור הכנה…</button>
+          <button className={`btn btn-sm ${c.allowed && !readOnly ? "btn-dark" : "btn-ghost"}`} disabled={!c.allowed || readOnly} onClick={() => setOpen(true)}
+            data-testid="confirm-preparation">אישור הכנה…</button>
           {!c.allowed && c.reason_he && <div className="tiny muted">לא זמין: {c.reason_he}</div>}
         </>) : (
           <div className="stack" style={{ gap: 6 }}>
@@ -366,6 +384,7 @@ function KeyFields({ item, field, onPick }: { item: DocItem; field: string | nul
   };
   return (
     <div className="key-fields" data-testid="key-fields">
+      <div className="kf-caption"><span>נתונים שחולצו מהמסמך</span><span className="kf-legend"><b>✓</b> אומת מול הקובץ · לחיצה מסמנת במסמך</span></div>
       <div className="kf-row">{keys.map(([k, l]) => cell(k, l))}</div>
       {more && <div className="kf-row">{extra.map((k) => cell(k, item.ai.facts.find((f) => f.field === k)!.label_he))}</div>}
       {extra.length > 0 && <button className="link tiny subtle" onClick={() => setMore(!more)} data-testid="key-fields-more">
