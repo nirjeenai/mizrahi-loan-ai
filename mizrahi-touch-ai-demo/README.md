@@ -124,6 +124,36 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   composed checklist. Confirming creates one case, however many times or however concurrently it is clicked, extends
   the session to it, and opens Documents. A draft is not a case: it gets no requirement, follow-up or review.
   API: `POST /api/demo/onboarding`, `GET …/{draft}`, `POST …/{draft}/answers`, `POST …/{draft}/confirm` (demo identity only).
+- **Conversational questionnaire, V2 (`/customer/apply/v2`).** The same draft, asked as a conversation; a switch at
+  the top of both pages compares V1 and V2 (separate resume keys, `mz.onboarding.draft.v2`). One canonical state: a
+  quick reply and a value read from free text are both recorded through `onboarding.answer`, so V1's validation,
+  conditions, corrections and idempotent confirmation apply unchanged (`workflow/onboarding_chat.py`). Next to the
+  answers the draft stores the transcript, the question being edited and the last indication shown
+  (`onboarding_drafts.conversation`).
+  - *Progress.* Four stages from the applicable questions (היכרות · פרטי ההלוואה · התאמה אישית · סיכום ואישור; the
+    company path has no "התאמה אישית"), each done / current / upcoming with "שאלה N מתוך M". Before the first answer
+    the individual path is shown. The summary stage is current only when every applicable question is answered.
+  - *Free text* (`workflow/onboarding_nlu.py`, no model): several facts per message — purpose, amount, payments
+    (also "5 שנים"), income sources with simple negation and "גם" (adds) / "בעצם" (replaces), VAT registration,
+    declared net income, co-borrower phrases, joint/separate accounts, names after "קוראים לי" / "שמי" or as the answer
+    to a name question, and ID numbers. Digits ("80,000", "16 אלף", "80K") and common Hebrew number words; a range
+    keeps its lower bound; "ברוטו" is not accepted as net; a bare small number for an amount or income is read as
+    thousands and echoed back. Values are read from statements only, so "למה צריך לדעת אם אני עוסק פטור?" records
+    nothing. Anything not recognised gets "לא בטוח שהבנתי" and nothing is recorded.
+  - *Questions mid-flow* are answered from the published policy (why a question is asked, the payslip months by the
+    simulation date, a missing payslip, VAT registration, adding a co-borrower, the documents so far, what is left,
+    approval, the banker, privacy) and the pending question is asked again with its quick replies. Anything else:
+    "על זה אין לי מידע מאומת". Changes: "לשנות את הסכום ל־90 אלף", or "שינוי" on a summary line.
+  - *Preliminary indication* (`workflow/indication.py`): shown once amount, payments, income source and net income are
+    declared (never for a company): up to 30% of declared net income (25% when any income is from a business) as the
+    monthly repayment, at a 6% illustrative annual rate over the requested payments, rounded down to 1,000 ₪ and
+    capped at the questionnaire's 250,000 ₪. A co-borrower's income counts once declared. Labelled a DEMO
+    illustration, never an offer or approval; "איך הגעת לסכום הזה?" lists the inputs and assumptions. A material
+    change posts an updated indication and marks the old one out of date; when an input is gone it is withdrawn. No
+    credit, account or obligation data is read — the demo has none.
+  - *Confirmation* is V1's endpoint; the case opens on Documents with a one-time next-step note.
+  API: `POST /api/demo/onboarding/v2`, `GET …/{draft}/v2`, `POST …/{draft}/v2/turn` (`text`, or `question_id` +
+  `value`, or `action: edit | cancel_edit`).
 - **Business path.** The company case is limited by design: identification, a representative financial checklist,
   intake, and a banker-assisted marker in the app and the banker console. Consumer rules carry
   `entity: ["individual"]`, so none of them apply to a company, and there is no business underwriting.

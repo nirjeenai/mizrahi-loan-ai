@@ -8,11 +8,11 @@ import json
 import time
 import wave
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .. import auth
 from ..agent import actions, agent, continuation, tools
@@ -24,7 +24,8 @@ from ..review import evidence as ev
 from ..review import registry, rubrics
 from ..store import repo
 from ..util import sha256_bytes
-from ..workflow import demo, desk_state, engine, intake, onboarding, outcomes, profile_change, readiness, review_desk
+from ..workflow import (demo, desk_state, engine, intake, onboarding, onboarding_chat, outcomes, profile_change, readiness,
+                        review_desk)
 
 router = APIRouter(prefix="/api")
 
@@ -429,6 +430,31 @@ def onboarding_get(draft_id: str):
 @router.post("/demo/onboarding/{draft_id}/answers")
 def onboarding_answer(draft_id: str, body: OnboardingAnswer):
     return _onboarding(onboarding.answer, draft_id, body.question_id, body.value)
+
+
+class OnboardingTurn(BaseModel):
+    text: Optional[str] = Field(None, max_length=onboarding_chat.MAX_TEXT)
+    question_id: Optional[str] = None
+    value: object = None
+    label_he: Optional[str] = Field(None, max_length=120)
+    action: Optional[Literal["edit", "cancel_edit"]] = None
+
+
+@router.post("/demo/onboarding/v2", status_code=201)
+def onboarding_v2_start():
+    """A new questionnaire draft, asked as a conversation (V2). Same draft table and confirmation as V1."""
+    return _onboarding(onboarding_chat.start)
+
+
+@router.get("/demo/onboarding/{draft_id}/v2")
+def onboarding_v2_get(draft_id: str):
+    return _onboarding(onboarding_chat.view, draft_id)
+
+
+@router.post("/demo/onboarding/{draft_id}/v2/turn")
+def onboarding_v2_turn(draft_id: str, body: OnboardingTurn):
+    """One customer turn: a quick reply, free text (deterministic understanding, no model) or an edit action."""
+    return _onboarding(onboarding_chat.turn, draft_id, body.text, body.question_id, body.value, body.label_he, body.action)
 
 
 @router.post("/demo/onboarding/{draft_id}/confirm")

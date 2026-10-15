@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api, customerVerdict, FAMILY_HE, ils, monthHe, timeHe, type Requirement } from "../../api";
 import { useCase } from "../../caseContext";
+import { ApplyHandoff } from "./ApplyV2";
 import { IBag, IBank, IChart, ICheck, IChevron, IChevronDown, IClock, IDocs, IHouse, IPerson, IShield, ISpark, IUpload, IX } from "../../components/Icons";
 
 const LOAN_ICON: Record<string, ReactNode> = { id_document: <IPerson size={18} />, bank_statement: <IBank size={18} />,
@@ -290,6 +291,7 @@ export function Documents() {
         <button className={tab === "bank" ? "on" : ""} onClick={() => setTab("bank")} role="tab">אישורים מהבנק</button>
       </div>
       {linkNote && <div className="notice" role="status" style={{ marginBottom: 12 }} data-testid="link-note">{linkNote}</div>}
+      <ApplyHandoff />
       {tab === "list" && (<>
         <ProfileCard />
         {requests.length > 0 && (<>

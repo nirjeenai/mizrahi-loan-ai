@@ -10,6 +10,7 @@ import { UseCaseScenarios } from "./components/UseCaseScenarios";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { BankerConsole } from "./pages/banker/BankerConsole";
 import { Apply } from "./pages/customer/Apply";
+import { ApplyV2 } from "./pages/customer/ApplyV2";
 import { LinkLanding } from "./pages/customer/Link";
 import { DocumentReview } from "./pages/customer/DocumentReview";
 import { Documents } from "./pages/customer/Documents";
@@ -88,6 +89,7 @@ function CustomerApp() {
           <Route path="meetings" element={<Meetings />} />
           <Route path="tools" element={<Tools />} />
           <Route path="apply" element={<Apply />} />
+          <Route path="apply/v2" element={<ApplyV2 />} />
           <Route path="link" element={<LinkLanding />} />
         </Routes>
       </TouchShell>
