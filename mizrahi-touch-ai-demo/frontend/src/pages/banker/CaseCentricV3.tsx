@@ -46,8 +46,8 @@ export function CaseCentricV3({ caseId, ws, openV1 }: { caseId: string; ws: Work
         <CaseDetails ctx={ctx} />
         <Documents ctx={ctx} ws={ws} onOpen={setDoc} />
         <Financial ctx={ctx} />
-        <Recommendation ctx={ctx} go={go} />
         <Alternatives ctx={ctx} />
+        <Recommendation ctx={ctx} go={go} />
         <Reasoning ctx={ctx} />
         <Reply ctx={ctx} onToast={setToast} />
         <p className="cc-foot">{x.disclaimer_he} · עודכן <span className="ltr">{timeHe(x.generated_at)}</span></p>
@@ -65,7 +65,7 @@ const TONE: Record<string, "ok" | "warn" | "neutral" | "bad"> = { READY_FOR_CRED
   CLARIFICATION_REQUIRED: "warn", DOCUMENTS_INCOMPLETE: "warn", NO_DOCUMENTS: "neutral", PROCESSING: "neutral", ERROR: "bad" };
 /** A short title per recommendation state; the backend's own sentence follows it as the explanation. */
 const TITLE: Record<string, string> = {
-  READY_FOR_CREDIT_REVIEW: "מומלץ להתקדם לבחינת האשראי",
+  READY_FOR_CREDIT_REVIEW: "מומלץ להתקדם בתהליך ההלוואה",
   PREPARATION_CONFIRMED: "הכנת התיק אושרה — אפשר להתקדם לבחינת האשראי",
   CLARIFICATION_REQUIRED: "נדרש בירור לפני בחינת האשראי",
   DOCUMENTS_INCOMPLETE: "נדרשת השלמת מסמכים לפני בחינת האשראי",
@@ -170,16 +170,17 @@ function Recommendation({ ctx, go }: { ctx: Ctx; go: (id: string) => void }) {
     attention.push({ text: `אירוע חשבון בנתוני הדמו (${e.owner_he}) — לאימות במערכות הבנק`, target: "cc-fin", testId: "cc-attn-event" });
   return (
     <section className={`cc-rec t-${tone}`} data-testid="cc-rec" data-state={r.state}>
-      <div className="cc-rec-mark" aria-hidden>{tone === "ok" ? "✓" : tone === "neutral" ? "…" : "!"}</div>
-      <div className="cc-rec-body">
-        <div className="cc-rec-top"><span className="cc-jeen">המלצת JEEN</span><span className="cc-rec-nb">המלצה לבנקאי בלבד — אינה אישור אשראי</span></div>
-        <h2 data-testid="cc-rec-title">{TITLE[r.state] || r.documentation.status_he}</h2>
-        <p data-testid="cc-rec-text">{r.headline_he}</p>
-        {attention.length > 0 && <ul className="cc-attn" data-testid="cc-attention">
-          {attention.map((a, i) => <li key={i} data-testid={a.testId}><span>{a.text}</span>
-            <button className="cc-link" onClick={() => go(a.target)}>לפרטים</button></li>)}
-        </ul>}
+      <div className="cc-rec-top">
+        <span className="cc-rec-mark" aria-hidden>{tone === "ok" ? "✓" : tone === "neutral" ? "…" : "!"}</span>
+        <span className="cc-jeen">המלצת JEEN</span>
       </div>
+      <h2 data-testid="cc-rec-title">{TITLE[r.state] || r.documentation.status_he}</h2>
+      <p data-testid="cc-rec-text">{r.headline_he}</p>
+      {attention.length > 0 && <ul className="cc-attn" data-testid="cc-attention">
+        {attention.map((a, i) => <li key={i} data-testid={a.testId}><span>{a.text}</span>
+          <button className="cc-link" onClick={() => go(a.target)}>לפרטים</button></li>)}
+      </ul>}
+      <div className="cc-rec-nb" data-testid="cc-rec-disclaimer">המלצה לבנקאי בלבד — אינה אישור אשראי</div>
     </section>
   );
 }

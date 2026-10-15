@@ -98,15 +98,23 @@ def michal(page: Page, c: httpx.Client) -> None:
     check("complete: header names the customer and the loan from the case", page.locator("[data-testid=cc-name]").inner_text() == "מיכל ברק"
           and page.locator("[data-testid=cc-loanline]").inner_text() == "הלוואה לרכישת רכב · ₪90,000 · 60 תשלומים")
     sections = page.locator(".cc-page > *").evaluate_all("els => els.map(e => e.dataset.testid || e.tagName)")
-    check("order: header, figures, details, documents, financial analysis, recommendation, alternatives, reasoning, reply, footer",
-          sections == ["cc-head", "cc-figures", "cc-details", "cc-docs", "cc-financial", "cc-rec", "cc-alternatives", "cc-reasoning", "cc-reply", "P"]
+    check("order: header, figures, details, documents, financial analysis, alternatives, recommendation, reasoning, reply, footer",
+          sections == ["cc-head", "cc-figures", "cc-details", "cc-docs", "cc-financial", "cc-alternatives", "cc-rec", "cc-reasoning", "cc-reply", "P"]
           and page.locator("[data-testid=cc-rec]").count() == 1, " → ".join(sections))
-    check("complete: the recommendation matches the state, and is not an approval",
+    check("complete: the recommendation reads exactly as specified, matches the state, and is not an approval",
           rec.get_attribute("data-state") == "READY_FOR_CREDIT_REVIEW" == x["recommendation"]["state"]
-          and page.locator("[data-testid=cc-rec-title]").inner_text() == "מומלץ להתקדם לבחינת האשראי"
+          and page.locator("[data-testid=cc-rec] .cc-jeen").inner_text() == "המלצת JEEN"
+          and page.locator("[data-testid=cc-rec-title]").inner_text() == "מומלץ להתקדם בתהליך ההלוואה"
           and page.locator("[data-testid=cc-rec-text]").inner_text() == x["recommendation"]["headline_he"]
-          and "אינה אישור אשראי" in rec.inner_text() and "ההלוואה אושרה" not in rec.inner_text()
-          and page.locator("[data-testid=cc-attention]").count() == 0)
+          == "התיק הושלם מבחינת מסמכים. על בסיס הנתונים שנאספו ניתן להתקדם לבחינת בקשת האשראי. נבחנו 3 חלופות מימון לצורך סימולציה. קביעת זכאות, סכום ותנאים מחייבת אימות נוסף והחלטת הבנק."
+          and page.locator("[data-testid=cc-rec-disclaimer]").inner_text() == "המלצה לבנקאי בלבד — אינה אישור אשראי"
+          and "ההלוואה אושרה" not in rec.inner_text() and page.locator("[data-testid=cc-attention]").count() == 0)
+    box, col = rec.bounding_box(), page.locator(".cc-page").bounding_box()
+    centred = abs((box["x"] + box["width"] / 2) - (col["x"] + col["width"] / 2)) < 2
+    check("complete: the card is centered and narrower than the column, its text centered",
+          centred and box["width"] < col["width"] - 100 and rec.evaluate("e => getComputedStyle(e).textAlign") == "center",
+          f"card {box['width']:.0f}px in a {col['width']:.0f}px column")
+    shot_section(page, "cc-rec", "13-v3-recommendation-card.png")
     figs = (num(page, "[data-testid=cc-fig-income] .cc-num"), num(page, "[data-testid=cc-fig-payment] .cc-num"), num(page, "[data-testid=cc-fig-dsr] .cc-num"))
     check("complete: the three key figures are the API's income, payment and combined ratio",
           figs == (ils(a["income"]["value"]), ils(a["proposed_payment"]["value"]), f"{a['combined_dsr']['value']:.1f}%")
@@ -335,6 +343,9 @@ def phone(browser) -> None:
     doc = page.evaluate("document.documentElement.scrollWidth")
     check("responsive: at 768 px the whole page fits without horizontal scrolling", doc <= 768, f"document {doc}px")
     page.screenshot(path=str(OUT / "12-v3-tablet-768.png"))
+    page.locator("[data-testid=cc-rec]").evaluate("e => e.scrollIntoView({block: 'center'})")
+    page.wait_for_timeout(300)
+    page.screenshot(path=str(OUT / "13b-v3-recommendation-card-768.png"))
     ctx.close()
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, locale="he-IL", device_scale_factor=2)
     page = ctx.new_page()
