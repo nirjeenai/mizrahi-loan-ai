@@ -294,19 +294,11 @@ function Summary({ draft, busy, onEdit, onConfirm }: { draft: ChatDraft; busy: b
           מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות — אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
       )}
       <div className="section-label" style={{ margin: "14px 0 6px" }}>המסמכים שיידרשו ({s.requirements.length})</div>
-      {owners.map((o) => (
-        <div key={o} className="onb-owner">
-          <div className="tiny bold muted">{o}</div>
-          <ul className="onb-reqs">
-            {s.requirements.filter((r) => (r.owner_he || "") === o).map((r) => (
-              <li key={r.code} data-testid="cv2-req" data-code={r.code}>
-                <span className="grow"><b>{r.title_he}</b>{r.why_he && <span className="tiny muted onb-why">{r.why_he}</span>}</span>
-                <span className={`badge ${r.intake === "human_review" ? "neutral" : "jeen"}`}>{r.intake === "human_review" ? "בדיקת בנקאי" : "בדיקת AI"}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <ul className="onb-reqs">
+        {owners.flatMap((o) => s.requirements.filter((r) => (r.owner_he || "") === o)).map((r) => (
+          <li key={r.code} data-testid="cv2-req" data-code={r.code} data-owner={r.owner_he || ""}>{r.title_he}</li>
+        ))}
+      </ul>
       <div className="tiny muted" style={{ lineHeight: 1.6, marginTop: 8 }}>
         פתיחת הבקשה אינה אישור הלוואה — היא מכינה את רשימת המסמכים לבדיקת הבנק. גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.</div>
       <button className="btn btn-orange" style={{ width: "100%", marginTop: 12 }} disabled={busy} onClick={onConfirm} data-testid="cv2-confirm">

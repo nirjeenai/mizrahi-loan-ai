@@ -322,7 +322,7 @@ def onboarding(page: Page) -> None:
     answer(page, "amount", 120000)
     answer(page, "payments", 84)
     codes = summary_codes(page)
-    owners = page.locator("[data-testid=onb-summary] .onb-owner .tiny.bold").all_inner_texts()
+    owners = page.locator("[data-testid=onb-req]").evaluate_all("els => els.map(e => e.getAttribute('data-owner'))")
     check("joint applicants: payslips for ליאת, business documents for אבי, one statement for the joint account",
           {"PAYSLIPS:BRW-A", "TAX_ASSESSMENT:BRW-B", "VAT_DEALER_CERT:BRW-B", "PNL_STATEMENT:BRW-B"} <= set(codes)
           and "PAYSLIPS:BRW-B" not in codes and [c for c in codes if c.startswith("BANK_")] == ["BANK_STATEMENTS:ACC-1"]

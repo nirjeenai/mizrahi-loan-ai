@@ -121,7 +121,8 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   and a joint or separate account), and the amount and payments. A company path asks for the company name, the
   signatory and the business purpose. The draft is stored server-side and resumable (`mz.onboarding.draft.v1`). Every
   answer can be changed before confirmation; hidden dependent answers are kept. The summary shows the profile and the
-  composed checklist. Confirming creates one case, however many times or however concurrently it is clicked, extends
+  composed checklist as a flat list of document names (owner, reason and intake stay out of the customer summary;
+  owner and intake are kept as `data-owner` / `data-intake` attributes). Confirming creates one case, however many times or however concurrently it is clicked, extends
   the session to it, and opens Documents. A draft is not a case: it gets no requirement, follow-up or review.
   API: `POST /api/demo/onboarding`, `GET …/{draft}`, `POST …/{draft}/answers`, `POST …/{draft}/confirm` (demo identity only).
 - **Conversational questionnaire, V2 (`/customer/apply/v2`).** The same draft, asked as a conversation; a switch at
