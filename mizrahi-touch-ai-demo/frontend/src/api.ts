@@ -431,7 +431,7 @@ export interface Intelligence {
     existing_source_id: string | null; asset_source_id: string | null;
     bounds: { term_min: number; term_max: number; step: number; principal_max: number };
     scenarios: IntelScenario[]; suggested: { key: string | null; term_months: number | null; why_he: string; label_he: string } | null; enabled: boolean };
-  recommendation: { state: string; tone: string; headline_he: string; next_action: { kind: string; label_he: string; v1_item: string | null };
+  recommendation: { state: string; tone: string; headline_he: string; next_action: { kind: string; label_he: string; detail_he?: string; v1_item: string | null };
     documentation: { status_he: string; case_status?: string };
     financial: { availability: string; status_he: string; text_he: string; suggested: Intelligence["simulation"]["suggested"] };
     considerations: { text_he: string; tone: string; source_ids: string[] }[]; verify: { text_he: string; v1_item?: string }[] };

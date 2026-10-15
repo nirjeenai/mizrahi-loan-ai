@@ -430,16 +430,16 @@ def build(case_id: str) -> dict[str, Any]:
                        "ניתוח החזר אישי אינו רלוונטי לתיק זה. ")
                     + "קביעת זכאות, סכום ותנאים מחייבת אימות נוסף והחלטת הבנק.")
         tone, doc_status = "ok", "המסמכים הושלמו"
-        next_action = {"kind": "accept_documents" if awaiting else "credit_review",
-                       "label_he": (("קבלה פורמלית של מסמך שנבדק ב-AI" if len(awaiting) == 1 else
-                                     f"קבלה פורמלית של {len(awaiting)} מסמכים שנבדקו ב-AI") if awaiting
-                                    else "המשך לבחינת האשראי במערכות הבנק"),
+        next_action = {"kind": "accept_documents" if awaiting else "credit_review", "label_he": "מעבר לטיפול בתיק",
+                       "detail_he": (("מסמך אחד ממתין" if len(awaiting) == 1 else f"{len(awaiting)} מסמכים ממתינים")
+                                     + " לקבלה שלך בסקירת המסמכים") if awaiting else "סקירת המסמכים והפעולות בתיק",
                        "v1_item": awaiting[0]["id"] if awaiting else None}
     elif rec_state == "PREPARATION_CONFIRMED":
-        headline = ("הכנת מסמכי הבקשה אושרה על ידך. הנתונים מוכנים לבחינת האשראי במערכות הבנק; החלופות שלהלן להמחשה בלבד, "
+        headline = ("הכנת מסמכי הבקשה אושרה על ידך. הנתונים מוכנים לבחינת האשראי על ידי הבנק; החלופות שלהלן להמחשה בלבד, "
                     "וקביעת זכאות, סכום ותנאים נעשית על ידי הבנק.")
         tone, doc_status = "ok", "הכנת התיק אושרה"
-        next_action = {"kind": "credit_review", "label_he": "המשך לבחינת האשראי במערכות הבנק", "v1_item": None}
+        next_action = {"kind": "credit_review", "label_he": "מעבר לטיפול בתיק", "detail_he": "סקירת המסמכים והפעולות בתיק",
+                       "v1_item": None}
     elif rec_state == "CLARIFICATION_REQUIRED":
         if open_income:
             d = open_income[0]
@@ -468,7 +468,7 @@ def build(case_id: str) -> dict[str, Any]:
         next_action = {"kind": "request_documents", "label_he": "בקשת המסמכים מהלקוח", "v1_item": missing[0]["v1_item"] if missing else None}
     else:
         headline, tone, doc_status = "בדיקת המסמכים נתקלה בתקלה. אפשר להריץ שוב את הבדיקה מתוך היומן הטכני.", "bad", "תקלה בבדיקה"
-        next_action = {"kind": "technical", "label_he": "פתיחת היומן הטכני", "v1_item": None}
+        next_action = {"kind": "technical", "label_he": "מעבר לטיפול בתיק", "v1_item": None}
 
     if availability == "full":
         fin_text = ("בהתאם לנתונים הזמינים, אפשר לבחון מספר חלופות מימון. בחלופה לתקופה ארוכה יותר ההחזר החודשי נמוך יותר, "

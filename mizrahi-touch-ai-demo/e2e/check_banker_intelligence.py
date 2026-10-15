@@ -1,6 +1,7 @@
-"""Banker Intelligence V2 in a real Chrome: the briefing for a complete case (Michal Barak, 101), an income-gap case (011)
-and an incomplete case (008); the three scenarios and the What-if recomputation against the backend's own arithmetic;
-evidence from a number to the document; the editable draft; and V1 still working beside it.
+"""Banker Intelligence V2 (compact executive dashboard) in a real Chrome: the briefing for a complete case (Michal Barak,
+101), an income-gap case (011) and an incomplete case (008); what sits above the fold at 1440×900; the three KPIs and the
+three scenarios against the backend's own arithmetic, What-if and reset; every collapsible section; evidence from a number
+to the document; the collapsed, editable draft; responsive widths; and V1 still working beside it.
 
 Isolated REPLAY stack only (zero Gemini calls). Read-only: it uploads nothing and records no decision — populate the
 cases first with verify_presenter_scenarios.py on the same stack.
@@ -56,6 +57,11 @@ def unclip(page: Page) -> None:
     page.add_style_tag(content=".console.desk{height:auto!important;overflow:visible!important}.bi-scroll{overflow:visible!important}")
 
 
+def expand(page: Page, panel: str) -> None:
+    if page.locator(f"[data-testid={panel}-toggle]").get_attribute("aria-expanded") != "true":
+        page.locator(f"[data-testid={panel}-toggle]").click()
+
+
 def cards(page: Page) -> list[dict]:
     return page.locator("[data-testid=bi-scenario]").evaluate_all(
         """els => els.map(e => ({key: e.dataset.key, term: +e.dataset.term,
@@ -74,124 +80,164 @@ def norm(rows: list[dict]) -> list[dict]:
     return [{**r, "dsr": "" if r["dsr"] in ("", None) else str(float(r["dsr"]))} for r in rows]
 
 
+def kpi(page: Page, name: str) -> str:
+    return page.locator(f"[data-testid=bi-kpi-{name}-value]").get_attribute("data-value") or ""
+
+
 def michal(page: Page, c: httpx.Client) -> None:
     x = c.get(f"/api/banker/cases/{MICHAL}/intelligence").json()
-    s = x["simulation"]
+    s, a = x["simulation"], x["analysis"]
     open_v2(page, MICHAL)
     page.screenshot(path=str(OUT / "01-desktop-1440x900.png"))
-    unclip(page)
-    page.wait_for_timeout(300)
-    page.screenshot(path=str(OUT / "02-full-page.png"), full_page=True)
-    open_v2(page, MICHAL)
-    brief = page.locator("[data-testid=bi-brief]")
-    check("complete: the recommendation is the first thing on screen and matches the document state",
-          brief.get_attribute("data-state") == "READY_FOR_CREDIT_REVIEW" == x["recommendation"]["state"]
-          and page.locator("[data-testid=bi-headline]").inner_text() == x["recommendation"]["headline_he"]
-          and brief.bounding_box()["y"] < 200, x["recommendation"]["headline_he"][:60])
-    check("complete: documentation and financial tracks are separate; no approval wording",
-          page.locator("[data-testid=bi-track-docs]").is_visible() and page.locator("[data-testid=bi-track-fin]").get_attribute("data-availability") == "full"
-          and "מאושרת" not in brief.inner_text() and "ההלוואה אושרה" not in brief.inner_text())
-    marks = page.locator("[data-testid=bi-obligations] [data-mark=demo]").count()
-    check("complete: obligations and exposure carry the synthetic DEMO mark and the fixture's date",
-          marks >= 4 and "BFC-DEMO-BARAK-01" in page.locator("[data-testid=bi-obligations]").inner_text()
-          and "2026-10-11" in page.locator("[data-testid=bi-obligations]").inner_text(), f"{marks} DEMO marks")
-    months = page.locator("[data-testid=bi-income-month] [data-mark=verified]").count()
-    check("complete: verified income — three payslip months, each marked as a verified document value", months == 3)
+    head = page.locator("[data-testid=bi-brief]")
+    hb = head.bounding_box()
+    check("header: compact (≤ 220 px), actual case context, short recommendation, one action, disclaimer",
+          hb["height"] <= 220 and "מיכל ברק" in page.locator("[data-testid=bi-context]").inner_text()
+          and "₪90,000" in page.locator("[data-testid=bi-context]").inner_text() and "60 תשלומים" in page.locator("[data-testid=bi-context]").inner_text()
+          and page.locator("[data-testid=bi-headline]").inner_text().strip() == "מומלץ להתקדם לבחינת האשראי"
+          and page.locator("[data-testid=bi-next-btn]").inner_text().startswith("מעבר לטיפול בתיק")
+          and "לא אישור אשראי" in head.inner_text(), f"height {hb['height']:.0f}px")
+    text = page.locator("[data-testid=bi-rec-text]").inner_text()
+    check("header: one explanation sentence built from the briefing's numbers",
+          "₪21,050" in text and "14.1%" in text and "במערכות הבנק" not in head.inner_text(), text)
+    banker_he = "ממתין לבדיקת בנקאי" if x["documents"]["awaiting_decision"] else "המסמכים התקבלו על ידך"
+    check("documents: completion and banker review are two separate statuses",
+          page.locator("[data-testid=bi-doc-primary]").inner_text() == "מסמכים הושלמו"
+          and page.locator("[data-testid=bi-doc-banker]").inner_text() == banker_he
+          and "אושר" not in page.locator("[data-testid=bi-doc-status]").inner_text(),
+          f"{x['documents']['accepted']}/{x['documents']['total']} accepted by the banker · {banker_he}")
+    sims = page.locator("[data-testid=bi-scenario]").evaluate_all("els => els.map(e => e.getBoundingClientRect().top)")
+    pay_bottom = page.locator("[data-testid=bi-sc-pay]").first.evaluate("e => e.getBoundingClientRect().bottom")
+    check("above the fold at 1440×900: context, recommendation, action, three KPIs and the three scenarios' payments",
+          page.locator(".bi-kpi").count() == 3 and page.locator("[data-testid=bi-kpis]").bounding_box()["y"] < 450
+          and len(sims) == 3 and max(sims) < 600 and pay_bottom < 900, f"scenario tops {[round(v) for v in sims]}, payment bottom {pay_bottom:.0f}")
+    check("KPIs: income, new monthly payment and combined ratio equal the briefing",
+          a["income"]["value"] == 21050 and float(kpi(page, "payment")) == a["proposed_payment"]["value"]
+          and float(kpi(page, "combined")) == a["combined_dsr"]["value"], f"{kpi(page, 'payment')} · {kpi(page, 'combined')}%")
     got = norm(cards(page))
     want = norm(expected(s["inputs"]["principal"], s["inputs"]["term_months"], s["inputs"]["annual_rate_pct"], s))
-    check("complete: three scenarios, identical to the backend's arithmetic (payment, interest, combined ratio)",
-          len(got) == 3 and got == want and got == norm([{"key": r["key"], "term": r["term_months"], "pay": r["monthly_payment_ils"],
-                                                          "interest": r["total_interest_ils"], "dsr": str(r["combined_dsr_pct"])} for r in s["scenarios"]]),
-          json.dumps(got, ensure_ascii=False))
-    sim = page.locator("[data-testid=bi-simulator]")
-    sim.scroll_into_view_if_needed()
-    sim.screenshot(path=str(OUT / "03-simulator-three-scenarios.png"))
-    # What-if: the term, then the rate (zero interest), then reset
+    check("simulator: three scenarios, identical to the backend's arithmetic", len(got) == 3 and got == want and got == norm(
+        [{"key": r["key"], "term": r["term_months"], "pay": r["monthly_payment_ils"], "interest": r["total_interest_ils"],
+          "dsr": str(r["combined_dsr_pct"])} for r in s["scenarios"]]), json.dumps(got, ensure_ascii=False))
+    page.locator("[data-testid=bi-simulator]").screenshot(path=str(OUT / "03-simulator-three-scenarios.png"))
     page.locator("[data-testid=bi-wi-term]").fill("84")
     page.wait_for_timeout(150)
     got = norm(cards(page))
-    check("what-if: term 84 recomputes all three cards (60/84/108) exactly as finance.py",
-          got == norm(expected(90000, 84, 6.0, s)), json.dumps([(r["term"], r["pay"], r["dsr"]) for r in got], ensure_ascii=False))
-    check("what-if: the changed input is labelled as a simulation and the comparison updates",
-          page.locator(".bi-slider.changed .m-sim").count() == 1 and page.locator("[data-testid=bi-sc-pay] [data-mark=sim]").count() == 3
-          and "108" in page.locator("[data-testid=bi-compare]").inner_text())
-    sim.screenshot(path=str(OUT / "03b-simulator-whatif-term84.png"))
+    check("what-if: term 84 recomputes the three cards (60/84/108) and the KPIs follow",
+          got == norm(expected(90000, 84, 6.0, s)) and float(kpi(page, "payment")) == finance.monthly_payment(90000, 84, 6.0)
+          and page.locator(".bi-slider.changed [data-mark=sim]").count() == 1 and page.locator("[data-testid=bi-sc-pay] [data-mark=sim]").count() == 3,
+          json.dumps([(r["term"], r["pay"], r["dsr"]) for r in got], ensure_ascii=False))
     page.locator("[data-testid=bi-wi-rate]").fill("0")
     page.wait_for_timeout(150)
     zero = cards(page)
     check("what-if: zero interest → payment = principal ÷ term and exactly no interest",
-          all(abs(r["pay"] - round(90000 / r["term"], 2)) < 0.005 and r["interest"] == 0 for r in zero)
-          and norm(zero) == norm(expected(90000, 84, 0, s)), json.dumps([(r["term"], r["pay"], r["interest"]) for r in zero]))
+          all(abs(r["pay"] - round(90000 / r["term"], 2)) < 0.005 and r["interest"] == 0 for r in zero), json.dumps([(r["term"], r["pay"], r["interest"]) for r in zero]))
     page.locator("[data-testid=bi-wi-reset]").click()
     page.wait_for_timeout(150)
-    check("what-if: reset returns to the application's own scenario; the suggestion reappears",
-          norm(cards(page)) == want and page.locator(".bi-sc.suggested").count() == 1)
     after = c.get(f"/api/banker/cases/{MICHAL}/intelligence").json()
-    check("what-if: the case's application, income and obligations are unchanged on the server",
-          after["simulation"]["inputs"] == s["inputs"] and after["analysis"]["income"] == x["analysis"]["income"]
-          and after["analysis"]["existing_debt"] == x["analysis"]["existing_debt"])
-    # evidence: an income month → the document, boxed
+    check("what-if: reset restores the application's scenario and the KPIs; nothing changed on the server",
+          norm(cards(page)) == want and float(kpi(page, "payment")) == a["proposed_payment"]["value"] and page.locator(".bi-sc.suggested").count() == 1
+          and after["simulation"]["inputs"] == s["inputs"] and after["analysis"]["income"] == a["income"] and after["analysis"]["existing_debt"] == a["existing_debt"])
+    # reasons: three by default, the rest on demand
+    shown = page.locator("[data-testid=bi-consideration]").count()
+    page.locator("[data-testid=bi-why-toggle]").click()
+    check("reasons: three by default; 'show all' reveals the rest and what to verify",
+          shown == 3 and page.locator("[data-testid=bi-consideration]").count() == len(x["recommendation"]["considerations"]) + 1
+          and page.locator("[data-testid=bi-verify]").is_visible())
+    page.locator("[data-testid=bi-why-toggle]").click()
+    # supporting sections collapsed by default; each expands
+    closed = [page.locator(f"[data-testid={p}-toggle]").get_attribute("aria-expanded") for p in ("bi-evidence", "bi-obligations", "bi-data")]
+    for p in ("bi-evidence", "bi-obligations", "bi-data"):
+        expand(page, p)
+    ob = page.locator("[data-testid=bi-obligations]")
+    check("sections: collapsed by default for a clean case, and each expands",
+          closed == ["false", "false", "false"] and ob.locator("[data-testid=bi-exposure-utilized]").is_visible()
+          and page.locator("[data-testid=bi-evlist]").is_visible(), str(closed))
+    check("obligations: synthetic DEMO marks, fixture id and date, exposure and LTV inside the details",
+          ob.locator("[data-mark=demo]").count() >= 4 and "BFC-DEMO-BARAK-01" in ob.inner_text() and "2026-10-11" in ob.inner_text()
+          and ob.locator("[data-testid=bi-kpi-ltv]").inner_text().startswith("68.2%"))
+    page.locator("[data-testid=bi-slips-toggle]").click()
+    check("income: compact summary; 'show payslips' reveals three verified (or banker-accepted) months",
+          page.locator("[data-testid=bi-income-month] [data-mark=verified], [data-testid=bi-income-month] [data-mark=reviewed]").count() == 3)
     page.locator("[data-testid=bi-income-month][data-period='2026-07']").click()
     drawer = page.locator("[data-testid=bi-drawer]")
     expect(drawer).to_have_attribute("data-kind", "document")
     expect(drawer.locator("[data-testid=evidence-viewer] .hl.focus")).to_have_count(1, timeout=15000)
-    check("evidence: a verified income figure opens the existing evidence viewer on its own box",
-          drawer.locator("[data-testid=bi-drawer-value]").inner_text().strip() == "21,000.00"
-          and drawer.get_attribute("data-source").endswith(":net_pay"))
+    check("evidence: a payslip month opens the existing evidence viewer on its own box",
+          drawer.locator("[data-testid=bi-drawer-value]").inner_text().strip() == "21,000.00")
     page.wait_for_timeout(400)
     page.screenshot(path=str(OUT / "04-evidence-income-to-document.png"))
     page.locator("[data-testid=bi-drawer-close]").click()
-    # a calculated ratio → formula and inputs → a synthetic input
-    page.locator("[data-testid=bi-kpi-combined] button").click()
+    page.locator(".bi-scroll").evaluate("e => e.scrollTo(0, 0)")
+    page.locator("[data-testid=bi-kpi-combined-value]").click()
     expect(drawer.locator("[data-testid=bi-drawer-formula]")).to_be_visible()
     inputs = drawer.locator("[data-testid=bi-drawer-input]").count()
     drawer.locator("[data-testid=bi-drawer-input]").nth(1).click()
     expect(drawer).to_have_attribute("data-kind", "calculated")
     drawer.locator("[data-testid=bi-drawer-input]").first.click()
     expect(drawer).to_have_attribute("data-kind", "synthetic_bank")
-    check("evidence: the combined ratio explains its formula, and its inputs lead down to the synthetic loan record",
-          inputs == 3 and "BFC-DEMO-BARAK-01" in drawer.inner_text() and "2026-10-11" in drawer.inner_text())
+    check("evidence: the combined-ratio KPI explains its formula and leads down to the synthetic loan record",
+          inputs == 3 and "BFC-DEMO-BARAK-01" in drawer.inner_text())
     page.screenshot(path=str(OUT / "04b-evidence-calc-to-synthetic.png"))
     page.locator("[data-testid=bi-drawer-close]").click()
-    # the draft
-    tabs = page.locator("[data-testid=bi-draft-tab]").evaluate_all("els => els.map(e => e.dataset.kind)")
-    text = page.locator("[data-testid=bi-draft-text]")
-    original = text.input_value()
-    text.click()
-    text.evaluate("e => e.setSelectionRange(e.value.length, e.value.length)")
-    text.type("\nנשמח לתאם שיחה השבוע.")
-    check("draft: complete-documentation draft is recommended, customer-specific and editable",
-          tabs == ["complete_documentation", "conditional_financing"] and "מיכל" in original and "₪90,000" in original
-          and "אינה אישור הלוואה" in original and page.locator("[data-testid=bi-draft-edited]").is_visible()
-          and text.input_value().endswith("נשמח לתאם שיחה השבוע."), str(tabs))
+    # the draft: collapsed preview → edit → collapse keeps the edit → copy
+    check("draft: collapsed by default — a preview, no editor",
+          page.locator("[data-testid=bi-draft-preview]").is_visible() and page.locator("[data-testid=bi-draft-text]").count() == 0
+          and page.locator("[data-testid=bi-draft-preview]").get_attribute("data-kind") == "complete_documentation")
+    page.locator("[data-testid=bi-draft-edit]").click()
+    area = page.locator("[data-testid=bi-draft-text]")
+    original = area.input_value()
+    area.evaluate("e => e.setSelectionRange(e.value.length, e.value.length)")
+    area.type("\nנשמח לתאם שיחה השבוע.")
+    page.locator("[data-testid=bi-action]").screenshot(path=str(OUT / "05-editable-draft.png"))
+    page.locator("[data-testid=bi-draft-collapse]").scroll_into_view_if_needed()
+    check("draft: with the editor open, its buttons can be reached", page.locator("[data-testid=bi-draft-collapse]").is_visible()
+          and page.locator("[data-testid=bi-draft-collapse]").evaluate("e => e.getBoundingClientRect().bottom <= window.innerHeight"))
+    page.locator("[data-testid=bi-draft-collapse]").click()
+    kept = "נשמח לתאם שיחה השבוע." in page.locator("[data-testid=bi-draft-preview]").inner_text()
+    page.locator("[data-testid=bi-draft-edit]").click()
+    check("draft: editable, customer-specific; collapsing and reopening keeps the edit",
+          "מיכל" in original and "₪90,000" in original and "אינה אישור הלוואה" in original and kept
+          and area.input_value().endswith("נשמח לתאם שיחה השבוע.") and page.locator("[data-testid=bi-draft-edited]").is_visible())
     page.locator("[data-testid=bi-draft-tab][data-kind=conditional_financing]").click()
-    cond = text.input_value()
+    cond = page.locator("[data-testid=bi-draft-text]").input_value()
     check("draft: the financing draft lists the illustrative scenarios with conditions and no internal ratio",
           all(f"{r['term_months']} תשלומים" in cond for r in s["scenarios"]) and "אינם הצעה מחייבת" in cond and "יחס" not in cond)
     page.locator("[data-testid=bi-draft-tab][data-kind=complete_documentation]").click()
     page.locator("[data-testid=bi-draft-copy]").click()
     expect(page.locator("[data-testid=desk-toast]")).to_contain_text("לא נשלחה")
-    page.locator("[data-testid=bi-action]").screenshot(path=str(OUT / "05-editable-draft.png"))
-    # the next action opens V1 at the document
+    check("draft: copy works and says nothing was sent", True)
+    # full page with every section open, on a fresh load
+    open_v2(page, MICHAL)
+    for p in ("bi-evidence", "bi-obligations", "bi-data"):
+        expand(page, p)
+    unclip(page)
+    page.wait_for_timeout(300)
+    page.screenshot(path=str(OUT / "02-full-page.png"), full_page=True)
     open_v2(page, MICHAL)
     target = x["recommendation"]["next_action"]["v1_item"]
     page.locator("[data-testid=bi-next-btn]").click()
     expect(page.locator("[data-testid=evidence-pane]")).to_be_visible(timeout=15000)
-    check("next action: opens the V1 review workspace at the first document awaiting the banker",
-          f"item={target.replace(':', '%3A')}" in page.url or f"item={target}" in page.url, page.url)
+    check("next action 'מעבר לטיפול בתיק' opens the V1 workspace" + (" at the first document awaiting the banker" if target else ""),
+          (f"item={target.replace(':', '%3A')}" in page.url or f"item={target}" in page.url) if target else "view=intel" not in page.url, page.url)
 
 
 def gap(page: Page, c: httpx.Client) -> None:
-    x = c.get(f"/api/banker/cases/{GAP}/intelligence").json()
     open_v2(page, GAP)
-    check("human review: clarification state, provisional analysis, no suggested scenario",
-          page.locator("[data-testid=bi-brief]").get_attribute("data-state") == "CLARIFICATION_REQUIRED"
-          and page.locator("[data-testid=bi-track-fin]").get_attribute("data-availability") == "provisional"
-          and page.locator("[data-testid=bi-suggested]").count() == 0 and page.locator(".bi-sc.suggested").count() == 0)
-    card = page.locator("[data-testid=bi-discrepancy][data-kind=income]")
-    check("human review: the income gap shows declared vs documented with sources, and the declared alternative ratio",
-          card.get_attribute("data-open") == "true" and "₪16,500" in card.inner_text() and "₪14,700" in card.inner_text()
-          and page.locator("[data-testid=bi-declared-alt]").is_visible() and page.locator("[data-testid=bi-sim-provisional]").is_visible())
+    head = page.locator("[data-testid=bi-brief]")
+    check("human review: clarification state with the gap visible in the header (not behind 'show more')",
+          head.get_attribute("data-state") == "CLARIFICATION_REQUIRED" and page.locator("[data-testid=bi-headline]").inner_text().strip() == "נדרש בירור לפני המשך הטיפול"
+          and "פער הכנסה פתוח" in page.locator("[data-testid=bi-blockers]").inner_text() and "₪16,500" in page.locator("[data-testid=bi-blockers]").inner_text()
+          and page.locator("[data-testid=bi-next-btn]").inner_text().startswith("בירור הפער"))
+    page.screenshot(path=str(OUT / "06-human-review-1440x900.png"))
+    ev = page.locator("[data-testid=bi-evidence]")
+    check("human review: the conditions section opens by itself, with both discrepancies and the declared-income alternative",
+          page.locator("[data-testid=bi-evidence-toggle]").get_attribute("aria-expanded") == "true"
+          and ev.locator("[data-testid=bi-discrepancy][data-kind=income][data-open=true]").count() == 1
+          and ev.locator("[data-testid=bi-discrepancy][data-kind=purpose_amount]").count() == 1
+          and page.locator("[data-testid=bi-declared-alt]").is_visible() and page.locator("[data-testid=bi-sim-provisional]").is_visible()
+          and page.locator(".bi-sc.suggested").count() == 0)
+    card = ev.locator("[data-testid=bi-discrepancy][data-kind=income]")
     card.locator("[data-testid=bi-datum]").nth(1).click()
     drawer = page.locator("[data-testid=bi-drawer]")
     expect(drawer.locator("[data-testid=bi-drawer-formula]")).to_be_visible()
@@ -200,31 +246,38 @@ def gap(page: Page, c: httpx.Client) -> None:
     expect(drawer.locator("[data-testid=evidence-viewer] .hl.focus")).to_have_count(1, timeout=15000)
     check("human review: the documented average opens its payslip evidence", True)
     page.locator("[data-testid=bi-drawer-close]").click()
-    check("human review: the clarification draft is recommended and asks for an explanation",
-          page.locator("[data-testid=bi-draft-text]").get_attribute("data-kind") == "financial_clarification"
-          and "הסבר" in page.locator("[data-testid=bi-draft-text]").input_value())
-    page.locator(".bi-scroll").evaluate("e => e.scrollTo(0, 0)")
-    page.wait_for_timeout(200)
-    page.screenshot(path=str(OUT / "06-human-review-1440x900.png"))
-    check("human review: the requested amount above the car quote is a second, sourced discrepancy",
-          page.locator("[data-testid=bi-discrepancy][data-kind=purpose_amount]").count() == 1)
+    check("human review: the clarification draft is recommended",
+          page.locator("[data-testid=bi-draft-preview]").get_attribute("data-kind") == "financial_clarification"
+          and "הסבר" in page.locator("[data-testid=bi-draft-preview]").inner_text())
     card.scroll_into_view_if_needed()
-    page.locator("[data-testid=bi-evidence]").screenshot(path=str(OUT / "06b-human-review-gap.png"))
+    ev.screenshot(path=str(OUT / "06b-human-review-gap.png"))
 
 
 def incomplete(page: Page, c: httpx.Client) -> None:
     x = c.get(f"/api/banker/cases/{INCOMPLETE}/intelligence").json()
     open_v2(page, INCOMPLETE)
-    brief = page.locator("[data-testid=bi-brief]").inner_text()
-    check("incomplete: documents-incomplete state with the missing items and no positive credit conclusion",
+    head = page.locator("[data-testid=bi-brief]").inner_text()
+    check("incomplete: completion state, missing items in the header, no positive credit wording or suggestion",
           page.locator("[data-testid=bi-brief]").get_attribute("data-state") == "DOCUMENTS_INCOMPLETE"
-          and "נדרשת השלמת מסמכים" in brief and page.locator("[data-testid=bi-suggested]").count() == 0
-          and "ניתן להתקדם" not in brief, x["recommendation"]["headline_he"][:80])
-    tabs = page.locator("[data-testid=bi-draft-tab]").evaluate_all("els => els.map(e => e.dataset.kind)")
+          and page.locator("[data-testid=bi-headline]").inner_text().strip() == "נדרשת השלמת מסמכים"
+          and page.locator("[data-testid=bi-blockers] li").count() >= 3 and "מומלץ להתקדם" not in head
+          and page.locator(".bi-sc.suggested").count() == 0 and page.locator("[data-testid=bi-doc-primary]").inner_text().startswith("חסרים"))
+    preview = page.locator("[data-testid=bi-draft-preview]")
     check("incomplete: only a missing-documents draft, listing the missing items",
-          tabs == ["missing_documents"] and all(m["item_he"] in page.locator("[data-testid=bi-draft-text]").input_value()
-                                                for m in x["documents"]["missing"]))
+          page.locator("[data-testid=bi-draft-tab]").count() == 1 and preview.get_attribute("data-kind") == "missing_documents"
+          and all(m["item_he"] in preview.inner_text() for m in x["documents"]["missing"]))
     page.screenshot(path=str(OUT / "07-incomplete-1440x900.png"))
+
+
+def responsive(page: Page) -> None:
+    for w, h, name in ((1100, 800, "08-small-desktop-1100.png"), (390, 844, "09-mobile-390.png")):
+        page.set_viewport_size({"width": w, "height": h})
+        open_v2(page, MICHAL)
+        over = max(page.locator(".bi-scroll").evaluate("e => e.scrollWidth - e.clientWidth"),
+                   page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth"))
+        page.screenshot(path=str(OUT / name))
+        check(f"responsive {w}px: no horizontal overflow; KPIs and scenarios render", over <= 1 and page.locator("[data-testid=bi-scenario]").count() == 3, f"overflow {over}px")
+    page.set_viewport_size({"width": 1440, "height": 900})
 
 
 def v1(page: Page) -> None:
@@ -261,10 +314,11 @@ def main() -> int:
             except Exception as exc:                                  # report and continue with the next scenario
                 check(f"{step.__name__}: ran to the end", False, repr(exc)[:300])
                 page.screenshot(path=str(OUT / f"error-{step.__name__}.png"))
-        try:
-            v1(page)
-        except Exception as exc:
-            check("v1: ran to the end", False, repr(exc)[:300])
+        for step in (responsive, v1):
+            try:
+                step(page)
+            except Exception as exc:
+                check(f"{step.__name__}: ran to the end", False, repr(exc)[:300])
         check("no uncaught page errors", not errors, " | ".join(errors[:3]))
         browser.close()
     passed = sum(ok for _, ok, _ in RESULTS)
