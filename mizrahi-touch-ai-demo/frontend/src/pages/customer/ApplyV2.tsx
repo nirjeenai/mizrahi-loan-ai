@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { api, ils, type ChatDraft, type ChatMessage, type ChatStage, type ChatTurn } from "../../api";
+import { api, ils, type ChatAction, type ChatDraft, type ChatMessage, type ChatStage, type ChatTurn } from "../../api";
 import { useCase } from "../../caseContext";
-import { ICheck, ISend } from "../../components/Icons";
+import { ICheck, ISend, ISpark } from "../../components/Icons";
 
 const DRAFT_KEY = "mz.onboarding.draft.v2";
 
@@ -54,18 +54,24 @@ export function ApplyV2() {
     if (complete) setTimeout(() => document.querySelector("[data-testid=cv2-summary]")?.scrollIntoView({ behavior: "smooth", block: "start" }), 450);
   }, [complete]);
 
+  const inFlight = useRef(false);
   const send = async (turn: ChatTurn, shown: string | null, fromInput = false) => {
-    if (!draft || busy) return;
+    // a ref, not state: two clicks in the same tick must not both send; the turn id makes a retried request a no-op
+    if (!draft || inFlight.current) return;
+    inFlight.current = true;
     setBusy(true); setError(null); setEcho(shown);
     try {
-      setDraft(await api.chatTurn(draft.draft_id, turn));
+      setDraft(await api.chatTurn(draft.draft_id, { ...turn, turn_id: crypto.randomUUID() }));
       if (fromInput) setText("");
     } catch (e) { setError((e as Error).message); }
     finally {
+      inFlight.current = false;
       setBusy(false); setEcho(null);
       if (fromInput) requestAnimationFrame(() => input.current?.focus());
     }
   };
+  const act = (a: ChatAction) => a.text ? send({ text: a.text }, a.label_he)
+    : send({ question_id: a.question_id!, value: a.value, label_he: a.label_he }, a.label_he);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const t = text.trim();
@@ -75,7 +81,7 @@ export function ApplyV2() {
     if (!draft || busy) return;
     setBusy(true); setError(null);
     try {
-      const r = await api.onboardingConfirm(draft.draft_id);
+      const r = await api.chatConfirm(draft.draft_id);
       localStorage.removeItem(DRAFT_KEY);
       openCase(r.case_id);
       nav("/customer/documents", { state: { handoff: "v2", first: draft.first_name_he } });
@@ -85,34 +91,36 @@ export function ApplyV2() {
 
   const p = draft?.pending;
   const lastAssistant = draft ? [...draft.messages].reverse().find((m) => m.role === "assistant") : undefined;
-  const latestInsight = draft ? [...draft.messages].reverse().find((m) => m.kind === "insight") : undefined;
+  const latestInsight = draft ? [...draft.messages].reverse().find((m) => m.indication) : undefined;
+  // while the assistant asks a clarification, its own choices are the only buttons on screen
+  const clarifying = !!lastAssistant?.actions?.length;
   return (
     <>
-      <VersionSwitch v={2} />
-      <div className="page-title">בקשת הלוואה חדשה</div>
-      <div className="card cv2" data-testid="apply-v2" data-draft={draft?.draft_id}>
+      <div className="cv2-top">
+        <VersionSwitch v={2} />
+        {draft && draft.messages.some((m) => m.role === "user") && (
+          <button className="link small cv2-restart" onClick={restart} disabled={busy} data-testid="cv2-restart">התחלה מחדש</button>
+        )}
+      </div>
+      <div className="card cv2" data-testid="apply-v2" data-draft={draft?.draft_id} data-engine={draft?.engine}>
         <div className="cv2-head">
-          <img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" />
-          <span className="small bold">העוזר הדיגיטלי</span>
-          {draft && draft.messages.some((m) => m.role === "user") && (
-            <button className="link small cv2-restart" onClick={restart} disabled={busy} data-testid="cv2-restart">התחלה מחדש</button>
-          )}
+          <AssistantMark size={30} />
+          <div className="cv2-id"><b>העוזר הדיגיטלי</b><span>מזרחי־טפחות · בקשת הלוואה</span></div>
         </div>
         {draft && <Stages stages={draft.stages} />}
         <div className="chat-log cv2-log" ref={log} aria-live="polite" data-testid="cv2-log">
           {!draft && !error && <div className="bubble assistant"><span className="spinner" /></div>}
-          {draft?.messages.map((m) => (
-            <Message key={m.id} m={m} latest={m.id === latestInsight?.id}
+          {draft?.messages.map((m, i) => (
+            <Message key={m.id} m={m} latest={m.id === latestInsight?.id} grouped={i > 0 && draft.messages[i - 1].role === "assistant"}
               onAsk={(t) => send({ text: t }, t)} disabled={busy}
-              actions={m.id === lastAssistant?.id ? m.actions : undefined}
-              onAction={(a) => send({ question_id: a.question_id, value: a.value, label_he: a.label_he }, a.label_he)} />
+              actions={m.id === lastAssistant?.id ? m.actions : undefined} onAction={act} />
           ))}
           {echo && <div className="bubble user">{echo}</div>}
           {busy && <div className="bubble assistant cv2-typing" aria-label="העוזר כותב"><i /><i /><i /></div>}
         </div>
         {draft?.status === "draft" && (
           <div className="cv2-composer" ref={composer}>
-            {p && p.replies.length > 0 && (
+            {p && p.replies.length > 0 && !clarifying && (
               <div className="onb-replies cv2-replies" role="group" aria-label={p.prompt_he} data-testid="cv2-pending" data-question={p.question_id}>
                 {p.replies.map((r) => (
                   <button key={r.label_he} className="onb-reply" disabled={busy} data-testid="cv2-reply" data-value={JSON.stringify(r.value)}
@@ -120,13 +128,13 @@ export function ApplyV2() {
                 ))}
               </div>
             )}
-            {p && p.replies.length === 0 && <span hidden data-testid="cv2-pending" data-question={p.question_id} />}
+            {p && (p.replies.length === 0 || clarifying) && <span hidden data-testid="cv2-pending" data-question={p.question_id} />}
             <div className="cv2-suggest">
               {p?.editing && (
                 <button className="cv2-chip cancel" disabled={busy} onClick={() => send({ action: "cancel_edit" }, "ביטול השינוי")}
                   data-testid="cv2-cancel-edit">ביטול השינוי</button>
               )}
-              {draft.suggestions.map((s) => (
+              {!clarifying && draft.suggestions.map((s) => (
                 <button key={s} className="cv2-chip" disabled={busy} onClick={() => send({ text: s }, s)} data-testid="cv2-suggestion">{s}</button>
               ))}
             </div>
@@ -154,7 +162,7 @@ export function ApplyHandoff() {
   if (state?.handoff !== "v2") return null;
   return (
     <div className="cv2-handoff" role="status" data-testid="cv2-handoff">
-      <img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="" />
+      <AssistantMark size={26} />
       <div className="grow">
         {state.first ? `${state.first}, ` : ""}סיימנו להכין את הבקשה שלך. עכשיו נעבור למסמכים שיעזרו לבנק לבדוק אותה —
         אפשר להעלות אותם כאן, ואני אעזור לך להבין אם משהו חסר. פתיחת הבקשה עדיין אינה אישור הלוואה.
@@ -193,36 +201,60 @@ function Stages({ stages }: { stages: ChatStage[] }) {
   );
 }
 
-function Message({ m, latest, onAsk, disabled, actions, onAction }: {
-  m: ChatMessage; latest: boolean; onAsk: (t: string) => void; disabled: boolean;
-  actions?: ChatMessage["actions"]; onAction: (a: NonNullable<ChatMessage["actions"]>[number]) => void;
+/** The assistant's mark: a digital identity, not a person's portrait. */
+export function AssistantMark({ size = 26 }: { size?: number }) {
+  return <span className="cv2-mark" style={{ width: size, height: size }} aria-hidden="true"><ISpark size={Math.round(size * 0.55)} /></span>;
+}
+
+function Message({ m, grouped, latest, onAsk, disabled, actions, onAction }: {
+  m: ChatMessage; grouped: boolean; latest: boolean; onAsk: (t: string) => void; disabled: boolean;
+  actions?: ChatAction[]; onAction: (a: ChatAction) => void;
 }) {
   if (m.role === "user") return <div className="bubble user" data-testid="cv2-msg" data-kind="user">{m.text_he}</div>;
-  if (m.kind === "insight" && m.indication) {
-    const ind = m.indication;
-    return (
-      <div className={`cv2-insight${m.stale ? " stale" : ""}`} data-testid="cv2-insight" data-stale={m.stale ? "1" : "0"} data-max={ind.max_amount_ils}>
-        <div className="cv2-insight-eyebrow">
-          <span>אינדיקציה ראשונית · הדגמה בלבד</span>
-          {m.stale && <span className="badge neutral" data-testid="cv2-insight-stale">עודכנה</span>}
-        </div>
-        <div className="cv2-insight-figure"><span className="pre">עד כ־</span><b className="ltr">{ils(ind.max_amount_ils)}</b>
-          <span className="post">ב־{ind.payments} תשלומים</span></div>
-        <div className="cv2-insight-text">{m.text_he}</div>
-        {latest && !m.stale && (
-          <button className="cv2-chip" disabled={disabled} onClick={() => onAsk("איך הגעת לסכום הזה?")} data-testid="cv2-explain">איך הגעת לסכום הזה?</button>
+  const legacyInsight = m.kind === "insight";
+  return (
+    <div className={`cv2-row${grouped ? " grouped" : ""}`}>
+      {grouped ? <span className="cv2-mark-space" /> : <AssistantMark />}
+      <div className="cv2-stack">
+        {m.indication && <IndicationCard m={m} latest={latest} disabled={disabled} onAsk={onAsk} />}
+        {!legacyInsight && (
+          <div className={`bubble assistant${m.kind === "withdrawn" || m.insight === "withdrawn" ? " cv2-muted" : ""}${actions?.length ? " has-actions" : ""}`}
+            data-testid="cv2-msg" data-kind={m.kind} data-question={m.question_id} data-engine={m.engine}>
+            {m.text_he}
+            {actions && actions.length > 0 && (
+              <div className="cv2-actions">
+                {actions.map((a) => <button key={a.label_he} className="onb-reply" disabled={disabled} onClick={() => onAction(a)} data-testid="cv2-action">{a.label_he}</button>)}
+              </div>
+            )}
+          </div>
         )}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+/** The DEMO indication, framed around what the customer asked for; the theoretical maximum is secondary. */
+function IndicationCard({ m, latest, disabled, onAsk }: { m: ChatMessage; latest: boolean; disabled: boolean; onAsk: (t: string) => void }) {
+  const ind = m.indication!;
   return (
-    <div className={`bubble assistant${m.kind === "withdrawn" ? " cv2-muted" : ""}${m.kind === "question" ? " cv2-question" : ""}${actions?.length ? " has-actions" : ""}`}
-      data-testid="cv2-msg" data-kind={m.kind} data-question={m.question_id}>
-      {m.text_he}
-      {actions && actions.length > 0 && (
-        <div className="cv2-actions">
-          {actions.map((a) => <button key={a.label_he} className="onb-reply" disabled={disabled} onClick={() => onAction(a)} data-testid="cv2-action">{a.label_he}</button>)}
-        </div>
+    <div className={`cv2-insight${m.stale ? " stale" : ""}`} data-testid="cv2-insight" data-stale={m.stale ? "1" : "0"}
+      data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils}>
+      <div className="cv2-insight-eyebrow">
+        <span>אינדיקציה ראשונית · סימולציה</span>
+        {m.stale && <span className="badge neutral" data-testid="cv2-insight-stale">עודכנה</span>}
+      </div>
+      <div className="cv2-insight-figure">
+        <span className="pre">הבקשה ל־</span><b className="ltr">{ils(ind.requested_amount_ils)}</b>
+      </div>
+      <div className={`cv2-insight-verdict ${ind.within ? "ok" : "warn"}`}>
+        {ind.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שנוסחת הסימולציה מראה כאפשרי"}</div>
+      <dl className="cv2-insight-facts">
+        <div><dt>החזר חודשי משוער</dt><dd><span className="ltr">{ils(ind.requested_monthly_ils)}</span> · {ind.payments} תשלומים</dd></div>
+        <div><dt>תקרה תיאורטית בנוסחה (לא מסגרת אשראי)</dt><dd><span className="ltr">{ils(ind.max_amount_ils)}</span></dd></div>
+      </dl>
+      <div className="cv2-insight-note">לפי ההכנסה נטו שמסרת והנחות סימולציה בלבד. זו לא בדיקת זכאות ולא אישור — הבנק יבדוק מסמכים והתחייבויות.</div>
+      {latest && !m.stale && (
+        <button className="cv2-chip" disabled={disabled} onClick={() => onAsk("איך חישבת את האינדיקציה?")} data-testid="cv2-explain">איך חישבת?</button>
       )}
     </div>
   );
@@ -245,8 +277,10 @@ function Summary({ draft, busy, onEdit, onConfirm }: { draft: ChatDraft; busy: b
       ))}
       {draft.indication && (
         <div className="cv2-summary-ind" data-testid="cv2-summary-indication">
-          אינדיקציה ראשונית להמחשה: עד כ־<b className="ltr">{ils(draft.indication.max_amount_ils)}</b> ב־{draft.indication.payments} תשלומים,
-          לפי ההכנסה שהצהרת והנחות הדמו. זו אינה הצעה ואינה אישור.
+          אינדיקציה ראשונית: הבקשה ל־<b className="ltr">{ils(draft.indication.requested_amount_ils)}</b>{" "}
+          {draft.indication.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שנוסחת הסימולציה מראה כאפשרי"} (החזר משוער
+          כ־<span className="ltr">{ils(draft.indication.requested_monthly_ils)}</span> ב־{draft.indication.payments} תשלומים), לפי ההכנסה
+          שמסרת והנחות סימולציה. זו אינה בדיקת זכאות ואינה אישור.
         </div>
       )}
       {s.profile.banker_assisted && (

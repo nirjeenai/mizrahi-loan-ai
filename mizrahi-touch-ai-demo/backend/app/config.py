@@ -42,6 +42,10 @@ class Settings:
     session_ttl_minutes: int
     demo_identity: bool
     demo_reset: bool
+    onboarding_llm: bool
+    onboarding_llm_model: str
+    onboarding_llm_max_calls_per_hour: int
+    onboarding_llm_timeout: float
 
     @property
     def db_path(self) -> Path:
@@ -95,4 +99,9 @@ settings = Settings(
     # demo conveniences, on by default in this concept demo; set to 0 outside a demo (see app/auth.py)
     demo_identity=os.environ.get("DEMO_IDENTITY", "1") == "1",
     demo_reset=os.environ.get("DEMO_RESET", "1") == "1",
+    # conversational questionnaire (V2): Gemini only when switched on explicitly, with its own hourly cap
+    onboarding_llm=os.environ.get("ONBOARDING_LLM", "0") == "1",
+    onboarding_llm_model=os.environ.get("ONBOARDING_LLM_MODEL", os.environ.get("GEMINI_MODEL_AGENT", "gemini-3.8-flash")),
+    onboarding_llm_max_calls_per_hour=int(os.environ.get("ONBOARDING_LLM_MAX_CALLS_PER_HOUR", "60")),
+    onboarding_llm_timeout=float(os.environ.get("ONBOARDING_LLM_TIMEOUT", "12")),
 )

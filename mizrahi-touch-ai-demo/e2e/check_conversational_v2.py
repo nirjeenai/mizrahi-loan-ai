@@ -1,10 +1,11 @@
-"""Conversational questionnaire (V2) in a real Chrome: a salaried car loan by free text and quick replies, a proactive
-DEMO indication with its explanation, a policy question mid-flow that resumes the same question, a reload, a later
-correction to mixed income, an edit from the summary, one case on a double confirmation, the mixed-income sentence
-on a phone viewport, and V1 still working next to it.
+"""Conversational questionnaire (V2) in a real Chrome — the reported conversation defects and the full journey:
+loan type first (business is not automatically a company), one coherent reply per submission (gross income, sent
+twice; a double click), direct answers (approval, weather, the amount limit), several facts in one sentence, the
+proactive indication framed on the requested amount, a reload, corrections and an edit from the summary, ambiguous
+side jobs, a contextual policy question, one case on a double confirmation, the Documents handoff, V1 unchanged.
 
-Isolated stack only — no review runs and no Gemini call (the questionnaire never calls a model). Creates demo
-applications in its own DATA_DIR.
+Isolated stack only. It runs whichever understanding the backend has: with ONBOARDING_LLM unset (the default) every
+reply comes from the deterministic path, and the results say so (`engine`). No review runs.
 
     # from backend/ — fresh DATA_DIR, Gemini switched off
     DATA_DIR=../e2e/artifacts/conv-v2/data GEMINI_API_KEY= GEMINI_MAX_CALLS_PER_HOUR=0 \
@@ -27,6 +28,7 @@ if any(p in BASE for p in (":8790", ":8791", ":5192")):
     sys.exit(f"refusing to run against {BASE}: use an isolated stack")
 OUT = Path(__file__).resolve().parent / "artifacts" / "conv-v2"
 RESULTS: list[tuple[str, bool, str]] = []
+ENGINE = {"value": "?"}
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -38,27 +40,33 @@ def shot(page: Page, name: str, full: bool = False) -> None:
     page.screenshot(path=str(OUT / f"{name}.png"), full_page=full)
 
 
-def msgs(page: Page) -> int:
+def items(page: Page) -> int:
     return page.locator("[data-testid=cv2-log] > *").count()
 
 
 def settle(page: Page, before: int) -> None:
     page.wait_for_function(
         "n => document.querySelectorAll('[data-testid=cv2-log] > *').length > n && !document.querySelector('.cv2-typing')",
-        arg=before, timeout=15000)
+        arg=before, timeout=20000)
     page.wait_for_timeout(250)
 
 
 def say(page: Page, text: str) -> None:
-    before = msgs(page)
+    before = items(page)
     page.locator("[data-testid=cv2-input]").fill(text)
     page.locator("[data-testid=cv2-input]").press("Enter")
     settle(page, before)
 
 
 def reply(page: Page, label: str) -> None:
-    before = msgs(page)
+    before = items(page)
     page.locator("[data-testid=cv2-reply]", has_text=label).first.click()
+    settle(page, before)
+
+
+def action(page: Page, label: str) -> None:
+    before = items(page)
+    page.locator("[data-testid=cv2-action]", has_text=label).first.click()
     settle(page, before)
 
 
@@ -72,15 +80,16 @@ def stages(page: Page) -> dict[str, str]:
         "els => els.map(e => [e.getAttribute('data-testid').replace('cv2-stage-', ''), e.getAttribute('data-state')])"))
 
 
-def last_text(page: Page, kind: str | None = None) -> str:
-    sel = f"[data-testid=cv2-msg][data-kind={kind}]" if kind else "[data-testid=cv2-msg]"
-    return page.locator(sel).last.inner_text()
+def bot(page: Page) -> str:
+    return page.locator(".cv2-row [data-testid=cv2-msg]").last.inner_text()
 
 
-def draft_answers(page: Page) -> dict:
+def state(page: Page) -> dict:
     did = page.locator("[data-testid=apply-v2]").get_attribute("data-draft")
-    asked = page.evaluate(f"fetch('/api/demo/onboarding/{did}').then(r => r.json()).then(d => d.asked)")
-    return {a["question_id"]: a["answer"] for a in asked}
+    v1 = page.evaluate(f"fetch('/api/demo/onboarding/{did}').then(r => r.json())")
+    v2 = page.evaluate(f"fetch('/api/demo/onboarding/{did}/v2').then(r => r.json())")
+    return {"answers": {a["question_id"]: a["answer"] for a in v1["asked"]}, "loan": v2["loan"], "engine": v2["engine"],
+            "messages": v2["messages"]}
 
 
 def summary_codes(page: Page) -> list[str]:
@@ -88,149 +97,179 @@ def summary_codes(page: Page) -> list[str]:
     return page.locator("[data-testid=cv2-req]").evaluate_all("els => els.map(e => e.getAttribute('data-code'))")
 
 
-def open_v2(page: Page, fresh: bool = True) -> None:
+def open_v2(page: Page) -> None:
     page.goto(f"{BASE}/customer/apply")
     expect(page.locator("[data-testid=apply-chat]")).to_be_visible(timeout=15000)
     page.locator("[data-testid=apply-switch-v2]").click()
     expect(page.locator("[data-testid=apply-v2]")).to_be_visible(timeout=15000)
     expect(page.locator("[data-testid=cv2-pending]").first).to_be_attached(timeout=10000)
-    if fresh and page.locator("[data-testid=cv2-restart]").count():
+    if page.locator("[data-testid=cv2-restart]").count():
         page.locator("[data-testid=cv2-restart]").click()
-        page.wait_for_timeout(600)
-    expect(page.locator("[data-testid=cv2-pending]").first).to_have_attribute("data-question", "entity", timeout=10000)
+        page.wait_for_timeout(700)
+    expect(page.locator("[data-testid=cv2-pending]").first).to_have_attribute("data-question", "loan_type", timeout=10000)
+    ENGINE["value"] = page.locator("[data-testid=apply-v2]").get_attribute("data-engine") or "?"
 
 
-def salaried_car(page: Page) -> None:
+def defects(page: Page) -> None:
     open_v2(page)
-    st = stages(page)
-    check("A · the stages start at the introduction, nothing done",
-          list(st) == ["intro", "loan", "profile", "summary"] and st["intro"] == "current"
-          and all(v == "upcoming" for k, v in st.items() if k != "intro"), str(st))
-    shot(page, "01-desktop-start")
-    say(page, "אני רוצה לקנות רכב ב־80 אלף שקל")
-    a = draft_answers(page)
-    check("A · one free-text sentence records purpose, amount and the private-loan path",
-          a == {"entity": "individual", "purpose": "car", "amount": 80000} and pending(page) == "name", json.dumps(a, ensure_ascii=False))
-    check("A · contextual reply mentions the car", "הרכב" in page.locator("[data-testid=cv2-msg][data-kind=text]").last.inner_text())
+    labels = page.locator("[data-testid=cv2-reply]").all_inner_texts()
+    check("A · the first question is the loan type: פרטית / עסקית",
+          labels == ["הלוואה פרטית", "הלוואה עסקית"] and "איזו הלוואה מעניינת אותך" in bot(page), str(labels))
+    shot(page, "01-desktop-welcome")
+
+    for i in (1, 2):
+        before = items(page)
+        say(page, "אני מרוויח 19 אלף ברוטו, אפשר לחשב לי לפי זה?")
+        text = bot(page)
+        check(f"B · gross income (submission {i}): exactly one reply", items(page) == before + 2, f"{before} → {items(page)}")
+        check(f"B · gross income (submission {i}): asks for net, keeps the loan-type question, no fallback",
+              "נטו, ולא ברוטו" in text and "מידע מאומת" not in text and text.endswith("פרטית או עסקית?")
+              and pending(page) == "loan_type", text)
+    s = state(page)
+    check("B · nothing recorded and no indication from a gross figure",
+          s["answers"] == {} and page.locator("[data-testid=cv2-insight]").count() == 0, json.dumps(s["answers"]))
+    shot(page, "02-desktop-gross")
+
+    say(page, "אתה מבטיח לי שהבנק יאשר את ההלוואה?")
+    check("H · approval: a direct 'no', conditional review, the flow continues",
+          bot(page).startswith("לא, אני לא יכול להבטיח אישור") and pending(page) == "loan_type", bot(page)[:70])
+    say(page, "מה מזג האוויר בתל אביב מחר?")
+    check("G · off-topic: short, no fabricated weather, state kept",
+          "לא אוכל לתת תחזית מזג אוויר" in bot(page) and pending(page) == "loan_type", bot(page)[:70])
+    say(page, "אני רוצה הלוואה של 300 אלף שקל.")
+    check("F · 300k: the flow's limit (עד 250,000 ₪), nothing capped or recorded",
+          "עד 250,000 ₪" in bot(page) and "amount" not in state(page)["answers"], bot(page)[:80])
+
+    before = items(page)
+    page.locator("[data-testid=cv2-reply]", has_text="הלוואה עסקית").evaluate("b => { b.click(); b.click(); }")
+    settle(page, before)
+    page.wait_for_timeout(600)
+    s = state(page)
+    users = [m for m in s["messages"] if m["role"] == "user" and m["text_he"] == "הלוואה עסקית"]
+    check("B · a double click sends one turn", len(users) == 1 and items(page) == before + 2, f"{len(users)} user turns")
+    check("A · a business loan asks how the business is registered — not automatically a company",
+          pending(page) == "business_form" and "entity" not in s["answers"] and s["loan"]["type"] == "business",
+          json.dumps(s["loan"]))
+    reply(page, "עוסק פטור")
+    s = state(page)
+    check("A · business + עוסק פטור: the owner's individual path with business income and VAT-exempt",
+          s["answers"].get("entity") == "individual" and s["answers"].get("income") == ["self_employed"]
+          and s["answers"].get("registration") == "vat_exempt", json.dumps(s["answers"]))
+
+
+def salaried(page: Page) -> None:
+    open_v2(page)
+    reply(page, "הלוואה פרטית")
     say(page, "מיכל ברק")
-    check("A · the assistant uses the customer's name", "מיכל" in last_text(page, "question"), last_text(page, "question"))
+    check("A · personal loan → individual path; the assistant uses the name", "מיכל" in bot(page)
+          and state(page)["answers"].get("entity") == "individual")
     say(page, "DEMO-ID-201")
-    check("E · no personalised amount before the income is known",
-          page.locator("[data-testid=cv2-insight]").count() == 0 and pending(page) == "payments")
-    reply(page, "60 תשלומים")
-    say(page, "אני שכירה, מרוויחה בערך 16 אלף נטו")
-    ins = page.locator("[data-testid=cv2-insight]")
-    check("D · the indication appears on its own once income, amount and term are known",
-          ins.count() == 1 and ins.first.get_attribute("data-max") == "248000", ins.first.get_attribute("data-max") or "")
-    txt = ins.first.inner_text()
-    check("D · labelled as a DEMO illustration, not an offer or approval",
-          "הדגמה" in txt and "לא הצעה ולא אישור" in txt, txt[:80])
-    check("D · the questionnaire continues at the next question", pending(page) == "co_borrower")
-    ins.first.scroll_into_view_if_needed()
-    shot(page, "02-desktop-indication")
-    before = msgs(page)
+    check("J · no indication before the income is known", page.locator("[data-testid=cv2-insight]").count() == 0)
+    say(page, "אני שכירה, מרוויחה 16 אלף נטו, רוצה הלוואה של 80 אלף לרכב לחמש שנים.")
+    a = state(page)["answers"]
+    check("E · one sentence: purpose, amount, term, income and net captured; no repeat of captured facts",
+          a.get("purpose") == "car" and a.get("amount") == 80000 and a.get("payments") == 60 and a.get("income") == ["salaried"]
+          and a.get("net") == 16000 and pending(page) == "co_borrower", json.dumps(a, ensure_ascii=False))
+    card = page.locator("[data-testid=cv2-insight]")
+    check("J · proactive indication framed on the requested amount (deterministic 248,000 theoretical max)",
+          card.count() == 1 and card.first.get_attribute("data-requested") == "80000" and card.first.get_attribute("data-max") == "248000"
+          and "הבקשה שלך ל־80,000 ₪ נראית אפשרית להמשך בדיקה ראשונית" in bot(page), bot(page)[:90])
+    check("J · disclaimer: not an eligibility check or approval", "לא בדיקת זכאות או אישור" in bot(page)
+          and "לא מסגרת אשראי" in card.first.inner_text())
+    card.first.scroll_into_view_if_needed()
+    shot(page, "03-desktop-indication")
+    before = items(page)
     page.locator("[data-testid=cv2-explain]").click()
     settle(page, before)
-    explain = page.locator("[data-testid=cv2-msg][data-kind=text]").last.inner_text()
-    check("D · the explanation shows the declared income and the demo assumptions",
-          "16,000" in explain and "30%" in explain and "6%" in explain and "60 תשלומים" in explain, explain[:90])
-    check("D · after the explanation the same question is pending", pending(page) == "co_borrower")
-    shot(page, "03-desktop-explanation")
+    text = bot(page)
+    check("J · the explanation shows the real inputs and assumptions",
+          "16,000" in text and "30%" in text and "6%" in text and "1,550" in text and pending(page) == "co_borrower", text[:90])
 
-    say(page, "למה צריך שלושה תלושי שכר?")
-    q = last_text(page, "question")
-    answer = page.locator("[data-testid=cv2-msg][data-kind=text]").last.inner_text()
-    check("C · a policy question mid-flow is answered from the policy (months by simulation date)",
-          "3 תלושים" in answer and "ספטמבר 2026" in answer, answer[:90])
-    check("C · and resumes the exact pending question with its quick replies",
-          q.startswith("נמשיך") and pending(page) == "co_borrower"
-          and page.locator("[data-testid=cv2-reply]", has_text="לא, רק אני").count() == 1, q[:60])
-    shot(page, "04-desktop-interruption")
-
-    count = msgs(page)
+    count = items(page)
     page.reload()
     expect(page.locator("[data-testid=apply-v2]")).to_be_visible(timeout=15000)
     expect(page.locator("[data-testid=cv2-pending]").first).to_be_attached(timeout=10000)
-    page.wait_for_timeout(400)
-    check("G · a reload restores the transcript, the stages and the pending question",
-          msgs(page) == count and pending(page) == "co_borrower" and stages(page)["profile"] == "current", f"{count} → {msgs(page)}")
+    page.wait_for_timeout(500)
+    check("K · reload restores the conversation, the stages and the pending question",
+          items(page) == count and pending(page) == "co_borrower" and stages(page)["profile"] == "current", f"{count} → {items(page)}")
 
     reply(page, "לא, רק אני")
     codes = summary_codes(page)
-    check("A · the summary lists the salaried checklist from the policy",
-          codes == ["ID_CARD:BRW-A", "PAYSLIPS:BRW-A", "BANK_STATEMENTS:ACC-1", "PURPOSE_PROOF"], str(codes))
-    check("A · all question stages done, summary current",
-          stages(page) == {"intro": "done", "loan": "done", "profile": "done", "summary": "current"}, str(stages(page)))
+    check("L · salaried summary: the policy's checklist", codes == ["ID_CARD:BRW-A", "PAYSLIPS:BRW-A", "BANK_STATEMENTS:ACC-1",
+                                                                     "PURPOSE_PROOF"], str(codes))
+    check("L · loan type shown in the summary",
+          "הלוואה פרטית" in page.locator("[data-testid=cv2-line][data-question=loan_type]").inner_text())
     page.locator("[data-testid=cv2-summary]").scroll_into_view_if_needed()
-    shot(page, "05-desktop-summary")
+    shot(page, "04-desktop-summary")
 
-    say(page, "בעצם יש לי גם עסק קטן כעוסק פטור")
-    a = draft_answers(page)
+    say(page, "בעצם אני רוצה 120 אלף במקום 80.")
+    check("D · 'במקום': the amount is corrected without restarting",
+          state(page)["answers"]["amount"] == 120000 and page.locator("[data-testid=cv2-summary]").is_visible())
+    say(page, "אני לא שכיר, אני רק עצמאי.")
+    a = state(page)["answers"]
+    check("D · explicit correction: salaried removed, the VAT question opens, other answers kept",
+          a["income"] == ["self_employed"] and pending(page) == "registration" and a["amount"] == 120000
+          and stages(page)["profile"] == "current", json.dumps(a, ensure_ascii=False))
+    reply(page, "עוסק פטור")
     codes = summary_codes(page)
-    insights = page.locator("[data-testid=cv2-insight]")
-    check("F · a later correction to mixed income updates the profile",
-          a.get("income") == ["salaried", "self_employed"] and a.get("registration") == "vat_exempt", json.dumps(a, ensure_ascii=False))
-    check("F · and the checklist (payslips kept, tax assessment and VAT-exempt certificate added)",
-          {"PAYSLIPS:BRW-A", "TAX_ASSESSMENT:BRW-A", "VAT_EXEMPT_CERT:BRW-A"} <= set(codes), str(codes))
-    check("F · the indication is recalculated (more conservative) and the old one marked out of date",
-          insights.count() == 2 and insights.nth(0).get_attribute("data-stale") == "1"
-          and insights.nth(1).get_attribute("data-max") == "206000", insights.nth(1).get_attribute("data-max") or "")
+    cards = page.locator("[data-testid=cv2-insight]")
+    check("J · the checklist and the indication follow the change; older indications marked out of date",
+          {"TAX_ASSESSMENT:BRW-A", "VAT_EXEMPT_CERT:BRW-A"} <= set(codes) and "PAYSLIPS:BRW-A" not in codes
+          and cards.nth(0).get_attribute("data-stale") == "1" and cards.last.get_attribute("data-stale") == "0"
+          and cards.last.get_attribute("data-max") == "206000", str(codes))
 
-    before = msgs(page)
-    page.locator("[data-testid=cv2-edit-amount]").click()
-    settle(page, before)
-    check("F · editing from the summary re-asks that question, the loan stage becomes current",
-          pending(page) == "amount" and stages(page)["loan"] == "current"
-          and page.locator("[data-testid=cv2-cancel-edit]").is_visible())
-    reply(page, "120,000 ₪")
-    a = draft_answers(page)
-    check("F · the edit is saved and the summary returns",
-          a["amount"] == 120000 and page.locator("[data-testid=cv2-summary]").is_visible()
-          and "120,000" in page.locator("[data-testid=cv2-line][data-question=amount]").inner_text())
-    final_codes = summary_codes(page)
-
-    before_cases = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
+    before = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
     page.locator("[data-testid=cv2-confirm]").evaluate("b => { b.click(); b.click(); }")
     expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
-    after_cases = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
-    check("H · confirming (clicked twice) creates exactly one case", after_cases == before_cases + 1, f"{before_cases} → {after_cases}")
+    after = page.evaluate("fetch('/api/session/demo/cases').then(r => r.json()).then(d => d.length)")
+    check("L · confirming (clicked twice) creates exactly one case", after == before + 1, f"{before} → {after}")
     rows = page.locator("[data-testid=required-docs] li.dl-row").evaluate_all(
         "els => els.map(e => e.getAttribute('data-testid').replace(/^req-/, ''))")
-    check("H · the case opens on Documents with exactly the summary's checklist", sorted(rows) == sorted(final_codes), str(rows))
-    check("H · the assistant explains the next step without implying approval",
-          page.locator("[data-testid=cv2-handoff]").is_visible()
-          and "אינה אישור" in page.locator("[data-testid=cv2-handoff]").inner_text())
-    shot(page, "06-desktop-documents")
+    check("L · Documents shows exactly the summary's checklist", sorted(rows) == sorted(codes), str(rows))
+    check("L · the next-step note without implying approval",
+          "אינה אישור" in page.locator("[data-testid=cv2-handoff]").inner_text())
+    shot(page, "05-desktop-documents")
 
 
 def mixed_mobile(page: Page) -> None:
     open_v2(page)
-    shot(page, "07-mobile-start")
-    say(page, "אני שכיר ויש לי גם עוסק פטור, אני רוצה 80 אלף שקל לרכב")
-    a = draft_answers(page)
-    check("B · the mixed-income sentence captures both sources, VAT-exempt, purpose and amount",
-          a.get("income") == ["salaried", "self_employed"] and a.get("registration") == "vat_exempt"
-          and a.get("purpose") == "car" and a.get("amount") == 80000, json.dumps(a, ensure_ascii=False))
-    check("B · the reply acknowledges both income sources", "גם ממשכורת וגם מעסק" in
-          page.locator("[data-testid=cv2-msg][data-kind=text]").last.inner_text())
-    shot(page, "08-mobile-mixed")
+    shot(page, "06-mobile-welcome")
+    reply(page, "הלוואה פרטית")
+    say(page, "אני שכיר ויש לי גם עוסק פטור, אני מרוויח בערך 16 אלף נטו ורוצה 80 אלף לרכב לחמש שנים.")
+    a = state(page)["answers"]
+    check("E · mixed income in one sentence: both sources, VAT-exempt, net, amount, term, purpose",
+          a.get("income") == ["salaried", "self_employed"] and a.get("registration") == "vat_exempt" and a.get("net") == 16000
+          and a.get("amount") == 80000 and a.get("payments") == 60 and a.get("purpose") == "car", json.dumps(a, ensure_ascii=False))
+    check("E · acknowledges two incomes and asks only for what is missing (the name)",
+          "שתי" in bot(page) and pending(page) == "name", bot(page)[:90])
     say(page, "יוסי לוי")
     say(page, "DEMO-ID-202")
-    reply(page, "48 תשלומים")
-    check("B · the VAT question is skipped (already answered) and the income question asks for both together",
-          pending(page) == "net" and "מהמשכורת ומהעסק יחד" in last_text(page, "question"), last_text(page, "question")[:60])
-    say(page, "בערך 14 אלף")
+    page.locator(".cv2-row").last.scroll_into_view_if_needed()
+    shot(page, "07-mobile-mixed")
+    say(page, "למה אני צריך גם אישור עוסק?")
+    check("I · contextual policy answer: the VAT-exempt certificate, from the policy; pending question kept",
+          "אישור עוסק פטור" in bot(page) and "נמשיך מהנקודה" not in bot(page) and pending(page) == "co_borrower", bot(page)[:90])
+
+    before = items(page)
+    page.locator("[data-testid=cv2-summary]").count()
+    page.locator("[data-testid=cv2-input]").fill("לשנות את מקור ההכנסה")
+    page.locator("[data-testid=cv2-input]").press("Enter")
+    settle(page, before)
+    say(page, "אני עובד פה ושם, לפעמים כשכיר ולפעמים עושה עבודות מהצד. לא ממש יודע איך להגדיר את עצמי.")
+    a = state(page)["answers"]
+    acts = page.locator("[data-testid=cv2-action]").all_inner_texts()
+    check("C · ambiguous side jobs: clarifying question, no confident reclassification",
+          "עסק עצמאי" in bot(page) and a.get("income") == ["salaried", "self_employed"] and pending(page) == "income"
+          and "הכול כשכיר" in acts, f"{acts} · {bot(page)[:60]}")
+    shot(page, "08-mobile-clarify")
+    action(page, "הכול כשכיר")
+    check("C · the clarification answer is recorded through the questionnaire",
+          state(page)["answers"].get("income") == ["salaried"] and pending(page) == "co_borrower")
+    reply(page, "לא, רק אני")
     page.locator("[data-testid=cv2-insight]").last.scroll_into_view_if_needed()
     shot(page, "09-mobile-indication")
-    reply(page, "לא, רק אני")
-    codes = summary_codes(page)
-    check("B · the mixed checklist: payslips, tax assessment and VAT-exempt certificate",
-          {"PAYSLIPS:BRW-A", "TAX_ASSESSMENT:BRW-A", "VAT_EXEMPT_CERT:BRW-A"} <= set(codes) and "VAT_DEALER_CERT:BRW-A" not in codes, str(codes))
-    page.locator("[data-testid=cv2-summary]").scroll_into_view_if_needed()
-    shot(page, "10-mobile-summary")
-    page.locator("[data-testid=cv2-input]").scroll_into_view_if_needed()
     box = page.locator("[data-testid=cv2-input]").bounding_box()
-    check("B · on a phone the text input stays usable (16px, within the viewport width)",
+    check("mobile · the text input stays usable (16px, inside the viewport)",
           box is not None and box["x"] >= 0 and box["x"] + box["width"] <= 390
           and page.locator("[data-testid=cv2-input]").evaluate("e => getComputedStyle(e).fontSize") == "16px")
 
@@ -264,12 +303,11 @@ def v1_still_works(page: Page) -> None:
     pick("payments", "60")
     expect(page.locator("[data-testid=onb-summary]")).to_be_visible(timeout=10000)
     codes = page.locator("[data-testid=onb-req]").evaluate_all("els => els.map(e => e.getAttribute('data-code'))")
-    check("I · V1 questionnaire unchanged: same salaried checklist",
+    check("M · V1 questionnaire unchanged (entity first, same checklist)",
           codes == ["ID_CARD:BRW-A", "PAYSLIPS:BRW-A", "BANK_STATEMENTS:ACC-1", "PURPOSE_PROOF"], str(codes))
     page.locator("[data-testid=onb-confirm]").click()
     expect(page.locator("[data-testid=document-profile]")).to_be_visible(timeout=20000)
-    check("I · V1 confirmation opens the case on Documents, without the V2 note",
-          page.locator("[data-testid=cv2-handoff]").count() == 0)
+    check("M · V1 confirmation opens Documents without the V2 note", page.locator("[data-testid=cv2-handoff]").count() == 0)
 
 
 def main() -> int:
@@ -279,7 +317,7 @@ def main() -> int:
         desk = browser.new_context(viewport={"width": 1440, "height": 900}, locale="he-IL").new_page()
         phone = browser.new_context(viewport={"width": 390, "height": 844}, locale="he-IL", is_mobile=True,
                                     has_touch=True, device_scale_factor=2).new_page()
-        for step, page in ((salaried_car, desk), (mixed_mobile, phone), (v1_still_works, desk)):
+        for step, page in ((defects, desk), (salaried, desk), (mixed_mobile, phone), (v1_still_works, desk)):
             try:
                 step(page)
             except Exception as exc:
@@ -287,10 +325,11 @@ def main() -> int:
                 shot(page, f"error-{step.__name__}", full=True)
         browser.close()
     failed = [r for r in RESULTS if not r[1]]
-    (OUT / "results.json").write_text(json.dumps({"base": BASE, "passed": len(RESULTS) - len(failed), "failed": len(failed),
-                                                  "results": [{"check": n, "ok": ok, "detail": d} for n, ok, d in RESULTS]},
+    (OUT / "results.json").write_text(json.dumps({"base": BASE, "engine": ENGINE["value"], "passed": len(RESULTS) - len(failed),
+                                                  "failed": len(failed), "results": [{"check": n, "ok": ok, "detail": d}
+                                                                                     for n, ok, d in RESULTS]},
                                                  ensure_ascii=False, indent=1), encoding="utf8")
-    print(f"\n{len(RESULTS) - len(failed)}/{len(RESULTS)} passed")
+    print(f"\n{len(RESULTS) - len(failed)}/{len(RESULTS)} passed · understanding engine: {ENGINE['value']}")
     return 1 if failed else 0
 
 

@@ -39,6 +39,14 @@ SAL_KW = {"שכיר", "שכירה", "שכירים", "משכורת", "תלוש", 
 WORKER_KW = {"עובד", "עובדת"}
 SELF_KW = {"עצמאי", "עצמאית", "עצמאים", "עסק", "עסקים", "פרילנס", "פרילנסר", "פרילנסרית"}
 NEG_KW = {"לא", "אינני", "איני", "אינו", "אינה", "בלי", "ללא"}
+PAST_KW = {"הייתי", "בעבר", "פעם", "הייתה", "היה"}
+CORRECTION = re.compile(r"בעצם|במקום|טעיתי|לשנות|לתקן|לעדכן|כבר לא|(?:^|\s)רק(?=\s)|(?:^|\s)לא\s+\S+\s*,?\s*(?:אלא|אני)")
+SIDE_JOBS = re.compile(r"מהצד|עבודות צד|עבודות נוספות|ג'וב|פה ושם|השלמות הכנסה|עבודות מזדמנות")
+UNSURE = re.compile(r"לא (?:ממש |כל כך )?(?:יודע|יודעת|בטוח|בטוחה)|איך להגדיר|לא ברור לי")
+BUSINESS_LOAN = re.compile(r"(?:^|\s)(?:ו?ה?הלוואה\s+)?עסקית|(?:^|\s)(?:ל|בשביל ה|עבור ה|מימון ל)עסק(?: שלי)?(?=$|[\s,.!?])"
+                           r"|(?:^|\s)עסקי(?=$|[\s,.!?])")
+PERSONAL_LOAN = re.compile(r"(?:^|\s)(?:ו?ה?הלוואה\s+)?(?:פרטית|אישית)|(?:^|\s)(?:פרטי|לעצמי|בשבילי|עבורי)(?=$|[\s,.!?])")
+COMPANY = re.compile(r"חברה\s*בע\"?מ|בע\"מ|חברה בעמ|החברה שלי|(?:^|\s)לחברה(?=$|[\s,.!?])|מורש[הת] חתימה")
 OTHER_INCOME_KW = {"פנסיה", "קצבה", "קצבת", "פנסיונר", "פנסיונרית", "גמלה", "שכירות", "השקעות", "דמי"}
 PURPOSE_KW = {"car": {"רכב", "מכונית", "אוטו", "רכבים", "מכוניות"},
               "renovation": {"שיפוץ", "לשפץ", "שיפוצים", "משפץ", "משפצים", "משפצת"},
@@ -196,6 +204,8 @@ def _window(toks: list[str], start: int, end: int) -> tuple[list[tuple[int, str]
 
 def _classify(toks: list[str], n: dict) -> str:
     nxt = toks[n["end"]] if n["end"] < len(toks) else ""
+    if any(_is(toks[k], {"במקום"}) for k in range(max(0, n["start"] - 2), n["start"])):
+        return "replaced"                                       # "120 אלף במקום 80": 80 is the old value
     if _is(nxt, {"תשלומים", "תשלום"}):
         return "payments"
     if _is(nxt, {"חודשים"}) and 6 <= n["value"] <= 120:
@@ -238,7 +248,9 @@ def _income(toks: list[str], text: str) -> tuple[set[str], set[str], bool]:
             continue
         prev = [toks[k] for k in range(max(0, i - 2), i)]
         negated = any(p in NEG_KW or _is(p, {"אין"}) for p in prev[-1:]) or (len(prev) == 2 and prev[0] == "אין" and prev[1] == "לי")
-        (neg if negated else pos).add(src)
+        # "בעבר הייתי שכיר" describes a past job, not a current income source
+        past = any(_is(toks[k], PAST_KW) for k in range(max(0, i - 3), i) if toks[k] not in _PUNCT)
+        (neg if negated or past else pos).add(src)
     if re.search(r"(?:^|\s)(?:גם\s+וגם|שניהם|שתיהן|משניהם|שני\s+הסוגים)(?=$|[\s,.!?])", text):
         pos |= {"salaried", "self_employed"}
     other = any(_is(t, OTHER_INCOME_KW) for t in toks)
@@ -306,7 +318,8 @@ def understand(text: str, answers: dict, pending: str | None, as_statement: bool
     values: dict[str, Any] = {}
     notes: list[dict] = []
     if not statement:
-        return {"values": values, "notes": notes, "questions": questions, "statement": "", "text": norm}
+        return {"values": values, "notes": notes, "questions": questions, "statement": "", "text": norm,
+                "corrections": set()}
     co_target = pending in CO_QUESTIONS or (answers.get("co_borrower") == "yes" and _has_phrase(statement, CO_YES_PHRASES)
                                             and pending not in ("income", "net", "registration"))
     p = "co_" if co_target else ""
@@ -322,15 +335,19 @@ def understand(text: str, answers: dict, pending: str | None, as_statement: bool
         id_text = id_text.replace(m.group(0), " ")
     toks = tokens(id_text)
 
-    # entity
-    company = _has_phrase(statement, COMPANY_PHRASES) or (pending == "entity" and _has_phrase(statement, ("חברה",)))
-    personal = _has_phrase(statement, PERSONAL_PHRASES)
-    if pending == "entity" or "entity" not in answers:
-        if company and not personal:
-            values["entity"] = "company"
-        elif personal and not company:
-            values["entity"] = "individual"
-    entity = values.get("entity") or answers.get("entity")
+    # loan type and business form — only when the customer names them: a car or a salary does not decide either
+    company = bool(COMPANY.search(statement)) or (pending == "business_form" and _has_phrase(statement, ("חברה",)))
+    personal = bool(PERSONAL_LOAN.search(statement))
+    business = bool(BUSINESS_LOAN.search(statement)) or company
+    if personal and not business:
+        values["loan_type"] = "personal"
+    elif business and not personal:
+        values["loan_type"] = "business"
+    if (values.get("loan_type") or answers.get("loan_type")) == "business":
+        form = "company" if company else _registration(statement) if (pending == "business_form" or "עוסק" in statement) else None
+        if form:
+            values["business_form"] = form
+    entity = "company" if (values.get("business_form") or answers.get("business_form")) == "company" else answers.get("entity")
 
     # purpose
     if entity == "company" or company:
@@ -354,6 +371,11 @@ def understand(text: str, answers: dict, pending: str | None, as_statement: bool
         pos.add("self_employed")
     target = f"{p}income"
     existing = list(answers.get(target) or [])
+    side, unsure = bool(SIDE_JOBS.search(statement)), bool(UNSURE.search(statement))
+    if (side or unsure) and "self_employed" not in pos and (pos or side or pending == target):
+        # side jobs of unknown form, or "I don't know how to define myself": ask, record nothing about income
+        notes.append({"kind": "income_side_jobs" if "salaried" in pos else "income_help", "field": target})
+        pos, neg, reg = set(), set(), None
     if pos or neg:
         additive = bool(re.search(r"(?:^|\s)גם(?=\s)", statement)) and pending != target
         replace = not additive and (pending == target or bool(re.search(r"בעצם|טעיתי|(?:^|\s)רק(?=\s)|כבר לא", statement)))
@@ -396,6 +418,8 @@ def understand(text: str, answers: dict, pending: str | None, as_statement: bool
         cat = _classify(toks, n)
         if cat == "years":
             by.setdefault("payments", []).append({**n, "value": n["value"] * 12, "from_years": n["value"]})
+            continue
+        if cat == "replaced":
             continue
         if cat == "gross":
             notes.append({"kind": "gross", "value": n["value"]})
@@ -440,7 +464,8 @@ def understand(text: str, answers: dict, pending: str | None, as_statement: bool
     # free-text questions (company name)
     if pending == "company_name" and not values:
         values["company_name"] = re.sub(r"^(?:שם החברה(?: הוא)?|קוראים לה|החברה נקראת)\s*", "", statement.strip(" ,"))
-    if entity is None and "entity" not in values and any(k in values for k in (
-            "purpose", "income", "registration", "net", "amount", "name", "national_id", "co_borrower", "payments")):
-        values["entity"] = "individual"
-    return {"values": values, "notes": notes, "questions": questions, "statement": statement, "text": norm}
+    corrections = set(values) if CORRECTION.search(statement) else set()
+    if f"{p}income" in values and re.search(r"(?:^|\s)גם(?=\s)", statement):
+        corrections.add(f"{p}income")                           # "יש לי גם עסק" adds a source on purpose
+    return {"values": values, "notes": notes, "questions": questions, "statement": statement, "text": norm,
+            "corrections": corrections}

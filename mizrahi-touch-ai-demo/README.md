@@ -126,34 +126,53 @@ script and the integration rules for the parallel Rounds 3–4 work are in `docs
   API: `POST /api/demo/onboarding`, `GET …/{draft}`, `POST …/{draft}/answers`, `POST …/{draft}/confirm` (demo identity only).
 - **Conversational questionnaire, V2 (`/customer/apply/v2`).** The same draft, asked as a conversation; a switch at
   the top of both pages compares V1 and V2 (separate resume keys, `mz.onboarding.draft.v2`). One canonical state: a
-  quick reply and a value read from free text are both recorded through `onboarding.answer`, so V1's validation,
-  conditions, corrections and idempotent confirmation apply unchanged (`workflow/onboarding_chat.py`). Next to the
-  answers the draft stores the transcript, the question being edited and the last indication shown
-  (`onboarding_drafts.conversation`).
-  - *Progress.* Four stages from the applicable questions (היכרות · פרטי ההלוואה · התאמה אישית · סיכום ואישור; the
-    company path has no "התאמה אישית"), each done / current / upcoming with "שאלה N מתוך M". Before the first answer
-    the individual path is shown. The summary stage is current only when every applicable question is answered.
-  - *Free text* (`workflow/onboarding_nlu.py`, no model): several facts per message — purpose, amount, payments
-    (also "5 שנים"), income sources with simple negation and "גם" (adds) / "בעצם" (replaces), VAT registration,
-    declared net income, co-borrower phrases, joint/separate accounts, names after "קוראים לי" / "שמי" or as the answer
-    to a name question, and ID numbers. Digits ("80,000", "16 אלף", "80K") and common Hebrew number words; a range
-    keeps its lower bound; "ברוטו" is not accepted as net; a bare small number for an amount or income is read as
-    thousands and echoed back. Values are read from statements only, so "למה צריך לדעת אם אני עוסק פטור?" records
-    nothing. Anything not recognised gets "לא בטוח שהבנתי" and nothing is recorded.
-  - *Questions mid-flow* are answered from the published policy (why a question is asked, the payslip months by the
-    simulation date, a missing payslip, VAT registration, adding a co-borrower, the documents so far, what is left,
-    approval, the banker, privacy) and the pending question is asked again with its quick replies. Anything else:
-    "על זה אין לי מידע מאומת". Changes: "לשנות את הסכום ל־90 אלף", or "שינוי" on a summary line.
-  - *Preliminary indication* (`workflow/indication.py`): shown once amount, payments, income source and net income are
-    declared (never for a company): up to 30% of declared net income (25% when any income is from a business) as the
-    monthly repayment, at a 6% illustrative annual rate over the requested payments, rounded down to 1,000 ₪ and
-    capped at the questionnaire's 250,000 ₪. A co-borrower's income counts once declared. Labelled a DEMO
-    illustration, never an offer or approval; "איך הגעת לסכום הזה?" lists the inputs and assumptions. A material
-    change posts an updated indication and marks the old one out of date; when an input is gone it is withdrawn. No
-    credit, account or obligation data is read — the demo has none.
-  - *Confirmation* is V1's endpoint; the case opens on Documents with a one-time next-step note.
+  quick reply, a fact read by Gemini and a fact read by the deterministic parser are all recorded through
+  `onboarding.answer`, so V1's validation, conditions, corrections and idempotent confirmation own the workflow
+  (`workflow/onboarding_chat.py`). Next to the answers the draft stores the transcript, the loan category, facts held
+  until they apply, the question being edited and the last indication shown (`onboarding_drafts.conversation`).
+  - *Loan category first.* "איזו הלוואה מעניינת אותך?" — הלוואה פרטית (the individual path, any income mix) or
+    הלוואה עסקית, which asks how the business is registered: עוסק פטור / עוסק מורשה run on the individual path as the
+    business owner (business income and the VAT registration recorded; income without the business is refused with
+    an offer to switch to a personal loan); חברה בע״מ is the limited company path. A car or a salary never decides the
+    category. The category is stored on the case at confirmation (`application.loan_category`, `business_form`).
+  - *One turn → one message.* understand → apply → compose. Understanding proposes facts, corrections, uncertainties
+    and question topics; apply records valid facts, holds facts whose question does not apply yet (e.g. an amount
+    before the loan type), refuses invalid ones with the rule's reason, and asks instead of overwriting when a fact
+    contradicts an earlier answer without a correction; compose writes a single reply: acknowledgement, issues or
+    clarification, answers, the indication sentence and the next question (or a short re-ask). A repeated `turn_id`
+    is ignored, and the page sends one turn at a time.
+  - *Gemini (opt-in).* With `ONBOARDING_LLM=1` and a key, `workflow/onboarding_llm.py` makes two bounded calls per
+    free-text turn through `llm/gemini.py` (ledger, hourly budget): `interpret` (response schema: fields, values,
+    kind answer/extra/correction, certainty, unclear fields, topics, gross flag) and `reply` (one Hebrew message from
+    the validated outcome only). Proposals outside the schema, uncertain ones and anything V1 validation refuses are
+    not recorded; ID numbers are matched by pattern and masked before any call; a net figure is never taken from a
+    gross one; a reply citing a number that is not in its facts, or dropping the indication's non-approval wording,
+    is discarded. Controls: `ONBOARDING_LLM_MODEL` (default `GEMINI_MODEL_AGENT`), `ONBOARDING_LLM_MAX_CALLS_PER_HOUR`
+    (60, ledger purposes `onboarding_*`), 80 calls per draft, `ONBOARDING_LLM_TIMEOUT` (12 s), one attempt, capped
+    output. Any failure falls back to the deterministic path without losing progress; each message records
+    `understood_by` and `engine` (`llm` | `rules`).
+  - *Deterministic path* (`workflow/onboarding_nlu.py`, the default): several facts per message — loan type and
+    business form when named, purpose, amount, payments (also "לחמש שנים"), income sources with negation, past jobs
+    ("בעבר הייתי שכיר" is not current), "גם" (adds) / "בעצם", "במקום" (corrects; the number after "במקום" is the old
+    value), VAT registration, net income, co-borrower, accounts, names, ID numbers. Side jobs of unknown form or "לא
+    יודע איך להגדיר" record nothing and ask (quick replies: יש לי גם עסק עצמאי / הכול כשכיר / לא בטוח). A range keeps
+    its lower bound; "ברוטו" is never net. Unrecognised text gets "לא בטוח שהבנתי" and nothing is recorded.
+  - *Questions* are answered from the published policy (why a question is asked, payslips and their months, a missing
+    payslip, the VAT certificate for the customer's own registration, a co-borrower, documents so far, what is left,
+    the banker, privacy); approval gets a direct "no" with the conditional review; interest rates: none known, only
+    the 6% illustration; off-topic: a short refusal and back to the question. Amount limits name the flow's bounds
+    ("במסלול הבקשה הזה … עד 250,000 ₪"), never a bank-wide policy.
+  - *Progress.* Four stages from the applicable questions (the company path has no "התאמה אישית"), each done /
+    current / upcoming with "שאלה N מתוך M"; an edit makes its stage current again.
+  - *Preliminary indication* (`workflow/indication.py`, unchanged): once amount, payments, income source and net
+    income are declared (never for a company): up to 30% of declared net income (25% with business income) as the
+    monthly repayment, 6% illustrative annual rate, rounded down to 1,000 ₪, capped at 250,000 ₪. Presented around
+    the requested amount ("הבקשה שלך ל־80,000 ₪ נראית אפשרית להמשך בדיקה ראשונית"), with the estimated repayment and
+    the formula's theoretical maximum marked "לא מסגרת אשראי"; recalculated or withdrawn after material changes,
+    older cards marked out of date; "איך חישבת" lists inputs and assumptions. No credit, account or obligation data.
   API: `POST /api/demo/onboarding/v2`, `GET …/{draft}/v2`, `POST …/{draft}/v2/turn` (`text`, or `question_id` +
-  `value`, or `action: edit | cancel_edit`).
+  `value`, or `action: edit | cancel_edit`; optional `turn_id`), `POST …/{draft}/v2/confirm` (V1's confirmation +
+  the loan category).
 - **Business path.** The company case is limited by design: identification, a representative financial checklist,
   intake, and a banker-assisted marker in the app and the banker console. Consumer rules carry
   `entity: ["individual"]`, so none of them apply to a company, and there is no business underwriting.

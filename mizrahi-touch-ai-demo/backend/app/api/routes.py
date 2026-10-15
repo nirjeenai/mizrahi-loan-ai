@@ -438,6 +438,7 @@ class OnboardingTurn(BaseModel):
     value: object = None
     label_he: Optional[str] = Field(None, max_length=120)
     action: Optional[Literal["edit", "cancel_edit"]] = None
+    turn_id: Optional[str] = Field(None, max_length=64)
 
 
 @router.post("/demo/onboarding/v2", status_code=201)
@@ -453,8 +454,18 @@ def onboarding_v2_get(draft_id: str):
 
 @router.post("/demo/onboarding/{draft_id}/v2/turn")
 def onboarding_v2_turn(draft_id: str, body: OnboardingTurn):
-    """One customer turn: a quick reply, free text (deterministic understanding, no model) or an edit action."""
-    return _onboarding(onboarding_chat.turn, draft_id, body.text, body.question_id, body.value, body.label_he, body.action)
+    """One customer turn → one assistant message: a quick reply, free text (Gemini when ONBOARDING_LLM=1, else the
+    deterministic parser; the questionnaire validates either way) or an edit action. A repeated turn_id is a no-op."""
+    return _onboarding(onboarding_chat.turn, draft_id, body.text, body.question_id, body.value, body.label_he, body.action,
+                       body.turn_id)
+
+
+@router.post("/demo/onboarding/{draft_id}/v2/confirm")
+def onboarding_v2_confirm(draft_id: str, request: Request, response: Response):
+    """V1's confirmation (one case, session extended), then the chosen loan category is stored on the case."""
+    out = onboarding_confirm(draft_id, request, response)
+    _onboarding(onboarding_chat.annotate_case, draft_id, out["case_id"])
+    return out
 
 
 @router.post("/demo/onboarding/{draft_id}/confirm")
