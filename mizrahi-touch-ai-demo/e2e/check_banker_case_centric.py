@@ -56,6 +56,16 @@ def open_v3(page: Page, case: str) -> None:
     page.wait_for_timeout(400)
 
 
+def pick_hidden_case(page: Page, case: str) -> None:
+    """Prepared cases 001–011 are not in the selector's main list; they sit under the collapsed 'תרחישי בדיקה נוספים'."""
+    page.locator("[data-testid=case-switch]").click()
+    expect(page.locator(f"[data-testid=case-main] .case-pop-row[data-case='{case}']")).to_have_count(0)
+    toggle = page.locator("[data-testid=case-more-toggle]")
+    if toggle.get_attribute("aria-expanded") != "true":
+        toggle.click()
+    page.locator(f"[data-testid=case-more] .case-pop-row[data-case='{case}']").click()
+
+
 def shot_section(page: Page, testid: str, name: str) -> None:
     page.add_style_tag(content=".cc-sticky{display:none!important}")
     el = page.locator(f"[data-testid={testid}]")
@@ -339,8 +349,7 @@ def switching(page: Page) -> None:
     check("V2: the intelligence briefing still renders beside V3", page.locator("[data-testid=bi-brief]").is_visible())
     page.locator("[data-testid=ui-v3]").click()
     expect(page.locator(f"[data-testid=cc-root][data-case='{MICHAL}']")).to_be_visible(timeout=20000)
-    page.locator("[data-testid=case-switch]").click()
-    page.locator(".case-pop-row", has_text="438839011").click()
+    pick_hidden_case(page, GAP)
     expect(page.locator(f"[data-testid=cc-root][data-case='{GAP}']")).to_be_visible(timeout=20000)
     check("V3: case switching keeps V3 and loads the other case", "DEMO-MTZ-2026-011" in page.url and page.locator("[data-testid=cc-name]").inner_text() == "עידו לוי")
     page.goto(f"{BASE}/banker?case={MICHAL}")
