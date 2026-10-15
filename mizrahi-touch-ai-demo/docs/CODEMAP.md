@@ -37,6 +37,7 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 | Banker API | `api/banker.py` (staff-session gate via `auth.py`, request models; conversation read; handoff acknowledge; confirm) | decisions → `workflow/review_desk.py`; queue/workspace (incl. open handoffs, lapsed confirmation) → `api/banker_package.py::build_workspace`; confirmation validity → `workflow/readiness.py::confirmation` |
 | Banker Intelligence V2 | `api/banker_intelligence.py::build` ↔ `GET /api/banker/cases/{id}/intelligence` (read-only; consumes `build_workspace`) | arithmetic `workflow/finance.py` (ported in `frontend/src/finance.ts`); synthetic obligations `bank/financial_context.py` ← `backend/bank_context/demo_financial_context.v1.json` |
 | Banker V3 case chat | `api/banker_chat.py::respond` ↔ `POST /api/banker/cases/{id}/chat` (staff; one structured Gemini call; writes nothing) | scoped context from `banker_intelligence.build` + `build_workspace`; `check_revision` (approval claims, new figures, internal terms, disclosures) gates every draft revision; client `pages/banker/ReplyWorkspace.tsx` |
+| Banker V3 demo approval letter | `api/banker_demo_letter.py::generate` ↔ `POST /api/banker/cases/{id}/demo-approval-letter` (staff; writes nothing) | terms from `banker_intelligence` (finance.py); code-built title/terms/notice + Gemini prose; `banker_chat.check_revision(kind="demo_approval")`; third tab in `ReplyWorkspace.tsx` |
 | Banker transitions | `workflow/review_desk.py` (`TRANSITIONS`, `decide_document`, `decide_finding`, `request_missing`, `draft_*` templates, `@_serialized`) | derived banker status: `workflow/desk_state.py` |
 | Durable jobs + findings | `workflow/engine.py` (`submit_document`, `_run_document`, `_run_case`, `reconcile_findings`, 3 workers, 3 attempts) | |
 | Readiness | `workflow/readiness.py` (`compute` → AI state; `customer_status` → home card) | required months: `policy_months()` from case rubric + simulation date |
@@ -101,6 +102,7 @@ UI: caseContext.usePolling(GET /api/cases/{id}, /documents) → Home (DocumentCh
 - Outcome rules (`workflow/outcomes.py`) ↔ labels in `DocumentReview.tsx` (`OUTCOME_TONE`), `UploadSheet.tsx`, `DocumentCheckCard.tsx`.
 - Loan arithmetic or demo assumptions (`workflow/finance.py`) ↔ `frontend/src/finance.ts` ↔ `backend/tests/test_banker_intelligence.py` ↔ `e2e/check_banker_intelligence.py` (parity) ↔ the questionnaire's `workflow/indication.py` once conversational-loan-v2 is merged.
 - Intelligence payload (`api/banker_intelligence.py`) ↔ `Intelligence` types in `frontend/src/api.ts` ↔ `IntelligenceV2.tsx` ↔ `CaseCentricV3.tsx`.
+- Demo letter wording (`banker_demo_letter.TITLE_HE` / `NOTICE_HE`) ↔ `banker_chat._DEMO_TITLE` / `_DEMO_NOTICE` ↔ `DEMO_COPY_BANNER` in `ReplyWorkspace.tsx` ↔ `tests/test_banker_chat.py`.
 - Reply templates or the intelligence payload ↔ `api/banker_chat.py` (`_DROP` scoping, `allowed_numbers`, `_DISCLOSURE`, `DRAFT_PURPOSE`) ↔ `CaseChatReply` in `api.ts` ↔ `ReplyWorkspace.tsx` ↔ `tests/test_banker_chat.py` ↔ `e2e/check_banker_case_chat.py`.
 
 ## Demo data and fixtures (`fixtures/`)

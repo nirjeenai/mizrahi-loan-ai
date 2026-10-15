@@ -13,7 +13,7 @@ from ..bank.mock_bank import bank
 from ..store import repo
 from ..workflow import engine, readiness, review_desk
 from ..workflow.review_desk import DeskError
-from . import banker_chat, banker_intelligence
+from . import banker_chat, banker_demo_letter, banker_intelligence
 from .banker_package import build_package, build_workspace, case_queue_counts
 
 router = APIRouter(prefix="/api/banker")
@@ -86,7 +86,7 @@ class ChatTurn(BaseModel):
 
 class ChatDraft(BaseModel):
     kind: str = Field(..., max_length=60)
-    text: str = Field(..., max_length=6000)
+    text: str = Field(..., max_length=10000)
 
 
 class ChatMessage(BaseModel):
@@ -107,6 +107,24 @@ def chat(case_id: str, body: ChatMessage, request: Request):
         raise HTTPException(503, str(exc)) from None
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from None
+
+
+class DemoLetter(BaseModel):
+    acknowledge_open_issues: bool = False
+    use_ai: bool = True
+
+
+@router.post("/cases/{case_id}/demo-approval-letter")
+def demo_approval_letter(case_id: str, body: DemoLetter, request: Request):
+    """Banker V3 third reply: a detailed approval letter for a SIMULATED decision. Changes nothing in the case and sends nothing;
+    a case not ready for credit review needs `acknowledge_open_issues`."""
+    _reader(request, case_id)
+    try:
+        return banker_demo_letter.generate(case_id, body.acknowledge_open_issues, body.use_ai)
+    except banker_demo_letter.LetterRefused as exc:
+        raise HTTPException(exc.status, exc.message_he) from None
+    except banker_chat.ChatUnavailable as exc:
+        raise HTTPException(503, str(exc)) from None
 
 
 @router.get("/cases/{case_id}/conversation")

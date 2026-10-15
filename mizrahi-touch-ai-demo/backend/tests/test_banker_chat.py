@@ -10,6 +10,7 @@ import pytest
 
 from app import db
 from app.api import banker_chat
+from app.api import banker_demo_letter as letter
 from app.bank.mock_bank import bank
 from app.llm import gemini as g
 from app.review import case_review
@@ -31,6 +32,7 @@ def clean(monkeypatch):
          "evidence_needed_he": [], "identity_assessment": "CONSISTENT"} for bid, s in income.items() if s.get("months")],
         "limitations_he": []})
     monkeypatch.setattr(banker_chat, "settings", dataclasses.replace(banker_chat.settings, gemini_api_key="test-key"))
+    monkeypatch.setattr(letter, "settings", dataclasses.replace(letter.settings, gemini_api_key="test-key"))
     yield
 
 
@@ -148,3 +150,83 @@ def test_without_a_model_the_chat_says_so_and_customers_cannot_use_it(monkeypatc
     customer.cookies.delete("mzl_staff")
     r = customer.post(f"/api/banker/cases/{COMPLETE}/chat", json={"message": "x", "history": [], "draft": None})
     assert r.status_code in (401, 403)
+
+
+# ---------------------------------------------------------------- the third reply: approval letter for a SIMULATED decision
+def sections(**over) -> dict:
+    s = {"opening_he": "בהמשך לפנייתך, ולאחר שבחנו את בקשתך ואת המסמכים שצירפת, ברצוננו לעדכן אותך.",
+         "approval_he": "בתרחיש ההדמיה המוצג כאן, בקשתך אושרה על ידי הבנקאית המטפלת בכפוף לתנאים שלהלן.",
+         "terms_note_he": "הסכומים הם אומדן להמחשה, והתנאים בפועל ייקבעו במסמכי ההלוואה.",
+         "conditions_intro_he": "העמדת ההלוואה כפופה לתנאים הבאים:",
+         "conditions_he": ["השלמת הבדיקות הנדרשות בבנק.", "הצגת אסמכתה עדכנית למטרת ההלוואה, ככל שתידרש.", "חתימה על מסמכי ההלוואה."],
+         "next_steps_he": "ניצור איתך קשר לתיאום המשך הטיפול ולהצגת מסמכי ההלוואה.", "closing_he": "נשמח ללוות אותך."}
+    return {**s, **over}
+
+
+def make(case=COMPLETE, **body):
+    return staff.post(f"/api/banker/cases/{case}/demo-approval-letter", json=body)
+
+
+def test_the_demo_letter_takes_its_terms_from_the_calculation_and_its_prose_from_the_model(monkeypatch):
+    package(COMPLETE)
+    b = brief(COMPLETE)
+    sent = model(monkeypatch, sections())
+    r = make(acknowledge_open_issues=False, use_ai=True)
+    assert r.status_code == 200, r.text
+    out = r.json()
+    a = b["analysis"]
+    assert out["source"] == "ai" and len(sent) == 1 and sent[0]["purpose"] == "banker_demo_letter"
+    text = out["text"]
+    for v in (a["proposed_payment"]["value"], a["total_payments"]["value"], a["total_interest"]["value"], b["loan"]["amount"]["value"]):
+        assert (f"₪{v:,.0f}" if float(v).is_integer() else f"₪{v:,.2f}") in text
+    assert text.startswith(letter.TITLE_HE) and letter.NOTICE_HE in text and letter.BANNER_HE in text
+    assert "בקשתך אושרה" in text and out["scenario"]["term_months"] == b["loan"]["term"]["value"]
+    assert brief(COMPLETE)["recommendation"]["state"] == b["recommendation"]["state"]          # the case is unchanged
+
+
+def test_a_model_section_with_an_invented_figure_falls_back_to_the_labelled_base_letter(monkeypatch):
+    package(COMPLETE)
+    bad = sections(next_steps_he="הכסף כבר הועבר לחשבונך, ושעבוד על הרכב בסך 45,000 נרשם.")
+    sent = model(monkeypatch, bad, bad)
+    out = make().json()
+    assert len(sent) == 2 and out["source"] == "base" and out["model"] is None and out["check_issues_he"]
+    assert "45,000" not in out["text"] and "הועבר לחשבונך" not in out["text"]
+
+
+def test_a_case_that_is_not_ready_needs_an_explicit_choice_and_keeps_its_open_items(monkeypatch):
+    package(GAP)
+    sent = model(monkeypatch)
+    r = make(GAP, use_ai=False)
+    assert r.status_code == 409 and "במפורש" in r.json()["detail"]
+    out = make(GAP, acknowledge_open_issues=True, use_ai=False).json()
+    assert out["source"] == "base" and not sent and out["case_ready"] is False
+    assert "השלמת המסמכים והבירורים שעדיין פתוחים בבקשה." in out["text"]
+    assert any("פער" in i for i in out["open_issues_he"])
+    assert brief(GAP)["recommendation"]["state"] == "CLARIFICATION_REQUIRED"
+
+
+def test_approval_wording_is_accepted_only_in_the_demo_letter_and_only_with_its_markers():
+    package(COMPLETE)
+    b = brief(COMPLETE)
+    base = letter.base_letter(COMPLETE, b)
+    k = letter.DEMO_KIND
+    assert banker_chat.check_revision(base, base, b, k, base) == []
+    tab1 = next(d["message_he"] for d in b["drafts"] if d["kind"] == "complete_documentation")
+    assert any("אישור" in i for i in banker_chat.check_revision(tab1 + "\nבקשתך אושרה.", tab1, b, "complete_documentation"))
+    assert banker_chat.check_revision(base.replace(letter.NOTICE_HE, ""), base, b, k, base)
+    assert banker_chat.check_revision(base.replace(letter.TITLE_HE, "הודעה בדבר אישור בקשת הלוואה").replace(letter.BANNER_HE, "")
+                                      .replace(letter.NOTICE_HE, "מכתב זה אינו החלטת אשראי ואינו הסכם הלוואה."), base, b, k, base)
+    for claim in ("הכסף כבר הועבר לחשבונך.", "מסמכי ההלוואה נחתמו.", "חתמת על ההסכם."):
+        assert any("שלבים עתידיים" in i for i in banker_chat.check_revision(base + "\n" + claim, base, b, k, base)), claim
+
+
+def test_the_chat_edits_the_demo_letter_with_its_scenario_in_the_prompt(monkeypatch):
+    package(COMPLETE)
+    b = brief(COMPLETE)
+    base = letter.base_letter(COMPLETE, b)
+    revised = base.replace("השלבים הבאים\n", "השלבים הבאים\nההחזר ייעשה בתשלומים חודשיים שווים לאורך 60 חודשים.\n")
+    sent = model(monkeypatch, reply("draft_edit", "הוספתי הסבר על תנאי ההחזר.", revised=revised, summary="נוסף הסבר"))
+    out = ask("תוסיף הסבר על תנאי ההחזר", {"kind": letter.DEMO_KIND, "text": base}).json()
+    assert out["edit"]["kind"] == letter.DEMO_KIND and out["edit"]["text"] == revised
+    prompt = sent[0]["contents"][-1]["parts"][0]["text"]
+    assert "<demo_scenario>" in prompt and '"kind": "demo_approval"' in prompt

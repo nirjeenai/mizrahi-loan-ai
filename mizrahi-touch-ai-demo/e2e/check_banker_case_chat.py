@@ -3,8 +3,9 @@ questions, draft edits through chat applied to the real editor, manual + AI edit
 undo, case switching and the phone layout.
 
 Isolated stack only. Populate the cases first on a REPLAY backend (zero Gemini), then run the real backend on the same
-DATA_DIR. Without CHAT_LIVE=1 the suite makes no model call and checks layout, the honest failure state and the phone
-layout (the backend runs with no key). With CHAT_LIVE=1 it makes ~10–14 real Gemini calls (purpose "banker_chat").
+DATA_DIR. Without CHAT_LIVE the suite makes no model call and checks layout, the honest failure state and the phone
+layout (the backend runs with no key). CHAT_LIVE=1 makes ~10–14 real Gemini calls (purpose "banker_chat");
+CHAT_LIVE=demo checks the third reply, "אישור הלוואה — הדמיה" (~5–7 calls: banker_demo_letter + banker_chat).
 
     # from backend/ — populate (REPLAY, zero Gemini), then stop it
     .venv/bin/python ../e2e/replay_backend.py --port 8799 --data ../e2e/artifacts/case-chat/data
@@ -19,20 +20,22 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
 from playwright.sync_api import Page, expect, sync_playwright
 
 BASE = os.environ.get("CHAT_BASE", "http://127.0.0.1:5857")
-LIVE = os.environ.get("CHAT_LIVE") == "1"
+MODE = os.environ.get("CHAT_LIVE", "")
+LIVE = MODE in ("1", "demo")
 if any(p in BASE for p in (":8790", ":8791", ":5192")):
     sys.exit(f"refusing to run against {BASE}: use an isolated stack")
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / "backend"))
-from app.api.banker_chat import _DISCLOSURE, _claims  # noqa: E402  the same detectors the server applies
+from app.api.banker_chat import _DISCLOSURE, _DONE, _claims  # noqa: E402  the same detectors the server applies
 
-OUT = ROOT / "artifacts" / "case-chat" / ("live" if LIVE else "offline")
+OUT = ROOT / "artifacts" / "case-chat" / ({"1": "live", "demo": "demo"}.get(MODE) or "offline")
 MICHAL, GAP = "DEMO-MTZ-2026-101", "DEMO-MTZ-2026-011"
 RESULTS: list[dict] = []
 TRANSCRIPT: list[dict] = []
@@ -72,11 +75,12 @@ def send(page: Page, text: str, label: str) -> dict:
     return out
 
 
-def shot(page: Page, name: str) -> None:
-    page.add_style_tag(content=".cc-sticky{display:none!important}")
-    page.locator("[data-testid=cc-reply]").scroll_into_view_if_needed()
-    page.wait_for_timeout(400)
-    page.locator("[data-testid=cc-reply]").screenshot(path=str(OUT / f"{name}.png"))
+def shot(page: Page, name: str, testid: str = "cc-reply", css: str = "") -> None:
+    """Unclipped: a section taller than the window is captured whole, not through the page's own scroll box."""
+    tag = page.add_style_tag(content=UNCLIP + ".rw-chat{position:static!important}" + css)
+    page.wait_for_timeout(300)
+    page.locator(f"[data-testid={testid}]" if not testid.startswith(".") else testid).screenshot(path=str(OUT / f"{name}.png"))
+    tag.evaluate("e => e.remove()")
 
 
 def layout(page: Page) -> None:
@@ -92,7 +96,7 @@ def layout(page: Page) -> None:
     chips = [x.inner_text() for x in page.locator("[data-testid=cc-chat-chip]").all()]
     check("suggestion chips", chips == ["למה מומלץ להתקדם?", "מה עדיין צריך לבדוק?", "תנסח את המכתב יותר פורמלי", "תקצר את המענה"], " | ".join(chips))
     check("templates, restore, copy and document references are still there",
-          page.locator("[data-testid=cc-draft-tab]").count() == 2 and page.locator("[data-testid=cc-draft-restore]").count() == 1
+          page.locator("[data-testid=cc-draft-tab]").count() == 3 and page.locator("[data-testid=cc-draft-restore]").count() == 1
           and page.locator("[data-testid=cc-draft-copy]").count() == 1 and page.locator(".cc-ref").count() > 0)
     page.locator("[data-testid=cc-draft-tab][data-kind=conditional_financing]").click()
     check("switching templates keeps working", "חלופות פריסה" in draft(page))
@@ -176,6 +180,114 @@ def live(page: Page) -> None:
           page.locator("[data-testid=cc-chat-msg]").count() == 0 and "מיכל" not in draft(page) and "עידו" in draft(page))
 
 
+def words(t: str) -> int:
+    return len(t.split())
+
+
+def money(v: float) -> str:
+    return f"₪{v:,.0f}" if float(v).is_integer() else f"₪{v:,.2f}"
+
+
+def demo_live(page: Page) -> None:
+    page.on("request", lambda r: SENT.append(json.loads(r.post_data or "{}")) if r.url.endswith("/chat") and r.method == "POST" else None)
+    open_v3(page, MICHAL)
+    intel = page.request.get(f"{BASE}/api/banker/cases/{MICHAL}/intelligence").json()
+    templates = {d["kind"]: d["message_he"] for d in intel["drafts"]}
+    tabs = [t.inner_text().replace("\n", " ") for t in page.locator("[data-testid=cc-draft-tab]").all()]
+    check("three reply tabs, the third marked DEMO", len(tabs) == 3 and tabs[2].startswith("אישור הלוואה — הדמיה") and "DEMO" in tabs[2], " | ".join(tabs))
+    for kind, body in templates.items():
+        page.locator(f"[data-testid=cc-draft-tab][data-kind={kind}]").click()
+        check(f"existing tab unchanged: {kind}", draft(page) == body)
+    page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
+    expect(page.locator("[data-testid=cc-demo-loading]")).to_be_visible(timeout=5000)
+    expect(page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]")).to_be_visible(timeout=120000)
+    letter = draft(page)
+    strip = page.locator("[data-testid=cc-demo-strip]").inner_text()
+    a = intel["analysis"]
+    check("the simulated scenario is stated above the letter", "תרחיש הדגמה: בקשת ההלוואה אושרה בכפוף לתנאים" in strip and "לא השתנו" in strip)
+    check("the letter was written by Gemini, not a static text", page.locator("[data-testid=cc-demo-source]").get_attribute("data-source") == "ai")
+    check("a substantial letter (350–600 words)", 350 <= words(letter) <= 600, f"{words(letter)} words")
+    check("principal, term, payment, totals match the calculation",
+          all(money(v) in letter for v in (intel["loan"]["amount"]["value"], a["proposed_payment"]["value"], a["total_payments"]["value"], a["total_interest"]["value"]))
+          and f"{intel['loan']['term']['value']} תשלומים" in letter, f"{money(a['proposed_payment']['value'])} · {intel['loan']['term']['value']} תשלומים")
+    check("DEMO title, banner and notice in the letter", letter.splitlines()[0].endswith("הדמיה") and "(DEMO)" in letter and "אינו הסכם הלוואה" in letter)
+    check("no mortgage term, no disbursement or signing claim", "עקרוני" not in letter and not _claims(letter, _DONE), "")
+    check("the letter names this customer only", "מיכל ברק" in letter and "עידו" not in letter)
+    box = page.locator("[data-testid=cc-draft-text]")
+    check("desktop: the whole letter is visible in the editor (it grows with the text)", box.evaluate("e => e.scrollHeight <= e.clientHeight + 4"),
+          f"{box.evaluate('e => e.clientHeight')}px")
+    shot(page, "01-three-tabs-demo-letter")
+    shot(page, "02-full-demo-letter", ".rw-draft .cc-paper")
+
+    marker = "נשמח לראות אותך נוהגת ברכב החדש."
+    manual = letter.replace("\nבברכה,", f"{marker}\n\nבברכה,", 1)
+    page.locator("[data-testid=cc-draft-text]").fill(manual)
+    check("the letter can be edited manually", draft(page) == manual and page.locator("[data-testid=cc-draft-edited]").is_visible())
+    c = send(page, "תנסח את זה בצורה רשמית יותר ותוסיף הסבר על תנאי ההחזר.", "demo-formal")
+    after = draft(page)
+    check("the chat request carried the manually edited letter", marker in (SENT[-1].get("draft") or {}).get("text", "") and SENT[-1]["draft"]["kind"] == "demo_approval")
+    check("JEEN's edit lands in the real letter", c["edit"] == "applied" and after != manual and page.locator("[data-testid=cc-draft-ai]").is_visible(), c["jeen"][:100])
+    check("the edit keeps the DEMO markers and every figure", after.splitlines()[0].endswith("הדמיה") and "אינו הסכם הלוואה" in after
+          and all(money(v) in after for v in (a["proposed_payment"]["value"], a["total_payments"]["value"])))
+    check("the edit explains repayment terms", any(w in after for w in ("החזר", "תשלום")) and words(after) >= words(manual) - 40, f"{words(manual)} → {words(after)} words")
+    shot(page, "03-demo-ai-edit")
+    for kind, body in templates.items():
+        page.locator(f"[data-testid=cc-draft-tab][data-kind={kind}]").click()
+        check(f"the demo edit did not touch {kind}", draft(page) == body)
+    page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
+    check("switching tabs keeps the edited demo letter", draft(page) == after)
+
+    lien = send(page, "תוסיף את תנאי שעבוד הרכב, אם הם חלק מתרחיש ההדגמה.", "demo-lien")
+    check("a term the scenario does not define is not invented", not (set(re.findall(r"\d[\d,]*", draft(page))) - set(re.findall(r"\d[\d,]*", after))), lien["jeen"][:140])
+    page.locator("[data-testid=cc-draft-undo]").click()
+    undone = draft(page)
+    check("undo restores the letter from before the last JEEN edit", undone == (after if lien["edit"] == "applied" else manual), lien["edit"] or "no edit to undo → formal edit undone")
+
+    page.evaluate("window.__copied = null; navigator.clipboard.writeText = async (t) => { window.__copied = t; }")
+    page.locator("[data-testid=cc-draft-copy]").click()
+    copied = page.evaluate("window.__copied") or ""
+    check("copied text is marked as a demo at the top and the bottom", copied.startswith("[מסמך הדמיה (DEMO)") and copied.rstrip().endswith("לא נשלח ללקוח.]"))
+    names = [b.inner_text() for b in page.locator("[data-testid=cc-draft-col] button").all()]
+    check("no send action in the reply", not any("שליח" in n or "שלח" in n for n in names), " · ".join(n for n in names if n)[:160])
+
+    page.locator("[data-testid=case-switch]").click()
+    page.locator(".case-pop-row", has_text="438839011").click()
+    expect(page.locator(f"[data-testid=cc-root][data-case='{GAP}']")).to_be_visible(timeout=20000)
+    page.locator("[data-testid=cc-reply]").scroll_into_view_if_needed()
+    check("case switch: a clean chat and no demo letter carried over", page.locator("[data-testid=cc-chat-msg]").count() == 0
+          and "מיכל" not in draft(page))
+    page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
+    gate = page.locator("[data-testid=cc-demo-gate]")
+    check("a case not ready for credit review is not silently approved", gate.is_visible() and "אינו מוכן" in gate.inner_text()
+          and page.locator("[data-testid=cc-draft-text]").count() == 0)
+    page.locator("[data-testid=cc-demo-make]").click()
+    expect(page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]")).to_be_visible(timeout=120000)
+    l2 = draft(page)
+    issues = page.locator("[data-testid=cc-demo-issues]")
+    check("after the explicit choice: a letter for this customer, with a condition to complete the open items",
+          "עידו" in l2 and "מיכל" not in l2 and ("פתוחים" in l2 or "השלמת המסמכים" in l2), f"{words(l2)} words · source {page.locator('[data-testid=cc-demo-source]').get_attribute('data-source')}")
+    check("the real case's open items stay visible to the banker", issues.is_visible() and "פער" in issues.inner_text())
+    shot(page, "04-not-ready-case-demo")
+
+
+def phone_demo(browser) -> None:
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, locale="he-IL")
+    page = ctx.new_page()
+    open_v3(page, MICHAL)
+    page.add_style_tag(content=".console-top{max-width:100vw;overflow:hidden}.cc-sticky{display:none!important}")
+    page.locator("[data-testid=cc-draft-tab][data-kind=demo_approval]").click()
+    expect(page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]")).to_be_visible(timeout=120000)
+    box = page.locator("[data-testid=cc-draft-text]")
+    fits = box.evaluate("e => e.scrollHeight <= e.clientHeight + 4")
+    check("phone: the full letter scrolls with the page (no fixed-height box)", fits, f"{box.evaluate('e => e.clientHeight')}px tall")
+    page.locator("[data-testid=cc-pane-chat]").click()
+    check("phone: chat pane opens beside the demo letter state", page.locator("[data-testid=cc-chat]").is_visible())
+    page.locator("[data-testid=cc-pane-draft]").click()
+    check("phone: back to the letter, still the demo tab", page.locator("[data-testid=cc-draft-text][data-kind=demo_approval]").is_visible())
+    page.locator("[data-testid=cc-reply]").screenshot(path=str(OUT / "05-phone-demo-letter.png"))
+    ctx.close()
+
+
 def phone(browser) -> None:
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, locale="he-IL")
     page = ctx.new_page()
@@ -208,12 +320,16 @@ def main() -> None:
         browser = p.chromium.launch(channel="chrome")
         page = browser.new_context(viewport={"width": 1440, "height": 1000}, locale="he-IL").new_page()
         page.on("dialog", lambda dl: dl.accept())
-        layout(page)
-        live(page) if LIVE else offline(page)
-        phone(browser)
+        if MODE == "demo":
+            demo_live(page)
+            phone_demo(browser)
+        else:
+            layout(page)
+            live(page) if LIVE else offline(page)
+            phone(browser)
         browser.close()
     passed = sum(r["ok"] for r in RESULTS)
-    (OUT / "results.json").write_text(json.dumps({"mode": "LIVE" if LIVE else "NO-MODEL", "passed": passed, "total": len(RESULTS),
+    (OUT / "results.json").write_text(json.dumps({"mode": {"1": "LIVE", "demo": "LIVE-DEMO-LETTER"}.get(MODE, "NO-MODEL"), "passed": passed, "total": len(RESULTS),
                                                   "results": RESULTS, "transcript": TRANSCRIPT}, ensure_ascii=False, indent=2), encoding="utf8")
     print(f"\n{passed}/{len(RESULTS)} checks passed · {'LIVE' if LIVE else 'NO-MODEL'} · {OUT}")
     sys.exit(0 if passed == len(RESULTS) else 1)

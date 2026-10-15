@@ -26,7 +26,8 @@ from .banker_package import build_workspace
 log = logging.getLogger("banker_chat")
 INTENTS = ["question", "draft_edit", "question_and_edit", "clarification", "declined"]
 EDITS = {"draft_edit", "question_and_edit"}
-MAX_DRAFT_CHARS = 4000
+MAX_DRAFT_CHARS = 8000
+DEMO_KIND = "demo_approval"
 
 
 class ChatUnavailable(RuntimeError):
@@ -41,6 +42,8 @@ DRAFT_PURPOSE = {
     "financial_clarification": "Asks the customer to explain a documented income difference, without the banker's internal reasoning.",
     "conditional_financing": "Lists illustrative repayment alternatives at an assumed demo rate. Must say the figures are "
                              "illustrative, not a binding offer, and that amount, rate and terms are set by the bank.",
+    DEMO_KIND: "A detailed approval letter for a SIMULATED (DEMO) banker decision — see rule 13. The title, the DEMO line, "
+               "the financing-terms block and the closing DEMO notice come from the bank's code.",
 }
 
 SYSTEM = """You are JEEN, an AI colleague inside the Mizrahi-Tefahot banker workspace (a concept demo on synthetic data).
@@ -90,10 +93,20 @@ EDITING THE DRAFT
     recommendation, calculations), use intent "declined" and explain that this is done in the review workspace or the
     bank's systems; you can only change the wording of the customer reply.
 12. If an edit request is ambiguous, use intent "clarification" and ask one short question.
+13. DEMO APPROVAL LETTER (only when current_draft.kind is "demo_approval"; <demo_scenario> holds its terms). This letter
+    describes a simulated banker decision, so — in this draft only — it may say the request was approved within the
+    demonstration scenario, subject to its conditions. Still:
+   - keep the title line with "הדמיה", the DEMO line and the closing notice that it is not a credit decision or a loan
+     agreement; keep every number in the terms block exactly as it is;
+   - never say the loan was disbursed, money transferred, documents signed, or that a rate/amount is final or binding;
+     disbursement and signing are future steps;
+   - add no term the scenario does not define (collateral, vehicle lien, guarantor, insurance, fees, dates): if asked,
+     say it is not defined in the demo scenario and offer neutral wording ("ייקבע במסמכי ההלוואה, אם יידרש").
+   In every other draft, rule 9 applies in full: no approval wording at all.
 
 STYLE
 Natural, professional Hebrew addressed to the banker. Short: 1–5 sentences, or a few "•" lines for lists. Plain text only.
-Use ₪ amounts and percentages exactly as in the data."""
+Use ₪ amounts and percentages exactly as in the data. Never quote JSON keys, field names or source ids in the text."""
 
 SCHEMA = g.S("object", properties={
     "intent": g.S("string", enum=INTENTS),
@@ -132,7 +145,7 @@ def case_context(case_id: str, intel: dict) -> dict:
 _NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
 _NEG = re.compile(r"(?:^|\s)ו?(?:לא|אינו|אינה|אינם|אינן|אינך|אינכם|טרם|אין|איננה|איננו|בטרם|עדיין\s+לא)\s+(?:\S+\s+){0,3}$")
 _APPROVAL = [
-    re.compile(r"(?:ה?הלוואה|ה?בקשה|ה?משכנתא|ה?אשראי|ה?מימון)\s+(?:שלך\s+|שלכם\s+|שלכן\s+)?(?:כבר\s+|סופית\s+)?(?:אושר[הו]?|מאושר[תה]?)"),
+    re.compile(r"(?:ה?הלוואה|ה?בקשה|ה?משכנתא|ה?אשראי|ה?מימון|בקשתך|בקשתכם|הלוואתך|הלוואתכם)\s+(?:שלך\s+|שלכם\s+|שלכן\s+)?(?:כבר\s+|סופית\s+)?(?:אושר[הו]?|מאושר[תה]?)"),
     re.compile(r"(?:אישרנו|אושרה\s+לך|אושר\s+לך|אושרה\s+לכם|אושר\s+לכם)"),
     re.compile(r"אישור\s+(?:סופי|עקרוני)\s+(?:ל|ניתן|התקבל)"),
     re.compile(r"(?:זכאי|זכאית|זכאים)\s+(?:ל|להלוואה)"),
@@ -146,6 +159,14 @@ _INTERNAL = [("יחס החזר", re.compile(r"יחס\s+ה?החזר|DSR", re.IGNO
              ("נתוני דמו", re.compile(r"(?<![א-ת])[הבמו]?דמו(?![א-ת])|סינתטי|synthetic|fixture", re.IGNORECASE)),
              ("הנחת הדגמה", re.compile(r"הנחת\s+ה?הדגמה|הדגמה")), ("JEEN / AI", re.compile(r"JEEN|בינה\s+מלאכותית|\bAI\b"))]
 _LINK = re.compile(r"https?://|www\.", re.IGNORECASE)
+# claims no draft may make, the demo approval letter included: the money was paid out, the documents were signed
+_DONE = [re.compile(r"(?:הכסף|הכספים|סכום\s+ההלוואה|ההלוואה)\s+(?:כבר\s+)?(?:הועבר[הו]?|הועמד[הו]?|הופקד[הו]?|שולמ?[הו]?)(?![א-ת])"),
+         re.compile(r"(?:הועבר[הו]?|הופקד[הו]?)\s+(?:כבר\s+)?(?:לחשבונך|בחשבונך)|חשבונך\s+זוכה"),
+         re.compile(r"(?<![א-ת])(?:חתמת|חתמתם|חתמתן|חתמנו)(?![א-ת])"),
+         re.compile(r"(?:המסמכים|ההסכם|החוזה|מסמכי\s+ההלוואה)\s+(?:כבר\s+)?נחתמ[הו]?(?![א-ת])")]
+# the demo approval letter must keep saying what it is: a title line marked הדמיה, and the notice
+_DEMO_TITLE = re.compile(r"הדמיה")
+_DEMO_NOTICE = [re.compile(r"אינ[הו]\s+(?:מהווה\s+)?החלטת\s+אשראי"), re.compile(r"אינ[הו]\s+(?:מהווה\s+)?הסכם\s+הלוואה")]
 
 
 def _numbers(text: str) -> set[float]:
@@ -175,27 +196,38 @@ def allowed_numbers(intel: dict, current: str) -> set[float]:
     return allowed
 
 
-def _claims(text: str) -> list[str]:
+def _claims(text: str, patterns: list[re.Pattern] = _APPROVAL) -> list[str]:
     found = []
-    for pat in _APPROVAL:
+    for pat in patterns:
         for m in pat.finditer(text):
             if not _NEG.search(text[max(0, m.start() - 40): m.start()]):
                 found.append(m.group(0))
     return found
 
 
-def check_revision(revised: str, current: str, intel: dict) -> list[str]:
-    """Why a proposed customer reply may not replace the current one (Hebrew, for the banker); empty when it may."""
+def check_revision(revised: str, current: str, intel: dict, kind: Optional[str] = None, base: str = "") -> list[str]:
+    """Why a proposed customer reply may not replace the current one (Hebrew, for the banker); empty when it may.
+    `kind` is the draft's template. Only the demo approval letter may speak of an approval — and only while it keeps its
+    DEMO title and its not-a-credit-decision notice; `base` is that letter's code-built version (its figures are allowed)."""
     issues: list[str] = []
     text = (revised or "").strip()
     if not text:
         return ["הנוסח המוצע ריק."]
     if len(text) > MAX_DRAFT_CHARS:
         issues.append("הנוסח המוצע ארוך מדי.")
-    new_claims = [c for c in _claims(text) if c not in (current or "")]
-    if new_claims:
-        issues.append(f"הנוסח כולל טענת אישור שאינה נכונה במצב התיק („{new_claims[0]}”). ההלוואה לא אושרה, ואין ריבית או תנאים מאושרים.")
-    allowed = allowed_numbers(intel, current)
+    if kind == DEMO_KIND:
+        if not _DEMO_TITLE.search(text.splitlines()[0]) or not all(p.search(text) for p in _DEMO_NOTICE):
+            issues.append("מכתב ההדמיה חייב להיפתח בכותרת המסומנת „הדמיה” ולשמור על ההבהרה שאינו החלטת אשראי ואינו הסכם הלוואה.")
+        if re.search(r"(?:אישור|באופן)\s+עקרוני", text) and not re.search(r"(?:אישור|באופן)\s+עקרוני", current or ""):
+            issues.append("„אישור עקרוני” הוא מונח של משכנתאות; בהלוואה צרכנית אין להשתמש בו.")
+    else:
+        new_claims = [c for c in _claims(text) if c not in (current or "")]
+        if new_claims:
+            issues.append(f"הנוסח כולל טענת אישור שאינה נכונה במצב התיק („{new_claims[0]}”). ההלוואה לא אושרה, ואין ריבית או תנאים מאושרים.")
+    done = [c for c in _claims(text, _DONE) if c not in (current or "")]
+    if done:
+        issues.append(f"הנוסח טוען שההלוואה הועמדה או שמסמכים נחתמו („{done[0]}”) — אלה שלבים עתידיים.")
+    allowed = allowed_numbers(intel, f"{current}\n{base}")
     extra = sorted(n for n in _numbers(text) - allowed if n * 1000 not in allowed and n / 1000 not in allowed)
     if extra:
         shown = ", ".join(f"{n:g}" for n in extra[:3])
@@ -213,17 +245,19 @@ def check_revision(revised: str, current: str, intel: dict) -> list[str]:
 
 
 # ---------------------------------------------------------------- the call
-def _prompt(ctx: dict, draft: Optional[dict], intel: dict, message: str) -> str:
+def _prompt(ctx: dict, draft: Optional[dict], intel: dict, message: str, demo: Optional[dict] = None) -> str:
     if draft:
         template = next((d for d in intel.get("drafts") or [] if d["kind"] == draft["kind"]), None)
         draft_block = json.dumps({
-            "kind": draft["kind"], "title_he": (template or {}).get("title_he"), "purpose": DRAFT_PURPOSE.get(draft["kind"], ""),
+            "kind": draft["kind"], "title_he": (template or {}).get("title_he") or ("אישור הלוואה — הדמיה" if demo else None),
+            "purpose": DRAFT_PURPOSE.get(draft["kind"], ""),
             "edited_by_banker": bool(template) and draft["text"].strip() != template["message_he"].strip(),
             "other_templates_he": [d["title_he"] for d in intel.get("drafts") or [] if d["kind"] != draft["kind"]],
         }, ensure_ascii=False) + "\n---\n" + draft["text"]
     else:
         draft_block = "(no draft is open for this case — you cannot edit; answer questions only)"
-    return (f"<case_data>\n{mask_ids(json.dumps(ctx, ensure_ascii=False))}\n</case_data>\n\n"
+    demo_block = f"<demo_scenario>\n{json.dumps(demo, ensure_ascii=False)}\n</demo_scenario>\n\n" if demo else ""
+    return (f"<case_data>\n{mask_ids(json.dumps(ctx, ensure_ascii=False))}\n</case_data>\n\n{demo_block}"
             f"<current_draft>\n{draft_block}\n</current_draft>\n\n"
             f"Banker's message:\n{message}")
 
@@ -261,17 +295,24 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
     if not settings.gemini_api_key:
         raise ChatUnavailable("JEEN אינו זמין בסביבה זו: לא הוגדר מפתח Gemini (GEMINI_API_KEY).")
     intel = banker_intelligence.build(case_id)
-    if draft and not any(d["kind"] == draft["kind"] for d in intel["drafts"]):
-        draft = None
+    kind = draft["kind"] if draft else None
+    demo, base = None, ""
+    if kind == DEMO_KIND:
+        from . import banker_demo_letter
+        demo, base = banker_demo_letter.scenario(intel), banker_demo_letter.base_letter(case_id, intel) or ""
+        if not demo:
+            draft = kind = None
+    elif draft and not any(d["kind"] == kind for d in intel["drafts"]):
+        draft = kind = None
     ctx = case_context(case_id, intel)
-    contents = _contents(history, _prompt(ctx, draft, intel, message))
+    contents = _contents(history, _prompt(ctx, draft, intel, message, demo))
     trace = f"BCHAT-{case_id}"
     try:
         out = _call(contents, trace)
         revised = re.sub(r"[*`]+", "", out.get("revised_draft_he") or "").strip()
         edit, rejected, repaired = None, None, False
         if out["intent"] in EDITS and draft and revised and revised != draft["text"].strip():
-            issues = check_revision(revised, draft["text"], intel)
+            issues = check_revision(revised, draft["text"], intel, kind, base)
             if issues:
                 retry = contents + [{"role": "model", "parts": [{"text": json.dumps(out, ensure_ascii=False)}]},
                                     {"role": "user", "parts": [{"text": "The bank's code rejected this revision:\n- " + "\n- ".join(issues)
@@ -280,7 +321,7 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
                                                                   "be done safely."}]}]
                 out2 = _call(retry, trace)
                 revised2 = re.sub(r"[*`]+", "", out2.get("revised_draft_he") or "").strip()
-                issues2 = check_revision(revised2, draft["text"], intel) if out2["intent"] in EDITS and revised2 else ["declined"]
+                issues2 = check_revision(revised2, draft["text"], intel, kind, base) if out2["intent"] in EDITS and revised2 else ["declined"]
                 repaired = True
                 if not issues2 and revised2 != draft["text"].strip():
                     out, revised = out2, revised2
