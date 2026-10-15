@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { api, timeHe, usePolling, type Datum, type DocItem, type IntelSource, type Intelligence, type MissingItem, type Workspace } from "../../api";
 import { EvidenceViewer, FactList } from "../../components/EvidenceViewer";
 import { scenarios as simulate, type Scenario } from "../../finance";
@@ -75,8 +75,12 @@ const TITLE: Record<string, string> = {
   ERROR: "בדיקת המסמכים לא הושלמה",
 };
 const applicantName = (x: Intelligence) => x.applicant.company?.name_he || x.applicant.borrowers.map((b) => b.name_he).join(" ו");
-const loanLine = (x: Intelligence) => [x.loan.purpose_he ? `הלוואה ל${x.loan.purpose_he}` : x.loan.product_he,
-  x.loan.amount.value != null ? money(x.loan.amount.value) : null, x.loan.term.value != null ? `${x.loan.term.value} תשלומים` : null].filter(Boolean).join(" · ");
+const loanParts = (x: Intelligence) => [
+  { k: "purpose", t: x.loan.purpose_he ? `הלוואה ל${x.loan.purpose_he}` : x.loan.product_he },
+  { k: "amount", t: x.loan.amount.value != null ? money(x.loan.amount.value) : null },
+  { k: "term", t: x.loan.term.value != null ? `${x.loan.term.value} תשלומים` : null },
+].filter((p): p is { k: string; t: string } => !!p.t);
+const loanLine = (x: Intelligence) => loanParts(x).map((p) => p.t).join(" · ");
 
 function Card({ id, title, sub, aside, children, testId, tone }: { id: string; title: string; sub?: ReactNode; aside?: ReactNode; children: ReactNode; testId: string; tone?: string }) {
   return (
@@ -126,12 +130,15 @@ function CaseHeader({ ctx, innerRef }: { ctx: Ctx; innerRef: React.RefObject<HTM
   return (
     <header className="cc-head" ref={innerRef} data-testid="cc-head">
       <div className="cc-head-id">
-        <div className="cc-kicker">בקשת הלוואה · תיק <span className="ltr">{x.case.display_number}</span></div>
+        <div className="cc-head-top">
+          <div className="cc-kicker">בקשת הלוואה · תיק <span className="ltr">{x.case.display_number}</span></div>
+          <span className={`cc-status s-${tone}`} data-testid="cc-status">{r.documentation.status_he}</span>
+        </div>
         <h1 data-testid="cc-name">{applicantName(x)}</h1>
-        <div className="cc-loanline" data-testid="cc-loanline">{loanLine(x)}</div>
+        <div className="cc-loanline" data-testid="cc-loanline">{loanParts(x).map((p, i) => (
+          <Fragment key={p.k}>{i > 0 && <span className="cc-loan-sep"> · </span>}<span className={`cc-loan-${p.k}`}>{p.t}</span></Fragment>))}</div>
       </div>
       <div className="cc-head-act">
-        <span className={`cc-status s-${tone}`} data-testid="cc-status">{r.documentation.status_he}</span>
         <button className="cc-primary" onClick={() => ctx.openV1(r.next_action.v1_item)} data-testid="cc-primary">
           מעבר לטיפול בתיק <span aria-hidden>←</span></button>
         <div className="cc-next" data-testid="cc-next">הצעד הבא: {r.next_action.detail_he || r.next_action.label_he}</div>

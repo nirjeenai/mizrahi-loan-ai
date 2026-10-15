@@ -58,6 +58,16 @@ def open_v3(page: Page, case: str) -> None:
     page.wait_for_timeout(300)
 
 
+def pick_hidden_case(page: Page, case: str) -> None:
+    """Prepared cases 001–011 are not in the selector's main list; they sit under the collapsed 'תרחישי בדיקה נוספים'."""
+    page.locator("[data-testid=case-switch]").click()
+    expect(page.locator(f"[data-testid=case-main] .case-pop-row[data-case='{case}']")).to_have_count(0)
+    toggle = page.locator("[data-testid=case-more-toggle]")
+    if toggle.get_attribute("aria-expanded") != "true":
+        toggle.click()
+    page.locator(f"[data-testid=case-more] .case-pop-row[data-case='{case}']").click()
+
+
 def modal(page: Page) -> bool:
     return page.locator("[data-testid=cc-doc-modal]").count() > 0
 
@@ -196,8 +206,7 @@ def live(page: Page) -> None:
     check("F · no false approval reaches the editor", draft(page) == after_r and not _claims(draft(page)), f"intent {f['intent']}")
     shot(page, "04-safety")
 
-    page.locator("[data-testid=case-switch]").click()
-    page.locator(".case-pop-row", has_text="438839011").click()
+    pick_hidden_case(page, GAP)
     expect(page.locator(f"[data-testid=cc-root][data-case='{GAP}']")).to_be_visible(timeout=20000)
     page.locator("[data-testid=cc-reply]").scroll_into_view_if_needed()
     check("switching cases starts a clean conversation and the other case's own draft",
@@ -289,8 +298,7 @@ def demo_live(page: Page) -> None:
     names = [b.inner_text() for b in page.locator("[data-testid=cc-draft-col] button").all()]
     check("no send action in the reply", not any("שליח" in n or "שלח" in n for n in names))
 
-    page.locator("[data-testid=case-switch]").click()
-    page.locator(".case-pop-row", has_text="438839011").click()
+    pick_hidden_case(page, GAP)
     expect(page.locator(f"[data-testid=cc-root][data-case='{GAP}']")).to_be_visible(timeout=20000)
     page.locator("[data-testid=cc-reply]").scroll_into_view_if_needed()
     check("case switch: clean chat, no letter carried over", page.locator("[data-testid=cc-chat-msg]").count() == 0 and "מיכל" not in draft(page))

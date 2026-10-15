@@ -55,6 +55,16 @@ def open_v2(page: Page, case: str) -> None:
     page.wait_for_timeout(300)
 
 
+def pick_hidden_case(page: Page, case: str) -> None:
+    """Prepared cases 001–011 are not in the selector's main list; they sit under the collapsed 'תרחישי בדיקה נוספים'."""
+    page.locator("[data-testid=case-switch]").click()
+    expect(page.locator(f"[data-testid=case-main] .case-pop-row[data-case='{case}']")).to_have_count(0)
+    toggle = page.locator("[data-testid=case-more-toggle]")
+    if toggle.get_attribute("aria-expanded") != "true":
+        toggle.click()
+    page.locator(f"[data-testid=case-more] .case-pop-row[data-case='{case}']").click()
+
+
 def unclip(page: Page) -> None:
     """The console scrolls inside a fixed-height pane; let it grow so a full-page screenshot shows everything."""
     page.add_style_tag(content=".console.desk{height:auto!important;overflow:visible!important}.bi-scroll{overflow:visible!important}")
@@ -288,8 +298,7 @@ def v1(page: Page) -> None:
     page.goto(f"{BASE}/banker?case={MICHAL}")
     expect(page.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     check("V1: without a choice the console opens the existing review workspace", page.locator("[data-testid=bi-root]").count() == 0)
-    page.locator("[data-testid=case-switch]").click()
-    page.locator(".case-pop-row", has_text="438839011").click()
+    pick_hidden_case(page, GAP)
     expect(page.locator("[data-testid=review-queue]")).to_be_visible()
     check("V1: case switching still works", "DEMO-MTZ-2026-011" in page.url)
     page.locator("[data-testid=ui-v2]").click()
