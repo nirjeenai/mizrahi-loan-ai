@@ -103,13 +103,12 @@ function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<s
       <h3 className="feat-title">{u.titleHe}</h3>
       <div className="feat-line" data-testid="usecase-persona"><b>לקוח: </b>{u.personaHe} · {u.profileHe}</div>
       <div className="feat-line"><b>בקשה: </b>{u.loanHe} · תיק <span className="ltr">{u.caseDisplay}</span></div>
-      <div className="feat-line"><b>מה מדגימים: </b>{u.demonstratesHe}</div>
-      {u.instructionHe && <div className="feat-line feat-do" data-testid="usecase-instruction"><b>איך מדגימים: </b>{u.instructionHe}</div>}
+      <div className="feat-line uc-desc" title={u.demonstratesHe} data-testid="usecase-description">{u.demonstratesHe}</div>
       {u.bankerAssisted && <div className="feat-line uc-assisted" data-testid="usecase-banker-assisted">מסלול מוגבל — דורש טיפול בנקאי; אין חיתום עסקי.</div>}
       <div className="feat-expected info" data-testid="usecase-expected">
         <span className="feat-k">תוצאה צפויה</span>
         <span>{u.expectedLabelHe || `${u.requirements.length} מסמכים`}</span>
-        <span className="tiny" style={{ fontWeight: 600 }}>{u.requirements.length} דרישות{human ? ` · ${human} לבדיקת בנקאי (ללא AI)` : ""}
+        <span className="tiny uc-counts">{u.requirements.length} דרישות{human ? ` · ${human} לבדיקת בנקאי (ללא AI)` : ""}
           {files ? ` · ${files} קבצים להורדה` : ""}</span>
       </div>
       <div className="feat-actions">
