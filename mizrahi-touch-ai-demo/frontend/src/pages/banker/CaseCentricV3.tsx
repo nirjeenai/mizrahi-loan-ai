@@ -133,7 +133,7 @@ function CaseHeader({ ctx, innerRef }: { ctx: Ctx; innerRef: React.RefObject<HTM
         <span className={`cc-status s-${tone}`} data-testid="cc-status">{r.documentation.status_he}</span>
         <button className="cc-primary" onClick={() => ctx.openV1(r.next_action.v1_item)} data-testid="cc-primary">
           מעבר לטיפול בתיק <span aria-hidden>←</span></button>
-        <div className="cc-next" data-testid="cc-next">הצעד הבא בסקירת המסמכים: {r.next_action.label_he}</div>
+        <div className="cc-next" data-testid="cc-next">הצעד הבא: {r.next_action.detail_he || r.next_action.label_he}</div>
       </div>
     </header>
   );
