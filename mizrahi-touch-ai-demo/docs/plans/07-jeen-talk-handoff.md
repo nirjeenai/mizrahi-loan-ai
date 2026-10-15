@@ -1,7 +1,8 @@
 # 07 — JEEN Talk handoff (Mizrahi #2, Round 3)
 
 Status 2026-10-14: the follow-up loop runs end to end against a **simulated** JEEN Talk (`mock-talk`). It never dials.
-No live JEEN Talk connection exists. This note is for whoever connects the real one.
+No live JEEN Talk connection exists. This note is the contract the mock already exercises. The recommended live
+architecture, Admin mapping, file list and sandbox E2E path are in `docs/plans/08-jeen-talk-live-integration.md`.
 
 ## 1. The boundary
 `backend/app/comms/contract.py::OutboundProvider` is the only path to a customer contact. Nothing outside `comms/`
