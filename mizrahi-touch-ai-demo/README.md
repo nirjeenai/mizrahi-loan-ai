@@ -377,6 +377,59 @@ The demo extends the existing Tefahot Touch mortgage journey with an AI document
 
 ---
 
+## Hebrew / English customer app
+
+The customer app (`/customer`) can be used in English. Hebrew stays the default and the approved baseline: its wording,
+layout, logic, figures and AI behaviour are unchanged, and the banker console, admin, system page and presenter pane stay
+Hebrew. English is a second rendering of the same values: it never changes an amount, a verdict, a status, a permission,
+a disclaimer or evidence.
+
+**Switching.** An "EN" / "עב" chip sits in the header beside the brand mark on every customer screen, and the drawer has a
+"שפה / Language" row (a radio group). Switching changes only the language — the route, the active case, the open
+conversation and an unsent message stay; no request is written and no model is called. English is remembered in
+`localStorage["mz.lang"]` (Hebrew stores nothing); `?lang=en` / `?lang=he` deep-link a language. In English the phone
+frame is `dir="ltr" lang="en"` with the latin Open Sans; the page itself, and everything outside `/customer`, keeps
+`dir="rtl" lang="he"`.
+
+**How it is built.**
+- Frontend: `frontend/src/i18n.tsx` (`LangProvider` around `/customer` only, `useLang()` → `t(he, en)`, `tr()` outside
+  components). Every Hebrew string stays where it was as the first argument, and where a `t()` call would split one
+  Hebrew text run into several DOM text nodes, the Hebrew branch is the original JSX verbatim (sub-pixel glyph shifts
+  were measured otherwise). `api.ts` sends `X-MZ-Lang: he|en` from `/customer` pages to the customer endpoints only.
+- Backend: routes that call `i18n.lang(request)` add `*_en` siblings to their response (`app/i18n/`: `en.py` catalogue,
+  `views.py` overlays built from codes and structured details, `chat_en.py`, `agent_en.py`, `continuation_en.py`,
+  `criteria_en.py`). The overlay runs on a deep copy and a failure in it returns the Hebrew response untouched. Without
+  the header every response is exactly what it was (asserted byte for byte by the Hebrew goldens). Known error messages
+  gain `detail_en`.
+- Text with no English source — a banker's own message, an AI reviewer's explanation, a document's printed values, a
+  customer's own words — is never machine-translated: it is shown as written, isolated and marked "Original (Hebrew)".
+- The conversational application (`workflow/onboarding_chat.py`) composes its Hebrew reply exactly as before; with the
+  header the same outcome is also worded in English by `i18n/chat_en.py` from the same engine figures and stored beside it
+  (`text_en`, `lang`). Typed English is read by `workflow/onboarding_nlu_en.py`, which rewrites it into the cue words the
+  existing Hebrew parser understands ("80k", "12,000 net", "just me", "how did you calculate"); names are never rewritten
+  and the customer's words are stored as typed. An English session gets deterministic English replies (the model, when
+  on, only helps understand). In a Hebrew session whose reply the model worded, `text_en` is the deterministic English of
+  the same outcome.
+- The assistant (`agent/agent.py`) in an English session uses the same rules in an English system prompt, an English
+  approval guard on top of the Hebrew one, and an English no-model fallback from the same case data. The tools — and so
+  the MCP server — are unchanged. Follow-ups after an assistant-started upload store their English.
+- Document checks: explanations written by the review code get an exact English twin (`i18n/criteria_en.py`, one
+  pattern per Hebrew template, tested against the real generators); the model's own wording is shown as the original.
+
+**History across languages.** Messages keep the language they were written in. A conversation saved before English
+existed shows in Hebrew; in the English app the open question is asked again, live, in English, and a "Continuing in
+English" marker separates the languages. An assistant reply shown in the other language is marked "Original (Hebrew)" /
+"נכתב באנגלית", and is spoken in its own language's voice.
+
+**Switches.** Backend `I18N_EN=0` ignores the header (nothing English is added or stored); frontend `VITE_LANG_SWITCH=0`
+(at build time) hides the switch and sends no header. With both off the app is the Hebrew app as before.
+
+**Verification** (2026-10-18, REPLAY / Gemini-off, no paid calls): backend goldens recorded on `main` before the work —
+every customer endpoint and 11 conversational journeys + the classic questionnaire — byte-identical without the header,
+and identical after removing the `*_en` siblings with `he`; `test_i18n_*.py`; 40 Hebrew screens (mobile + desktop,
+pixels and DOM text nodes) compared with the `main` build by `e2e/bilingual_screens.py` — differences only at the
+language chip and the drawer's language row; the eight existing browser suites; `e2e/check_bilingual.py` (51 checks).
+
 ## Quick start
 
 Prerequisites: Python 3.12, Node 20+, Google Chrome (fixtures and browser tests use the system Chrome through Playwright), and a Gemini API key. macOS `say`/`afconvert` are used only by the voice step of the browser test.
@@ -855,6 +908,7 @@ Results and screenshots are written to `e2e/artifacts/`, and the screenshots abo
 - Accepting a document is recorded per document. It doesn't change the AI verdict, so case criterion IS-06 (all payslips VALID) can still read NEEDS_REVIEW while the banker has accepted every payslip.
 - During development, one transcription request got HTTP 400 from Gemini and didn't reproduce in later runs. The UI now shows a Hebrew retry message instead of a raw error.
 - Gemini model ids are configurable in `backend/.env`.
+- English (customer app only): the classic questionnaire (`/customer/apply/classic`) stays Hebrew; text with no English source (banker messages, the AI reviewer's own explanations, document content, typed Hebrew) is shown as the Hebrew original, marked; in English sessions the conversational application answers with deterministic English (the model only helps understand), and the typed-English shim knows a fixed phrase list — a phrasing outside it is asked about again rather than guessed; live (Gemini) English assistant answers were not exercised (REPLAY has no agent model). The Hebrew parser reads "12,000 נטו" as conflicting numbers (it reads "12 אלף" / "12000"); this pre-existing Hebrew behaviour was left unchanged.
 
 ## Brand note
 
