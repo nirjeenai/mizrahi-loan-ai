@@ -4,12 +4,15 @@ conversation, jobs and audit. A single process-wide connection guarded by a lock
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import threading
 from contextlib import contextmanager
 from typing import Any, Iterator
 
 from .config import settings
+
+log = logging.getLogger("db")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
@@ -196,6 +199,31 @@ def migrate(conn: sqlite3.Connection) -> None:
         for column in columns:
             if column not in have:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} TEXT")
+    # absolute upload paths from an earlier version become relative to DATA_DIR; reads resolve them either way
+    from .store import files
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        changed = files.migrate_absolute_paths(conn)
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        log.exception("storage paths were left absolute; documents are still resolved by their uploads/ tail")
+    else:
+        if changed:
+            log.info("made %d document storage paths relative to DATA_DIR", changed)
+
+
+def checkpoint() -> None:
+    """Fold the WAL into the database file, so a stopped instance's data is complete in that one file."""
+    if _conn is None:
+        return
+    try:
+        with _lock:
+            busy, _, _ = _conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+        if busy:
+            log.warning("WAL checkpoint on shutdown was busy; the -wal file still holds recent writes")
+    except sqlite3.Error:
+        log.exception("WAL checkpoint on shutdown failed; the -wal file still holds recent writes")
 
 
 @contextmanager

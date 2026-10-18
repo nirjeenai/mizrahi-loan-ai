@@ -209,7 +209,7 @@ def michal(page: Page, c: httpx.Client) -> None:
           and page.locator("[data-testid=cc-scenario][data-key=requested] .cc-sc-tag").first.inner_text() == "הבקשה המקורית",
           json.dumps([(r["term"], r["pay"], r["dsr"]) for r in got]))
     shot_section(page, "cc-alternatives", "06-v3-financing-scenarios.png")
-    page.locator("[data-testid=cc-whatif-toggle]").click()
+    check("what-if: open by default", page.locator("[data-testid=cc-whatif]").is_visible())
     page.locator("[data-testid=cc-wi-term]").fill("84")
     page.wait_for_timeout(150)
     check("what-if: term 84 recomputes all three cards (60/84/108) exactly as finance.py",

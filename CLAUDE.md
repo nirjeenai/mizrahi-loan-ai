@@ -17,7 +17,8 @@
   are duplicates of it: never read, search or edit them.
 - `Mizrahi_Touch_JEEN_Discovery_Spec_Package_2026-10-12 2/` is the original product spec (Hebrew); background only.
 - Claude Code is launched from this repo root; `.claude/settings.json` (permissions) is read from here.
-- The git repo has no commits yet; everything is untracked.
+- The git repo has commits on `main` (remote `origin`). A copy on another computer may arrive without `.git`.
+- Setting the app up on a new machine (sales laptop): follow `mizrahi-touch-ai-demo/SALES_DEMO_MACHINE_SETUP.md`.
 
 ## What the app is
 Synthetic-data demo of an AI review layer for payslips in the Tefahot Touch mortgage journey. One FastAPI process

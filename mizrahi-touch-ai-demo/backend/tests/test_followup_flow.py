@@ -15,7 +15,7 @@ from app.comms import mock_talk
 from app.followup import orchestrator, tasks
 from app.main import app
 from app.review import case_review
-from app.store import repo
+from app.store import files, repo
 from app.util import new_id, now_iso
 from tests.loan_helpers import JOURNEY, id_card, purpose, run_case, statement
 from tests.test_review_desk import add_doc
@@ -346,7 +346,7 @@ def test_talk_failure_does_not_block_uploads(wall, monkeypatch):
     [attempt] = [dispatched_call(wall)]
     assert attempt["status"] == "FAILED"
     ido = customer(JOURNEY)
-    pdf = (repo.document(repo.documents(JOURNEY)[0]["document_id"])["storage_path"])
+    pdf = files.resolve(repo.document(repo.documents(JOURNEY)[0]["document_id"])["storage_path"])
     with open(pdf, "rb") as fh:
         r = ido.post(f"/api/cases/{JOURNEY}/documents", files={"file": ("ido_2026-09_new.pdf", fh.read() + b"%new",
                                                                            "application/pdf")},

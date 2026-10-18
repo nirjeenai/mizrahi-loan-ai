@@ -27,6 +27,7 @@ async def lifespan(app: FastAPI):
     engine.start_workers()
     yield
     engine.stop_workers()
+    db.checkpoint()
 
 
 app = FastAPI(title="Mizrahi Tefahot × JEEN — Loan Completion Agent (concept demo)", lifespan=lifespan)

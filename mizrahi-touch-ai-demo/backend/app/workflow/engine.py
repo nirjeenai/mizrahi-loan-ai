@@ -21,7 +21,7 @@ from ..config import settings
 from ..review import registry, rubrics
 from ..review import evidence as ev
 from ..review.contract import CaseReviewRequest, DesiredFinding, DocumentReviewRequest
-from ..store import repo
+from ..store import files, repo
 from ..util import new_id, now_iso, sha256_bytes, stable_hash
 from . import desk_state, readiness
 
@@ -72,6 +72,7 @@ def submit_document(case_id: str, filename: str, mime: str, data: bytes, borrowe
     folder = settings.uploads_dir / case_id
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{document_id}.{ALLOWED_MIMES[mime]}"
+    stored = files.stored_path(path)
     path.write_bytes(data)
     try:
         info = ev.inspect(str(path), mime)
@@ -83,7 +84,7 @@ def submit_document(case_id: str, filename: str, mime: str, data: bytes, borrowe
     reviewed_by_ai = target_req["evaluated_by_ai"] if target_req else requirements.evaluated_by_ai(family)
     row = {"document_id": document_id, "case_id": case_id, "borrower_id": borrower_id, "requirement_code": requirement_code,
            "filename": Path(filename).name[:120], "mime": mime, "sha256": sha, "bytes": len(data), "pages": info["pages"],
-           "text_layer_chars": info["text_layer_chars"], "storage_path": str(path), "uploaded_at": now_iso(),
+           "text_layer_chars": info["text_layer_chars"], "storage_path": stored, "uploaded_at": now_iso(),
            "uploaded_by": actor, "channel": channel,
            "status": "queued" if reviewed_by_ai else "stored", "stage": "queued" if reviewed_by_ai else "human_review"}
     repo.insert_document(row)
@@ -203,11 +204,11 @@ def _run_document(job: dict) -> None:
         repo.update_run(run_id, stage=stage)
         repo.set_document(doc["document_id"], stage=stage)
 
-    req = DocumentReviewRequest(case_id=doc["case_id"], document_id=doc["document_id"], filename=doc["filename"],
-                                mime=doc["mime"], storage_path=doc["storage_path"], assigned_borrower_id=doc["borrower_id"],
-                                requirement_code=doc["requirement_code"], case_context=bank.case_context(doc["case_id"]),
-                                rubric=rubric, run_id=run_id)
     try:
+        req = DocumentReviewRequest(case_id=doc["case_id"], document_id=doc["document_id"], filename=doc["filename"],
+                                    mime=doc["mime"], storage_path=str(files.resolve(doc["storage_path"])),
+                                    assigned_borrower_id=doc["borrower_id"], requirement_code=doc["requirement_code"],
+                                    case_context=bank.case_context(doc["case_id"]), rubric=rubric, run_id=run_id)
         handle = provider.start_document_review(req, progress)
         deadline = time.monotonic() + 600
         while (status := provider.get_status(handle)).state in ("queued", "running"):

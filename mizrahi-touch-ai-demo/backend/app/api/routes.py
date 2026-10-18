@@ -22,7 +22,7 @@ from ..llm import gemini as g
 from ..review import deterministic as det
 from ..review import evidence as ev
 from ..review import registry, rubrics
-from ..store import repo
+from ..store import files, repo
 from ..util import sha256_bytes
 from ..workflow import (demo, desk_state, engine, intake, onboarding, onboarding_chat, outcomes, profile_change, readiness,
                         review_desk)
@@ -242,10 +242,17 @@ def document_detail(document_id: str, request: Request):
             "outcome": _outcomes(d["case_id"], readiness.compute(d["case_id"]))["documents"].get(document_id)}
 
 
+def _document_path(d: dict) -> str:
+    try:
+        return str(files.resolve(d["storage_path"]))
+    except files.StoredFileError:
+        raise HTTPException(404, "the document's file is not available") from None
+
+
 @router.get("/documents/{document_id}/file")
 def document_file(document_id: str, request: Request):
     d = _document(request, document_id)
-    return FileResponse(d["storage_path"], media_type=d["mime"], filename=d["filename"], headers={"Cache-Control": "private, no-store"})
+    return FileResponse(_document_path(d), media_type=d["mime"], filename=d["filename"], headers={"Cache-Control": "private, no-store"})
 
 
 @router.get("/documents/{document_id}/pages/{page}.png")
@@ -253,7 +260,7 @@ def document_page(document_id: str, page: int, request: Request, dpi: int = 110)
     d = _document(request, document_id)
     if page < 1 or page > (d["pages"] or 1):
         raise HTTPException(404, "no such page")
-    png = ev.render_page(document_id, d["storage_path"], d["mime"], page, dpi=max(60, min(dpi, 200)))
+    png = ev.render_page(document_id, _document_path(d), d["mime"], page, dpi=max(60, min(dpi, 200)))
     return Response(png, media_type="image/png", headers={"Cache-Control": "private, max-age=3600"})
 
 

@@ -11,7 +11,10 @@ PORT="${PORT:-8791}"
 PY="$ROOT/backend/.venv/bin/python"
 
 setup() {
-  [ -x "$PY" ] || "${PYTHON:-python3}" -m venv "$ROOT/backend/.venv"
+  # a venv copied from another computer points at that computer's interpreter: recreate it when it does not run
+  if ! "$PY" -c "import sys" >/dev/null 2>&1; then
+    "${PYTHON:-$(command -v python3.12 || command -v python3)}" -m venv --clear "$ROOT/backend/.venv"
+  fi
   "$PY" -m pip install -q -r "$ROOT/backend/requirements-dev.txt"
   (cd "$ROOT/frontend" && npm install --silent && npm run build)
   [ -f "$ROOT/fixtures/out/manifest.json" ] || "$PY" "$ROOT/fixtures/generate.py"

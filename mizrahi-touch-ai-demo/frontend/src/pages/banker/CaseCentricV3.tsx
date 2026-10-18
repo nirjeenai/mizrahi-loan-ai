@@ -555,7 +555,7 @@ function Alternatives({ ctx }: { ctx: Ctx }) {
   const [principal, setPrincipal] = useState(base.principal);
   const [term, setTerm] = useState(base.term_months);
   const [rate, setRate] = useState(base.annual_rate_pct);
-  const [whatIf, setWhatIf] = useState(false);
+  const [whatIf, setWhatIf] = useState(true);
   useEffect(() => { setPrincipal(base.principal); setTerm(base.term_months); setRate(base.annual_rate_pct); }, [x.case_id, base.principal, base.term_months, base.annual_rate_pct]);
   const changed = principal !== base.principal || term !== base.term_months || rate !== base.annual_rate_pct;
   const rows: Scenario[] = useMemo(() => simulate(principal, term, rate, s.income_ils, s.existing_debt_ils, s.asset_price_ils, s.bounds),
