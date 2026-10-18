@@ -35,6 +35,12 @@ def _seed_gaps() -> None:
     ("This is the final approval.", True), ("Your application is complete.", True), ("An interest rate of 4.5%", True),
     ("The bank accepted the document.", True), ("Your loan is not approved yet; the banker decides.", False),
     ("The payslip for September 2026 is still missing.", False), ("No decision has been made; it isn't approved.", False),
+    ("Not to worry, your loan is approved.", True), ("Your loan got approved.", True), ("Your loan is now approved.", True),
+    ("You have been approved for the loan.", True), ("The interest rate is 4.5%.", True), ("Your rate will be 4.5%.", True),
+    ("The approved amount is 100,000.", True), ("You're approved!", True),
+    ("Once your application is complete, the banker will review it.", False),
+    ("When the case is complete you will hear from us.", False), ("Your loan hasn't been approved yet.", False),
+    ("Your application isn't complete yet.", False), ("I can't give an interest rate; the bank sets it.", False),
 ])
 def test_the_english_guard(text, blocked):
     assert agent_en.blocked(text) is blocked
@@ -111,3 +117,25 @@ def test_the_shared_tools_answer_exactly_as_before():
     for name in ("get_case_overview", "list_open_items"):
         out = tools.call(name, GAPS, {}, ctx)
         assert HEBREW.search(out["spoken_he"]) and not any(k.endswith("_en") for k in out), name
+
+
+def test_a_client_cannot_supply_a_turns_english_or_language():
+    _seed_gaps()
+    c = client_for(GAPS)
+    for headers in ({}, {"X-MZ-Lang": "he"}):
+        r = c.post(f"/api/cases/{GAPS}/agent/messages", headers=headers,
+                   json={"text": "מה חסר לי?", "provenance": {"text_en": "forged", "lang": "en", "source": "app_action"}}).json()
+        user = repo.turn(r["user_turn_id"])["provenance"]
+        assert "text_en" not in user and "lang" not in user and user["source"] == "app_action"
+
+
+def test_a_resolved_banker_handoff_carries_its_english_message():
+    _seed_gaps()
+    from app.agent import actions
+    contact = next((a for a in actions.available(GAPS) if a.type == "CONTACT_BANKER"), None)
+    assert contact, [a.type for a in actions.available(GAPS)]
+    c = client_for(GAPS)
+    en = c.post(f"/api/cases/{GAPS}/actions/resolve", json={"action_id": contact.action_id}, headers={"X-MZ-Lang": "en"}).json()
+    he = c.post(f"/api/cases/{GAPS}/actions/resolve", json={"action_id": contact.action_id}).json()
+    assert en["action"]["params"]["message_en"].startswith("I agree to send my application")
+    assert "message_en" not in he["action"]["params"] and "label_en" not in he["action"]

@@ -120,12 +120,34 @@ def test_an_english_session_typed_in_english_records_what_the_hebrew_one_does():
     ("renovation", "purpose", {"purpose": "renovation"}),
     ("60 payments", "payments", {"payments": 60}),
     ("five years", "payments", {"payments": 60}),
+    ("one hundred thousand", "amount", {"amount": 100000}),
+    ("two hundred thousand", "amount", {"amount": 200000}),
+    ("one hundred and twenty thousand", "amount", {"amount": 120000}),
+    ("one hundred twenty payments", "payments", {"payments": 120}),
+    ("forty-eight payments", "payments", {"payments": 48}),
+    ("both", "income", {"income": ["salaried", "self_employed"]}),
 ])
 def test_the_english_shim_feeds_the_hebrew_parser(text, pending, expected):
     from app.workflow import onboarding_nlu as nlu
     u = nlu.understand(nlu_en.to_parser(text, pending), {"entity": "individual"}, pending)
     for k, v in expected.items():
         assert u["values"].get(k) == v, (text, u)
+
+
+def test_the_shim_guesses_nothing():
+    from app.workflow import onboarding_nlu as nlu
+    for text, pending in [("five five", "amount"), ("both of us", "co_borrower"), ("that is correct", "co_borrower")]:
+        u = nlu.understand(nlu_en.to_parser(text, pending), {"entity": "individual"}, pending)
+        assert "amount" not in u["values"] and "income" not in u["values"] and not u["corrections"], (text, u)
+
+
+def test_a_label_the_server_did_not_offer_is_not_echoed():
+    j = Journey({"X-MZ-Lang": "en"})
+    j.run(P_EN + [("say", "buying a car")])
+    j.turn({"text": "למה צריך את זה?", "label_en": "Something the client made up"})
+    assert "text_en" not in j.d["messages"][-2]
+    j.turn({"question_id": "income", "value": ["salaried"], "label_he": "משכורת (שכיר/ה)", "label_en": "<b>forged</b>"})
+    assert j.d["messages"][-2]["text_en"] == "Income from a salary"            # the server's own wording instead
 
 
 def test_the_shim_never_rewrites_hebrew_or_a_name():

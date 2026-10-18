@@ -1235,6 +1235,12 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         if turn_id and turn_id in conv["turns"]:
             return view(draft_id, lang)
         pending = _pending(conv, a)
+        if label_en is not None:                       # echoed only if it is a label the server itself offered
+            try:
+                label_en = label_en if lang and label_en in EN.offered_labels(conv, a, pending) else None
+            except Exception:
+                log.exception("English labels unavailable; the client's label is not echoed")
+                label_en = None
         calls_at_start = conv.get("llm_calls", 0)
         u: dict[str, Any] = {}
         t: dict[str, Any] = {"changes": [], "held": [], "issues": [], "answers": [], "actions": [], "clarifying": False,
@@ -1345,7 +1351,10 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 t["clarifying"] = t["clarifying"] or qid == pending
                 t["sim_touch"] = t["sim_touch"] or (qid in loan_sim.SIM_FIELDS and loan_sim.applies(conv, a))
             for english in res["rejected_en"]:
-                _english(t, "issues", lambda: english)
+                if english:
+                    _english(t, "issues", lambda: english)
+                else:                                  # a refusal with no English: the turn stays Hebrew, never shortened
+                    t["_en"] = None
             for qid, old, new in res["conflicts"]:
                 t["issues"].append(f"רק לוודא, קודם רשמתי {_value_he(qid, old, a, short=True)}, ועכשיו הבנתי "
                                    f"{_value_he(qid, new, a, short=True)}. מה נכון?")

@@ -21,7 +21,7 @@ export interface DocReview {
   rubric_id: string; rubric_version: string; started_at: string; finished_at: string; doc_type: string; doc_type_he: string; doc_type_en?: string;
   is_scanned: boolean; pages: number; legibility: string; matched_borrower_id?: string | null; period?: string | null;
   file_name_period?: string | null; facts: Fact[]; criteria: Criterion[]; verdict: Verdict; verdict_reason_codes: string[];
-  summary_he: string; summary_en?: string; limitations_he: string[]; limitations_en?: string[]; uncertainty_he: string[]; uncertainty_en?: string[]; security_flags: string[]; demo_marked?: boolean;
+  summary_he: string; limitations_he: string[]; uncertainty_he: string[]; security_flags: string[]; demo_marked?: boolean;
   usage: Record<string, number>;
 }
 export interface DocView {
@@ -190,7 +190,7 @@ export interface Snapshot {
   case: BankCase; stage_dictionary: { stages: { index: number; label_he: string; label_en?: string; observed: boolean }[]; note_he: string; note_en?: string };
   readiness: Readiness; available_actions?: AppAction[];
   findings: Finding[]; statements: { statement_id: string; finding_id?: string; text: string; channel: string; created_at: string }[];
-  case_review?: { run_id: string; finished_at: string; coverage: any; income: Record<string, any>; semantic: any[]; criteria: Criterion[]; limitations_he: string[]; limitations_en?: string[]; rubric_id: string; rubric_version: string } | null;
+  case_review?: { run_id: string; finished_at: string; coverage: any; income: Record<string, any>; semantic: any[]; criteria: Criterion[]; limitations_he: string[]; rubric_id: string; rubric_version: string } | null;
   handoffs: any[]; updates: AuditEvent[]; provider: { provider: string; mode: string; models: Record<string, string>; prompt_version: string };
   customer_requests?: CustomerRequest[];
   document_status?: Record<string, { status: string; status_he: string; status_en?: string; replaced_by?: string | null; replaces?: string | null }>;

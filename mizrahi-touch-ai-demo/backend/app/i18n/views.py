@@ -117,6 +117,18 @@ def _income_profile(a: dict) -> Optional[str]:
     return " · ".join(p for p in parts if p) or None
 
 
+_SEED: Optional[dict[str, dict]] = None
+
+
+def _seed_requirements() -> dict[str, dict]:
+    """The seeded policy's requirements by id: the Hebrew that en.REQUIREMENTS translates."""
+    global _SEED
+    if _SEED is None:
+        from ..policy import store
+        _SEED = {r["id"]: r for r in store.seed_config("loan_policy").get("document_requirements", [])}
+    return _SEED
+
+
 def requirement(q: dict, ctx: Ctx) -> None:
     rid = q.get("requirement_id") or (q.get("code") or "").split(":")[0]
     entry = en.REQUIREMENTS.get(rid)
@@ -127,7 +139,22 @@ def requirement(q: dict, ctx: Ctx) -> None:
     if not entry:
         return
     label, hint, why, alternatives = entry
-    title = label.replace("{months}", str((q.get("rules") or {}).get("months") or 3))
+    months = str((q.get("rules") or {}).get("months") or 3)
+    seed = _seed_requirements().get(rid)
+    if seed:            # the English translates the seeded Hebrew; a field edited in Admin Settings shows as the original
+        if q.get("title_he") and not q["title_he"].startswith(seed["label_he"].replace("{months}", months)):
+            label = None
+        if q.get("hint_he") is not None and q["hint_he"] != seed.get("hint_he"):
+            hint = None
+        if q.get("why_he") is not None and q["why_he"] != seed.get("why_he"):
+            why = None
+        if q.get("alternatives_he") and list(q["alternatives_he"]) != list(seed.get("alternatives_he") or []):
+            alternatives = []
+    if label is None:
+        _set(q, "hint", hint)
+        _set(q, "why", why)
+        return
+    title = label.replace("{months}", months)
     owner_type = q.get("owner_type")
     if owner_type == "applicant" and q.get("borrower_id"):
         _set(q, "title", f"{title} — {ctx.first.get(q['borrower_id'], '')}")
@@ -146,8 +173,8 @@ def requirement(q: dict, ctx: Ctx) -> None:
             hint = purpose[1]
     _set(q, "hint", hint)
     _set(q, "why", why)
-    if q.get("alternatives_he"):
-        q["alternatives_en"] = alternatives if len(alternatives) == len(q["alternatives_he"]) else list(q["alternatives_he"])
+    if q.get("alternatives_he") and len(alternatives) == len(q["alternatives_he"]):
+        q["alternatives_en"] = alternatives
 
 
 # ---------------------------------------------------------------- findings
@@ -287,7 +314,8 @@ def _document_finding(f: dict, ctx: Ctx) -> tuple[Optional[str], Optional[str]]:
 
 # ---------------------------------------------------------------- actions, outcomes, requests
 def action(a: dict, ctx: Ctx, findings_by_id: dict[str, dict], requirements: dict[str, dict]) -> None:
-    """app_action.v1 labels (agent/actions.derive) in English; the action, its id and parameters are unchanged."""
+    """app_action.v1 labels (agent/actions.derive) in English: `label_en`, and for CONTACT_BANKER the English of the
+    message the customer sends (`params.message_en`); the action, its id and its other parameters are unchanged."""
     p, t = a.get("params") or {}, a.get("type")
     first = ctx.first.get(p.get("borrower_id") or "", "")
     label = detail = None
@@ -474,21 +502,12 @@ def followup(view: dict, case_id: str) -> None:
         if f:
             finding(f, ctx)
         _set(item, "title", f.get("title_en") or en.CUSTOMER_TEXT.get(t.get("reason_code") or ""))
-    if view.get("nudge_text_he"):
+    from ..followup.orchestrator import published_policy
+    pol, _ = published_policy()
+    if view.get("nudge_text_he") and pol and pol.templates.reminder == en.REMINDER_SOURCE_HE:
         first = next(iter(ctx.first.values()), "")
         missing = ", ".join(i.get("customer_text_en") or i.get("title_en") or "" for i in view.get("open_items") or [])
         _set(view, "nudge_text", en.REMINDER.format(first_name=first, missing_documents=missing))
-
-
-def application_options(o: dict) -> None:
-    _set(o, "product", en.PRODUCTS.get(o.get("product_he", "")))
-    for p in o.get("purposes") or []:
-        if p.get("id") in en.PURPOSES:
-            _set(p, "label", en.PURPOSES[p["id"]][0])
-            _set(p, "proof", en.PURPOSES[p["id"]][1])
-    if o.get("note_he"):
-        _set(o, "note", "The application details only determine which documents are required. They are not an "
-                        "eligibility check and not a credit offer.")
 
 
 def error_text(message_he: str) -> Optional[str]:

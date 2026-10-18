@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type UIEvent } from "react";
+import { useState, type KeyboardEvent, type ReactNode, type UIEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api, type SessionCase } from "../api";
 import { useCase } from "../caseContext";
@@ -17,6 +17,15 @@ const TABS = [
 ];
 
 /** The language chip in the header's brand corner: it names the other language in that language's own script. */
+/** the language radio group's keys (ARIA radio pattern): one tab stop, the arrow keys move to and choose the other option */
+function radioKeys(e: KeyboardEvent<HTMLButtonElement>) {
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+  e.preventDefault();
+  const other = [...(e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("[role=radio]") ?? [])].find((b) => b !== e.currentTarget);
+  other?.focus();
+  other?.click();
+}
+
 function LangChip() {
   const { lang, setLang } = useLang();
   const next: Lang = lang === "en" ? "he" : "en";
@@ -133,7 +142,7 @@ function Drawer({ caseId, onPick, onClose, onPresenter }: {
             <span className="drawer-lang-seg">
               {(["he", "en"] as Lang[]).map((l) => (
                 <button key={l} type="button" role="radio" aria-checked={lang === l} lang={l} className={lang === l ? "on" : ""}
-                  onClick={() => setLang(l)} data-testid={`drawer-lang-${l}`}>{l === "he" ? "עברית" : "English"}</button>
+                  tabIndex={lang === l ? 0 : -1} onClick={() => setLang(l)} onKeyDown={radioKeys} data-testid={`drawer-lang-${l}`}>{l === "he" ? "עברית" : "English"}</button>
               ))}
             </span>
           </div>

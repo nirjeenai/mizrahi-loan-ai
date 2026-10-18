@@ -153,3 +153,20 @@ def test_tables_cover_the_policy_the_rubrics_and_the_demo_people():
         assert c["banker"]["name_he"] in en.NAMES and c["banker"]["role_he"] in en.BANKER_ROLES
         for a in c.get("accounts") or []:
             assert not HEBREW.search(en.account_label(a["label_he"])), a["label_he"]
+
+
+def test_the_reminder_english_translates_the_seeded_template_only():
+    assert store.seed_config("loan_policy")["templates"]["reminder"] == en.REMINDER_SOURCE_HE
+
+
+def test_a_requirement_text_edited_in_admin_settings_shows_as_the_original():
+    from app.i18n import views
+    seed = store.seed_config("loan_policy")["document_requirements"][0]
+    base = {"requirement_id": seed["id"], "code": seed["id"], "owner_type": "case", "title_he": seed["label_he"],
+            "hint_he": seed["hint_he"], "why_he": seed["why_he"], "alternatives_he": list(seed["alternatives_he"])}
+    q = dict(base)
+    views.requirement(q, views.Ctx(None))
+    assert q["title_en"] and q["hint_en"] and q["why_en"] and q["alternatives_en"]
+    edited = {**base, "title_he": "תעודה מזהה", "hint_he": "צילום חדש", "alternatives_he": ["דרכון בלבד"]}
+    views.requirement(edited, views.Ctx(None))
+    assert not any(k in edited for k in ("title_en", "hint_en", "alternatives_en")) and edited["why_en"]

@@ -54,7 +54,10 @@ export function useActionRunner(say?: Say) {
       },
       say: say ?? ((text) => { closeUpload(); openAssistant(text); }),
     };
-    (HANDLERS[action.type] as (a: AppAction, d: Deps) => void)(action, deps);
+    // the English message of a banker hand-off comes with the resolved action; the offered one carries it too
+    const english = (action.params as { message_en?: string }).message_en || (offered.params as { message_en?: string }).message_en;
+    const resolved = english ? { ...action, params: { ...action.params, message_en: english } } as AppAction : action;
+    (HANDLERS[resolved.type] as (a: AppAction, d: Deps) => void)(resolved, deps);
   };
 }
 

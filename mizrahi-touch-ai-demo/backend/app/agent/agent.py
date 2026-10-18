@@ -113,8 +113,11 @@ def respond(case_id: str, text: str, channel: str = "text", provenance: Optional
         raise ValueError("empty message")
     continuation.sync_conversation(case_id, lang)
     history = repo.turns(case_id, limit=16)
+    if provenance and ("text_en" in provenance or "lang" in provenance):
+        # a turn's language and English are the server's to record, never the client's
+        provenance = {k: v for k, v in provenance.items() if k not in ("text_en", "lang")}
     if lang == "en":                                   # Hebrew is the default: only an English turn says so
-        provenance = {**{k: v for k, v in (provenance or {}).items() if k not in ("text_en", "lang")}, "lang": "en"}
+        provenance = {**(provenance or {}), "lang": "en"}
     user_turn = repo.add_turn(case_id, channel, "user", text, provenance)
     ctx = {"case_id": case_id, "channel": channel, "actor": actor, "turn_id": user_turn["turn_id"], "trace_id": new_id("TR")}
     contents = _contents(history, text, channel, lang)

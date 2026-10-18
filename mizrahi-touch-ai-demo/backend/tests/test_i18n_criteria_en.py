@@ -1,8 +1,10 @@
 """English of the explanations the review code writes on rubric criteria (app/i18n/criteria_en.py).
 
-Each Hebrew sentence is produced by the real generator (family_checks.outcomes, deterministic.arithmetic,
-deterministic.pay_date_check, and the payslip templates of gemini_provider._merge), never typed into the test, so a
-changed template that the English no longer matches fails here. The model's own wording gets no English."""
+The family checks, the arithmetic and the payment-date rule are produced by their real generators (family_checks.outcomes,
+deterministic.arithmetic, deterministic.pay_date_check), so a changed template the English no longer matches fails here.
+The payslip outcomes of gemini_provider._merge are built inside the provider: they are written out in the test, and
+`test_the_payslip_templates_are_still_the_providers` checks each one's fixed text is still in the provider's source.
+The model's own wording gets no English."""
 from __future__ import annotations
 
 import re
@@ -98,3 +100,16 @@ def test_payslip_templates_and_arithmetic():
 def test_the_models_own_wording_has_no_english():
     assert C.explanation("המסמך שלם וקריא לחלוטין. כל השדות המרכזיים ברורים וללא חיתוכים או טשטוש.") is None
     assert C.explanation("") is None and C.explanation(None) is None
+
+
+def test_the_payslip_templates_are_still_the_providers():
+    from pathlib import Path
+    from app.review import gemini_provider
+    source = Path(gemini_provider.__file__).read_text(encoding="utf8")
+    for fragment in ('f"תקופת השכר: {', '"תקופת השכר אינה מודפסת או אינה ניתנת לפענוח חד־משמעי"', '"חסר במסמך: "',
+                     'f"ברוטו {', ' ₪ · נטו {', 'f"מעסיק: {', '"שם המעסיק אינו מזוהה"', '"לא חולצו שדות מכריעים שניתן לאמת"',
+                     '"לא אומתו מול הקובץ: "', '"כל השדות המכריעים אומתו מול הקובץ המקורי"', '"המסמך לא שויך ללווה"',
+                     'f"מספר הזהות במסמך אינו של {', 'f", המסמך מזוהה עם {', 'f"שם העובד במסמך ({',
+                     'f"שם ומספר זהות תואמים ל{', 'f"השוואת זהות לא חד־משמעית', '"נמצא במסמך טקסט המופנה למערכת או לבודק: "',
+                     'f"סכום שורות התשלומים {'):
+        assert fragment in source, fragment

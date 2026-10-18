@@ -188,10 +188,12 @@ async def upload(case_id: str, request: Request, file: UploadFile = File(...), b
                    {"document_id": doc["document_id"], "replaces": replaces, "filename": doc["filename"]})
     out = {"document": _doc_view(doc), "created": created, "note": note, "intent": intent,
            "answered_request": answered["customer_request_id"] if answered else None, "replaces": replaces}
-    if note and i18n.lang(request):
-        out["note_en"] = (i18n_en.DUPLICATE_UPLOAD if note.startswith("הקובץ הזה") else
-                          i18n_en.DUPLICATE_OTHER_BORROWER.format(owner=i18n_en.name(owner)))
-    return i18n.localized(i18n.lang(request), out, lambda o: i18n_views.doc_view(o["document"]))
+    def english(o: dict) -> None:
+        if note:
+            o["note_en"] = (i18n_en.DUPLICATE_UPLOAD if note.startswith("הקובץ הזה") else
+                            i18n_en.DUPLICATE_OTHER_BORROWER.format(owner=i18n_en.name(owner)))
+        i18n_views.doc_view(o["document"])
+    return i18n.localized(i18n.lang(request), out, english)
 
 
 class ProfileChange(BaseModel):
@@ -395,10 +397,10 @@ def stage_dictionary(request: Request):
 
 # ---------------------------------------------------------------- customer-started applications (demo intake)
 @router.get("/demo/applications/options")
-def application_options(request: Request):
+def application_options():
     if not settings.demo_identity:
         raise HTTPException(404, "demo intake is switched off")
-    return i18n.localized(i18n.lang(request), intake.options(), i18n_views.application_options)
+    return intake.options()
 
 
 @router.post("/demo/applications", status_code=201)

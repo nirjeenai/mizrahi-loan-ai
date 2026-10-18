@@ -151,6 +151,9 @@ def option_label(qid: str, value: Any) -> Optional[str]:
     return None
 
 
+SUGGESTIONS = {"מה ההחזר ביחס להכנסה שלי?": "What's the repayment relative to my income?", "למה צריך את זה?": "Why do you need this?"}
+
+
 def placeholder(qid: Optional[str]) -> str:
     return {"name": "First and last name", "co_name": "First and last name", "signatory": "First and last name",
             "national_id": "ID number", "co_national_id": "ID number", "signatory_id": "ID number",
@@ -966,6 +969,22 @@ def action_label(act: dict, conv: dict, a: dict) -> Optional[str]:
     return None
 
 
+def offered_labels(conv: dict, a: dict, pending: Optional[str]) -> set[str]:
+    """Every English label the customer app could have shown for a button at this point: the open question's quick
+    replies, the last assistant message's actions, the suggestion chips. A client's label_en is echoed only when it is
+    one of these — never free text the client chose."""
+    from ..workflow import onboarding_chat as C
+    out: set[str] = set(SUGGESTIONS.values())
+    if pending:
+        out |= {x for x in (option_label(pending, r["value"]) for r in C._replies(pending, conv, a)) if x}
+    last = next((m for m in reversed(conv["messages"]) if m["role"] == "assistant"), None)
+    for act in (last or {}).get("actions") or []:
+        label = action_label(act, conv, a)
+        if label:
+            out.add(label)
+    return out
+
+
 # ---------------------------------------------------------------- the turn
 def compose(t: dict, conv: dict, a: dict) -> str:
     """The English reply for a turn the Hebrew composer just worded: the same parts in the same order
@@ -1019,8 +1038,7 @@ def view(out: dict, conv: dict, a: dict) -> None:
             p["current_en"] = value(q, C._v2(conv, a)[q], a)
     for s in out.get("stages") or []:
         s["label_en"] = STAGES.get(s["id"], s.get("label_he"))
-    sug = {"מה ההחזר ביחס להכנסה שלי?": "What's the repayment relative to my income?", "למה צריך את זה?": "Why do you need this?"}
-    out["suggestions_en"] = [sug.get(x, x) for x in out.get("suggestions") or []]
+    out["suggestions_en"] = [SUGGESTIONS.get(x, x) for x in out.get("suggestions") or []]
     if out.get("first_name_he"):
         out["first_name_en"] = en.name(out["first_name_he"])
     out["note_en"] = "The questions only decide which documents are needed. They are not an eligibility check or a credit offer."

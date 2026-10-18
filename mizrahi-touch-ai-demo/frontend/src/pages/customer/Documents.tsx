@@ -134,7 +134,8 @@ function LoanDocRow({ r, focused, expanded, setExpanded }: { r: Requirement; foc
             <p className="dl-note" data-testid="req-why">{r.owner_he && <><b>{t("עבור: ", "For: ")}</b>{(en && r.owner_en) || r.owner_he}. </>}{r.why_he && <><b>{t("למה: ", "Why: ")}</b>{(en && r.why_en) || r.why_he}</>}</p>
           )}
           {(r.alternatives_he?.length ?? 0) > 0 && (
-            <p className="dl-note" data-testid="req-alternatives"><b>{t("מתקבל גם: ", "Also accepted: ")}</b>{((en && r.alternatives_en) || r.alternatives_he!).join(" · ")}</p>
+            <p className="dl-note" data-testid="req-alternatives"><b>{t("מתקבל גם: ", "Also accepted: ")}</b>{en && !r.alternatives_en ? <bdi lang="he" dir="rtl">{r.alternatives_he!.join(" · ")}</bdi>
+              : ((en && r.alternatives_en) || r.alternatives_he!).join(" · ")}</p>
           )}
           {human && <p className="dl-note dl-human" data-testid="req-human-review">{en ? <>This document type isn&apos;t checked by AI: the file is stored in your application
             and goes to {snap.case.banker.name_en || snap.case.banker.name_he} for review. It won&apos;t be marked &ldquo;valid&rdquo; automatically.</> : <>סוג מסמך זה אינו נבדק ב-AI: הקובץ נשמר בתיק

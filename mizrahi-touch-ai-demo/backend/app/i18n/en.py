@@ -343,6 +343,8 @@ FOLLOWUP_STATE = {
     "כל המסמכים התקבלו ונבדקו": "All documents were received and checked",
 }
 REMINDER = "{first_name}, a reminder: to complete your application we still need {missing_documents}."
+# the seeded Hebrew reminder template REMINDER translates; a template edited in Admin Settings has no English
+REMINDER_SOURCE_HE = "{{first_name}}, תזכורת: להשלמת הבקשה חסר {{missing_documents}}."
 
 # ---------------------------------------------------------------- upload route notes and customer-facing errors
 DUPLICATE_UPLOAD = "This file was already uploaded to your application, so it wasn't checked again."

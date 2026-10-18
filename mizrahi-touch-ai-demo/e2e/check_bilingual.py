@@ -215,9 +215,12 @@ def main_page(page: Page, api: httpx.Client) -> None:
     check("drawer: the language row shows English selected", en_radio.get_attribute("aria-checked") == "true"
           and he_radio.get_attribute("aria-checked") == "false")
     shot(page, "1-drawer-en")
-    he_radio.click()
+    check("drawer: one tab stop, on the selected language", en_radio.get_attribute("tabindex") == "0"
+          and he_radio.get_attribute("tabindex") == "-1")
+    en_radio.focus()
+    page.keyboard.press("ArrowRight")                  # the ARIA radio pattern: an arrow key moves to and chooses
     page.wait_for_timeout(400)
-    check("drawer: choosing עברית turns the app Hebrew and forgets the choice", phone(page)["lang"] is None
+    check("drawer: the arrow key chooses עברית: the app turns Hebrew and forgets the choice", phone(page)["lang"] is None
           and page.evaluate("() => localStorage.getItem('mz.lang')") is None and chip.get_attribute("data-lang") == "he")
     page.keyboard.press("Escape")
     page.goto(BASE + "/customer?lang=en")

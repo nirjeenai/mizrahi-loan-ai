@@ -47,14 +47,27 @@ VOICE_RULE = ("9. This is a voice channel: short sentences, no lists, no bullets
               "customer to a screen.")
 CHANNEL_MARKER = {"voice": "voice", "text": "chat"}
 
-_NEG = re.compile(r"(?:^|\s)(?:not|no|never|isn't|wasn't|hasn't|hasn't been|hasn't yet|not yet)\s+(?:\S+\s+){0,2}$", re.IGNORECASE)
+# A claim is cancelled only by a negation directly in front of its verb ("is not approved", "hasn't yet been
+# approved") — never by a "not" somewhere earlier in the sentence ("Not to worry, your loan is approved").
+_NOT = r"(?:not|n't|never|no\s+longer)\s+(?:yet\s+)?(?:been\s+|be\s+)?"
+_SUBJECT = r"(?:mortgage|loan|application|request|case|financing)"
 BLOCK = [
-    re.compile(r"\b(?:your\s+)?(?:mortgage|loan|application|case)\s+(?:is\s+|was\s+|has\s+been\s+)?(?:approved|accepted)\b", re.IGNORECASE),
-    re.compile(r"\bfinal\s+approval\b", re.IGNORECASE),
-    re.compile(r"\b(?:your\s+)?(?:application|case)\s+(?:is\s+|has\s+been\s+)?complete(?:d)?\b", re.IGNORECASE),
-    re.compile(r"\binterest\s+(?:rate\s+)?(?:of\s+)?\d", re.IGNORECASE),
-    re.compile(r"\bthe\s+bank\s+(?:has\s+)?(?:approved|accepted)\s+(?:the|your)\s+document", re.IGNORECASE),
+    # "your loan is / was / has been / got / is now approved", "you have been approved (for the loan)"
+    re.compile(rf"\b{_SUBJECT}\s+(?:(?:is|was|has|have|had|got|gets|will|would|now|already|officially|just|been|be|been\s+fully)\s+)*"
+               rf"(?!{_NOT})(?:approved|accepted|granted|authori[sz]ed)\b", re.IGNORECASE),
+    re.compile(r"\byou(?:'ve|\s+have|\s+are|'re|\s+were|\s+got|\s+have\s+been|'ve\s+been)\s+(?:now\s+|officially\s+|already\s+)?"
+               r"(?:approved|accepted|eligible)\b", re.IGNORECASE),
+    re.compile(r"\b(?:final|full|formal|official)\s+approval\b", re.IGNORECASE),
+    re.compile(r"\bapproved\s+(?:amount|loan|sum|limit|credit)\b", re.IGNORECASE),
+    # "your application is complete" — but not the conditional "once / when / after / if your application is complete"
+    re.compile(rf"(?<!once\s)(?<!when\s)(?<!after\s)(?<!until\s)(?<!if\s)(?<!once\syour\s)(?<!when\syour\s)(?<!after\syour\s)"
+               rf"(?<!until\syour\s)(?<!if\syour\s)(?<!when\sthe\s)(?<!once\sthe\s)(?<!after\sthe\s)(?<!if\sthe\s)"
+               rf"\b(?:application|case|file)\s+(?:is|has\s+been|was)\s+(?:now\s+)?(?:complete|completed|finalized|closed)\b", re.IGNORECASE),
+    # an interest rate or a rate with a figure: "interest rate of 4.5%", "the rate is 4.5%", "your rate will be 4.5%"
+    re.compile(r"\b(?:interest|rate)\b[^.\d]{0,25}\d", re.IGNORECASE),
+    re.compile(r"\bthe\s+bank\s+(?:has\s+)?(?:approved|accepted)\s+(?:the|your)\s+(?:document|loan|application)", re.IGNORECASE),
 ]
+_NEGATED = re.compile(rf"{_NOT}$", re.IGNORECASE)
 SAFE_REPLY = ("I can only give you the results of the automatic document check and what is still missing. A decision on "
               "the loan is made only by the banker; I can pass the question on to them.")
 NO_ANSWER = "I couldn't finish the check right now. You can try again or contact the banker."
@@ -69,11 +82,16 @@ def system(case_id: str, channel: str) -> str:
 
 
 def blocked(text: str) -> bool:
-    """An approval-style claim in English (agent.guard_reply checks the Hebrew ones on every reply)."""
+    """An approval-style claim in English (agent.guard_reply checks the Hebrew ones on every reply). A claim whose verb
+    is directly negated ("is not approved", "hasn't been approved yet") is not one."""
     for pat in BLOCK:
         for m in pat.finditer(text or ""):
-            if not _NEG.search(text[max(0, m.start() - 30): m.start()]):
-                return True
+            claim = m.group(0)
+            verb = re.search(r"(approved|accepted|granted|authori[sz]ed|eligible|complete[d]?|finalized|closed)\b", claim, re.IGNORECASE)
+            before = (text[max(0, m.start() - 40): m.start()] + claim[: verb.start()]) if verb else ""
+            if verb and _NEGATED.search(before.rstrip() + " "):
+                continue
+            return True
     return False
 
 

@@ -26,7 +26,8 @@ export function FollowupNotice() {
   return (
     <section className="card fu-note" data-testid="followup-notice" aria-live="polite">
       <div className="fu-head"><span className="fu-ic" aria-hidden><IClock size={16} /></span>
-        <span className="grow"><b data-testid="followup-state">{line}</b></span></div>
+        <span className="grow"><b data-testid="followup-state">{en && line === view.nudge_text_he && !view.nudge_text_en
+          ? <bdi lang="he" dir="rtl">{line}</bdi> : line}</b></span></div>
       {until && <div className="small muted" data-testid="followup-snoozed">{en ? <>We won&apos;t contact you until {until}.</> : <>לא ניצור קשר עד {until}.</>}</div>}
       <div className="fu-actions">
         {!until && <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => act(() => followupApi.snooze(caseId, 60))}

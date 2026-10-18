@@ -29,7 +29,8 @@ def resolve_action(case_id: str, body: Resolve, request: Request):
         repo.audit(case_id, "customer", "assistant_action_refused", body.action_id, {"turn_id": body.turn_id, "code": exc.code})
         raise HTTPException(exc.status, exc.message_he) from None
     repo.audit(case_id, "customer", "assistant_action_opened", action.action_id, {"turn_id": body.turn_id, "type": action.type})
-    return {"action": action.model_dump()}
+    return i18n.localized(i18n.lang(request), {"action": action.model_dump()},
+                          lambda o: continuation_en.actions_en(case_id, [o["action"]]))
 
 
 @router.get("/documents/{document_id}/outcome")
