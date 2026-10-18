@@ -7,8 +7,9 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from .. import auth
+from .. import auth, i18n
 from ..agent import actions, continuation
+from ..i18n import continuation_en
 from ..store import repo
 
 router = APIRouter(prefix="/api/cases/{case_id}")
@@ -28,13 +29,15 @@ def resolve_action(case_id: str, body: Resolve, request: Request):
         repo.audit(case_id, "customer", "assistant_action_refused", body.action_id, {"turn_id": body.turn_id, "code": exc.code})
         raise HTTPException(exc.status, exc.message_he) from None
     repo.audit(case_id, "customer", "assistant_action_opened", action.action_id, {"turn_id": body.turn_id, "type": action.type})
-    return {"action": action.model_dump()}
+    return i18n.localized(i18n.lang(request), {"action": action.model_dump()},
+                          lambda o: continuation_en.actions_en(case_id, [o["action"]]))
 
 
 @router.get("/documents/{document_id}/outcome")
 def upload_outcome(case_id: str, document_id: str, request: Request):
     auth.require_customer_case(request, case_id)
     try:
-        return continuation.outcome(case_id, document_id)
+        return i18n.localized(i18n.lang(request), continuation.outcome(case_id, document_id),
+                              lambda o: continuation_en.outcome(o, case_id))
     except KeyError:
         raise HTTPException(404, "no such document in this case") from None

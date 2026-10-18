@@ -46,6 +46,7 @@ class Settings:
     onboarding_llm_model: str
     onboarding_llm_timeout: float
     loan_sim_illustrative_rate: bool
+    i18n_en: bool
 
     @property
     def db_path(self) -> Path:
@@ -111,4 +112,6 @@ settings = Settings(
     # loan simulator: without a bank quote or pricing config it shows repayments at a labelled illustrative rate;
     # LOAN_SIM_ILLUSTRATIVE_RATE=0 shows the unknown-rate state instead (amount and term only, no repayment figure)
     loan_sim_illustrative_rate=os.environ.get("LOAN_SIM_ILLUSTRATIVE_RATE", "1") == "1",
+    # the customer app's English: I18N_EN=0 ignores the X-MZ-Lang header, so every response is Hebrew-only as before
+    i18n_en=os.environ.get("I18N_EN", "1") == "1",
 )

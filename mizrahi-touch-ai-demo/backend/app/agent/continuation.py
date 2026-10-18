@@ -151,8 +151,9 @@ def _brief(f: dict) -> dict:
             "message_he": mask_ids(f["message_he"]), "document_id": f.get("document_id")}
 
 
-def sync_conversation(case_id: str) -> Optional[dict]:
-    """Posts the follow-up for finished assistant-originated uploads. Idempotent; called on conversation reads."""
+def sync_conversation(case_id: str, lang: Optional[str] = None) -> Optional[dict]:
+    """Posts the follow-up for finished assistant-originated uploads. Idempotent; called on conversation reads.
+    `lang`: the customer app's language (X-MZ-Lang); with it the follow-up also stores its English (text_en)."""
     with _lock:
         waiting = repo.upload_intents_awaiting_followup(case_id)
         if not waiting or engine.pending_jobs(case_id):
@@ -163,9 +164,17 @@ def sync_conversation(case_id: str) -> Optional[dict]:
         from .agent import guard_reply                     # agent imports this module
         text, next_actions, _ = compose(case_id, docs, {i["document_id"]: i for i in waiting})
         reply, guard = guard_reply(text)
+        english = {}
+        if lang and not guard["blocked"]:
+            try:
+                from ..i18n import continuation_en
+                english = {"text_en": continuation_en.compose(case_id, docs, {i["document_id"]: i for i in waiting})}
+            except Exception:                       # English must never cost the customer the Hebrew follow-up
+                import logging
+                logging.getLogger("continuation").exception("English follow-up failed; the Hebrew one is posted alone")
         turn = repo.add_turn(case_id, "app", "assistant", reply, {
             "source": "mortgage_case_service", "event": "upload_outcome", "document_ids": [d["document_id"] for d in docs],
-            "actions": [] if guard["blocked"] else [a.model_dump() for a in next_actions], "guard": guard})
+            "actions": [] if guard["blocked"] else [a.model_dump() for a in next_actions], "guard": guard, **english})
         repo.set_upload_followup([i["document_id"] for i in waiting], turn["turn_id"])
         repo.audit(case_id, "case_service", "assistant_followup_posted", turn["turn_id"],
                    {"document_ids": [d["document_id"] for d in docs]})

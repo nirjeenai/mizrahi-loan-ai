@@ -7,17 +7,18 @@ export type Model = "annuity" | "equal_principal" | "interest_only";
 export type DeferralPolicy = "capitalized" | "interest_only" | "accrued_first_payment";
 
 export interface Rate { available: boolean; source: "bank_quote" | "pricing_config" | "illustrative" | "unavailable";
-  annual_rate_pct: number | null; convention: "nominal" | "effective" | null; label_he: string }
+  annual_rate_pct: number | null; convention: "nominal" | "effective" | null; label_he: string; label_en?: string }
 export interface ProductBounds { amount_min: number; amount_max: number; amount_max_basis: string; amount_step: number;
   term_min: number; term_min_basis: string; term_max: number; term_max_basis: string }
 export interface Deferral { max_months: number; basis: string; verified_policy: string | null;
   illustrative_policies: DeferralPolicy[]; default_policy: DeferralPolicy; term_includes_deferral: boolean; term_basis: string }
 export interface Product {
   id: string; label_he: string; short_he: string; source_url: string; verified_he: string[]; not_applicable_he?: string | null;
+  label_en?: string; short_en?: string; verified_en?: string[]; not_applicable_en?: string | null;
   amount_field: "amount" | "business_amount"; max_financing_ratio: number | null;
-  asset: { label_he: string; hint_he: string } | null;
+  asset: { label_he: string; hint_he: string; label_en?: string; hint_en?: string } | null;
   features: { repayment_models: ("annuity" | "equal_principal")[]; models_basis?: string; deferral: Deferral | null;
-    variable_rate: { basis: string; note_he: string } | null; fees: unknown[] };
+    variable_rate: { basis: string; note_he: string; note_en?: string } | null; fees: unknown[] };
   defaults: { amount: number; term: number }; bounds: ProductBounds; rate: Rate;
 }
 export interface Params {
@@ -248,4 +249,39 @@ export function targetSolution(p: Product, prm: Params, target: number | null, s
   if (amt < b.amount_min) return { status: "none", target, term_max: m };
   const s = compute(p, { ...prm, amount: amt, term: m }, startMonth);
   return { status: "amount", target, amount: amt, term: m, monthly_payment: s?.monthly_payment ?? null };
+}
+
+/* ---------------------------------------------------------------- English wording (the customer app's English)
+   The same rules and the same figures as shortIssue / issues above; only the words differ. Nothing here computes. */
+const enWhole = (n: number) => `₪${Math.round(n).toLocaleString("en-US")}`;
+const enWhere = (basis: string) => (basis === "verified" ? "on this product" : "in the simulation");
+
+/** shortIssue in English */
+export function shortIssueEn(i: Issue, p: Product): string {
+  const b = p.bounds;
+  switch (i.code) {
+    case "financing_ratio": return `${pct1(i.ratio_pct!)}% financing, above ${i.limit_pct}% on this product`;
+    case "amount_above_max": return `Up to ${enWhole(b.amount_max)} ${enWhere(b.amount_max_basis)}`;
+    case "amount_below_min": return `At least ${enWhole(b.amount_min)}`;
+    case "term_above_max": return `Up to ${b.term_max} months ${enWhere(b.term_max_basis)}`;
+    case "term_below_min": return `At least ${b.term_min} months`;
+    case "asset_required": return `Enter the car's price to check financing (up to ${Math.trunc((p.max_financing_ratio ?? 0) * 100)}%), or "No price yet"`;
+    case "deferral_not_supported": return p.features.deferral ? `Deferral of up to ${p.features.deferral.max_months} months` : "No first-payment deferral on this product";
+    default: return issueMessageEn(i, p);
+  }
+}
+
+/** an issue's full sentence (issues' message_he) in English */
+export function issueMessageEn(i: Issue, p: Product): string {
+  const b = p.bounds, label = p.label_en || p.label_he;
+  switch (i.code) {
+    case "amount_below_min": return `The lowest amount in the simulation is ${enWhole(b.amount_min)}.`;
+    case "amount_above_max": return `${b.amount_max_basis === "verified" ? `The ${label} goes up to` : "The simulation goes up to"} ${enWhole(b.amount_max)}. You can lower the amount or check another product.`;
+    case "financing_ratio": return `The amount you chose is ${pct1(i.ratio_pct!)}% of the car's price, above this product's financing rate (up to ${i.limit_pct}%). You can lower the loan to ${enWhole(i.fix!)} or look at other options.`;
+    case "term_below_min": return `The shortest term in the simulation is ${b.term_min} months.`;
+    case "term_above_max": return `${b.term_max_basis === "verified" ? `The ${label} term goes up to` : "The simulation term goes up to"} ${b.term_max} months. You can shorten the term or check another product.`;
+    case "asset_required": return `To check the financing rate of the ${label} (up to ${Math.trunc((p.max_financing_ratio ?? 0) * 100)}% of the car's price) we need the car's price. You can enter it, or say there's no final price yet.`;
+    case "deferral_not_supported": return p.features.deferral ? `You can defer the first payment by up to ${p.features.deferral.max_months} months.` : "This product has no first-payment deferral.";
+    default: return i.message_he;
+  }
 }

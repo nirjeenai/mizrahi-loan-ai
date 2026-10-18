@@ -1,0 +1,1882 @@
+[
+ {
+  "step": "start",
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "messages": [
+    {
+     "id": 1,
+     "role": "assistant",
+     "kind": "text",
+     "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+     "at": "<TS>",
+     "question_id": "loan_type",
+     "stale": false
+    }
+   ],
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "question_id": "loan_type",
+   "value": "business",
+   "label_he": "הלוואה עסקית"
+  },
+  "new_messages": [
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה עסקית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית, הבנתי. איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
+    "at": "<TS>",
+    "question_id": "business_form",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "business_form",
+    "kind": "choice",
+    "prompt_he": "איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
+    "replies": [
+     {
+      "label_he": "עוסק פטור",
+      "value": "vat_exempt"
+     },
+     {
+      "label_he": "עוסק מורשה",
+      "value": "vat_registered"
+     },
+     {
+      "label_he": "חברה בע״מ",
+      "value": "company"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 4,
+     "answered": 1
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "question_id": "business_form",
+   "value": "company",
+   "label_he": "חברה בע״מ"
+  },
+  "new_messages": [
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "חברה בע״מ",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית לחברה בע״מ. זה מסלול מוגבל בליווי בנקאי/ת, ואאסוף כאן רק את מה שצריך כדי להתחיל. מה שם החברה?",
+    "at": "<TS>",
+    "question_id": "company_name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "company_name",
+    "kind": "text",
+    "prompt_he": "מה שם החברה?",
+    "replies": [],
+    "placeholder_he": "שם החברה",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 5,
+     "answered": 2
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "company"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "מיזוג בעמ"
+  },
+  "new_messages": [
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מיזוג בעמ",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מיזוג בעמ, רשמתי. מי מורשה החתימה שמגיש את הבקשה? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "signatory",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "signatory",
+    "kind": "name",
+    "prompt_he": "מי מורשה החתימה שמגיש את הבקשה? (שם פרטי ושם משפחה)",
+    "replies": [],
+    "placeholder_he": "שם פרטי ושם משפחה",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 5,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "company"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "גלעד ששון"
+  },
+  "new_messages": [
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "גלעד ששון",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. מה מספר תעודת הזהות של מורשה החתימה?",
+    "at": "<TS>",
+    "question_id": "signatory_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "גלעד",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "signatory_id",
+    "kind": "text",
+    "prompt_he": "מה מספר תעודת הזהות של מורשה החתימה?",
+    "replies": [],
+    "placeholder_he": "מספר תעודת זהות",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 5,
+     "answered": 4
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "company"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "DEMO-ID-204"
+  },
+  "new_messages": [
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "DEMO-ID-204",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. למה מיזוג בעמ צריכה את המימון?",
+    "at": "<TS>",
+    "question_id": "company_purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "גלעד",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "company_purpose",
+    "kind": "choice",
+    "prompt_he": "למה מיזוג בעמ צריכה את המימון?",
+    "replies": [
+     {
+      "label_he": "מימון ציוד לעסק",
+      "value": "business_equipment"
+     },
+     {
+      "label_he": "הון חוזר לעסק",
+      "value": "working_capital"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 5,
+     "answered": 5
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "company"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "question_id": "company_purpose",
+   "value": "business_equipment",
+   "label_he": "מימון ציוד לעסק"
+  },
+  "new_messages": [
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מימון ציוד לעסק",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "בואו נגדיר את סכום המימון ואת התקופה. במסלול לחברות אין חישוב החזר אוטומטי, אז כאן בוחרים סכום ותקופה, והבנקאי/ת יחזרו עם הצעה.",
+    "at": "<TS>",
+    "question_id": "business_amount",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "pending",
+     "product_he": "מימון לחברה, בליווי בנקאי/ת",
+     "amount": 300000,
+     "term": 60,
+     "monthly_payment": null,
+     "rev": 0,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "גלעד",
+   "engine": "rules",
+   "simulation": {
+    "status": "pending",
+    "editing": false,
+    "rev": 0,
+    "product_id": "company",
+    "candidates": [
+     {
+      "id": "company",
+      "label_he": "מימון לחברה, בליווי בנקאי/ת",
+      "short_he": "חברה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/",
+      "verified_he": [],
+      "not_applicable_he": null,
+      "amount_field": "business_amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 300000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 20000,
+       "amount_max": 3000000,
+       "amount_max_basis": "flow",
+       "amount_step": 10000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 120,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": false,
+       "source": "unavailable",
+       "annual_rate_pct": null,
+       "convention": null,
+       "label_he": "במסלול לחברות אין חישוב החזר אוטומטי, הבנקאי/ת יחזרו עם הצעה."
+      }
+     }
+    ],
+    "amount_field": "business_amount",
+    "purpose": "business_equipment",
+    "draft": {
+     "amount": 300000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": false,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": null,
+     "issues": [],
+     "affordability": null,
+     "comparison": [],
+     "target": null,
+     "rate": {
+      "available": false,
+      "source": "unavailable",
+      "annual_rate_pct": null,
+      "convention": null,
+      "label_he": "במסלול לחברות אין חישוב החזר אוטומטי, הבנקאי/ת יחזרו עם הצעה."
+     }
+    },
+    "confirmed": null,
+    "confirmed_eval": null,
+    "context": {
+     "net_income": null,
+     "net_parts": [],
+     "co_borrower_pending": false,
+     "obligations": null,
+     "target_monthly": null,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "business_amount",
+    "kind": "simulator",
+    "prompt_he": "אפשר להמשיך לכוון את הסכום והתקופה בסימולציה, וללחוץ על אישור כשזה מתאים.",
+    "replies": [
+     {
+      "label_he": "150,000 ₪",
+      "value": 150000
+     },
+     {
+      "label_he": "300,000 ₪",
+      "value": 300000
+     },
+     {
+      "label_he": "500,000 ₪",
+      "value": 500000
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 5,
+     "answered": 5
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "company"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "action": "simulate_confirm",
+   "simulation": {
+    "amount": 300000,
+    "term": 60
+   }
+  },
+  "new_messages": [
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "זה התרחיש שלי: 300,000 ₪ ב־60 תשלומים",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה, רשמתי 300,000 ₪ ב־60 תשלומים, מימון לחברה, בליווי בנקאי/ת. סיימנו! ריכזתי למטה את כל הפרטים ואת המסמכים שיידרשו, אפשר לעבור עליהם, לשנות ולאשר. פתיחת הבקשה אינה אישור הלוואה.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "מימון לחברה, בליווי בנקאי/ת",
+     "amount": 300000,
+     "term": 60,
+     "monthly_payment": null,
+     "rev": 1,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "גלעד",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 1,
+    "product_id": "company",
+    "candidates": [
+     {
+      "id": "company",
+      "label_he": "מימון לחברה, בליווי בנקאי/ת",
+      "short_he": "חברה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/",
+      "verified_he": [],
+      "not_applicable_he": null,
+      "amount_field": "business_amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 300000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 20000,
+       "amount_max": 3000000,
+       "amount_max_basis": "flow",
+       "amount_step": 10000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 120,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": false,
+       "source": "unavailable",
+       "annual_rate_pct": null,
+       "convention": null,
+       "label_he": "במסלול לחברות אין חישוב החזר אוטומטי, הבנקאי/ת יחזרו עם הצעה."
+      }
+     }
+    ],
+    "amount_field": "business_amount",
+    "purpose": "business_equipment",
+    "draft": {
+     "amount": 300000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": false,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": null,
+     "issues": [],
+     "affordability": null,
+     "comparison": [],
+     "target": null,
+     "rate": {
+      "available": false,
+      "source": "unavailable",
+      "annual_rate_pct": null,
+      "convention": null,
+      "label_he": "במסלול לחברות אין חישוב החזר אוטומטי, הבנקאי/ת יחזרו עם הצעה."
+     }
+    },
+    "confirmed": {
+     "amount": 300000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": false,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": null,
+     "issues": [],
+     "affordability": null,
+     "comparison": [],
+     "target": null,
+     "rate": {
+      "available": false,
+      "source": "unavailable",
+      "annual_rate_pct": null,
+      "convention": null,
+      "label_he": "במסלול לחברות אין חישוב החזר אוטומטי, הבנקאי/ת יחזרו עם הצעה."
+     }
+    },
+    "context": {
+     "net_income": null,
+     "net_parts": [],
+     "co_borrower_pending": false,
+     "obligations": null,
+     "target_monthly": null,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": null,
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 5,
+     "answered": 5
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "current",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "company"
+   },
+   "indication": null,
+   "suggestions": [],
+   "summary": {
+    "profile": {
+     "entity": "company",
+     "entity_he": "מימון לחברה בע״מ",
+     "purpose": "business_equipment",
+     "purpose_he": "מימון ציוד לעסק",
+     "company": {
+      "name_he": "מיזוג בעמ",
+      "company_number": "DEMO-CO-<2>",
+      "signatory_he": "גלעד ששון",
+      "signatory_role_he": "מורשה חתימה"
+     },
+     "banker_assisted": true,
+     "use_case": null,
+     "profile_label_he": "חברה בע״מ",
+     "applicants": [
+      {
+       "borrower_id": "BRW-A",
+       "name_he": "גלעד ששון",
+       "role": "authorized_signatory",
+       "role_he": "מורשה חתימה",
+       "income_sources": [],
+       "business_registration": null,
+       "profile_he": "מורשה חתימה"
+      }
+     ],
+     "accounts": [
+      {
+       "account_id": "ACC-1",
+       "label_he": "חשבון עסקי של החברה",
+       "holders": [
+        "COMPANY"
+       ],
+       "other_holders_he": []
+      }
+     ],
+     "disclaimer_he": "רשימת המסמכים נגזרת ממדיניות המסמכים של הבקשה; הבנקאי/ת עשויים לבקש מסמכים נוספים."
+    },
+    "policy_version": "loan_policy@v1",
+    "title_he": "מימון ציוד לעסק — מיזוג בעמ",
+    "loan": {
+     "product": "business_financing.inquiry",
+     "product_he": "מימון עסקי, פנייה ראשונית",
+     "purpose": "business_equipment",
+     "purpose_he": "מימון ציוד לעסק",
+     "requested_amount_ils": 300000,
+     "payments": 60,
+     "note_he": ""
+    },
+    "requirements": [
+     {
+      "code": "ID_CARD:BRW-A",
+      "title_he": "תעודת זהות — גלעד",
+      "family": "id_document",
+      "family_he": "תעודת זהות",
+      "owner_he": "גלעד ששון",
+      "owner_type": "applicant",
+      "why_he": "זיהוי כל לווה (או מורשה חתימה) והשוואת השם ומספר הזהות לשאר המסמכים",
+      "alternatives_he": [
+       "תעודת זהות ביומטרית (שני הצדדים)",
+       "דרכון ישראלי בתוקף"
+      ],
+      "intake": "ai_review",
+      "required": true
+     },
+     {
+      "code": "COMPANY_EXTRACT",
+      "title_he": "נסח חברה עדכני",
+      "family": "company_registry",
+      "family_he": "נסח חברה",
+      "owner_he": "מיזוג בעמ",
+      "owner_type": "company",
+      "why_he": "מאמת את קיום החברה, מספר החברה, בעלי המניות והדירקטורים",
+      "alternatives_he": [
+       "נסח חברה מרשם החברות",
+       "תעודת התאגדות ותדפיס פרטי חברה"
+      ],
+      "intake": "human_review",
+      "required": true
+     },
+     {
+      "code": "SIGNATORY_AUTHORITY",
+      "title_he": "פרוטוקול מורשי חתימה",
+      "family": "signatory_authority",
+      "family_he": "מורשי חתימה",
+      "owner_he": "מיזוג בעמ",
+      "owner_type": "company",
+      "why_he": "מראה מי רשאי לחייב את החברה ובאיזה הרכב חתימה",
+      "alternatives_he": [
+       "פרוטוקול דירקטוריון על זכויות חתימה",
+       "אישור עו״ד על מורשי חתימה",
+       "אישור רו״ח על מורשי חתימה"
+      ],
+      "intake": "human_review",
+      "required": true
+     },
+     {
+      "code": "COMPANY_FINANCIALS",
+      "title_he": "דוחות כספיים מבוקרים",
+      "family": "financial_statements",
+      "family_he": "דוחות כספיים",
+      "owner_he": "מיזוג בעמ",
+      "owner_type": "company",
+      "why_he": "בסיס לבדיקה העסקית של הבנקאי — הדמו אינו מבצע חיתום עסקי",
+      "alternatives_he": [
+       "דוחות כספיים מבוקרים לשנה האחרונה",
+       "דוחות כספיים סקורים, אם טרם הושלמה הביקורת"
+      ],
+      "intake": "human_review",
+      "required": true
+     },
+     {
+      "code": "COMPANY_INTERIM",
+      "title_he": "דוח רווח והפסד לתקופה השוטפת",
+      "family": "pnl_statement",
+      "family_he": "דוח רווח והפסד",
+      "owner_he": "מיזוג בעמ",
+      "owner_type": "company",
+      "why_he": "מעדכן את הדוחות השנתיים לתקופה האחרונה",
+      "alternatives_he": [
+       "דוח רווח והפסד ביניים",
+       "מאזן בוחן חתום בידי רו״ח"
+      ],
+      "intake": "human_review",
+      "required": true
+     },
+     {
+      "code": "BUSINESS_STATEMENTS:ACC-1",
+      "title_he": "דפי עו״ש עסקי ל־6 החודשים האחרונים — חשבון עסקי של החברה",
+      "family": "business_bank_statement",
+      "family_he": "דפי עו״ש עסקי",
+      "owner_he": "מיזוג בעמ",
+      "owner_type": "account",
+      "why_he": "תזרים המזומנים של החברה בפועל",
+      "alternatives_he": [
+       "תדפיס תנועות של חשבון החברה",
+       "אישור יתרות ותנועות מהבנק"
+      ],
+      "intake": "human_review",
+      "required": true
+     }
+    ],
+    "lines": [
+     {
+      "label_he": "סוג ההלוואה",
+      "value_he": "הלוואה עסקית · חברה בע״מ",
+      "question_id": "loan_type"
+     },
+     {
+      "label_he": "החברה",
+      "value_he": "מיזוג בעמ",
+      "question_id": "company_name"
+     },
+     {
+      "label_he": "מורשה החתימה",
+      "value_he": "גלעד ששון",
+      "question_id": "signatory"
+     },
+     {
+      "label_he": "מטרה",
+      "value_he": "מימון ציוד לעסק",
+      "question_id": "company_purpose"
+     },
+     {
+      "label_he": "סכום",
+      "value_he": "300,000 ₪",
+      "question_id": "business_amount"
+     },
+     {
+      "label_he": "תשלומים",
+      "value_he": "60 תשלומים",
+      "question_id": "payments"
+     },
+     {
+      "label_he": "מסלול בסימולציה",
+      "value_he": "מימון לחברה, בליווי בנקאי/ת",
+      "question_id": "simulation"
+     }
+    ],
+    "intro_he": "גלעד, זה מה שהבנתי. אפשר לשנות כל פרט לפני שפותחים את הבקשה."
+   },
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": [
+   "open_case"
+  ],
+  "status": 200,
+  "body": {
+   "case_id": "DEMO-LN-<3>",
+   "created": true,
+   "requirements": [
+    {
+     "code": "ID_CARD:BRW-A",
+     "title_he": "תעודת זהות — גלעד",
+     "owner_he": "גלעד ששון",
+     "intake": "ai_review"
+    },
+    {
+     "code": "COMPANY_EXTRACT",
+     "title_he": "נסח חברה עדכני",
+     "owner_he": "מיזוג בעמ",
+     "intake": "human_review"
+    },
+    {
+     "code": "SIGNATORY_AUTHORITY",
+     "title_he": "פרוטוקול מורשי חתימה",
+     "owner_he": "מיזוג בעמ",
+     "intake": "human_review"
+    },
+    {
+     "code": "COMPANY_FINANCIALS",
+     "title_he": "דוחות כספיים מבוקרים",
+     "owner_he": "מיזוג בעמ",
+     "intake": "human_review"
+    },
+    {
+     "code": "COMPANY_INTERIM",
+     "title_he": "דוח רווח והפסד לתקופה השוטפת",
+     "owner_he": "מיזוג בעמ",
+     "intake": "human_review"
+    },
+    {
+     "code": "BUSINESS_STATEMENTS:ACC-1",
+     "title_he": "דפי עו״ש עסקי ל־6 החודשים האחרונים — חשבון עסקי של החברה",
+     "owner_he": "מיזוג בעמ",
+     "intake": "human_review"
+    }
+   ]
+  }
+ },
+ {
+  "step": "case_snapshot",
+  "status": 200,
+  "body": {
+   "case": {
+    "case_id": "DEMO-LN-<3>",
+    "display_number": "<RANDOM-1>",
+    "title_he": "מימון ציוד לעסק — מיזוג בעמ",
+    "stage_index": 1,
+    "preliminary_decision": null,
+    "requested_loan_ils": 300000,
+    "loan": {
+     "product": "business_financing.inquiry",
+     "product_he": "מימון עסקי, פנייה ראשונית",
+     "purpose": "business_equipment",
+     "purpose_he": "מימון ציוד לעסק",
+     "requested_amount_ils": 300000,
+     "payments": 60,
+     "note_he": "",
+     "simulation": {
+      "candidate_product": "company",
+      "candidate_product_he": "מימון לחברה, בליווי בנקאי/ת",
+      "product_selected_by_bank": false,
+      "config_version": "loan-products.demo.v1",
+      "rate_source": "unavailable",
+      "annual_rate_pct": null,
+      "monthly_payment_ils": null,
+      "total_interest_ils": null,
+      "asset_price_ils": null,
+      "asset_price_source": null,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "repayment_model": "annuity",
+      "existing_monthly_obligations_ils": null,
+      "obligations_source": null
+     }
+    },
+    "submitted_at": "<TS>",
+    "banker": {
+     "name_he": "דנה כהן",
+     "role_he": "הבנקאית שלך",
+     "staff_id": "STAFF-DANA"
+    },
+    "meeting": null,
+    "borrowers": [
+     {
+      "borrower_id": "BRW-A",
+      "name_he": "גלעד ששון",
+      "first_name_he": "גלעד",
+      "national_id": "DEMO-ID-204",
+      "employment": "none",
+      "income_sources": [],
+      "business_registration": null,
+      "employer_declared_he": "",
+      "business_name_he": null,
+      "role": "authorized_signatory",
+      "declared_net_monthly_ils": 0,
+      "declaration_note_he": "הוצהר בטופס הבקשה",
+      "declared_income_provenance": "CUSTOMER_DECLARED"
+     }
+    ],
+    "accounts": [
+     {
+      "account_id": "ACC-1",
+      "label_he": "חשבון עסקי של החברה",
+      "bank_he": "מזרחי־טפחות",
+      "holders": [
+       "COMPANY"
+      ]
+     }
+    ],
+    "contact": {
+     "consent_voice": true,
+     "consent_message": true,
+     "phone_ref": "TEST-LINE-01",
+     "phone_masked": "050-•••-4471"
+    },
+    "customer_started": true,
+    "persona_id": "PRS-NEW-<4>",
+    "applicant_type": "company",
+    "banker_assisted": true,
+    "profile_label_he": "חברה בע״מ",
+    "company": {
+     "name_he": "מיזוג בעמ",
+     "company_number": "DEMO-CO-<RANDOM-1>",
+     "signatory_he": "גלעד ששון",
+     "signatory_role_he": "מורשה חתימה"
+    },
+    "onboarding_draft_id": "OBD-<1>",
+    "loan_category": "business",
+    "business_form": "company",
+    "bank_stage": {
+     "source": "DEMO_BANK_ADAPTER",
+     "authoritative": false,
+     "index": 1,
+     "of": 5,
+     "code": "APPLICATION_SUBMITTED",
+     "label_he": "הגשת בקשה",
+     "label_observed_in_screenshot": false
+    },
+    "source": {
+     "source": "DEMO_BANK_ADAPTER",
+     "authoritative": false
+    },
+    "document_profile": {
+     "entity": "company",
+     "entity_he": "מימון לחברה בע״מ",
+     "purpose": "business_equipment",
+     "purpose_he": "מימון ציוד לעסק",
+     "company": {
+      "name_he": "מיזוג בעמ",
+      "company_number": "DEMO-CO-<RANDOM-1>",
+      "signatory_he": "גלעד ששון",
+      "signatory_role_he": "מורשה חתימה"
+     },
+     "banker_assisted": true,
+     "use_case": null,
+     "profile_label_he": "חברה בע״מ",
+     "applicants": [
+      {
+       "borrower_id": "BRW-A",
+       "name_he": "גלעד ששון",
+       "role": "authorized_signatory",
+       "role_he": "מורשה חתימה",
+       "income_sources": [],
+       "business_registration": null,
+       "profile_he": "מורשה חתימה"
+      }
+     ],
+     "accounts": [
+      {
+       "account_id": "ACC-1",
+       "label_he": "חשבון עסקי של החברה",
+       "holders": [
+        "COMPANY"
+       ],
+       "other_holders_he": []
+      }
+     ],
+     "disclaimer_he": "רשימת המסמכים נגזרת ממדיניות המסמכים של הבקשה; הבנקאי/ת עשויים לבקש מסמכים נוספים."
+    }
+   },
+   "stage_dictionary": {
+    "source": "DEMO_BANK_ADAPTER",
+    "authoritative": false,
+    "stages": [
+     {
+      "index": 1,
+      "code": "APPLICATION_SUBMITTED",
+      "label_he": "הגשת בקשה",
+      "observed": false
+     },
+     {
+      "index": 2,
+      "code": "DOCUMENTS_AND_CHECKS",
+      "label_he": "השלמת מסמכים",
+      "observed": false
+     },
+     {
+      "index": 3,
+      "code": "BANKER_REVIEW",
+      "label_he": "בדיקת בנקאי",
+      "observed": false
+     },
+     {
+      "index": 4,
+      "code": "SIGNING",
+      "label_he": "חתימה על הסכם ההלוואה",
+      "observed": false
+     },
+     {
+      "index": 5,
+      "code": "DISBURSEMENT",
+      "label_he": "העמדת ההלוואה",
+      "observed": false
+     }
+    ],
+    "note_he": "מילון השלבים משמש לתצוגה; השלב הרשמי נקבע במערכות הבנק."
+   },
+   "readiness": {
+    "scope": "loan_documents",
+    "state": "NOT_CHECKED",
+    "state_he": "טרם נבדק",
+    "state_he_banker": "טרם הועלו מסמכים",
+    "case_status": "AWAITING_DOCUMENTS",
+    "customer_status": "AWAITING_UPLOAD",
+    "case_review_failed": false,
+    "payslips": {
+     "required": 0,
+     "verified": 0,
+     "requested_months": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+     ]
+    },
+    "progress": {
+     "done": 0,
+     "total": 6,
+     "missing_units": 6,
+     "human_review_total": 5,
+     "human_review_received": 0
+    },
+    "requirements": [
+     {
+      "requirement_id": "ID_CARD",
+      "family": "id_document",
+      "family_he": "תעודת זהות",
+      "required": 1,
+      "rules": {
+       "check_expiry": true
+      },
+      "hint_he": "צילום ברור של תעודת הזהות, כולל הספח אם יש",
+      "why_he": "זיהוי כל לווה (או מורשה חתימה) והשוואת השם ומספר הזהות לשאר המסמכים",
+      "alternatives_he": [
+       "תעודת זהות ביומטרית (שני הצדדים)",
+       "דרכון ישראלי בתוקף"
+      ],
+      "evaluated_by_ai": true,
+      "intake": "ai_review",
+      "bank_status": "awaiting_documents",
+      "policy_version": "loan_policy@v1",
+      "family_code": "ID_CARD",
+      "source": "DEMO_BANK_ADAPTER",
+      "authoritative": false,
+      "code": "ID_CARD:BRW-A",
+      "borrower_id": "BRW-A",
+      "account_id": null,
+      "holders": [
+       "BRW-A"
+      ],
+      "title_he": "תעודת זהות — גלעד",
+      "owner_type": "applicant",
+      "owner_he": "גלעד ששון",
+      "ai_state": "required_missing",
+      "ai_state_he": "טרם הועלה",
+      "documents": 0,
+      "document_ids": [],
+      "accepted_document_ids": [],
+      "open_customer_actions": 0,
+      "open_banker_items": 0,
+      "open_customer_requests": 0,
+      "requested_months": [],
+      "covered": [],
+      "pending_review": [],
+      "missing": [],
+      "duplicates": {},
+      "verified_months": [],
+      "in_review_months": [],
+      "units_required": 1,
+      "units_verified": 0,
+      "coverage_gaps": [],
+      "customer_status": "AWAITING_UPLOAD"
+     },
+     {
+      "requirement_id": "COMPANY_EXTRACT",
+      "family": "company_registry",
+      "family_he": "נסח חברה",
+      "required": 1,
+      "rules": {
+       "max_age_days": 30
+      },
+      "hint_he": "נסח מרשם החברות שהופק בחודש האחרון",
+      "why_he": "מאמת את קיום החברה, מספר החברה, בעלי המניות והדירקטורים",
+      "alternatives_he": [
+       "נסח חברה מרשם החברות",
+       "תעודת התאגדות ותדפיס פרטי חברה"
+      ],
+      "evaluated_by_ai": false,
+      "intake": "human_review",
+      "bank_status": "awaiting_documents",
+      "policy_version": "loan_policy@v1",
+      "family_code": "COMPANY_EXTRACT",
+      "source": "DEMO_BANK_ADAPTER",
+      "authoritative": false,
+      "code": "COMPANY_EXTRACT",
+      "borrower_id": null,
+      "account_id": null,
+      "holders": [
+       "BRW-A"
+      ],
+      "title_he": "נסח חברה עדכני",
+      "owner_type": "company",
+      "owner_he": "מיזוג בעמ",
+      "ai_state": "required_missing",
+      "ai_state_he": "טרם הועלה",
+      "documents": 0,
+      "document_ids": [],
+      "accepted_document_ids": [],
+      "open_customer_actions": 0,
+      "open_banker_items": 0,
+      "open_customer_requests": 0,
+      "requested_months": [],
+      "covered": [],
+      "pending_review": [],
+      "missing": [],
+      "duplicates": {},
+      "verified_months": [],
+      "in_review_months": [],
+      "units_required": 1,
+      "units_verified": 0,
+      "coverage_gaps": [],
+      "customer_status": "AWAITING_UPLOAD"
+     },
+     {
+      "requirement_id": "SIGNATORY_AUTHORITY",
+      "family": "signatory_authority",
+      "family_he": "מורשי חתימה",
+      "required": 1,
+      "rules": {},
+      "hint_he": "פרוטוקול דירקטוריון או אישור עו״ד/רו״ח על מורשי החתימה",
+      "why_he": "מראה מי רשאי לחייב את החברה ובאיזה הרכב חתימה",
+      "alternatives_he": [
+       "פרוטוקול דירקטוריון על זכויות חתימה",
+       "אישור עו״ד על מורשי חתימה",
+       "אישור רו״ח על מורשי חתימה"
+      ],
+      "evaluated_by_ai": false,
+      "intake": "human_review",
+      "bank_status": "awaiting_documents",
+      "policy_version": "loan_policy@v1",
+      "family_code": "SIGNATORY_AUTHORITY",
+      "source": "DEMO_BANK_ADAPTER",
+      "authoritative": false,
+      "code": "SIGNATORY_AUTHORITY",
+      "borrower_id": null,
+      "account_id": null,
+      "holders": [
+       "BRW-A"
+      ],
+      "title_he": "פרוטוקול מורשי חתימה",
+      "owner_type": "company",
+      "owner_he": "מיזוג בעמ",
+      "ai_state": "required_missing",
+      "ai_state_he": "טרם הועלה",
+      "documents": 0,
+      "document_ids": [],
+      "accepted_document_ids": [],
+      "open_customer_actions": 0,
+      "open_banker_items": 0,
+      "open_customer_requests": 0,
+      "requested_months": [],
+      "covered": [],
+      "pending_review": [],
+      "missing": [],
+      "duplicates": {},
+      "verified_months": [],
+      "in_review_months": [],
+      "units_required": 1,
+      "units_verified": 0,
+      "coverage_gaps": [],
+      "customer_status": "AWAITING_UPLOAD"
+     },
+     {
+      "requirement_id": "COMPANY_FINANCIALS",
+      "family": "financial_statements",
+      "family_he": "דוחות כספיים",
+      "required": 1,
+      "rules": {},
+      "hint_he": "הדוחות הכספיים המבוקרים של השנה האחרונה",
+      "why_he": "בסיס לבדיקה העסקית של הבנקאי — הדמו אינו מבצע חיתום עסקי",
+      "alternatives_he": [
+       "דוחות כספיים מבוקרים לשנה האחרונה",
+       "דוחות כספיים סקורים, אם טרם הושלמה הביקורת"
+      ],
+      "evaluated_by_ai": false,
+      "intake": "human_review",
+      "bank_status": "awaiting_documents",
+      "policy_version": "loan_policy@v1",
+      "family_code": "COMPANY_FINANCIALS",
+      "source": "DEMO_BANK_ADAPTER",
+      "authoritative": false,
+      "code": "COMPANY_FINANCIALS",
+      "borrower_id": null,
+      "account_id": null,
+      "holders": [
+       "BRW-A"
+      ],
+      "title_he": "דוחות כספיים מבוקרים",
+      "owner_type": "company",
+      "owner_he": "מיזוג בעמ",
+      "ai_state": "required_missing",
+      "ai_state_he": "טרם הועלה",
+      "documents": 0,
+      "document_ids": [],
+      "accepted_document_ids": [],
+      "open_customer_actions": 0,
+      "open_banker_items": 0,
+      "open_customer_requests": 0,
+      "requested_months": [],
+      "covered": [],
+      "pending_review": [],
+      "missing": [],
+      "duplicates": {},
+      "verified_months": [],
+      "in_review_months": [],
+      "units_required": 1,
+      "units_verified": 0,
+      "coverage_gaps": [],
+      "customer_status": "AWAITING_UPLOAD"
+     },
+     {
+      "requirement_id": "COMPANY_INTERIM",
+      "family": "pnl_statement",
+      "family_he": "דוח רווח והפסד",
+      "required": 1,
+      "rules": {
+       "max_age_days": 120
+      },
+      "hint_he": "דוח ביניים או מאזן בוחן חתום בידי רו״ח",
+      "why_he": "מעדכן את הדוחות השנתיים לתקופה האחרונה",
+      "alternatives_he": [
+       "דוח רווח והפסד ביניים",
+       "מאזן בוחן חתום בידי רו״ח"
+      ],
+      "evaluated_by_ai": false,
+      "intake": "human_review",
+      "bank_status": "awaiting_documents",
+      "policy_version": "loan_policy@v1",
+      "family_code": "COMPANY_INTERIM",
+      "source": "DEMO_BANK_ADAPTER",
+      "authoritative": false,
+      "code": "COMPANY_INTERIM",
+      "borrower_id": null,
+      "account_id": null,
+      "holders": [
+       "BRW-A"
+      ],
+      "title_he": "דוח רווח והפסד לתקופה השוטפת",
+      "owner_type": "company",
+      "owner_he": "מיזוג בעמ",
+      "ai_state": "required_missing",
+      "ai_state_he": "טרם הועלה",
+      "documents": 0,
+      "document_ids": [],
+      "accepted_document_ids": [],
+      "open_customer_actions": 0,
+      "open_banker_items": 0,
+      "open_customer_requests": 0,
+      "requested_months": [],
+      "covered": [],
+      "pending_review": [],
+      "missing": [],
+      "duplicates": {},
+      "verified_months": [],
+      "in_review_months": [],
+      "units_required": 1,
+      "units_verified": 0,
+      "coverage_gaps": [],
+      "customer_status": "AWAITING_UPLOAD"
+     },
+     {
+      "requirement_id": "BUSINESS_STATEMENTS",
+      "family": "business_bank_statement",
+      "family_he": "דפי עו״ש עסקי",
+      "required": 1,
+      "rules": {},
+      "hint_he": "דפי תנועות של חשבון החברה",
+      "why_he": "תזרים המזומנים של החברה בפועל",
+      "alternatives_he": [
+       "תדפיס תנועות של חשבון החברה",
+       "אישור יתרות ותנועות מהבנק"
+      ],
+      "evaluated_by_ai": false,
+      "intake": "human_review",
+      "bank_status": "awaiting_documents",
+      "policy_version": "loan_policy@v1",
+      "family_code": "BUSINESS_STATEMENTS",
+      "source": "DEMO_BANK_ADAPTER",
+      "authoritative": false,
+      "code": "BUSINESS_STATEMENTS:ACC-1",
+      "borrower_id": null,
+      "account_id": "ACC-1",
+      "holders": [],
+      "title_he": "דפי עו״ש עסקי ל־6 החודשים האחרונים — חשבון עסקי של החברה",
+      "owner_type": "account",
+      "owner_he": "מיזוג בעמ",
+      "ai_state": "required_missing",
+      "ai_state_he": "טרם הועלה",
+      "documents": 0,
+      "document_ids": [],
+      "accepted_document_ids": [],
+      "open_customer_actions": 0,
+      "open_banker_items": 0,
+      "open_customer_requests": 0,
+      "requested_months": [],
+      "covered": [],
+      "pending_review": [],
+      "missing": [],
+      "duplicates": {},
+      "verified_months": [],
+      "in_review_months": [],
+      "units_required": 1,
+      "units_verified": 0,
+      "coverage_gaps": [],
+      "customer_status": "AWAITING_UPLOAD"
+     }
+    ],
+    "counts": {
+     "documents": 0,
+     "reviewed": 0,
+     "processing": 0,
+     "failed": 0,
+     "customer_actions": 0,
+     "banker_items": 0,
+     "customer_requests": 0,
+     "documents_accepted": 0,
+     "payslip_requirements_ready": 0,
+     "payslip_requirements_total": 0
+    },
+    "pending_jobs": [],
+    "not_evaluated": [
+     "נסח חברה עדכני",
+     "פרוטוקול מורשי חתימה",
+     "דוחות כספיים מבוקרים",
+     "דוח רווח והפסד לתקופה השוטפת",
+     "דפי עו״ש עסקי ל־6 החודשים האחרונים — חשבון עסקי של החברה"
+    ],
+    "inactive_requirements": [],
+    "banker_confirmation": null,
+    "banker_confirmation_stale": null,
+    "last_case_run_id": null,
+    "computed_at": "<TS>"
+   },
+   "available_actions": [
+    {
+     "contract": "app_action.v1",
+     "action_id": "upload:ID_CARD:BRW-A",
+     "type": "NAVIGATE_TO_DOCUMENT_UPLOAD",
+     "case_id": "DEMO-LN-<3>",
+     "label_he": "העלאת תעודת זהות",
+     "detail_he": "תעודת זהות — גלעד",
+     "priority": 15,
+     "params": {
+      "borrower_id": "BRW-A",
+      "requirement_code": "ID_CARD:BRW-A",
+      "document_type": "ID_CARD",
+      "period": null,
+      "missing_periods": [],
+      "finding_ids": []
+     }
+    },
+    {
+     "contract": "app_action.v1",
+     "action_id": "documents:missing",
+     "type": "VIEW_MISSING_DOCUMENTS",
+     "case_id": "DEMO-LN-<3>",
+     "label_he": "צפייה בכל המסמכים החסרים",
+     "detail_he": null,
+     "priority": 50,
+     "params": {}
+    },
+    {
+     "contract": "app_action.v1",
+     "action_id": "case:details",
+     "type": "VIEW_CASE_DETAILS",
+     "case_id": "DEMO-LN-<3>",
+     "label_he": "מעבר לפרטי התיק",
+     "detail_he": null,
+     "priority": 90,
+     "params": {}
+    }
+   ],
+   "findings": [],
+   "statements": [],
+   "case_review": null,
+   "handoffs": [],
+   "customer_requests": [],
+   "document_status": {},
+   "outcomes": {
+    "documents": {},
+    "borrowers": {},
+    "requirements": {
+     "ID_CARD:BRW-A": {
+      "outcome": "AWAITING_UPLOAD",
+      "label_he": "ממתינים להעלאת מסמכים"
+     }
+    }
+   },
+   "updates": [],
+   "provider": {
+    "provider": "gemini",
+    "mode": "LIVE",
+    "models": {
+     "extract": "gemini-3.8-flash",
+     "evidence_reread": "gemini-3.8-flash",
+     "judge": "gemini-3.8-flash",
+     "semantic": "gemini-3.8-flash"
+    },
+    "prompt_version": "gemini-review/2.1.0"
+   }
+  }
+ },
+ {
+  "step": "final_transcript",
+  "messages": [
+   {
+    "id": 1,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "stale": false
+   },
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה עסקית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית, הבנתי. איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
+    "at": "<TS>",
+    "question_id": "business_form",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "חברה בע״מ",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית לחברה בע״מ. זה מסלול מוגבל בליווי בנקאי/ת, ואאסוף כאן רק את מה שצריך כדי להתחיל. מה שם החברה?",
+    "at": "<TS>",
+    "question_id": "company_name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מיזוג בעמ",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מיזוג בעמ, רשמתי. מי מורשה החתימה שמגיש את הבקשה? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "signatory",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "גלעד ששון",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. מה מספר תעודת הזהות של מורשה החתימה?",
+    "at": "<TS>",
+    "question_id": "signatory_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "DEMO-ID-204",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. למה מיזוג בעמ צריכה את המימון?",
+    "at": "<TS>",
+    "question_id": "company_purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מימון ציוד לעסק",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "בואו נגדיר את סכום המימון ואת התקופה. במסלול לחברות אין חישוב החזר אוטומטי, אז כאן בוחרים סכום ותקופה, והבנקאי/ת יחזרו עם הצעה.",
+    "at": "<TS>",
+    "question_id": "business_amount",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "pending",
+     "product_he": "מימון לחברה, בליווי בנקאי/ת",
+     "amount": 300000,
+     "term": 60,
+     "monthly_payment": null,
+     "rev": 0,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "זה התרחיש שלי: 300,000 ₪ ב־60 תשלומים",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה, רשמתי 300,000 ₪ ב־60 תשלומים, מימון לחברה, בליווי בנקאי/ת. סיימנו! ריכזתי למטה את כל הפרטים ואת המסמכים שיידרשו, אפשר לעבור עליהם, לשנות ולאשר. פתיחת הבקשה אינה אישור הלוואה.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "מימון לחברה, בליווי בנקאי/ת",
+     "amount": 300000,
+     "term": 60,
+     "monthly_payment": null,
+     "rev": 1,
+     "live": true
+    },
+    "stale": false
+   }
+  ]
+ }
+]

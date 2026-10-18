@@ -1,0 +1,1073 @@
+[
+ {
+  "step": "start",
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "messages": [
+    {
+     "id": 1,
+     "role": "assistant",
+     "kind": "text",
+     "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+     "at": "<TS>",
+     "question_id": "loan_type",
+     "stale": false
+    }
+   ],
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אתה מבטיח לי שהבנק יאשר את ההלוואה?"
+  },
+  "new_messages": [
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אתה מבטיח לי שהבנק יאשר את ההלוואה?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה ולהכין אותה להמשך בחינה, את ההחלטה מקבל הבנק אחרי בדיקת הבקשה והמסמכים. ולגבי הבקשה, מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "מה מזג האוויר בתל אביב מחר?"
+  },
+  "new_messages": [
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מה מזג האוויר בתל אביב מחר?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "אני מתמקד כרגע בבקשת ההלוואה שלך, אז לא אוכל לתת תחזית מזג אוויר. נמשיך? מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אני רוצה הלוואה של 300 אלף שקל."
+  },
+  "new_messages": [
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רוצה הלוואה של 300 אלף שקל.",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "במסלול הבקשה הזה אפשר כרגע להזין סכום של עד 250,000 ₪. אם מתאים לך, נמשיך עם סכום בטווח הנתמך. מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אני מרוויח 19 אלף ברוטו, אפשר לחשב לי לפי זה?"
+  },
+  "new_messages": [
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני מרוויח 19 אלף ברוטו, אפשר לחשב לי לפי זה?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "כדי לחשב אינדיקציה ראשונית אצטרך לדעת כמה נכנס לך נטו, ולא ברוטו. נגיע לזה בהמשך. בינתיים, מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "בלה בלה"
+  },
+  "new_messages": [
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "בלה בלה",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח שהבנתי. אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "הלוואה פרטית"
+  },
+  "new_messages": [
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה פרטית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה פרטית, בשמחה. איך קוראים לך? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "name",
+    "kind": "name",
+    "prompt_he": "איך קוראים לך? (שם פרטי ושם משפחה)",
+    "replies": [],
+    "placeholder_he": "שם פרטי ושם משפחה",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "קוראים לי אבי"
+  },
+  "new_messages": [
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "קוראים לי אבי",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "אשמח גם לשם המשפחה.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "name",
+    "kind": "name",
+    "prompt_he": "איך קוראים לך? (שם פרטי ושם משפחה)",
+    "replies": [],
+    "placeholder_he": "שם פרטי ושם משפחה",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אבי כהן"
+  },
+  "new_messages": [
+   {
+    "id": 16,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אבי כהן",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 17,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "נעים להכיר, אבי. מה מספר תעודת הזהות שלך?",
+    "at": "<TS>",
+    "question_id": "national_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "אבי",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "national_id",
+    "kind": "text",
+    "prompt_he": "מה מספר תעודת הזהות שלך?",
+    "replies": [],
+    "placeholder_he": "מספר תעודת זהות",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 2
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "123"
+  },
+  "new_messages": [
+   {
+    "id": 18,
+    "role": "user",
+    "kind": "text",
+    "text_he": "123",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 19,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח למה התכוונת ב־123, זה הסכום, ההכנסה או משהו אחר?",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "אבי",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "national_id",
+    "kind": "text",
+    "prompt_he": "מה מספר תעודת הזהות שלך?",
+    "replies": [],
+    "placeholder_he": "מספר תעודת זהות",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 2
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": "final_transcript",
+  "messages": [
+   {
+    "id": 1,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "stale": false
+   },
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אתה מבטיח לי שהבנק יאשר את ההלוואה?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "אני לא יכול להבטיח אישור, אבל אפשר לבדוק את הבקשה ולהכין אותה להמשך בחינה, את ההחלטה מקבל הבנק אחרי בדיקת הבקשה והמסמכים. ולגבי הבקשה, מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מה מזג האוויר בתל אביב מחר?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "אני מתמקד כרגע בבקשת ההלוואה שלך, אז לא אוכל לתת תחזית מזג אוויר. נמשיך? מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רוצה הלוואה של 300 אלף שקל.",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "במסלול הבקשה הזה אפשר כרגע להזין סכום של עד 250,000 ₪. אם מתאים לך, נמשיך עם סכום בטווח הנתמך. מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני מרוויח 19 אלף ברוטו, אפשר לחשב לי לפי זה?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "כדי לחשב אינדיקציה ראשונית אצטרך לדעת כמה נכנס לך נטו, ולא ברוטו. נגיע לזה בהמשך. בינתיים, מדובר בהלוואה פרטית או עסקית?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "בלה בלה",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח שהבנתי. אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה פרטית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה פרטית, בשמחה. איך קוראים לך? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "קוראים לי אבי",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "אשמח גם לשם המשפחה.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 16,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אבי כהן",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 17,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "נעים להכיר, אבי. מה מספר תעודת הזהות שלך?",
+    "at": "<TS>",
+    "question_id": "national_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 18,
+    "role": "user",
+    "kind": "text",
+    "text_he": "123",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 19,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח למה התכוונת ב־123, זה הסכום, ההכנסה או משהו אחר?",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ]
+ }
+]

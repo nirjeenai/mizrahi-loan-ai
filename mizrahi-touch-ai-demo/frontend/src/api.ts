@@ -1,5 +1,6 @@
 import type { Afford as SimAfford, Issue as SimIssue, Params as SimParams, Product as SimProduct, Rate as SimRate, Result as SimResult, Target as SimTarget } from "./loanCalc";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { currentLang, LANG_SWITCH } from "./i18n";
 
 export const CASE_ID_DEFAULT = "DEMO-MTZ-2026-001";
 
@@ -10,14 +11,14 @@ export interface EvidenceRef {
   evidence_id: string; document_id: string; field: string; page: number; quote?: string | null;
   bbox?: number[] | null; coord_space: string; page_size?: number[] | null; witness: string; witness_detail?: string | null;
 }
-export interface Fact { field: string; label_he: string; value_raw?: string | null; value_normalized?: unknown; confidence?: number | null; evidence?: EvidenceRef | null }
+export interface Fact { field: string; label_he: string; label_en?: string; value_raw?: string | null; value_normalized?: unknown; confidence?: number | null; evidence?: EvidenceRef | null }
 export interface Criterion {
-  criterion_id: string; title_he: string; method: string; outcome: Outcome; severity: string; reason_code?: string | null;
-  explanation_he: string; evidence_ids: string[]; decided_by: string; escalation?: string | null;
+  criterion_id: string; title_he: string; title_en?: string; method: string; outcome: Outcome; severity: string; reason_code?: string | null;
+  explanation_he: string; explanation_en?: string; evidence_ids: string[]; decided_by: string; escalation?: string | null;
 }
 export interface DocReview {
   run_id: string; document_id: string; identity: { provider: string; mode: string; models: Record<string, string>; prompt_version: string };
-  rubric_id: string; rubric_version: string; started_at: string; finished_at: string; doc_type: string; doc_type_he: string;
+  rubric_id: string; rubric_version: string; started_at: string; finished_at: string; doc_type: string; doc_type_he: string; doc_type_en?: string;
   is_scanned: boolean; pages: number; legibility: string; matched_borrower_id?: string | null; period?: string | null;
   file_name_period?: string | null; facts: Fact[]; criteria: Criterion[]; verdict: Verdict; verdict_reason_codes: string[];
   summary_he: string; limitations_he: string[]; uncertainty_he: string[]; security_flags: string[]; demo_marked?: boolean;
@@ -26,49 +27,55 @@ export interface DocReview {
 export interface DocView {
   document_id: string; case_id: string; borrower_id?: string | null; requirement_code?: string | null; filename: string; mime: string;
   bytes: number; pages: number; text_layer_chars: number; uploaded_at: string; channel?: string; status: string; stage?: string | null;
-  stage_he?: string; error?: string | null; current_run?: { run_id: string; status: string; stage: string; started_at: string; finished_at?: string; provider: string } | null;
+  stage_he?: string; stage_en?: string; error?: string | null; current_run?: { run_id: string; status: string; stage: string; started_at: string; finished_at?: string; provider: string } | null;
   review?: DocReview | null;
 }
 export interface Finding {
   finding_id: string; key: string; code: string; severity: string; review_state: "CUSTOMER_ACTION_REQUIRED" | "NEEDS_BANKER_REVIEW" | "INFO";
   status: "open" | "resolved" | "dismissed" | "superseded"; borrower_id?: string | null; document_id?: string | null; period?: string | null;
-  title_he: string; message_he: string; detail: Record<string, any>; evidence: EvidenceRef[]; created_at: string; updated_at: string;
+  title_he: string; title_en?: string; message_he: string; message_en?: string;
+  /** English view: the reviewer's own explanation inside message_he, shown as the original wording */
+  message_detail_he?: string; detail: Record<string, any>; evidence: EvidenceRef[]; created_at: string; updated_at: string;
   resolution?: string | null; resolution_note?: string | null; history: { at: string; event: string; run_id?: string; note?: string; changes?: any }[];
 }
 /** Document families of the loan policy (backend/policy/seed/loan_policy.demo.json) */
 export type Family = "payslip" | "id_document" | "bank_statement" | "purpose_proof" | "tax_form";
 export interface Requirement {
-  code: string; title_he: string; family: Family | string; family_he?: string; hint_he?: string; requirement_id?: string;
+  code: string; title_he: string; title_en?: string; family: Family | string; family_he?: string; family_en?: string; hint_he?: string; hint_en?: string; requirement_id?: string;
   borrower_id?: string | null; account_id?: string | null; holders?: string[]; evaluated_by_ai: boolean; bank_status: string;
-  policy_version?: string; ai_state: string; ai_state_he: string; requested_months?: string[]; covered?: string[]; pending_review?: string[]; missing?: string[]; duplicates?: Record<string, number>;
+  policy_version?: string; ai_state: string; ai_state_he: string; ai_state_en?: string; requested_months?: string[]; covered?: string[]; pending_review?: string[]; missing?: string[]; duplicates?: Record<string, number>;
   open_customer_actions?: number; open_banker_items?: number; open_customer_requests?: number;
   required?: number; verified_months?: string[]; in_review_months?: string[]; documents?: number; customer_status?: CustomerStatus;
   units_required?: number; units_verified?: number; document_ids?: string[];
   /** ai_review: a rubric checks the upload · human_review: no rubric — the upload is stored for the banker, never "valid by AI" */
-  intake?: "ai_review" | "human_review"; owner_type?: "applicant" | "account" | "case" | "company"; owner_he?: string;
-  why_he?: string; alternatives_he?: string[];
+  intake?: "ai_review" | "human_review"; owner_type?: "applicant" | "account" | "case" | "company"; owner_he?: string; owner_en?: string;
+  why_he?: string; why_en?: string; alternatives_he?: string[]; alternatives_en?: string[];
 }
+export const FAMILY_EN: Record<string, string> = { payslip: "Payslip", id_document: "ID card", bank_statement: "Bank statement",
+  purpose_proof: "Proof of purpose", tax_form: "Tax assessment / CPA letter", business_registration: "Business registration certificate",
+  pnl_statement: "Profit and loss statement", company_registry: "Company registry extract", signatory_authority: "Authorized signatories",
+  financial_statements: "Financial statements", business_bank_statement: "Business bank statements" };
 export const FAMILY_HE: Record<string, string> = { payslip: "תלוש שכר", id_document: "תעודת זהות", bank_statement: "דף עו״ש",
   purpose_proof: "אסמכתה למטרה", tax_form: "שומת מס / אישור רו״ח", business_registration: "אישור רישום עוסק",
   pnl_statement: "דוח רווח והפסד", company_registry: "נסח חברה", signatory_authority: "מורשי חתימה",
   financial_statements: "דוחות כספיים", business_bank_statement: "דפי עו״ש עסקי" };
 /** The structured profile the document policy composed the checklist from (workflow/requirements.profile). */
 export interface DocumentProfile {
-  entity: "individual" | "company"; entity_he: string; purpose?: string; purpose_he?: string; banker_assisted: boolean;
-  use_case?: string | null; profile_label_he?: string | null; disclaimer_he: string;
-  company?: { name_he: string; company_number: string; signatory_he: string; signatory_role_he: string } | null;
-  applicants: { borrower_id: string; name_he: string; role?: string; role_he: string; income_sources: string[];
-    business_registration?: string | null; profile_he: string }[];
-  accounts: { account_id: string; label_he: string; holders: string[]; other_holders_he: string[] }[];
+  entity: "individual" | "company"; entity_he: string; entity_en?: string; purpose?: string; purpose_he?: string; purpose_en?: string; banker_assisted: boolean;
+  use_case?: string | null; profile_label_he?: string | null; profile_label_en?: string | null; disclaimer_he: string; disclaimer_en?: string;
+  company?: { name_he: string; name_en?: string; company_number: string; signatory_he: string; signatory_en?: string; signatory_role_he: string; signatory_role_en?: string } | null;
+  applicants: { borrower_id: string; name_he: string; name_en?: string; role?: string; role_he: string; role_en?: string; income_sources: string[];
+    business_registration?: string | null; profile_he: string; profile_en?: string }[];
+  accounts: { account_id: string; label_he: string; label_en?: string; holders: string[]; other_holders_he: string[]; other_holders_en?: string[] }[];
 }
-export interface OnboardingOption { value: string | number; label_he: string }
-export interface OnboardingQuestion { question_id: string; kind: "choice" | "multi" | "name" | "text" | "number" | "simulator"; prompt_he: string; options: OnboardingOption[] }
+export interface OnboardingOption { value: string | number; label_he: string; label_en?: string }
+export interface OnboardingQuestion { question_id: string; kind: "choice" | "multi" | "name" | "text" | "number" | "simulator"; prompt_he: string; prompt_en?: string; options: OnboardingOption[] }
 export interface OnboardingDraft {
-  draft_id: string; status: "draft" | "confirmed"; case_id: string | null; note_he: string;
-  asked: { question_id: string; prompt_he: string; kind: string; answer: unknown; answer_he: string }[];
+  draft_id: string; status: "draft" | "confirmed"; case_id: string | null; note_he: string; note_en?: string;
+  asked: { question_id: string; prompt_he: string; prompt_en?: string; kind: string; answer: unknown; answer_he: string; answer_en?: string }[];
   next: OnboardingQuestion | null;
-  summary: null | { profile: DocumentProfile; policy_version: string; title_he: string; loan: LoanDetails;
-    requirements: Pick<Requirement, "code" | "title_he" | "family" | "family_he" | "owner_he" | "owner_type" | "why_he" | "alternatives_he" | "intake" | "required">[] };
+  summary: null | { profile: DocumentProfile; policy_version: string; title_he: string; title_en?: string; loan: LoanDetails;
+    requirements: Pick<Requirement, "code" | "title_he" | "title_en" | "family" | "family_he" | "owner_he" | "owner_en" | "owner_type" | "why_he" | "alternatives_he" | "intake" | "required">[] };
 }
 /** Conversational questionnaire (V2): the same draft as OnboardingDraft, with a transcript, stages and a DEMO indication. */
 export interface ChatIndication {
@@ -77,13 +84,13 @@ export interface ChatIndication {
   /** the formula's assumptions, on messages saved since they were added */
   ratio?: number; annual_rate?: number; business_income?: boolean;
 }
-export interface ChatReply { label_he: string; value: unknown }
+export interface ChatReply { label_he: string; label_en?: string; value: unknown }
 /** A quick reply under a message: answers a question (question_id + value) or sends a text. */
-export interface ChatAction { label_he: string; question_id?: string; value?: unknown; text?: string;
+export interface ChatAction { label_he: string; label_en?: string; question_id?: string; value?: unknown; text?: string;
   /** a suggested scenario change (amount / term) for the loan simulator */
   simulation?: Partial<SimParams> }
 /** One message's record of the loan simulator card it carried; only the latest one is live. */
-export interface SimSnapshot { status: "pending" | "confirmed"; product_he: string; amount: number; term: number;
+export interface SimSnapshot { status: "pending" | "confirmed"; product_he: string; product_en?: string; amount: number; term: number;
   monthly_payment: number | null; rev: number; live: boolean }
 export interface SimEval { result: (Omit<SimResult, "rows"> & { yearly: { year: number; from_month: string; to_month: string; paid: number;
     interest: number; principal: number; balance: number }[] }) | null;
@@ -100,32 +107,34 @@ export interface Simulation {
   start_month: string; config_version: string; checked_on: string;
 }
 export interface ChatMessage {
-  id: number; role: "assistant" | "user"; kind: "text" | "question" | "insight" | "withdrawn" | "summary"; text_he: string;
+  id: number; role: "assistant" | "user"; kind: "text" | "question" | "insight" | "withdrawn" | "summary"; text_he: string; text_en?: string;
   question_id?: string; indication?: ChatIndication & { key: string }; insight?: "new" | "updated" | "withdrawn";
   simulator?: SimSnapshot;
   stale?: boolean; actions?: ChatAction[]; engine?: "llm" | "rules"; understood_by?: "llm" | "rules";
+  /** the language the message was written in (absent on messages saved before the English app: Hebrew) */
+  lang?: "he" | "en";
 }
-export interface ChatStage { id: string; label_he: string; state: "done" | "current" | "upcoming"; total: number; answered: number }
+export interface ChatStage { id: string; label_he: string; label_en?: string; state: "done" | "current" | "upcoming"; total: number; answered: number }
 export interface ChatDraft {
-  draft_id: string; status: "draft" | "confirmed"; case_id: string | null; first_name_he: string | null; note_he: string;
-  messages: ChatMessage[]; stages: ChatStage[]; indication: ChatIndication | null; suggestions: string[]; actions: ChatAction[];
+  draft_id: string; status: "draft" | "confirmed"; case_id: string | null; first_name_he: string | null; first_name_en?: string | null; note_he: string; note_en?: string;
+  messages: ChatMessage[]; stages: ChatStage[]; indication: ChatIndication | null; suggestions: string[]; suggestions_en?: string[]; actions: ChatAction[];
   loan: { type?: "personal" | "business" | null; form?: "vat_exempt" | "vat_registered" | "company" | null };
   engine: "llm" | "rules";
   simulation: Simulation | null;
-  pending: null | { question_id: string; kind: OnboardingQuestion["kind"]; prompt_he: string; replies: ChatReply[];
-    placeholder_he: string; editing: boolean; current_he: string | null };
+  pending: null | { question_id: string; kind: OnboardingQuestion["kind"]; prompt_he: string; prompt_en?: string; replies: ChatReply[];
+    placeholder_he: string; placeholder_en?: string; editing: boolean; current_he: string | null; current_en?: string | null };
   summary: null | (NonNullable<OnboardingDraft["summary"]> & {
-    lines: { label_he: string; value_he: string; question_id: string }[]; intro_he: string });
+    lines: { label_he: string; label_en?: string; value_he: string; value_en?: string; question_id: string }[]; intro_he: string; intro_en?: string });
 }
-export type ChatTurn = ({ text: string } | { question_id: string; value: unknown; label_he?: string }
+export type ChatTurn = ({ text: string; label_en?: string } | { question_id: string; value: unknown; label_he?: string; label_en?: string }
   | { question_id?: string; action: "edit" | "cancel_edit" }
-  | { action: "simulate_confirm" | "simulate_apply"; simulation: Partial<SimParams> & { product?: string }; label_he?: string })
+  | { action: "simulate_confirm" | "simulate_apply"; simulation: Partial<SimParams> & { product?: string }; label_he?: string; label_en?: string })
   & { turn_id?: string };
 /** The customer's next step, computed by the backend (readiness.customer_status) with explicit precedence. */
 export type CustomerStatus = "NO_PAYSLIPS_REQUIRED" | "AWAITING_UPLOAD" | "ERROR" | "PROCESSING" | "REVALIDATING"
   | "CORRECTION_REQUIRED" | "MISSING_DOCUMENTS" | "PREPARATION_CONFIRMED" | "BANKER_REVIEW" | "CHECKS_COMPLETE";
 export interface Readiness {
-  scope: string; state: string; state_he: string; requirements: Requirement[];
+  scope: string; state: string; state_he: string; state_en?: string; requirements: Requirement[];
   customer_status?: CustomerStatus; case_review_failed?: boolean; case_status?: string;
   progress?: { done: number; total: number; missing_units: number; human_review_total?: number; human_review_received?: number };
   payslips?: { required: number; verified: number; requested_months: string[] };
@@ -133,36 +142,36 @@ export interface Readiness {
     customer_requests?: number; documents_accepted?: number };
   pending_jobs: { kind: string; document_id?: string }[]; not_evaluated: string[]; banker_confirmation?: { confirmed_at: string } | null;
   /** requirements a profile change made inactive: their documents stay in the history, outside the evaluated set */
-  inactive_requirements?: { code: string; family: string; family_he: string; document_ids: string[]; state_he: string }[];
+  inactive_requirements?: { code: string; family: string; family_he: string; family_en?: string; document_ids: string[]; state_he: string; state_en?: string }[];
 }
-export interface Borrower { borrower_id: string; name_he: string; first_name_he: string; national_id: string; employment: string; declared_net_monthly_ils: number; declaration_note_he: string; employer_declared_he: string; role?: string }
-export interface LoanDetails { product: string; product_he: string; purpose: string; purpose_he: string; requested_amount_ils: number; payments: number; note_he?: string }
+export interface Borrower { borrower_id: string; name_he: string; name_en?: string; first_name_he: string; first_name_en?: string; national_id: string; employment: string; declared_net_monthly_ils: number; declaration_note_he: string; declaration_note_en?: string; employer_declared_he: string; employer_declared_en?: string; role?: string }
+export interface LoanDetails { product: string; product_he: string; product_en?: string; purpose: string; purpose_he: string; purpose_en?: string; requested_amount_ils: number; payments: number; note_he?: string; note_en?: string }
 export interface BankCase {
-  case_id: string; display_number: string; title_he: string; requested_loan_ils: number; submitted_at: string;
-  preliminary_decision?: { label_he: string; issued_on: string; valid_until: string; amount_ils: number } | null;
-  loan: LoanDetails; accounts?: { account_id: string; label_he: string; bank_he: string; holders: string[] }[];
+  case_id: string; display_number: string; title_he: string; title_en?: string; requested_loan_ils: number; submitted_at: string;
+  preliminary_decision?: { label_he: string; label_en?: string; issued_on: string; valid_until: string; amount_ils: number } | null;
+  loan: LoanDetails; accounts?: { account_id: string; label_he: string; label_en?: string; bank_he: string; bank_en?: string; holders: string[] }[];
   contact?: { consent_voice: boolean; consent_message: boolean; phone_masked?: string };
-  banker: { name_he: string; role_he: string; staff_id?: string };
-  meeting?: { date: string; from: string; to: string; type_he: string } | null; borrowers: Borrower[];
+  banker: { name_he: string; name_en?: string; role_he: string; role_en?: string; staff_id?: string };
+  meeting?: { date: string; from: string; to: string; type_he: string; type_en?: string } | null; borrowers: Borrower[];
   persona_id?: string | null; use_case?: string | null; applicant_type?: "individual" | "company"; banker_assisted?: boolean;
   profile_changed_at?: string | null;
   document_profile?: DocumentProfile;
-  bank_stage: { index: number; of: number; label_he: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
+  bank_stage: { index: number; of: number; label_he: string; label_en?: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
 }
 export interface AuditEvent { event_id: number; at: string; actor: string; action: string; target?: string; detail?: any }
 /** app_action.v1 — derived and validated by the Loan Case Service; the model only picks among them by id. */
-interface ActionBase { contract: "app_action.v1"; action_id: string; case_id: string; label_he: string; detail_he?: string | null; priority: number }
+interface ActionBase { contract: "app_action.v1"; action_id: string; case_id: string; label_he: string; label_en?: string; detail_he?: string | null; detail_en?: string | null; priority: number }
 export type DocumentType = "PAYSLIP" | "ID_CARD" | "BANK_STATEMENT" | "PURPOSE_PROOF" | "TAX_FORM";
 export type AppAction = ActionBase & (
   | { type: "NAVIGATE_TO_DOCUMENT_UPLOAD"; params: { borrower_id: string | null; requirement_code: string; document_type: DocumentType; period: string | null; missing_periods: string[]; finding_ids: string[] } }
   | { type: "VIEW_DOCUMENT_REVIEW"; params: { document_id: string; finding_ids: string[] } }
-  | { type: "CONTACT_BANKER"; params: { message_he: string; finding_ids: string[] } }
+  | { type: "CONTACT_BANKER"; params: { message_he: string; message_en?: string; finding_ids: string[] } }
   | { type: "VIEW_MISSING_DOCUMENTS" | "VIEW_REVIEW_STATUS" | "VIEW_CASE_DETAILS"; params: Record<string, never> }
 );
 export interface UploadOutcome {
   document_id: string; filename: string; borrower_id?: string | null; status: string; expected_period?: string | null;
-  phase: "reviewing_document" | "rechecking_case" | "complete"; message_he: string; verdict?: Verdict | null; printed_period?: string | null;
-  findings: { finding_id: string; code: string; review_state: string; title_he: string; message_he: string; document_id?: string | null }[];
+  phase: "reviewing_document" | "rechecking_case" | "complete"; message_he: string; message_en?: string; verdict?: Verdict | null; printed_period?: string | null;
+  findings: { finding_id: string; code: string; review_state: string; title_he: string; title_en?: string; message_he: string; message_en?: string; document_id?: string | null }[];
   actions: AppAction[];
 }
 export class ActionRefusal extends Error {
@@ -173,24 +182,24 @@ export class ActionRefusal extends Error {
 export interface CustomerRequest {
   customer_request_id: string; kind: "correction" | "missing_document" | "additional_document" | "explanation"; borrower_id?: string | null;
   requirement_code?: string | null; period?: string | null; document_id?: string | null; document_filename?: string | null;
-  title_he: string; message_he: string; status: "OPEN" | "RESPONDED"; created_at: string; created_by_name?: string | null;
+  title_he: string; title_en?: string; message_he: string; message_en?: string; status: "OPEN" | "RESPONDED"; created_at: string; created_by_name?: string | null;
   responded_document_id?: string | null; responded_filename?: string | null; responded_at?: string | null;
   responded_text?: string | null; can_reply?: boolean;
 }
 export interface Snapshot {
-  case: BankCase; stage_dictionary: { stages: { index: number; label_he: string; observed: boolean }[]; note_he: string };
+  case: BankCase; stage_dictionary: { stages: { index: number; label_he: string; label_en?: string; observed: boolean }[]; note_he: string; note_en?: string };
   readiness: Readiness; available_actions?: AppAction[];
   findings: Finding[]; statements: { statement_id: string; finding_id?: string; text: string; channel: string; created_at: string }[];
   case_review?: { run_id: string; finished_at: string; coverage: any; income: Record<string, any>; semantic: any[]; criteria: Criterion[]; limitations_he: string[]; rubric_id: string; rubric_version: string } | null;
   handoffs: any[]; updates: AuditEvent[]; provider: { provider: string; mode: string; models: Record<string, string>; prompt_version: string };
   customer_requests?: CustomerRequest[];
-  document_status?: Record<string, { status: string; status_he: string; replaced_by?: string | null; replaces?: string | null }>;
+  document_status?: Record<string, { status: string; status_he: string; status_en?: string; replaced_by?: string | null; replaces?: string | null }>;
   /** PASS / REVIEW / BLOCKER, derived by the service on every read (workflow/outcomes.py) — never stored, never a credit decision */
   outcomes?: { documents: Record<string, RoutedOutcome>; borrowers: Record<string, RoutedOutcome>; requirements?: Record<string, RoutedOutcome> };
 }
 export type RouteKey = "PASS" | "ACCEPTED" | "REVIEW" | "BLOCKER" | "IN_PROGRESS" | "NOT_COMPLETED" | "REPLACED" | "INCOMPLETE"
   | "AWAITING_UPLOAD" | "CONFIRMED" | "HUMAN_REVIEW_PENDING";
-export interface RoutedOutcome { outcome: RouteKey; label_he: string; by?: "ai" | "banker" }
+export interface RoutedOutcome { outcome: RouteKey; label_he: string; label_en?: string; by?: "ai" | "banker" }
 export interface Turn { turn_id: string; channel: string; role: "user" | "assistant"; text: string; provenance?: any; tool_calls?: { name: string; args: any; ok: boolean }[] | null; actions?: AppAction[]; created_at: string }
 
 /** A request the service refused because nobody is signed in (401) or the signed-in user may not see it (403). */
@@ -226,11 +235,22 @@ function renew(role: Role, path: string): Promise<boolean> {
   return p;
 }
 const TRANSIENT = new Set([502, 503, 504]);
+/** The customer endpoints whose wording follows the customer app's language (backend: app/i18n.py reads X-MZ-Lang on
+ *  these routes only). Sent from /customer pages only — the presenter pane, banker, admin and system stay Hebrew — and
+ *  merged into the request's own headers. Without the switch (VITE_LANG_SWITCH=0) no request changes. */
+const LOCALIZED = /^\/api\/(cases\/|documents\/|demo\/onboarding|session\/demo\/cases|links\/|voice\/)/;
+function withLang(path: string, init?: RequestInit): RequestInit | undefined {
+  if (!LANG_SWITCH || !window.location.pathname.startsWith("/customer") || !LOCALIZED.test(path)) return init;
+  const headers = new Headers(init?.headers);
+  headers.set("X-MZ-Lang", currentLang());
+  return { ...init, headers };
+}
 
 /** fetch for the app's API. A read is retried twice on a network error or 502/503/504 (a backend restarting); a 401
  *  renews the session it names once and repeats the request once — the server refused it before doing anything, so
  *  repeating a write is safe. Anything else, and a second 401, goes back to the caller unchanged. */
-export async function request(path: string, init?: RequestInit): Promise<Response> {
+export async function request(path: string, given?: RequestInit): Promise<Response> {
+  const init = withLang(path, given);
   const read = !init?.method || ["GET", "HEAD"].includes(init.method.toUpperCase());
   let res!: Response;
   for (let attempt = 0; ; attempt++) {
@@ -254,7 +274,8 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await request(path, init);
   if (!res.ok) {
     let detail = `${res.status}`;
-    try { const body = await res.json(); detail = body.detail || JSON.stringify(body); } catch { /* not json */ }
+    // a known customer-facing message also comes in English (detail_en) when the app's language is English
+    try { const body = await res.json(); detail = (currentLang() === "en" && body.detail_en) || body.detail || JSON.stringify(body); } catch { /* not json */ }
     if (res.status === 401) window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { path } }));
     if (res.status === 401 || res.status === 403) throw new AccessError(res.status, detail);
     throw new Error(detail);
@@ -265,18 +286,19 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
 const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 export interface SessionCase {
-  case_id: string; display_number: string; title_he: string;
+  case_id: string; display_number: string; title_he: string; title_en?: string;
   /** the demonstrated customer ("התיקים שלי" lists one persona's cases); QA cases have none */
-  persona_id?: string | null; qa?: boolean; use_case?: string | null; applicants_he?: string[]; company_he?: string | null;
+  persona_id?: string | null; qa?: boolean; use_case?: string | null; applicants_he?: string[]; applicants_en?: string[];
+  company_he?: string | null; company_en?: string | null;
 }
 export interface ApplicationOptions {
-  product_he: string; policy_version: string; purposes: { id: string; label_he: string; proof_he: string }[];
-  amount: { min: number; max: number }; payments: { min: number; max: number }; note_he: string;
+  product_he: string; product_en?: string; policy_version: string; purposes: { id: string; label_he: string; label_en?: string; proof_he: string; proof_en?: string }[];
+  amount: { min: number; max: number }; payments: { min: number; max: number }; note_he: string; note_en?: string;
 }
 /** The server sessions this browser holds (HttpOnly cookies). In demo mode they are obtained without a login. */
 export interface Session {
   customer: { cases: SessionCase[]; expires_at: number } | null;
-  staff: { staff_id: string; name_he: string; role_he: string; exp: number } | null;
+  staff: { staff_id: string; name_he: string; name_en?: string; role_he: string; role_en?: string; exp: number } | null;
   demo_identity: boolean;
 }
 
@@ -288,7 +310,7 @@ export const api = {
   demoStaff: () => http<{ staff: { staff_id: string; name_he: string } }>(`/api/session/demo/staff`, json({})),
   snapshot: (caseId: string) => http<Snapshot>(`/api/cases/${caseId}`),
   documents: (caseId: string) => http<DocView[]>(`/api/cases/${caseId}/documents`),
-  document: (docId: string) => http<DocView & { runs: any[]; findings: Finding[]; banker_status?: { status: string; status_he: string } | null;
+  document: (docId: string) => http<DocView & { runs: any[]; findings: Finding[]; banker_status?: { status: string; status_he: string; status_en?: string } | null;
     outcome?: RoutedOutcome | null }>(`/api/documents/${docId}`),
   conversation: (caseId: string) => http<Turn[]>(`/api/cases/${caseId}/conversation`),
   cases: () => http<{ case_id: string; display_number: string; title_he: string; borrowers: string[]; readiness: string }[]>(`/api/cases`),
@@ -304,7 +326,7 @@ export const api = {
     if (intent.originTurnId) body.append("origin_turn_id", intent.originTurnId);
     if (intent.customerRequestId) body.append("customer_request_id", intent.customerRequestId);
     if (intent.replacesDocumentId) body.append("replaces_document_id", intent.replacesDocumentId);
-    return http<{ document: DocView; created: boolean; note?: string; answered_request?: string | null; replaces?: string | null }>(
+    return http<{ document: DocView; created: boolean; note?: string; note_en?: string; answered_request?: string | null; replaces?: string | null }>(
       `/api/cases/${caseId}/documents`, { method: "POST", body });
   },
   resolveAction: async (caseId: string, actionId: string, turnId?: string): Promise<AppAction> => {
@@ -313,7 +335,8 @@ export const api = {
     const body = await res.json().catch(() => ({}));
     if (res.ok && body.action) return body.action as AppAction;
     if (res.status === 401) window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { path: "actions/resolve" } }));
-    if ([403, 404, 409].includes(res.status) && typeof body.detail === "string") throw new ActionRefusal(res.status, body.detail);
+    if ([403, 404, 409].includes(res.status) && typeof body.detail === "string")
+      throw new ActionRefusal(res.status, (currentLang() === "en" && body.detail_en) || body.detail);
     throw new Error(`resolve failed (${res.status})`);
   },
   uploadOutcome: (caseId: string, docId: string) => http<UploadOutcome>(`/api/cases/${caseId}/documents/${docId}/outcome`),
@@ -353,7 +376,7 @@ export const api = {
   createApplication: (body: Record<string, string | number>) =>
     http<{ case_id: string; requirements: string[] }>(`/api/demo/applications`, json(body)),
   changeProfile: (caseId: string, borrowers: Record<string, { income_sources: string[]; business_registration?: string | null }>) =>
-    http<{ changed: boolean; added: string[]; removed: string[]; tasks_canceled: string[]; calls_canceled: number }>(
+    http<{ changed: boolean; added: string[]; removed: string[]; added_en?: string[]; removed_en?: string[]; tasks_canceled: string[]; calls_canceled: number }>(
       `/api/cases/${caseId}/profile`, json({ borrowers })),
   onboardingStart: () => http<OnboardingDraft>(`/api/demo/onboarding`, { method: "POST" }),
   onboarding: (draftId: string) => http<OnboardingDraft>(`/api/demo/onboarding/${encodeURIComponent(draftId)}`),
@@ -630,14 +653,49 @@ export const timeHe = (iso?: string | null) => {
   return `${d.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "2-digit" })} | ${d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}`;
 };
 export const VERDICT_HE: Record<string, string> = { VALID: "נמצא תקין", INVALID: "לא תקין, נדרש תיקון", NEEDS_REVIEW: "דורש בדיקה" };
+export const VERDICT_EN: Record<string, string> = { VALID: "Valid", INVALID: "Not valid — needs a correction", NEEDS_REVIEW: "Needs review" };
 /** The customer's badge for a reviewed file: a document the AI review sends back to the customer reads as one to fix,
  *  also when the reviewer's verdict is NEEDS_REVIEW (unreadable, out of date) — the same thing its page and row say. */
 export function customerVerdict(verdict: string, outcome?: RoutedOutcome): { cls: string; text: string } {
-  if (verdict !== "VALID" && outcome?.outcome === "BLOCKER" && outcome.by === "ai") return { cls: "INVALID", text: VERDICT_HE.INVALID };
-  return { cls: verdict, text: VERDICT_HE[verdict] };
+  const map = currentLang() === "en" ? VERDICT_EN : VERDICT_HE;
+  if (verdict !== "VALID" && outcome?.outcome === "BLOCKER" && outcome.by === "ai") return { cls: "INVALID", text: map.INVALID };
+  return { cls: verdict, text: map[verdict] };
 }
 export const OUTCOME_HE: Record<string, string> = { PASS: "עבר", FAIL: "נכשל", NEEDS_REVIEW: "דורש בדיקה", NOT_APPLICABLE: "לא רלוונטי" };
+export const OUTCOME_EN: Record<string, string> = { PASS: "Passed", FAIL: "Failed", NEEDS_REVIEW: "Needs review", NOT_APPLICABLE: "Not applicable" };
 export const WITNESS_HE: Record<string, string> = {
   text_layer_exact: "אומת מול שכבת הטקסט של הקובץ", vision_reread_confirmed: "אומת בקריאה חוזרת של הסריקה",
   vision_unverified: "לא אומת", not_found: "לא נמצא בקובץ", unavailable: "אין ראיה",
 };
+
+export const WITNESS_EN: Record<string, string> = {
+  text_layer_exact: "Verified against the file's text layer", vision_reread_confirmed: "Verified by re-reading the scan",
+  vision_unverified: "Not verified", not_found: "Not found in the file", unavailable: "No evidence",
+};
+
+/* English counterparts of the formatters above. Each picks the customer app's language at render time and, in Hebrew,
+   returns exactly what the Hebrew formatter returns. */
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const en = () => currentLang() === "en";
+/** ₪12,345 in both languages (Hebrew: the original `ils`) */
+export const ilsL = (n?: number | null) => (en()
+  ? (n === null || n === undefined ? "-" : `₪${Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 })}`) : ils(n));
+/** 'September 2026' / 'ספטמבר 2026' */
+export const monthL = (ym?: string | null) => {
+  if (!en()) return monthHe(ym);
+  if (!ym) return "-";
+  const [y, m] = ym.split("-");
+  return `${MONTHS_EN[Number(m) - 1]} ${y}`;
+};
+/** dd/mm/yy | hh:mm, 24-hour (en-GB) */
+export const timeL = (iso?: string | null) => {
+  if (!en()) return timeHe(iso);
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" })} | ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+};
+/** the locale for toLocale* calls: he-IL or en-GB */
+export const localeL = () => (en() ? "en-GB" : "he-IL");
+export const familyL = (family: string) => (en() ? FAMILY_EN[family] : FAMILY_HE[family]);
+export const witnessL = (w: string) => (en() ? WITNESS_EN : WITNESS_HE)[w];
+export const outcomeL = (o: string) => (en() ? OUTCOME_EN : OUTCOME_HE)[o];

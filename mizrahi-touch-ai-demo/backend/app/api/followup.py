@@ -14,11 +14,12 @@ from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
-from .. import auth, clock, events
+from .. import auth, clock, events, i18n
 from ..comms import webhook
 from ..config import settings
 from ..followup import links, orchestrator, presence, tasks
 from ..followup.contract import CALL_OUTCOMES
+from ..i18n import views as i18n_views
 from ..store import repo
 
 router = APIRouter(prefix="/api")
@@ -81,7 +82,7 @@ def post_presence(case_id: str, body: PresenceEvent, request: Request):
 @router.get("/cases/{case_id}/followup")
 def get_followup(case_id: str, request: Request):
     auth.require_customer_case(request, case_id)
-    return orchestrator.customer_view(case_id)
+    return i18n.localized(i18n.lang(request), orchestrator.customer_view(case_id), lambda v: i18n_views.followup(v, case_id))
 
 
 @router.post("/cases/{case_id}/followup-snooze")
@@ -94,7 +95,7 @@ def snooze(case_id: str, body: Snooze, request: Request):
     orchestrator.set_preferences(case_id, "customer", snooze_until=until.isoformat(timespec="seconds"))
     repo.audit(case_id, "customer", "customer_followup_snoozed", case_id, {"until": until.isoformat(timespec="seconds")})
     orchestrator.on_event(case_id, "customer_snooze")
-    return orchestrator.customer_view(case_id)
+    return i18n.localized(i18n.lang(request), orchestrator.customer_view(case_id), lambda v: i18n_views.followup(v, case_id))
 
 
 @router.post("/cases/{case_id}/contact-preferences")
@@ -105,7 +106,7 @@ def contact_preferences(case_id: str, body: Preferences, request: Request):
         orchestrator.set_preferences(case_id, "customer", **changes)
         repo.audit(case_id, "customer", "customer_contact_preferences_changed", case_id, changes)
         orchestrator.on_event(case_id, "customer_preferences")
-    return orchestrator.customer_view(case_id)
+    return i18n.localized(i18n.lang(request), orchestrator.customer_view(case_id), lambda v: i18n_views.followup(v, case_id))
 
 
 @router.post("/links/redeem")

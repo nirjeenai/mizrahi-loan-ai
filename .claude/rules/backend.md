@@ -26,6 +26,11 @@ Locations and couplings: `mizrahi-touch-ai-demo/docs/CODEMAP.md`. Behavior: READ
 - Agent/MCP tools live once in `agent/tools.py`. Write tools require `customer_confirmed=true` and are idempotent.
   Adding a tool changes the MCP catalog (`e2e/test_mcp_sdk.py` asserts 10 tools).
 - User-facing strings are Hebrew. Customer messages are deterministic templates (`review_desk.draft_*`).
+- Customer routes may add English: read `i18n.lang(request)` and return `i18n.localized(lang, value, overlay)`, which adds
+  `*_en` siblings on a deep copy (`app/i18n/`). Without the header a response must stay byte-identical (Hebrew goldens in
+  `tests/golden/`). English is worded from codes and structured details, never by translating with the model, and never
+  changes a figure, verdict, status or permission. A new Hebrew customer string needs its English in `app/i18n/` (the
+  `test_i18n_*` coverage tests fail otherwise).
 
 ## Changing a rubric (`backend/rubrics/`)
 1. Never edit a released version. Copy it to `<rubric_id>.v<next semver>.json` and add a `changelog` entry;

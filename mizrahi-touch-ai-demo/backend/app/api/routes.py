@@ -14,8 +14,9 @@ from fastapi import APIRouter, File, Form, HTTPException, Query, Request, Upload
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from .. import auth
+from .. import auth, i18n
 from ..agent import actions, agent, continuation, tools
+from ..i18n import continuation_en as i18n_continuation, en as i18n_en, views as i18n_views
 from ..bank.mock_bank import bank
 from ..config import settings
 from ..llm import gemini as g
@@ -134,7 +135,7 @@ def case_snapshot(case_id: str, request: Request):
     case = _case(case_id)
     latest = repo.latest_case_result(case_id)
     state = readiness.compute(case_id)
-    return {"case": case, "stage_dictionary": bank.stage_dictionary(), "readiness": _customer_readiness(state),
+    return i18n.localized(i18n.lang(request), {"case": case, "stage_dictionary": bank.stage_dictionary(), "readiness": _customer_readiness(state),
             "available_actions": [a.model_dump() for a in actions.available(case_id, state)],
             "findings": [_customer_finding(f) for f in repo.findings(case_id)], "statements": repo.statements(case_id),
             "case_review": {k: latest.get(k) for k in ("run_id", "finished_at", "coverage", "income", "semantic", "criteria",
@@ -144,13 +145,13 @@ def case_snapshot(case_id: str, request: Request):
             "document_status": _customer_document_status(case_id),
             "outcomes": _outcomes(case_id, state),
             "updates": [_customer_update(e) for e in repo.audit_events(case_id, 80) if e["action"] in CUSTOMER_UPDATES][:25],
-            "provider": registry.active().identity().model_dump()}
+            "provider": registry.active().identity().model_dump()}, i18n_views.snapshot)
 
 
 @router.get("/cases/{case_id}/documents")
 def case_documents(case_id: str, request: Request):
     auth.require_customer_case(request, case_id)
-    return [_doc_view(d) for d in repo.documents(case_id)]
+    return i18n.localized(i18n.lang(request), [_doc_view(d) for d in repo.documents(case_id)], i18n_views.documents)
 
 
 @router.post("/cases/{case_id}/documents", status_code=202)
@@ -185,8 +186,14 @@ async def upload(case_id: str, request: Request, file: UploadFile = File(...), b
     if replaces:
         repo.audit(case_id, "customer", "customer_replaced_document", doc["document_id"],
                    {"document_id": doc["document_id"], "replaces": replaces, "filename": doc["filename"]})
-    return {"document": _doc_view(doc), "created": created, "note": note, "intent": intent,
-            "answered_request": answered["customer_request_id"] if answered else None, "replaces": replaces}
+    out = {"document": _doc_view(doc), "created": created, "note": note, "intent": intent,
+           "answered_request": answered["customer_request_id"] if answered else None, "replaces": replaces}
+    def english(o: dict) -> None:
+        if note:
+            o["note_en"] = (i18n_en.DUPLICATE_UPLOAD if note.startswith("הקובץ הזה") else
+                            i18n_en.DUPLICATE_OTHER_BORROWER.format(owner=i18n_en.name(owner)))
+        i18n_views.doc_view(o["document"])
+    return i18n.localized(i18n.lang(request), out, english)
 
 
 class ProfileChange(BaseModel):
@@ -202,8 +209,9 @@ def change_profile(case_id: str, body: ProfileChange, request: Request):
         out = profile_change.change(case_id, body.borrowers, "customer")
     except profile_change.ProfileError as exc:
         raise HTTPException(exc.status, exc.message_he) from None
-    return {k: v for k, v in out.items() if k != "requirements"} | {
-        "requirements": [{k: r[k] for k in ("code", "title_he", "owner_he", "intake")} for r in out["requirements"]]}
+    return i18n.localized(i18n.lang(request), {k: v for k, v in out.items() if k != "requirements"} | {
+        "requirements": [{k: r[k] for k in ("code", "title_he", "owner_he", "intake")} for r in out["requirements"]]},
+        i18n_views.profile_change)
 
 
 class Reply(BaseModel):
@@ -235,11 +243,12 @@ def _document(request: Request, document_id: str) -> dict:
 @router.get("/documents/{document_id}")
 def document_detail(document_id: str, request: Request):
     d = _document(request, document_id)
-    return {**_doc_view(d), "runs": repo.runs(d["case_id"], document_id),
+    return i18n.localized(i18n.lang(request), {**_doc_view(d), "runs": repo.runs(d["case_id"], document_id),
             "findings": [_customer_finding(f) for f in repo.findings(d["case_id"]) if f["document_id"] == document_id
                          or any(e.get("document_id") == document_id for e in f["evidence"])],
             "banker_status": _customer_document_status(d["case_id"]).get(document_id),
-            "outcome": _outcomes(d["case_id"], readiness.compute(d["case_id"]))["documents"].get(document_id)}
+            "outcome": _outcomes(d["case_id"], readiness.compute(d["case_id"]))["documents"].get(document_id)},
+                          i18n_views.document)
 
 
 def _document_path(d: dict) -> str:
@@ -317,8 +326,13 @@ def audit(case_id: str, request: Request, limit: int = 200):
 @router.get("/cases/{case_id}/conversation")
 def conversation(case_id: str, request: Request):
     auth.require_customer_case(request, case_id)
-    continuation.sync_conversation(case_id)
-    return [{**t, "actions": (t["provenance"] or {}).get("actions") or []} for t in repo.turns(case_id)]
+    lang = i18n.lang(request)
+    continuation.sync_conversation(case_id, lang)
+    turns = [{**t, "actions": (t["provenance"] or {}).get("actions") or []} for t in repo.turns(case_id)]
+    if lang is None:                                   # the English a turn may carry is the customer app's alone
+        return [{**t, "provenance": {k: v for k, v in t["provenance"].items() if k not in ("text_en", "lang")}}
+                if t.get("provenance") and ("text_en" in t["provenance"] or "lang" in t["provenance"]) else t for t in turns]
+    return i18n.localized(lang, turns, lambda ts: i18n_continuation.conversation_en(case_id, ts))
 
 
 class Message(BaseModel):
@@ -333,7 +347,7 @@ def agent_message(case_id: str, msg: Message, request: Request):
     if msg.channel not in ("text", "voice"):
         raise HTTPException(422, "channel must be text or voice")
     try:
-        return agent.respond(case_id, msg.text, msg.channel, msg.provenance)
+        return agent.respond(case_id, msg.text, msg.channel, msg.provenance, lang=i18n.lang(request))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from None
 
@@ -358,9 +372,13 @@ async def transcribe(request: Request, audio: UploadFile = File(...)):
             raise HTTPException(422, "recording is too short")
     started = time.monotonic()
     try:
+        instruction = ("Transcribe this Hebrew speech verbatim in Hebrew. Return only the transcript text, no commentary. "
+                       "If nothing intelligible is said, return an empty string.")
+        if i18n.lang(request) == "en":                  # the customer app in English: the customer speaks English
+            instruction = ("Transcribe this English speech verbatim in English. Return only the transcript text, no "
+                           "commentary. If nothing intelligible is said, return an empty string.")
         resp = g.generate(settings.model_agent, [{"role": "user", "parts": [
-            g.text_part("Transcribe this Hebrew speech verbatim in Hebrew. Return only the transcript text, no commentary. "
-                        "If nothing intelligible is said, return an empty string."), g.inline_part(data, mime)]}],
+            g.text_part(instruction), g.inline_part(data, mime)]}],
             purpose="voice_transcribe", thinking="low", timeout=40)
     except g.GeminiError:
         raise HTTPException(502, "transcription failed") from None
@@ -380,8 +398,8 @@ def reset(case_id: str, request: Request):
 
 
 @router.get("/stage-dictionary")
-def stage_dictionary():
-    return bank.stage_dictionary()
+def stage_dictionary(request: Request):
+    return i18n.localized(i18n.lang(request), bank.stage_dictionary(), i18n_views.stage_dictionary)
 
 
 # ---------------------------------------------------------------- customer-started applications (demo intake)
@@ -445,6 +463,7 @@ class OnboardingTurn(BaseModel):
     question_id: Optional[str] = None
     value: object = None
     label_he: Optional[str] = Field(None, max_length=120)
+    label_en: Optional[str] = Field(None, max_length=120)
     action: Optional[Literal["edit", "cancel_edit", "simulate_confirm", "simulate_apply"]] = None
     turn_id: Optional[str] = Field(None, max_length=64)
     simulation: Optional[dict] = None
@@ -455,28 +474,28 @@ class SimulationDraft(BaseModel):
 
 
 @router.post("/demo/onboarding/v2", status_code=201)
-def onboarding_v2_start():
+def onboarding_v2_start(request: Request):
     """A new questionnaire draft, asked as a conversation (V2). Same draft table and confirmation as V1."""
-    return _onboarding(onboarding_chat.start)
+    return _onboarding(onboarding_chat.start, i18n.lang(request))
 
 
 @router.get("/demo/onboarding/{draft_id}/v2")
-def onboarding_v2_get(draft_id: str):
-    return _onboarding(onboarding_chat.view, draft_id)
+def onboarding_v2_get(draft_id: str, request: Request):
+    return _onboarding(onboarding_chat.view, draft_id, i18n.lang(request))
 
 
 @router.post("/demo/onboarding/{draft_id}/v2/turn")
-def onboarding_v2_turn(draft_id: str, body: OnboardingTurn):
+def onboarding_v2_turn(draft_id: str, body: OnboardingTurn, request: Request):
     """One customer turn → one assistant message: a quick reply, free text (Gemini by default, else the
     deterministic parser; the questionnaire validates either way) or an edit action. A repeated turn_id is a no-op."""
     return _onboarding(onboarding_chat.turn, draft_id, body.text, body.question_id, body.value, body.label_he, body.action,
-                       body.turn_id, body.simulation)
+                       body.turn_id, body.simulation, body.label_en, i18n.lang(request))
 
 
 @router.post("/demo/onboarding/{draft_id}/v2/simulation")
-def onboarding_v2_simulation(draft_id: str, body: SimulationDraft):
+def onboarding_v2_simulation(draft_id: str, body: SimulationDraft, request: Request):
     """Save the loan simulator's unconfirmed scenario (slider moves): no message, no answer, no model call."""
-    return _onboarding(onboarding_chat.save_simulation, draft_id, body.draft)
+    return _onboarding(onboarding_chat.save_simulation, draft_id, body.draft, i18n.lang(request))
 
 
 @router.post("/demo/onboarding/{draft_id}/v2/confirm")

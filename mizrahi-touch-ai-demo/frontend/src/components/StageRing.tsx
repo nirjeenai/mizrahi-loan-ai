@@ -1,3 +1,5 @@
+import { useLang } from "../i18n";
+
 /** The Touch progress ring: orange arc over a dashed grey track, step and label in the middle.
  *  `compact` draws the small ring of the home-screen stage card: the step only, the label sits beside it. */
 export function StageRing({ step, of, label, compact = false }: { step: number; of: number; label: string; compact?: boolean }) {
@@ -6,8 +8,9 @@ export function StageRing({ step, of, label, compact = false }: { step: number; 
   const c = 2 * Math.PI * r;
   const progress = Math.max(0.04, Math.min(1, step / of));
   const ticks = Array.from({ length: compact ? 40 : 64 }, (_, i) => i);
+  const { t } = useLang();
   return (
-    <div className={`ring-wrap${compact ? " compact" : ""}`} role="img" aria-label={`שלב ${step} מתוך ${of}: ${label}`}>
+    <div className={`ring-wrap${compact ? " compact" : ""}`} role="img" aria-label={t(`שלב ${step} מתוך ${of}: ${label}`, `Stage ${step} of ${of}: ${label}`)}>
       <svg width={size} height={size} viewBox="0 0 176 176" aria-hidden>
         {ticks.map((i) => {
           const a = (i / ticks.length) * Math.PI * 2;
@@ -30,7 +33,7 @@ export function StageRing({ step, of, label, compact = false }: { step: number; 
         <div className="ring-step"><span className="ltr">{step}/{of}</span></div>
         {!compact && <>
           <div className="ring-label">{label.split(" ").slice(0, 1).join(" ")}<br />{label.split(" ").slice(1).join(" ")}</div>
-          <div className="ring-tag">שלב במערכת הבנק</div>
+          <div className="ring-tag">{t("שלב במערכת הבנק", "Stage in the bank's system")}</div>
         </>}
       </div>
     </div>

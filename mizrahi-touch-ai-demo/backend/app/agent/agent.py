@@ -13,6 +13,7 @@ from ..config import settings
 from ..llm import gemini as g
 from ..store import repo
 from ..util import mask_ids, new_id
+from ..i18n import agent_en
 from . import actions, continuation, tools
 
 log = logging.getLogger("agent")
@@ -78,12 +79,14 @@ def _fallback(case_id: str, ctx: dict) -> str:
     return f"{overview['spoken_he']} {items['spoken_he']} (תשובה ישירה מנתוני התיק, העוזר החכם אינו זמין כרגע.)"
 
 
-def _contents(history: list[dict], text: str, channel: str) -> list[dict]:
+def _contents(history: list[dict], text: str, channel: str, lang: Optional[str] = None) -> list[dict]:
     """Gemini wants alternating roles that open with the user; follow-up notes from the app can break both."""
     marker = "קול" if channel == "voice" else "צ׳אט"
+    if lang == "en":
+        marker = agent_en.CHANNEL_MARKER.get(channel, "chat")
     turns = [("user" if t["role"] == "user" else "model", t["text"]) for t in history]
     contents: list[dict] = []
-    for role, part in turns + [("user", f"[ערוץ: {marker}] {text}")]:
+    for role, part in turns + [("user", f"[{'channel' if lang == 'en' else 'ערוץ'}: {marker}] {text}")]:
         if contents and contents[-1]["role"] == role:
             contents[-1]["parts"].append({"text": part})
         elif contents or role == "user":
@@ -91,17 +94,34 @@ def _contents(history: list[dict], text: str, channel: str) -> list[dict]:
     return contents
 
 
+def _english_twin(make) -> Optional[str]:
+    try:
+        return mask_ids(make())
+    except Exception:                                   # English must never cost the customer the Hebrew answer
+        log.exception("English wording failed; the turn keeps its Hebrew only")
+        return None
+
+
 def respond(case_id: str, text: str, channel: str = "text", provenance: Optional[dict] = None,
-            actor: str = "customer") -> dict[str, Any]:
+            actor: str = "customer", lang: Optional[str] = None) -> dict[str, Any]:
+    """`lang` (the customer app's X-MZ-Lang): 'en' → the same assistant answering in English (English system prompt,
+    English guard, English no-model fallback); 'he' → exactly the Hebrew assistant, with an English twin of a reply the
+    code wrote (the fallback); an English turn is marked lang=en. None (every other caller) → as before."""
     bank.get_case(case_id)
     text = (text or "").strip()[:2000]
     if not text:
         raise ValueError("empty message")
-    continuation.sync_conversation(case_id)
+    continuation.sync_conversation(case_id, lang)
     history = repo.turns(case_id, limit=16)
+    if provenance and ("text_en" in provenance or "lang" in provenance):
+        # a turn's language and English are the server's to record, never the client's
+        provenance = {k: v for k, v in provenance.items() if k not in ("text_en", "lang")}
+    if lang == "en":                                   # Hebrew is the default: only an English turn says so
+        provenance = {**(provenance or {}), "lang": "en"}
     user_turn = repo.add_turn(case_id, channel, "user", text, provenance)
     ctx = {"case_id": case_id, "channel": channel, "actor": actor, "turn_id": user_turn["turn_id"], "trace_id": new_id("TR")}
-    contents = _contents(history, text, channel)
+    contents = _contents(history, text, channel, lang)
+    reply_en: Optional[str] = None
     trace: list[dict] = []
     offered: list[dict] = []
     fallback = False
@@ -109,7 +129,8 @@ def respond(case_id: str, text: str, channel: str = "text", provenance: Optional
     try:
         for _ in range(MAX_STEPS):
             data = g.generate(settings.model_agent, contents, purpose="agent", run_id=ctx["trace_id"],
-                              system=_system(case_id, channel), tools=tools.gemini_declarations(), thinking="low",
+                              system=agent_en.system(case_id, channel) if lang == "en" else _system(case_id, channel),
+                              tools=tools.gemini_declarations(), thinking="low",
                               temperature=0.2, timeout=60)
             content = (data.get("candidates") or [{}])[0].get("content") or {"role": "model", "parts": []}
             calls = [p["functionCall"] for p in content.get("parts", []) if "functionCall" in p]
@@ -136,20 +157,38 @@ def respond(case_id: str, text: str, channel: str = "text", provenance: Optional
             contents.append({"role": "user", "parts": responses})
         if not reply:
             reply = "לא הצלחתי להשלים את הבדיקה כרגע. אפשר לנסות שוב או לפנות לבנקאית."
+            if lang == "en":
+                reply = agent_en.NO_ANSWER
+            elif lang:
+                reply_en = agent_en.NO_ANSWER
     except g.GeminiError as exc:
         log.warning("agent fallback: %s", exc)
         fallback = True
-        reply = _fallback(case_id, ctx)
+        if lang == "en":
+            reply = agent_en.fallback(case_id)
+        else:
+            reply = _fallback(case_id, ctx)
+            if lang:
+                reply_en = _english_twin(lambda: agent_en.fallback(case_id))
         offered = actions.default_offer(case_id)
     reply, guard = guard_reply(reply)
+    if lang == "en" and not guard["blocked"] and agent_en.blocked(reply):
+        guard = {"blocked": True, "pattern": "en", "original_excerpt": reply[:120]}
+    if guard["blocked"] and lang == "en":
+        reply = agent_en.SAFE_REPLY
+    elif guard["blocked"] and lang:
+        reply_en = agent_en.SAFE_REPLY
     if guard["blocked"]:
         offered = []
+    language = {"lang": "en"} if lang == "en" else {"text_en": reply_en} if reply_en else {}
     turn = repo.add_turn(case_id, channel, "assistant", reply,
-                         {"model": settings.model_agent, "guard": guard, "fallback": fallback, "actions": offered}, trace)
+                         {"model": settings.model_agent, "guard": guard, "fallback": fallback, "actions": offered,
+                          **language}, trace)
     if guard["blocked"]:
         repo.audit(case_id, "agent", "agent_guard_blocked", turn["turn_id"], guard)
     if offered:
         repo.audit(case_id, "agent", "assistant_actions_offered", turn["turn_id"],
                    {"actions": [a["action_id"] for a in offered], "channel": channel, "fallback": fallback})
     return {"reply": reply, "turn_id": turn["turn_id"], "user_turn_id": user_turn["turn_id"], "channel": channel,
-            "tool_calls": trace, "guard": guard, "fallback": fallback, "actions": offered}
+            "tool_calls": trace, "guard": guard, "fallback": fallback, "actions": offered,
+            **({"reply_en": reply_en} if reply_en else {})}
