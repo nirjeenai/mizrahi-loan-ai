@@ -1,0 +1,1063 @@
+[
+ {
+  "step": "start",
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "messages": [
+    {
+     "id": 1,
+     "role": "assistant",
+     "kind": "text",
+     "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+     "at": "<TS>",
+     "question_id": "loan_type",
+     "stale": false
+    }
+   ],
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "question_id": "loan_type",
+   "value": "business",
+   "label_he": "הלוואה עסקית"
+  },
+  "new_messages": [
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה עסקית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית, הבנתי. איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
+    "at": "<TS>",
+    "question_id": "business_form",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "business_form",
+    "kind": "choice",
+    "prompt_he": "איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
+    "replies": [
+     {
+      "label_he": "עוסק פטור",
+      "value": "vat_exempt"
+     },
+     {
+      "label_he": "עוסק מורשה",
+      "value": "vat_registered"
+     },
+     {
+      "label_he": "חברה בע״מ",
+      "value": "company"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 4,
+     "answered": 1
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "question_id": "business_form",
+   "value": "vat_exempt",
+   "label_he": "עוסק פטור"
+  },
+  "new_messages": [
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "עוסק פטור",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית כעוסק פטור, הבקשה תיפתח על שמך כבעל/ת העסק, עם מסמכי העסק שלך. איך קוראים לך? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "name",
+    "kind": "name",
+    "prompt_he": "איך קוראים לך? (שם פרטי ושם משפחה)",
+    "replies": [],
+    "placeholder_he": "שם פרטי ושם משפחה",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 4,
+     "answered": 2
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 2
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "שרון לוי"
+  },
+  "new_messages": [
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "שרון לוי",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "נעים להכיר, שרון. מה מספר תעודת הזהות שלך?",
+    "at": "<TS>",
+    "question_id": "national_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "שרון",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "national_id",
+    "kind": "text",
+    "prompt_he": "מה מספר תעודת הזהות שלך?",
+    "replies": [],
+    "placeholder_he": "מספר תעודת זהות",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 4,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 2
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "DEMO-ID-205"
+  },
+  "new_messages": [
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "DEMO-ID-205",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. למה העסק צריך את המימון?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "שרון",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "למה העסק צריך את המימון?",
+    "replies": [
+     {
+      "label_he": "רכישת רכב",
+      "value": "car"
+     },
+     {
+      "label_he": "שיפוץ",
+      "value": "renovation"
+     },
+     {
+      "label_he": "מטרה אחרת",
+      "value": "other"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 4,
+     "answered": 4
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 2
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אני רק שכיר"
+  },
+  "new_messages": [
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רק שכיר",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "בהלוואה עסקית לעוסק צריכה להיות הכנסה מהעסק. אם אין לך עסק, אפשר לעבור להלוואה פרטית. אז למה העסק צריך את המימון?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "actions": [
+     {
+      "label_he": "לעבור להלוואה פרטית",
+      "question_id": "loan_type",
+      "value": "personal"
+     }
+    ],
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "שרון",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "למה העסק צריך את המימון?",
+    "replies": [
+     {
+      "label_he": "רכישת רכב",
+      "value": "car"
+     },
+     {
+      "label_he": "שיפוץ",
+      "value": "renovation"
+     },
+     {
+      "label_he": "מטרה אחרת",
+      "value": "other"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [
+    {
+     "label_he": "לעבור להלוואה פרטית",
+     "question_id": "loan_type",
+     "value": "personal"
+    }
+   ],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 4,
+     "answered": 4
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 2
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "ציוד לעסק"
+  },
+  "new_messages": [
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "ציוד לעסק",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח שהבנתי. אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "שרון",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "למה העסק צריך את המימון?",
+    "replies": [
+     {
+      "label_he": "רכישת רכב",
+      "value": "car"
+     },
+     {
+      "label_he": "שיפוץ",
+      "value": "renovation"
+     },
+     {
+      "label_he": "מטרה אחרת",
+      "value": "other"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 4,
+     "answered": 4
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 2
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "action": "simulate_confirm",
+   "simulation": {
+    "amount": 40000,
+    "term": 24
+   }
+  },
+  "status": 422,
+  "body": {
+   "detail": "עוד אין סימולציה לאשר"
+  }
+ },
+ {
+  "step": {
+   "text": "8000 נטו"
+  },
+  "new_messages": [
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "8000 נטו",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי כ־8,000 ₪ נטו בחודש. למה העסק צריך את המימון?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "שרון",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "למה העסק צריך את המימון?",
+    "replies": [
+     {
+      "label_he": "רכישת רכב",
+      "value": "car"
+     },
+     {
+      "label_he": "שיפוץ",
+      "value": "renovation"
+     },
+     {
+      "label_he": "מטרה אחרת",
+      "value": "other"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 4,
+     "answered": 4
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 3
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "לא"
+  },
+  "new_messages": [
+   {
+    "id": 16,
+    "role": "user",
+    "kind": "text",
+    "text_he": "לא",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 17,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח שהבנתי. אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "שרון",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "למה העסק צריך את המימון?",
+    "replies": [
+     {
+      "label_he": "רכישת רכב",
+      "value": "car"
+     },
+     {
+      "label_he": "שיפוץ",
+      "value": "renovation"
+     },
+     {
+      "label_he": "מטרה אחרת",
+      "value": "other"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 4,
+     "answered": 4
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 4,
+     "answered": 3
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "business",
+    "form": "vat_exempt"
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": [
+   "open_case"
+  ],
+  "status": 409,
+  "body": {
+   "detail": "עוד לא ענינו על כל השאלות"
+  }
+ },
+ {
+  "step": "final_transcript",
+  "messages": [
+   {
+    "id": 1,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "stale": false
+   },
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה עסקית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית, הבנתי. איך העסק רשום, עוסק פטור, עוסק מורשה או חברה בע״מ?",
+    "at": "<TS>",
+    "question_id": "business_form",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "עוסק פטור",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה עסקית כעוסק פטור, הבקשה תיפתח על שמך כבעל/ת העסק, עם מסמכי העסק שלך. איך קוראים לך? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "שרון לוי",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "נעים להכיר, שרון. מה מספר תעודת הזהות שלך?",
+    "at": "<TS>",
+    "question_id": "national_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "DEMO-ID-205",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. למה העסק צריך את המימון?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רק שכיר",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "בהלוואה עסקית לעוסק צריכה להיות הכנסה מהעסק. אם אין לך עסק, אפשר לעבור להלוואה פרטית. אז למה העסק צריך את המימון?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "actions": [
+     {
+      "label_he": "לעבור להלוואה פרטית",
+      "question_id": "loan_type",
+      "value": "personal"
+     }
+    ],
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "ציוד לעסק",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח שהבנתי. אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "8000 נטו",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי כ־8,000 ₪ נטו בחודש. למה העסק צריך את המימון?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 16,
+    "role": "user",
+    "kind": "text",
+    "text_he": "לא",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 17,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "לא בטוח שהבנתי. אפשר לבחור אחת מהאפשרויות או לכתוב במילים שלך.",
+    "at": "<TS>",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ]
+ }
+]

@@ -1,0 +1,5106 @@
+[
+ {
+  "step": "start",
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "messages": [
+    {
+     "id": 1,
+     "role": "assistant",
+     "kind": "text",
+     "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+     "at": "<TS>",
+     "question_id": "loan_type",
+     "stale": false
+    }
+   ],
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "loan_type",
+    "kind": "choice",
+    "prompt_he": "איזו הלוואה מעניינת אותך?",
+    "replies": [
+     {
+      "label_he": "הלוואה פרטית",
+      "value": "personal"
+     },
+     {
+      "label_he": "הלוואה עסקית",
+      "value": "business"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {},
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "question_id": "loan_type",
+   "value": "personal",
+   "label_he": "הלוואה פרטית"
+  },
+  "new_messages": [
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה פרטית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה פרטית, בשמחה. איך קוראים לך? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": null,
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "name",
+    "kind": "name",
+    "prompt_he": "איך קוראים לך? (שם פרטי ושם משפחה)",
+    "replies": [],
+    "placeholder_he": "שם פרטי ושם משפחה",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "מיכל ברק"
+  },
+  "new_messages": [
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מיכל ברק",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "נעים להכיר, מיכל. מה מספר תעודת הזהות שלך?",
+    "at": "<TS>",
+    "question_id": "national_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "national_id",
+    "kind": "text",
+    "prompt_he": "מה מספר תעודת הזהות שלך?",
+    "replies": [],
+    "placeholder_he": "מספר תעודת זהות",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "current",
+     "total": 3,
+     "answered": 2
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "DEMO-ID-201"
+  },
+  "new_messages": [
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "DEMO-ID-201",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. מיכל, למה מיועדת ההלוואה?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": null,
+   "pending": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "מיכל, למה מיועדת ההלוואה?",
+    "replies": [
+     {
+      "label_he": "רכישת רכב",
+      "value": "car"
+     },
+     {
+      "label_he": "שיפוץ",
+      "value": "renovation"
+     },
+     {
+      "label_he": "אירוע משפחתי",
+      "value": "celebration"
+     },
+     {
+      "label_he": "מטרה אחרת",
+      "value": "other"
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "רכישת רכב"
+  },
+  "new_messages": [
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "רכישת רכב",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה 🚗 בואו נראה איך אפשר לתכנן את ההלוואה לרכב. אפשר לשנות את הסכום ואת תקופת ההחזר ולראות מיד איך הם משפיעים על התשלום החודשי.",
+    "at": "<TS>",
+    "question_id": "amount",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "pending",
+     "product_he": "הלוואה לרכב",
+     "amount": 80000,
+     "term": 60,
+     "monthly_payment": 1546.62,
+     "rev": 0,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "pending",
+    "editing": false,
+    "rev": 0,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 80000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": false,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 80000.0,
+      "term_months": 60,
+      "amortizing_months": 60,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 60,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 1546.62,
+      "first_payment": 1546.62,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 1546.87,
+      "max_payment": 1546.87,
+      "min_payment": 1546.62,
+      "total_paid": 92797.45,
+      "total_interest": 12797.45,
+      "total_fees": 0.0,
+      "total_cost": 12797.45,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 18559.44,
+        "interest": 4415.24,
+        "principal": 14144.2,
+        "balance": 65855.75
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 18559.44,
+        "interest": 3542.85,
+        "principal": 15016.59,
+        "balance": 50839.11
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 18559.44,
+        "interest": 2616.65,
+        "principal": 15942.79,
+        "balance": 34896.27
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 18559.44,
+        "interest": 1633.35,
+        "principal": 16926.09,
+        "balance": 17970.12
+       },
+       {
+        "year": 5,
+        "from_month": "2030-11",
+        "to_month": "2031-10",
+        "paid": 18559.69,
+        "interest": 589.36,
+        "principal": 17970.33,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": null,
+     "comparison": [
+      {
+       "term": 48,
+       "monthly_payment": 1878.8,
+       "total_interest": 10182.51,
+       "chosen": false
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1546.62,
+       "total_interest": 12797.45,
+       "chosen": true
+      }
+     ],
+     "target": null,
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": null,
+    "confirmed_eval": null,
+    "context": {
+     "net_income": null,
+     "net_parts": [],
+     "co_borrower_pending": false,
+     "obligations": null,
+     "target_monthly": null,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "amount",
+    "kind": "simulator",
+    "prompt_he": "אפשר להמשיך לכוון את הסכום והתקופה בסימולציה, וללחוץ על אישור כשזה מתאים.",
+    "replies": [
+     {
+      "label_he": "50,000 ₪",
+      "value": 50000
+     },
+     {
+      "label_he": "80,000 ₪",
+      "value": 80000
+     },
+     {
+      "label_he": "120,000 ₪",
+      "value": 120000
+     },
+     {
+      "label_he": "180,000 ₪",
+      "value": 180000
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "upcoming",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "action": "simulate_confirm",
+   "simulation": {
+    "amount": 100000,
+    "term": 48,
+    "product": "car",
+    "asset_unknown": true
+   }
+  },
+  "new_messages": [
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "זה התרחיש שלי: 100,000 ₪ ב־48 תשלומים",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה, רשמתי 100,000 ₪ ב־48 תשלומים, הלוואה לרכב: החזר חודשי משוער של כ־2,348 ₪. זו המחשה, לא הצעה של הבנק. איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 1,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 1,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": null,
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": null,
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": null,
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": null,
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": null,
+     "net_parts": [],
+     "co_borrower_pending": false,
+     "obligations": null,
+     "target_monthly": null,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 0
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אני מרוויח 12 אלף נטו, ואני לא רוצה לעבור החזר של 2,500."
+  },
+  "new_messages": [
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני מרוויח 12 אלף נטו, ואני לא רוצה לעבור החזר של 2,500.",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי כ־12,000 ₪ נטו בחודש. ההחזר בסימולציה, כ־2,348 ₪, כבר בתוך היעד של עד 2,500 ₪ בחודש. איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 2,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 2,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": null,
+      "existing_known": false,
+      "total_monthly": 2348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 19.6,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 9651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 2500,
+      "monthly_payment": 2348.5
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": null,
+      "existing_known": false,
+      "total_monthly": 2348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 19.6,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 9651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 2500,
+      "monthly_payment": 2348.5
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": 12000,
+     "net_parts": [
+      {
+       "who": "primary",
+       "net_ils": 12000
+      }
+     ],
+     "co_borrower_pending": false,
+     "obligations": null,
+     "target_monthly": 2500,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "מה ההחזר ביחס להכנסה שלי?",
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "יש לי הלוואה קיימת של 1,000 ש\"ח בחודש"
+  },
+  "new_messages": [
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "יש לי הלוואה קיימת של 1,000 ש\"ח בחודש",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "רשמתי החזרי הלוואות קיימים של כ־1,000 ₪ בחודש, כהצהרה שלך. יחד עם ההחזרים הקיימים שסיפרת עליהם (1,000 ₪), ההחזר החודשי הכולל יהיה כ־3,348 ₪, כ־27.9% מההכנסה נטו שמסרת, ונשארים כ־8,652 ₪ בחודש. זה מדד תקציבי לפי מה שסיפרת, לא בדיקת זכאות. ולגבי הבקשה, איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 3,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 3,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 3348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 27.9,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 8651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 2500,
+      "monthly_payment": 2348.5
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 3348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 27.9,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 8651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 2500,
+      "monthly_payment": 2348.5
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": 12000,
+     "net_parts": [
+      {
+       "who": "primary",
+       "net_ils": 12000
+      }
+     ],
+     "co_borrower_pending": false,
+     "obligations": 1000,
+     "target_monthly": 2500,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "מה ההחזר ביחס להכנסה שלי?",
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אני רוצה לשלם עד 2,000 בחודש"
+  },
+  "new_messages": [
+   {
+    "id": 16,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רוצה לשלם עד 2,000 בחודש",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 17,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "כדי לשלם עד 2,000 ₪ בחודש על 100,000 ₪, אפשר לפרוס ל־58 תשלומים לפחות (כ־1,990 ₪ בחודש). תקופה ארוכה יותר מקטינה את ההחזר החודשי אבל מגדילה את סך הריבית, כ־15,448 ₪ במקום כ־12,728 ₪. אז איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "actions": [
+     {
+      "label_he": "לפרוס ל־58 תשלומים",
+      "question_id": "payments",
+      "value": 58
+     }
+    ],
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 4,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 4,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 3348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 27.9,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 8651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "term",
+      "target": 2000,
+      "term": 58,
+      "monthly_payment": 1990.48,
+      "total_interest": 15447.91,
+      "current_total_interest": 12728.14
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 3348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 27.9,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 8651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "term",
+      "target": 2000,
+      "term": 58,
+      "monthly_payment": 1990.48,
+      "total_interest": 15447.91,
+      "current_total_interest": 12728.14
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": 12000,
+     "net_parts": [
+      {
+       "who": "primary",
+       "net_ils": 12000
+      }
+     ],
+     "co_borrower_pending": false,
+     "obligations": 1000,
+     "target_monthly": 2000,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [
+    {
+     "label_he": "לפרוס ל־58 תשלומים",
+     "question_id": "payments",
+     "value": 58
+    }
+   ],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "מה ההחזר ביחס להכנסה שלי?",
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "אני רוצה לשלם עד 1,200 בחודש"
+  },
+  "new_messages": [
+   {
+    "id": 18,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רוצה לשלם עד 1,200 בחודש",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 19,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "גם בתקופה הארוכה ביותר בסימולציה (60 חודשים) ההחזר על 100,000 ₪ גבוה מ־1,200 ₪. כדי לעמוד ביעד אפשר להקטין את הסכום לכ־62,000 ₪ ולפרוס ל־60 תשלומים (כ־1,199 ₪ בחודש). איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "actions": [
+     {
+      "label_he": "62,000 ₪ ב־60 תשלומים",
+      "simulation": {
+       "amount": 62000,
+       "term": 60
+      }
+     }
+    ],
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 5,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 5,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 3348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 27.9,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 8651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "amount",
+      "target": 1200,
+      "amount": 62000,
+      "term": 60,
+      "monthly_payment": 1198.63
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 100000,
+     "term": 48,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 100000.0,
+      "term_months": 48,
+      "amortizing_months": 48,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 48,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 2348.5,
+      "first_payment": 2348.5,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 2348.64,
+      "max_payment": 2348.64,
+      "min_payment": 2348.5,
+      "total_paid": 112728.14,
+      "total_interest": 12728.14,
+      "total_fees": 0.0,
+      "total_cost": 12728.14,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 28182.0,
+        "interest": 5379.7,
+        "principal": 22802.3,
+        "balance": 77197.68
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 28182.0,
+        "interest": 3973.31,
+        "principal": 24208.69,
+        "balance": 52988.96
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 28182.0,
+        "interest": 2480.17,
+        "principal": 25701.83,
+        "balance": 27287.1
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 28182.14,
+        "interest": 894.96,
+        "principal": 27287.18,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 2348.5,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 3348.5,
+      "net_income": 12000.0,
+      "ratio_pct": 27.9,
+      "new_only_ratio_pct": 19.6,
+      "remaining": 8651.5
+     },
+     "comparison": [
+      {
+       "term": 36,
+       "monthly_payment": 3042.19,
+       "total_interest": 9518.97,
+       "chosen": false
+      },
+      {
+       "term": 48,
+       "monthly_payment": 2348.5,
+       "total_interest": 12728.14,
+       "chosen": true
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1933.28,
+       "total_interest": 15996.81,
+       "chosen": false
+      }
+     ],
+     "target": {
+      "status": "amount",
+      "target": 1200,
+      "amount": 62000,
+      "term": 60,
+      "monthly_payment": 1198.63
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": 12000,
+     "net_parts": [
+      {
+       "who": "primary",
+       "net_ils": 12000
+      }
+     ],
+     "co_borrower_pending": false,
+     "obligations": 1000,
+     "target_monthly": 1200,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [
+    {
+     "label_he": "62,000 ₪ ב־60 תשלומים",
+     "simulation": {
+      "amount": 62000,
+      "term": 60
+     }
+    }
+   ],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "מה ההחזר ביחס להכנסה שלי?",
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "action": "simulate_apply",
+   "simulation": {
+    "amount": 62000,
+    "term": 60
+   },
+   "label_he": "62,000 ₪ ב־60 תשלומים"
+  },
+  "new_messages": [
+   {
+    "id": 20,
+    "role": "user",
+    "kind": "text",
+    "text_he": "62,000 ₪ ב־60 תשלומים",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 21,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה, רשמתי 62,000 ₪ ב־60 תשלומים, הלוואה לרכב: החזר חודשי משוער של כ־1,199 ₪. זו המחשה, לא הצעה של הבנק. איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 62000,
+     "term": 60,
+     "monthly_payment": 1198.63,
+     "rev": 6,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 6,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 62000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 62000.0,
+      "term_months": 60,
+      "amortizing_months": 60,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 60,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 1198.63,
+      "first_payment": 1198.63,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 1198.85,
+      "max_payment": 1198.85,
+      "min_payment": 1198.63,
+      "total_paid": 71918.02,
+      "total_interest": 9918.02,
+      "total_fees": 0.0,
+      "total_cost": 9918.02,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 14383.56,
+        "interest": 3421.81,
+        "principal": 10961.75,
+        "balance": 51038.2
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 14383.56,
+        "interest": 2745.7,
+        "principal": 11637.86,
+        "balance": 39400.31
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 14383.56,
+        "interest": 2027.9,
+        "principal": 12355.66,
+        "balance": 27044.61
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 14383.56,
+        "interest": 1265.82,
+        "principal": 13117.74,
+        "balance": 13926.84
+       },
+       {
+        "year": 5,
+        "from_month": "2030-11",
+        "to_month": "2031-10",
+        "paid": 14383.78,
+        "interest": 456.79,
+        "principal": 13926.99,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 1198.63,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 2198.63,
+      "net_income": 12000.0,
+      "ratio_pct": 18.3,
+      "new_only_ratio_pct": 10.0,
+      "remaining": 9801.37
+     },
+     "comparison": [
+      {
+       "term": 48,
+       "monthly_payment": 1456.07,
+       "total_interest": 7891.45,
+       "chosen": false
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1198.63,
+       "total_interest": 9918.02,
+       "chosen": true
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 1200,
+      "monthly_payment": 1198.63
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 62000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 62000.0,
+      "term_months": 60,
+      "amortizing_months": 60,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 60,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 1198.63,
+      "first_payment": 1198.63,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 1198.85,
+      "max_payment": 1198.85,
+      "min_payment": 1198.63,
+      "total_paid": 71918.02,
+      "total_interest": 9918.02,
+      "total_fees": 0.0,
+      "total_cost": 9918.02,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 14383.56,
+        "interest": 3421.81,
+        "principal": 10961.75,
+        "balance": 51038.2
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 14383.56,
+        "interest": 2745.7,
+        "principal": 11637.86,
+        "balance": 39400.31
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 14383.56,
+        "interest": 2027.9,
+        "principal": 12355.66,
+        "balance": 27044.61
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 14383.56,
+        "interest": 1265.82,
+        "principal": 13117.74,
+        "balance": 13926.84
+       },
+       {
+        "year": 5,
+        "from_month": "2030-11",
+        "to_month": "2031-10",
+        "paid": 14383.78,
+        "interest": 456.79,
+        "principal": 13926.99,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 1198.63,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 2198.63,
+      "net_income": 12000.0,
+      "ratio_pct": 18.3,
+      "new_only_ratio_pct": 10.0,
+      "remaining": 9801.37
+     },
+     "comparison": [
+      {
+       "term": 48,
+       "monthly_payment": 1456.07,
+       "total_interest": 7891.45,
+       "chosen": false
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1198.63,
+       "total_interest": 9918.02,
+       "chosen": true
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 1200,
+      "monthly_payment": 1198.63
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": 12000,
+     "net_parts": [
+      {
+       "who": "primary",
+       "net_ils": 12000
+      }
+     ],
+     "co_borrower_pending": false,
+     "obligations": 1000,
+     "target_monthly": 1200,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "מה ההחזר ביחס להכנסה שלי?",
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": {
+   "text": "מה ההחזר ביחס להכנסה שלי?"
+  },
+  "new_messages": [
+   {
+    "id": 22,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מה ההחזר ביחס להכנסה שלי?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 23,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "בסימולציה (הלוואה לרכב): 62,000 ₪ ב־60 תשלומים, החזר חודשי של כ־1,199 ₪, ובסך הכול כ־71,918 ₪, מתוכם כ־9,918 ₪ ריבית. החישוב לפי ריבית להמחשה של 6%, לא ריבית של הבנק. יחד עם ההחזרים הקיימים שסיפרת עליהם (1,000 ₪), ההחזר החודשי הכולל יהיה כ־2,199 ₪, כ־18.3% מההכנסה נטו שמסרת, ונשארים כ־9,801 ₪ בחודש. זה מדד תקציבי לפי מה שסיפרת, לא בדיקת זכאות. אז איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 62000,
+     "term": 60,
+     "monthly_payment": 1198.63,
+     "rev": 6,
+     "live": true
+    },
+    "stale": false
+   }
+  ],
+  "view": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "first_name_he": "מיכל",
+   "engine": "rules",
+   "simulation": {
+    "status": "confirmed",
+    "editing": false,
+    "rev": 6,
+    "product_id": "car",
+    "candidates": [
+     {
+      "id": "car",
+      "label_he": "הלוואה לרכב",
+      "short_he": "רכב",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים",
+       "לרכב חדש או יד שנייה"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 80000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "electric_car",
+      "label_he": "הלוואה לרכב חשמלי",
+      "short_he": "רכב חשמלי",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/electric-car-loan/",
+      "verified_he": [
+       "עד 85% מימון",
+       "תקופה עד 60 חודשים"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": 0.85,
+      "asset": {
+       "label_he": "מחיר הרכב",
+       "hint_he": "לבדיקת שיעור המימון במסלול"
+      },
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 120000,
+       "term": 60
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 60,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "express",
+      "label_he": "הלוואה ברגע",
+      "short_he": "ברגע",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/express-loan/",
+      "verified_he": [
+       "עד 125,000 ₪",
+       "תקופה של 2 עד 72 חודשים",
+       "אפשר לדחות את התשלום הראשון בעד 3 חודשים",
+       "פטור מעמלת פירעון מוקדם"
+      ],
+      "not_applicable_he": null,
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity"
+       ],
+       "deferral": {
+        "max_months": 3,
+        "basis": "verified",
+        "verified_policy": null,
+        "illustrative_policies": [
+         "capitalized",
+         "interest_only"
+        ],
+        "default_policy": "capitalized",
+        "term_includes_deferral": false,
+        "term_basis": "demo"
+       },
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 36
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 125000,
+       "amount_max_basis": "verified",
+       "amount_step": 1000,
+       "term_min": 2,
+       "term_min_basis": "verified",
+       "term_max": 72,
+       "term_max_basis": "verified"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     },
+     {
+      "id": "all_purpose",
+      "label_he": "הלוואה לכל מטרה",
+      "short_he": "לכל מטרה",
+      "source_url": "https://www.mizrahi-tefahot.co.il/loans/privateloanslib/all-purpose-loan/",
+      "verified_he": [
+       "לכל מטרה, לטווח קצר או ארוך"
+      ],
+      "not_applicable_he": "התנאים שבעמוד להלוואה כנגד שעבוד דירה (מ־40,000 ₪, 4 עד 30 שנים, עד 70% משווי הנכס) אינם חלים על הלוואה ללא שעבוד.",
+      "amount_field": "amount",
+      "max_financing_ratio": null,
+      "asset": null,
+      "features": {
+       "repayment_models": [
+        "annuity",
+        "equal_principal"
+       ],
+       "models_basis": "demo",
+       "deferral": null,
+       "variable_rate": null,
+       "fees": []
+      },
+      "defaults": {
+       "amount": 50000,
+       "term": 48
+      },
+      "bounds": {
+       "amount_min": 5000,
+       "amount_max": 250000,
+       "amount_max_basis": "flow",
+       "amount_step": 1000,
+       "term_min": 12,
+       "term_min_basis": "demo",
+       "term_max": 84,
+       "term_max_basis": "demo"
+      },
+      "rate": {
+       "available": true,
+       "source": "illustrative",
+       "annual_rate_pct": 6.0,
+       "convention": "nominal",
+       "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+      }
+     }
+    ],
+    "amount_field": "amount",
+    "purpose": "car",
+    "draft": {
+     "amount": 62000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "draft_eval": {
+     "result": {
+      "principal": 62000.0,
+      "term_months": 60,
+      "amortizing_months": 60,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 60,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 1198.63,
+      "first_payment": 1198.63,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 1198.85,
+      "max_payment": 1198.85,
+      "min_payment": 1198.63,
+      "total_paid": 71918.02,
+      "total_interest": 9918.02,
+      "total_fees": 0.0,
+      "total_cost": 9918.02,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 14383.56,
+        "interest": 3421.81,
+        "principal": 10961.75,
+        "balance": 51038.2
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 14383.56,
+        "interest": 2745.7,
+        "principal": 11637.86,
+        "balance": 39400.31
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 14383.56,
+        "interest": 2027.9,
+        "principal": 12355.66,
+        "balance": 27044.61
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 14383.56,
+        "interest": 1265.82,
+        "principal": 13117.74,
+        "balance": 13926.84
+       },
+       {
+        "year": 5,
+        "from_month": "2030-11",
+        "to_month": "2031-10",
+        "paid": 14383.78,
+        "interest": 456.79,
+        "principal": 13926.99,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 1198.63,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 2198.63,
+      "net_income": 12000.0,
+      "ratio_pct": 18.3,
+      "new_only_ratio_pct": 10.0,
+      "remaining": 9801.37
+     },
+     "comparison": [
+      {
+       "term": 48,
+       "monthly_payment": 1456.07,
+       "total_interest": 7891.45,
+       "chosen": false
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1198.63,
+       "total_interest": 9918.02,
+       "chosen": true
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 1200,
+      "monthly_payment": 1198.63
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "confirmed": {
+     "amount": 62000,
+     "term": 60,
+     "asset_price": null,
+     "asset_unknown": true,
+     "deferral_months": 0,
+     "deferral_policy": null,
+     "model": "annuity",
+     "rate_change_pct": 0,
+     "rate_change_from": 13
+    },
+    "confirmed_eval": {
+     "result": {
+      "principal": 62000.0,
+      "term_months": 60,
+      "amortizing_months": 60,
+      "deferral_months": 0,
+      "deferral_policy": null,
+      "periods": 60,
+      "model": "annuity",
+      "annual_rate_pct": 6.0,
+      "monthly_payment": 1198.63,
+      "first_payment": 1198.63,
+      "first_payment_month": "2026-11",
+      "first_repayment_month": "2026-11",
+      "last_payment": 1198.85,
+      "max_payment": 1198.85,
+      "min_payment": 1198.63,
+      "total_paid": 71918.02,
+      "total_interest": 9918.02,
+      "total_fees": 0.0,
+      "total_cost": 9918.02,
+      "rate_changes": [],
+      "yearly": [
+       {
+        "year": 1,
+        "from_month": "2026-11",
+        "to_month": "2027-10",
+        "paid": 14383.56,
+        "interest": 3421.81,
+        "principal": 10961.75,
+        "balance": 51038.2
+       },
+       {
+        "year": 2,
+        "from_month": "2027-11",
+        "to_month": "2028-10",
+        "paid": 14383.56,
+        "interest": 2745.7,
+        "principal": 11637.86,
+        "balance": 39400.31
+       },
+       {
+        "year": 3,
+        "from_month": "2028-11",
+        "to_month": "2029-10",
+        "paid": 14383.56,
+        "interest": 2027.9,
+        "principal": 12355.66,
+        "balance": 27044.61
+       },
+       {
+        "year": 4,
+        "from_month": "2029-11",
+        "to_month": "2030-10",
+        "paid": 14383.56,
+        "interest": 1265.82,
+        "principal": 13117.74,
+        "balance": 13926.84
+       },
+       {
+        "year": 5,
+        "from_month": "2030-11",
+        "to_month": "2031-10",
+        "paid": 14383.78,
+        "interest": 456.79,
+        "principal": 13926.99,
+        "balance": 0.0
+       }
+      ]
+     },
+     "issues": [],
+     "affordability": {
+      "new_monthly": 1198.63,
+      "existing_monthly": 1000.0,
+      "existing_known": true,
+      "total_monthly": 2198.63,
+      "net_income": 12000.0,
+      "ratio_pct": 18.3,
+      "new_only_ratio_pct": 10.0,
+      "remaining": 9801.37
+     },
+     "comparison": [
+      {
+       "term": 48,
+       "monthly_payment": 1456.07,
+       "total_interest": 7891.45,
+       "chosen": false
+      },
+      {
+       "term": 60,
+       "monthly_payment": 1198.63,
+       "total_interest": 9918.02,
+       "chosen": true
+      }
+     ],
+     "target": {
+      "status": "met",
+      "target": 1200,
+      "monthly_payment": 1198.63
+     },
+     "rate": {
+      "available": true,
+      "source": "illustrative",
+      "annual_rate_pct": 6.0,
+      "convention": "nominal",
+      "label_he": "ריבית להמחשה 6% לשנה (נומינלית, קבועה, לא צמודה). זו לא ריבית של הבנק"
+     }
+    },
+    "context": {
+     "net_income": 12000,
+     "net_parts": [
+      {
+       "who": "primary",
+       "net_ils": 12000
+      }
+     ],
+     "co_borrower_pending": false,
+     "obligations": 1000,
+     "target_monthly": 1200,
+     "source": "CUSTOMER_DECLARED"
+    },
+    "start_month": "2026-11",
+    "config_version": "loan-products.demo.v1",
+    "checked_on": "2026-10-15"
+   },
+   "pending": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "replies": [
+     {
+      "label_he": "משכורת (שכיר/ה)",
+      "value": [
+       "salaried"
+      ]
+     },
+     {
+      "label_he": "עסק (עצמאי/ת)",
+      "value": [
+       "self_employed"
+      ]
+     },
+     {
+      "label_he": "גם משכורת וגם עסק",
+      "value": [
+       "salaried",
+       "self_employed"
+      ]
+     }
+    ],
+    "placeholder_he": "אפשר לכתוב כאן במילים שלך…",
+    "editing": false,
+    "current_he": null
+   },
+   "actions": [],
+   "stages": [
+    {
+     "id": "intro",
+     "label_he": "היכרות",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "loan",
+     "label_he": "פרטי ההלוואה",
+     "state": "done",
+     "total": 3,
+     "answered": 3
+    },
+    {
+     "id": "profile",
+     "label_he": "התאמה אישית",
+     "state": "current",
+     "total": 3,
+     "answered": 1
+    },
+    {
+     "id": "summary",
+     "label_he": "סיכום ואישור",
+     "state": "upcoming",
+     "total": 0,
+     "answered": 0
+    }
+   ],
+   "loan": {
+    "type": "personal",
+    "form": null
+   },
+   "indication": null,
+   "suggestions": [
+    "מה ההחזר ביחס להכנסה שלי?",
+    "למה צריך את זה?"
+   ],
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "step": "final_transcript",
+  "messages": [
+   {
+    "id": 1,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "היי, אני העוזר הדיגיטלי של מזרחי־טפחות. אני כאן כדי לעזור לך להכין בקשת הלוואה. אפשר לבחור תשובה או פשוט לכתוב לי במילים שלך.\nנתחיל, איזו הלוואה מעניינת אותך?",
+    "at": "<TS>",
+    "question_id": "loan_type",
+    "stale": false
+   },
+   {
+    "id": 2,
+    "role": "user",
+    "kind": "text",
+    "text_he": "הלוואה פרטית",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 3,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "הלוואה פרטית, בשמחה. איך קוראים לך? (שם פרטי ושם משפחה)",
+    "at": "<TS>",
+    "question_id": "name",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 4,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מיכל ברק",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 5,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "נעים להכיר, מיכל. מה מספר תעודת הזהות שלך?",
+    "at": "<TS>",
+    "question_id": "national_id",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 6,
+    "role": "user",
+    "kind": "text",
+    "text_he": "DEMO-ID-201",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 7,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי. מיכל, למה מיועדת ההלוואה?",
+    "at": "<TS>",
+    "question_id": "purpose",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "stale": false
+   },
+   {
+    "id": 8,
+    "role": "user",
+    "kind": "text",
+    "text_he": "רכישת רכב",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 9,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה 🚗 בואו נראה איך אפשר לתכנן את ההלוואה לרכב. אפשר לשנות את הסכום ואת תקופת ההחזר ולראות מיד איך הם משפיעים על התשלום החודשי.",
+    "at": "<TS>",
+    "question_id": "amount",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "pending",
+     "product_he": "הלוואה לרכב",
+     "amount": 80000,
+     "term": 60,
+     "monthly_payment": 1546.62,
+     "rev": 0,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 10,
+    "role": "user",
+    "kind": "text",
+    "text_he": "זה התרחיש שלי: 100,000 ₪ ב־48 תשלומים",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 11,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה, רשמתי 100,000 ₪ ב־48 תשלומים, הלוואה לרכב: החזר חודשי משוער של כ־2,348 ₪. זו המחשה, לא הצעה של הבנק. איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 1,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 12,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני מרוויח 12 אלף נטו, ואני לא רוצה לעבור החזר של 2,500.",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 13,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "תודה, רשמתי כ־12,000 ₪ נטו בחודש. ההחזר בסימולציה, כ־2,348 ₪, כבר בתוך היעד של עד 2,500 ₪ בחודש. איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 2,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 14,
+    "role": "user",
+    "kind": "text",
+    "text_he": "יש לי הלוואה קיימת של 1,000 ש\"ח בחודש",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 15,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "רשמתי החזרי הלוואות קיימים של כ־1,000 ₪ בחודש, כהצהרה שלך. יחד עם ההחזרים הקיימים שסיפרת עליהם (1,000 ₪), ההחזר החודשי הכולל יהיה כ־3,348 ₪, כ־27.9% מההכנסה נטו שמסרת, ונשארים כ־8,652 ₪ בחודש. זה מדד תקציבי לפי מה שסיפרת, לא בדיקת זכאות. ולגבי הבקשה, איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 3,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 16,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רוצה לשלם עד 2,000 בחודש",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 17,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "כדי לשלם עד 2,000 ₪ בחודש על 100,000 ₪, אפשר לפרוס ל־58 תשלומים לפחות (כ־1,990 ₪ בחודש). תקופה ארוכה יותר מקטינה את ההחזר החודשי אבל מגדילה את סך הריבית, כ־15,448 ₪ במקום כ־12,728 ₪. אז איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "actions": [
+     {
+      "label_he": "לפרוס ל־58 תשלומים",
+      "question_id": "payments",
+      "value": 58
+     }
+    ],
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 4,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 18,
+    "role": "user",
+    "kind": "text",
+    "text_he": "אני רוצה לשלם עד 1,200 בחודש",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 19,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "גם בתקופה הארוכה ביותר בסימולציה (60 חודשים) ההחזר על 100,000 ₪ גבוה מ־1,200 ₪. כדי לעמוד ביעד אפשר להקטין את הסכום לכ־62,000 ₪ ולפרוס ל־60 תשלומים (כ־1,199 ₪ בחודש). איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "actions": [
+     {
+      "label_he": "62,000 ₪ ב־60 תשלומים",
+      "simulation": {
+       "amount": 62000,
+       "term": 60
+      }
+     }
+    ],
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 100000,
+     "term": 48,
+     "monthly_payment": 2348.5,
+     "rev": 5,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 20,
+    "role": "user",
+    "kind": "text",
+    "text_he": "62,000 ₪ ב־60 תשלומים",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 21,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "מעולה, רשמתי 62,000 ₪ ב־60 תשלומים, הלוואה לרכב: החזר חודשי משוער של כ־1,199 ₪. זו המחשה, לא הצעה של הבנק. איך מגיעה ההכנסה שלך היום, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 62000,
+     "term": 60,
+     "monthly_payment": 1198.63,
+     "rev": 6,
+     "live": false
+    },
+    "stale": false
+   },
+   {
+    "id": 22,
+    "role": "user",
+    "kind": "text",
+    "text_he": "מה ההחזר ביחס להכנסה שלי?",
+    "at": "<TS>",
+    "stale": false
+   },
+   {
+    "id": 23,
+    "role": "assistant",
+    "kind": "text",
+    "text_he": "בסימולציה (הלוואה לרכב): 62,000 ₪ ב־60 תשלומים, החזר חודשי של כ־1,199 ₪, ובסך הכול כ־71,918 ₪, מתוכם כ־9,918 ₪ ריבית. החישוב לפי ריבית להמחשה של 6%, לא ריבית של הבנק. יחד עם ההחזרים הקיימים שסיפרת עליהם (1,000 ₪), ההחזר החודשי הכולל יהיה כ־2,199 ₪, כ־18.3% מההכנסה נטו שמסרת, ונשארים כ־9,801 ₪ בחודש. זה מדד תקציבי לפי מה שסיפרת, לא בדיקת זכאות. אז איך מגיעה ההכנסה שלך, ממשכורת, מעסק או משניהם?",
+    "at": "<TS>",
+    "question_id": "income",
+    "engine": "rules",
+    "understood_by": "rules",
+    "llm_calls": "0",
+    "simulator": {
+     "status": "confirmed",
+     "product_he": "הלוואה לרכב",
+     "amount": 62000,
+     "term": 60,
+     "monthly_payment": 1198.63,
+     "rev": 6,
+     "live": true
+    },
+    "stale": false
+   }
+  ]
+ }
+]

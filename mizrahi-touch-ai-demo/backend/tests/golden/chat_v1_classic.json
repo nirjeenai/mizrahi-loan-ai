@@ -1,0 +1,608 @@
+[
+ {
+  "draft_id": "OBD-<1>",
+  "status": "draft",
+  "case_id": null,
+  "updated_at": "<TS>",
+  "asked": [],
+  "next": {
+   "question_id": "entity",
+   "kind": "choice",
+   "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+   "options": [
+    {
+     "value": "individual",
+     "label_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "value": "company",
+     "label_he": "מימון לחברה בע״מ שאני מורשה החתימה בה"
+    }
+   ]
+  },
+  "summary": null,
+  "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+ },
+ {
+  "answer": [
+   "entity",
+   "individual"
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    }
+   ],
+   "next": {
+    "question_id": "name",
+    "kind": "name",
+    "prompt_he": "איך קוראים לך?",
+    "options": []
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "name",
+   {
+    "first": "רון",
+    "last": "גל"
+   }
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    }
+   ],
+   "next": {
+    "question_id": "national_id",
+    "kind": "text",
+    "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+    "options": []
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "net",
+   "abc"
+  ],
+  "status": 422,
+  "body": {
+   "detail": "נא להזין מספר"
+  }
+ },
+ {
+  "answer": [
+   "national_id",
+   "DEMO-ID-206"
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    },
+    {
+     "question_id": "national_id",
+     "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+     "kind": "text",
+     "answer": "DEMO-ID-206",
+     "answer_he": "DEMO-ID-206"
+    }
+   ],
+   "next": {
+    "question_id": "purpose",
+    "kind": "choice",
+    "prompt_he": "מה מטרת ההלוואה?",
+    "options": [
+     {
+      "value": "car",
+      "label_he": "רכישת רכב"
+     },
+     {
+      "value": "renovation",
+      "label_he": "שיפוץ"
+     },
+     {
+      "value": "celebration",
+      "label_he": "אירוע משפחתי"
+     },
+     {
+      "value": "other",
+      "label_he": "מטרה אחרת"
+     }
+    ]
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "purpose",
+   "car"
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    },
+    {
+     "question_id": "national_id",
+     "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+     "kind": "text",
+     "answer": "DEMO-ID-206",
+     "answer_he": "DEMO-ID-206"
+    },
+    {
+     "question_id": "purpose",
+     "prompt_he": "מה מטרת ההלוואה?",
+     "kind": "choice",
+     "answer": "car",
+     "answer_he": "רכישת רכב"
+    }
+   ],
+   "next": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.",
+    "options": [
+     {
+      "value": "salaried",
+      "label_he": "שכיר/ה"
+     },
+     {
+      "value": "self_employed",
+      "label_he": "עצמאי/ת"
+     }
+    ]
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "amount",
+   70000
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    },
+    {
+     "question_id": "national_id",
+     "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+     "kind": "text",
+     "answer": "DEMO-ID-206",
+     "answer_he": "DEMO-ID-206"
+    },
+    {
+     "question_id": "purpose",
+     "prompt_he": "מה מטרת ההלוואה?",
+     "kind": "choice",
+     "answer": "car",
+     "answer_he": "רכישת רכב"
+    },
+    {
+     "question_id": "amount",
+     "prompt_he": "איזה סכום מבקשים?",
+     "kind": "number",
+     "answer": 70000,
+     "answer_he": "70,000 ₪"
+    }
+   ],
+   "next": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.",
+    "options": [
+     {
+      "value": "salaried",
+      "label_he": "שכיר/ה"
+     },
+     {
+      "value": "self_employed",
+      "label_he": "עצמאי/ת"
+     }
+    ]
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "payments",
+   48
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    },
+    {
+     "question_id": "national_id",
+     "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+     "kind": "text",
+     "answer": "DEMO-ID-206",
+     "answer_he": "DEMO-ID-206"
+    },
+    {
+     "question_id": "purpose",
+     "prompt_he": "מה מטרת ההלוואה?",
+     "kind": "choice",
+     "answer": "car",
+     "answer_he": "רכישת רכב"
+    },
+    {
+     "question_id": "amount",
+     "prompt_he": "איזה סכום מבקשים?",
+     "kind": "number",
+     "answer": 70000,
+     "answer_he": "70,000 ₪"
+    },
+    {
+     "question_id": "payments",
+     "prompt_he": "בכמה תשלומים?",
+     "kind": "choice",
+     "answer": 48,
+     "answer_he": "48 תשלומים"
+    }
+   ],
+   "next": {
+    "question_id": "income",
+    "kind": "multi",
+    "prompt_he": "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.",
+    "options": [
+     {
+      "value": "salaried",
+      "label_he": "שכיר/ה"
+     },
+     {
+      "value": "self_employed",
+      "label_he": "עצמאי/ת"
+     }
+    ]
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "income",
+   [
+    "salaried"
+   ]
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    },
+    {
+     "question_id": "national_id",
+     "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+     "kind": "text",
+     "answer": "DEMO-ID-206",
+     "answer_he": "DEMO-ID-206"
+    },
+    {
+     "question_id": "purpose",
+     "prompt_he": "מה מטרת ההלוואה?",
+     "kind": "choice",
+     "answer": "car",
+     "answer_he": "רכישת רכב"
+    },
+    {
+     "question_id": "income",
+     "prompt_he": "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.",
+     "kind": "multi",
+     "answer": [
+      "salaried"
+     ],
+     "answer_he": "שכיר/ה"
+    },
+    {
+     "question_id": "amount",
+     "prompt_he": "איזה סכום מבקשים?",
+     "kind": "number",
+     "answer": 70000,
+     "answer_he": "70,000 ₪"
+    },
+    {
+     "question_id": "payments",
+     "prompt_he": "בכמה תשלומים?",
+     "kind": "choice",
+     "answer": 48,
+     "answer_he": "48 תשלומים"
+    }
+   ],
+   "next": {
+    "question_id": "net",
+    "kind": "number",
+    "prompt_he": "מה ההכנסה החודשית נטו שלך, בערך? (הצהרה בלבד, אינה מאומתת)",
+    "options": [
+     {
+      "value": 8000,
+      "label_he": "כ־8,000 ₪"
+     },
+     {
+      "value": 12000,
+      "label_he": "כ־12,000 ₪"
+     },
+     {
+      "value": 16000,
+      "label_he": "כ־16,000 ₪"
+     },
+     {
+      "value": 22000,
+      "label_he": "כ־22,000 ₪"
+     }
+    ]
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "net",
+   11000
+  ],
+  "status": 200,
+  "body": {
+   "draft_id": "OBD-<1>",
+   "status": "draft",
+   "case_id": null,
+   "updated_at": "<TS>",
+   "asked": [
+    {
+     "question_id": "entity",
+     "prompt_he": "שלום! אני העוזר של טפחות טאצ׳. נתחיל בקצרה: עבור מי הבקשה?",
+     "kind": "choice",
+     "answer": "individual",
+     "answer_he": "הלוואה פרטית, עבורי (או עבורי ועבור לווה נוסף)"
+    },
+    {
+     "question_id": "name",
+     "prompt_he": "איך קוראים לך?",
+     "kind": "name",
+     "answer": {
+      "first": "רון",
+      "last": "גל"
+     },
+     "answer_he": "רון גל"
+    },
+    {
+     "question_id": "national_id",
+     "prompt_he": "מה מספר תעודת הזהות שלך? (9 ספרות)",
+     "kind": "text",
+     "answer": "DEMO-ID-206",
+     "answer_he": "DEMO-ID-206"
+    },
+    {
+     "question_id": "purpose",
+     "prompt_he": "מה מטרת ההלוואה?",
+     "kind": "choice",
+     "answer": "car",
+     "answer_he": "רכישת רכב"
+    },
+    {
+     "question_id": "income",
+     "prompt_he": "מאיפה ההכנסה שלך? אפשר לבחור יותר מאחת.",
+     "kind": "multi",
+     "answer": [
+      "salaried"
+     ],
+     "answer_he": "שכיר/ה"
+    },
+    {
+     "question_id": "net",
+     "prompt_he": "מה ההכנסה החודשית נטו שלך, בערך? (הצהרה בלבד, אינה מאומתת)",
+     "kind": "number",
+     "answer": 11000,
+     "answer_he": "11,000 ₪"
+    },
+    {
+     "question_id": "amount",
+     "prompt_he": "איזה סכום מבקשים?",
+     "kind": "number",
+     "answer": 70000,
+     "answer_he": "70,000 ₪"
+    },
+    {
+     "question_id": "payments",
+     "prompt_he": "בכמה תשלומים?",
+     "kind": "choice",
+     "answer": 48,
+     "answer_he": "48 תשלומים"
+    }
+   ],
+   "next": {
+    "question_id": "co_borrower",
+    "kind": "choice",
+    "prompt_he": "האם יש לווה נוסף בבקשה, מישהו שיחתום איתך על ההלוואה?",
+    "options": [
+     {
+      "value": "yes",
+      "label_he": "כן, יש לווה נוסף"
+     },
+     {
+      "value": "no",
+      "label_he": "לא, רק אני"
+     }
+    ]
+   },
+   "summary": null,
+   "note_he": "השאלות קובעות רק אילו מסמכים נדרשים. הן אינן בדיקת זכאות ואינן הצעת אשראי."
+  }
+ },
+ {
+  "answer": [
+   "co_borrower",
+   false
+  ],
+  "status": 422,
+  "body": {
+   "detail": "נא לבחור אחת מהאפשרויות"
+  }
+ },
+ {
+  "answer": [
+   "accounts",
+   1
+  ],
+  "status": 422,
+  "body": {
+   "detail": "השאלה אינה רלוונטית לתשובות הקודמות"
+  }
+ },
+ {
+  "answer": [
+   "amount",
+   5
+  ],
+  "status": 422,
+  "body": {
+   "detail": "הסכום צריך להיות בין 5,000 ל־250,000 ₪"
+  }
+ },
+ {
+  "confirm": 409,
+  "body": {
+   "detail": "עוד לא ענינו על כל השאלות"
+  }
+ }
+]
