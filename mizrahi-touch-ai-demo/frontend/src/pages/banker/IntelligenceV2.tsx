@@ -23,7 +23,7 @@ export function IntelligenceV2({ caseId, ws, openV1 }: { caseId: string; ws: Wor
     if (src) setStack((prev) => [...prev, src]);
   }, [x]);
   if (!x) return <div className="desk-loading">{intel.error ? <>לא הצלחנו לטעון את תמונת המצב. <button className="link" onClick={intel.reload}>ניסיון חוזר</button></>
-    : <><span className="spinner" /> JEEN מרכז את תמונת המצב של התיק…</>}</div>;
+    : <><span className="spinner" /> Jeen מרכז את תמונת המצב של התיק…</>}</div>;
   return (
     <div className="bi-scroll" data-testid="bi-root" data-case={caseId}>
       <Dashboard key={caseId} x={x} open={open} openV1={openV1} onToast={setToast} />
@@ -122,7 +122,7 @@ function SrcLink({ ctx, id, children }: { ctx: Ctx; id: string | null | undefine
 const TITLE: Record<string, string> = {
   READY_FOR_CREDIT_REVIEW: "מומלץ להתקדם לבחינת האשראי", PREPARATION_CONFIRMED: "הכנת התיק אושרה, אפשר להתקדם לבחינת האשראי",
   CLARIFICATION_REQUIRED: "נדרש בירור לפני המשך הטיפול", DOCUMENTS_INCOMPLETE: "נדרשת השלמת מסמכים", NO_DOCUMENTS: "ממתינים למסמכים מהלקוח",
-  PROCESSING: "JEEN בודק את המסמכים", ERROR: "תקלה בבדיקת המסמכים",
+  PROCESSING: "Jeen בודק את המסמכים", ERROR: "תקלה בבדיקת המסמכים",
 };
 const TONE: Record<string, string> = { READY_FOR_CREDIT_REVIEW: "ok", PREPARATION_CONFIRMED: "ok", CLARIFICATION_REQUIRED: "warn",
   DOCUMENTS_INCOMPLETE: "warn", NO_DOCUMENTS: "neutral", PROCESSING: "neutral", ERROR: "bad" };
@@ -148,7 +148,7 @@ function explanation(x: Intelligence): string {
 function docStatus(x: Intelligence): { primary: string; tone: string; banker: string | null } {
   const d = x.documents;
   const pending = d.missing.length + d.corrections.length;
-  if (x.recommendation.state === "PROCESSING") return { primary: "המסמכים בבדיקת JEEN", tone: "neutral", banker: null };
+  if (x.recommendation.state === "PROCESSING") return { primary: "המסמכים בבדיקת Jeen", tone: "neutral", banker: null };
   if (!d.total && pending) return { primary: "טרם הועלו מסמכים", tone: "neutral", banker: null };
   if (pending) return { primary: pending === 1 ? "חסר פריט אחד" : `חסרים ${pending} פריטים`, tone: "warn", banker: null };
   const banker = x.recommendation.state === "PREPARATION_CONFIRMED" ? "הכנת התיק אושרה על ידך"

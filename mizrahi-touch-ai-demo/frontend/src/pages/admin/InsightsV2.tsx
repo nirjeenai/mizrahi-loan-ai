@@ -25,7 +25,7 @@ export function InsightsV2({ activeGrace, activeVersion }: { activeGrace?: numbe
     <div className="ins2" data-testid="tab-body-insights" data-dash="v2">
       <header className="ins2-head">
         <div>
-          <div className="ins2-eyebrow">JEEN · מעקב השלמת מסמכים בבקשת הלוואה</div>
+          <div className="ins2-eyebrow">Jeen · מעקב השלמת מסמכים בבקשת הלוואה</div>
           <h1>מבקשה שנעצרה בגלל מסמך, לתיק שמוכן לבנקאי</h1>
         </div>
       </header>

@@ -254,7 +254,7 @@ a { color: inherit; }
 .ai-ask.icon { width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 50%; background: rgba(106, 76, 219, 0.08); }
 .ai-ask svg { color: var(--jeen); }
 .ai-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.ai-logo { height: 17px; width: auto; display: block; flex: none; }
+.ai-logo { height: 15px; width: auto; display: block; flex: none; }
 .ai-by { min-width: 0; font-size: 11px; font-weight: 600; color: var(--mz-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .jeen-by { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: var(--mz-muted); }
 .jeen-by img { height: 14px; width: auto; display: block; flex: none; }
@@ -264,7 +264,7 @@ a { color: inherit; }
 .sum-ic { width: 40px; height: 40px; border-radius: 50%; background: var(--jeen-soft); color: var(--jeen); display: grid; place-items: center; flex: none; }
 .sum-title { margin: 0; font-size: 17px; font-weight: 800; color: var(--mz-ink); line-height: 1.3; }
 .sum-title.with-brand { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.sum-title.with-brand .jeen-logo-inline { height: 15px; }
+.sum-title.with-brand .jeen-logo-inline { height: 13px; }
 @media (max-width: 370px) { .sum-title.with-brand .jeen-logo-inline { display: none; } }
 .sum-total { font-size: 13px; color: var(--mz-muted); margin-top: 1px; }
 .sum-total b { color: var(--mz-ink); font-size: 14px; }
@@ -401,7 +401,7 @@ a { color: inherit; }
 .dx-jeen-ic { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--jeen-soft); color: var(--jeen); }
 .dx-jeen-ic.ok { background: var(--ok); color: #fff; }
 .dx-jeen-title { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; color: var(--mz-ink); line-height: 1.3; }
-.dx-jeen-title img { height: 14px; width: auto; display: block; }
+.dx-jeen-title img { height: 12px; width: auto; display: block; }
 .dx-jeen-progress { font-size: 13px; color: var(--mz-text); margin-top: 4px; }
 .dx-jeen-progress b { color: var(--mz-ink); }
 .dx-meter { display: block; height: 5px; border-radius: 999px; background: rgba(106, 76, 219, 0.12); margin: 6px 0 0; overflow: hidden; }
@@ -1094,10 +1094,12 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .kf-legend { font-weight: 600; }
 .kf-legend b { color: var(--ok); }
 
-/* ---------- Jeen co-branding ---------- */
+/* ---------- Jeen co-branding ----------
+   The official lockup (public/brand/jeen-logo*.svg) is 3.62:1, wider than the 3.18:1 PNG it replaced: each lockup height
+   below keeps the old width, so the footprint and the line breaks around it are unchanged. */
 .brand-x { color: #9aa4b4; font-weight: 400; font-size: 15px; line-height: 1; }
 .console-top .brand { gap: 8px; }
-.console-top .brand .jeen-logo-light { height: 19px; display: block; }
+.console-top .brand .jeen-logo-light { height: 17px; display: block; }
 .console-top .brand .brand-title { margin-inline-start: 6px; padding-inline-start: 12px; border-inline-start: 1px solid rgba(255, 255, 255, 0.22); }
 @media (max-width: 900px) {
   /* the console bar (brand, identity, four links) is wider than a phone: wrap it instead of scrolling the page sideways */
@@ -1106,9 +1108,9 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 }
 .cobrand { display: flex; align-items: center; gap: 10px; }
 .cobrand img:first-child { height: 30px; }
-.cobrand img:last-child { height: 26px; }
-.jeen-logo-inline { height: 15px; width: auto; display: block; flex: none; }
-.sheet-head .jeen-logo-inline { height: 17px; }
+.cobrand img:last-child { height: 23px; }
+.jeen-logo-inline { height: 13px; width: auto; display: block; flex: none; }
+.sheet-head .jeen-logo-inline { height: 15px; }
 
 /* ---------------------------------------------------------------- banker: customer handoffs */
 .desk-handoffs { display: flex; flex-direction: column; gap: 6px; margin: 0 0 8px; }

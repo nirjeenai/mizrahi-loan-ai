@@ -14,7 +14,7 @@ const TOOL_HE: Record<string, string> = {
 const SUGGESTIONS = ["מה חסר כדי להתקדם בבקשת ההלוואה?", "למה התלוש של ספטמבר לא נספר?", "אילו דפי עו״ש צריך להעלות?", "איך מעלים את המסמך החסר?", "אני רוצה לדבר עם הבנקאית"];
 const CHANNEL_HE: Record<string, string> = { text: "צ׳אט", voice: "קול", app: "עדכון מהתיק" };
 /** The transcription engine id the server records ("gemini:<model>", "browser-webspeech-he-IL") is internal; customers see who transcribed. */
-const engineHe = (engine: string) => (engine.startsWith("browser") ? "הדפדפן" : "JEEN");
+const engineHe = (engine: string) => (engine.startsWith("browser") ? "הדפדפן" : "Jeen");
 
 function sourcesOf(t: Turn): string[] {
   if (t.role !== "assistant") return [];
@@ -83,7 +83,7 @@ export function AssistantSheet() {
         <div className="grabber" />
         <div className="sheet-head">
           <div>
-            <h3 className="row" style={{ gap: 8 }}><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" />עוזר המסמכים</h3>
+            <h3 className="row" style={{ gap: 8 }}><img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="Jeen" />עוזר המסמכים</h3>
             <div className="tiny muted">עוזר של {snap?.case.banker.name_he || "הבנקאית"} · עונה מנתוני התיק בלבד · לא מחליט על ההלוואה</div>
           </div>
           <button className="icon-btn" onClick={closeAssistant} aria-label="סגירה"><IClose /></button>
@@ -127,7 +127,7 @@ export function AssistantSheet() {
             {SUGGESTIONS.map((sug) => <button key={sug} onClick={() => send(sug, "text")} disabled={sending}>{sug}</button>)}
           </div>
           <div className="voice-status">
-            {listening ? "מקשיב… דברו בעברית ולחצו שוב לסיום" : voiceNote || (cap ? `קול: ${cap.detail}` : "בודק יכולות קול…")} · {cap?.stt === "server" ? <span className="mode LIVE">VOICE: JEEN STT</span> : <span className="mode LOCAL">VOICE: BROWSER</span>} <span className="mode BLOCKED">JEEN TALK</span>
+            {listening ? "מקשיב… דברו בעברית ולחצו שוב לסיום" : voiceNote || (cap ? `קול: ${cap.detail}` : "בודק יכולות קול…")} · {cap?.stt === "server" ? <span className="mode LIVE">VOICE: Jeen STT</span> : <span className="mode LOCAL">VOICE: BROWSER</span>} <span className="mode BLOCKED">Jeen TALK</span>
           </div>
           <div className="chat-input">
             <button className={`round mic ${listening ? "live" : ""}`} onClick={toggleMic} disabled={!cap || cap.stt === "none" || sending}

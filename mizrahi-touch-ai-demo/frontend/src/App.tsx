@@ -33,8 +33,8 @@ function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObje
           data-testid="presenter-close"><IClose size={20} /></button>
       </div>
       <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
-        <img src="/brand/jeen-logo.png" alt="Jeen" /></div>
-      <h1>טפחות טאצ׳ × JEEN</h1>
+        <img src="/brand/jeen-logo.svg" alt="Jeen" /></div>
+      <h1>טפחות טאצ׳ × Jeen</h1>
       <p className="small hub-lead">השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה, הבנקאית מחליטה.</p>
       <div className="hub-bar">
         <NewDemoButton />

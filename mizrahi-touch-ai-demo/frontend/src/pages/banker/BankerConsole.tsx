@@ -17,7 +17,7 @@ export function ConsoleTop({ active, identity }: { active: "customer" | "banker"
     <>
       <div className="console-top">
         <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
-          <img className="jeen-logo-light" src="/brand/jeen-logo-light.png" alt="Jeen" /><span className="brand-title">קונסולת בנקאי אשראי · הלוואות</span></div>
+          <img className="jeen-logo-light" src="/brand/jeen-logo-light.svg" alt="Jeen" /><span className="brand-title">קונסולת בנקאי אשראי · הלוואות</span></div>
         {identity && <span className="staff-chip" title="הזהות נקבעת בשרת ונרשמת בכל החלטה.">{identity}</span>}
         <nav>
           <Link to="/customer" className={active === "customer" ? "on" : ""}>אפליקציית לקוח</Link>
@@ -186,7 +186,7 @@ function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
       </div>
       <div className="ui-switch" role="group" aria-label="גרסת התצוגה" data-testid="banker-ui-switch">
         <button className={view === "review" ? "on" : ""} onClick={() => onView("review")} data-testid="ui-v1" title="סקירת המסמכים הקיימת">V1 · סקירה</button>
-        <button className={view === "intel" ? "on v2" : "v2"} onClick={() => onView("intel")} data-testid="ui-v2" title="Banker Intelligence V2, תמונת מצב, ניתוח פיננסי וסימולציה">V2 · תמונת מצב JEEN</button>
+        <button className={view === "intel" ? "on v2" : "v2"} onClick={() => onView("intel")} data-testid="ui-v2" title="Banker Intelligence V2, תמונת מצב, ניתוח פיננסי וסימולציה">V2 · תמונת מצב Jeen</button>
         <button className={view === "case" ? "on v3" : "v3"} onClick={() => onView("case")} data-testid="ui-v3" title="Banker Case-Centric V3, התיק המוכן, מלמעלה למטה">V3 · תיק מוכן</button>
       </div>
       <nav className="view-tabs" aria-label="תצוגות">

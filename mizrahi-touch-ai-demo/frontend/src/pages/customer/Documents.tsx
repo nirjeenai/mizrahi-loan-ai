@@ -268,7 +268,7 @@ export function Documents() {
   return (
     <>
       <div className="page-title">מסמכים</div>
-      <p className="page-sub docs-sub">ריכזנו כאן את המסמכים הנדרשים לבקשת ההלוואה. כל מסמך נבדק בבדיקת המסמכים החכמה של JEEN מיד עם ההעלאה.</p>
+      <p className="page-sub docs-sub">ריכזנו כאן את המסמכים הנדרשים לבקשת ההלוואה. כל מסמך נבדק בבדיקת המסמכים החכמה של Jeen מיד עם ההעלאה.</p>
       <div className="segmented docs-tabs" role="tablist">
         <button className={tab === "list" ? "on" : ""} onClick={() => setTab("list")} role="tab">רשימת מסמכים</button>
         <button className={tab === "bank" ? "on" : ""} onClick={() => setTab("bank")} role="tab">אישורים מהבנק</button>
@@ -330,7 +330,7 @@ export function Documents() {
           <div className="dx-jeen-main">
             <span className={`dx-jeen-ic${allVerified ? " ok" : ""}`} aria-hidden>{allVerified ? <ICheck size={18} /> : <ISpark size={18} />}</span>
             <div className="grow">
-              <h2 className="dx-jeen-title" id="dx-jeen-title">בדיקת מסמכים חכמה<img src="/brand/jeen-logo.png" alt="של JEEN" /></h2>
+              <h2 className="dx-jeen-title" id="dx-jeen-title">בדיקת מסמכים חכמה<img src="/brand/jeen-logo.svg" alt="של Jeen" /></h2>
               {progress && progress.total > 0 ? (<>
                 <div className="dx-jeen-progress" data-testid="docs-progress"><b>{progress.done} מתוך {progress.total}</b> דרישות הושלמו</div>
                 <span className="dx-meter" aria-hidden><span style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} /></span>
@@ -349,7 +349,7 @@ export function Documents() {
             <span className="dl-top-ic" aria-hidden><IDocs size={20} /></span>
             <span className="grow dl-text">
               <span className="dl-title">רשימת המסמכים הנדרשים</span>
-              <span className="dl-sub">לפי מדיניות המסמכים של הבקשה · נבדקים באופן חכם באמצעות JEEN.</span>
+              <span className="dl-sub">לפי מדיניות המסמכים של הבקשה · נבדקים באופן חכם באמצעות Jeen.</span>
             </span>
             <span className={`dl-toggle${listOpen ? " open" : ""}`} aria-hidden><IChevronDown size={18} /></span>
           </button>

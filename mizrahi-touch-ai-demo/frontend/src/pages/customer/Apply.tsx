@@ -58,7 +58,7 @@ export function Apply() {
       <p className="page-sub">כמה שאלות קצרות, ואחריהן נציג בדיוק אילו מסמכים נדרשים, לפני שהבקשה נפתחת.</p>
       <div className="card onb" data-testid="apply-chat" data-draft={draft?.draft_id}>
         <div className="onb-head">
-          <img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" />
+          <img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="Jeen" />
           <span className="small bold">שאלון פתיחת בקשה</span>
           {draft && draft.asked.length > 0 && (
             <button className="link small onb-restart" onClick={restart} disabled={busy} data-testid="onb-restart">התחלה מחדש</button>

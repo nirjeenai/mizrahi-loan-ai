@@ -94,7 +94,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
       setDemo({ status: "ready", letter });
     } catch (e) {
       if (ctl.signal.aborted) return;
-      setDemo((d) => ({ ...d, status: d.letter ? "ready" : "error", error: e instanceof Error && e.message ? e.message : "JEEN לא הצליח להכין את המכתב כרגע." }));
+      setDemo((d) => ({ ...d, status: d.letter ? "ready" : "error", error: e instanceof Error && e.message ? e.message : "Jeen לא הצליח להכין את המכתב כרגע." }));
     }
   };
   useEffect(() => {
@@ -103,7 +103,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   const regenerate = () => {
     if (!demo.letter) return;
     const changed = texts[DEMO] != null && texts[DEMO] !== demo.letter.text;
-    if (changed && !window.confirm("הכנה מחדש תחליף את המכתב הנוכחי, כולל השינויים שלך ושל JEEN. להמשיך?")) return;
+    if (changed && !window.confirm("הכנה מחדש תחליף את המכתב הנוכחי, כולל השינויים שלך ושל Jeen. להמשיך?")) return;
     void makeLetter(!ready);
   };
 
@@ -132,7 +132,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
     } catch (e) {
       if (ctl.signal.aborted) return;
       setMsgs((prev) => [...prev, { id: ++seq.current, role: "model", error: true,
-        text: e instanceof Error && e.message && !/^\d+$/.test(e.message) ? e.message : "JEEN לא הצליח לענות כרגע. הטיוטה לא השתנתה." }]);
+        text: e instanceof Error && e.message && !/^\d+$/.test(e.message) ? e.message : "Jeen לא הצליח לענות כרגע. הטיוטה לא השתנתה." }]);
     } finally {
       if (inflight.current === ctl) { inflight.current = null; setBusy(false); }
     }
@@ -146,15 +146,15 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   const undo = () => {
     if (!lastAi) return;
     const now = textOf(lastAi.kind);
-    if (now !== lastAi.after && !window.confirm("ביטול השינוי של JEEN יחזיר את הנוסח שלפניו, ויבטל גם עריכות שעשית אחריו. להמשיך?")) return;
+    if (now !== lastAi.after && !window.confirm("ביטול השינוי של Jeen יחזיר את הנוסח שלפניו, ויבטל גם עריכות שעשית אחריו. להמשיך?")) return;
     setText(lastAi.kind, lastAi.before);
     patchMsg(lastAi.msgId, (m) => (m.edit ? { ...m, edit: { ...m.edit, state: "undone" } } : m));
     setLastAi(null);
-    onToast({ text: "השינוי האחרון של JEEN בוטל.", tone: "ok" });
+    onToast({ text: "השינוי האחרון של Jeen בוטל.", tone: "ok" });
   };
   const applyStale = (m: Msg) => {
     if (!m.edit) return;
-    if (!window.confirm("הטיוטה השתנתה מאז ששאלת. החלת ההצעה של JEEN תחליף את הנוסח הנוכחי. להמשיך?")) return;
+    if (!window.confirm("הטיוטה השתנתה מאז ששאלת. החלת ההצעה של Jeen תחליף את הנוסח הנוכחי. להמשיך?")) return;
     applyEdit(m.edit, textOf(m.edit.kind), m.id);
     patchMsg(m.id, (p) => (p.edit ? { ...p, edit: { ...p.edit, state: "applied" } } : p));
   };
@@ -164,7 +164,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   const canUndo = !!draft && lastAi?.kind === draft.kind;
   const restore = () => {
     if (!draft) return;
-    if (!window.confirm("שחזור הנוסח המקורי ימחק את השינויים בטיוטה, שלך ושל JEEN. להמשיך?")) return;
+    if (!window.confirm("שחזור הנוסח המקורי ימחק את השינויים בטיוטה, שלך ושל Jeen. להמשיך?")) return;
     setText(draft.kind, draft.message_he);
     if (lastAi?.kind === draft.kind) setLastAi(null);
   };
@@ -179,7 +179,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
       onToast({ text: "ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית.", tone: "bad" });
     }
   };
-  const status = byJeen ? <span className="rw-chip-ai" data-testid="cc-draft-ai">עודכן על ידי JEEN</span>
+  const status = byJeen ? <span className="rw-chip-ai" data-testid="cc-draft-ai">עודכן על ידי Jeen</span>
     : edited ? <span className="rw-chip-ed" data-testid="cc-draft-edited">נערך</span> : null;
   const tabRow = (
     <div className="rw-tabs" role="tablist" aria-label="סוג המענה" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
@@ -197,16 +197,16 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
   return (
     <section className="cc-card rw" id="cc-reply" data-testid="cc-reply">
       <header className="cc-card-head rw-head">
-        <div><h2>מענה מוצע ללקוח</h2><p className="cc-sub">טיוטה מוכנה לפי מצב התיק. עורכים ידנית או עם JEEN, שום דבר לא נשלח מכאן.</p></div>
+        <div><h2>מענה מוצע ללקוח</h2><p className="cc-sub">טיוטה מוכנה לפי מצב התיק. עורכים ידנית או עם Jeen, שום דבר לא נשלח מכאן.</p></div>
         <div className="rw-switch" role="tablist" aria-label="תצוגה" data-testid="cc-pane-switch">
           <button role="tab" aria-selected={pane === "draft"} className={pane === "draft" ? "on" : ""} onClick={() => setPane("draft")} data-testid="cc-pane-draft">טיוטה</button>
           <button role="tab" aria-selected={pane === "chat"} className={pane === "chat" ? "on" : ""} onClick={() => setPane("chat")} data-testid="cc-pane-chat">
-            <img className="rw-switch-mark" src="/brand/jeen-mark.png" alt="" />JEEN{busy && <span className="rw-dot" aria-hidden />}</button>
+            <img className="rw-switch-mark" src="/brand/jeen-mark.svg" alt="" />Jeen{busy && <span className="rw-dot" aria-hidden />}</button>
         </div>
       </header>
       <div className={`cc-card-body rw-grid pane-${pane}`}>
         <div className="rw-draft" data-testid="cc-draft-col">
-          {!draft ? <div className="cc-empty">אין טיוטה מתאימה למצב התיק כרגע. אפשר עדיין לשאול את JEEN על התיק.</div> : <>
+          {!draft ? <div className="cc-empty">אין טיוטה מתאימה למצב התיק כרגע. אפשר עדיין לשאול את Jeen על התיק.</div> : <>
             {tabs.length > 1 && tabRow}
             <div className={`rw-doc${flash && byJeen ? " rw-flash" : ""}`}>
               {demoPending ? <DemoGate demo={demo} ready={ready} onMake={(ack, ai) => void makeLetter(ack, ai)} />
@@ -216,7 +216,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
               <div className="rw-foot-meta">
                 {status}
                 {isDemo && demo.letter && <LetterMeta demo={demo} onRegenerate={regenerate} />}
-                {canUndo && <button className="cc-link" onClick={undo} data-testid="cc-draft-undo">בטל שינוי של JEEN</button>}
+                {canUndo && <button className="cc-link" onClick={undo} data-testid="cc-draft-undo">בטל שינוי של Jeen</button>}
                 {chosen.length > 0 && <span className="cc-muted">{chosen.length === 1 ? "מסמך אחד מצורף" : `${chosen.length} מסמכים מצורפים`}</span>}
               </div>
               <div className="rw-foot-acts">
@@ -235,7 +235,7 @@ export function ReplyWorkspace({ ctx, onToast }: { ctx: Ctx; onToast: Toast }) {
         <DocModal title={draft.title_he} docType={DOC[draft.kind] || draft.title_he} demo={isDemo} customer={x.applicant.borrowers.map((b) => b.name_he).join(" ו")} tabs={tabRow} status={status}
           text={text} onText={(v) => setText(draft.kind, v)} flash={!!flash && byJeen} onClose={() => setOpen(false)}
           actions={<>
-            {canUndo && <button className="cc-link" onClick={undo} data-testid="cc-modal-undo">בטל שינוי של JEEN</button>}
+            {canUndo && <button className="cc-link" onClick={undo} data-testid="cc-modal-undo">בטל שינוי של Jeen</button>}
             <button className="cc-link" disabled={!edited} onClick={restore} data-testid="cc-draft-restore">שחזור הנוסח</button>
             <button className="rw-btn" onClick={copy} data-testid="cc-modal-copy">העתקה</button>
           </>}
@@ -276,7 +276,7 @@ function LetterMeta({ demo, onRegenerate }: { demo: DemoState; onRegenerate: () 
   const l = demo.letter!;
   return <>
     <span className={l.source === "ai" ? "rw-src-ai" : "rw-src-base"} data-testid="cc-demo-source" data-source={l.source}>
-      {l.source === "ai" ? "נוסח על ידי JEEN · הסכומים מחושבים במערכת" : "נוסח בסיס קבוע (ללא AI)"}</span>
+      {l.source === "ai" ? "נוסח על ידי Jeen · הסכומים מחושבים במערכת" : "נוסח בסיס קבוע (ללא AI)"}</span>
     <button className="cc-link" onClick={onRegenerate} disabled={demo.status === "loading"} data-testid="cc-demo-regenerate">
       {demo.status === "loading" ? "מכין…" : "ניסוח מחדש"}</button>
     {l.open_issues_he.length > 0 && <details className="rw-issues" data-testid="cc-demo-issues">
@@ -287,13 +287,13 @@ function LetterMeta({ demo, onRegenerate }: { demo: DemoState; onRegenerate: () 
 
 function DemoGate({ demo, ready, onMake }: { demo: DemoState; ready: boolean; onMake: (acknowledge: boolean, useAi: boolean) => void }) {
   if (demo.status === "loading") return (
-    <div className="rw-gate" data-testid="cc-demo-loading"><span className="rw-gate-mark" aria-hidden><img src="/brand/jeen-mark.png" alt="" /></span>
-      <b>JEEN מכין את מכתב האישור</b><span className="cc-muted">מנסח מנתוני התיק; הסכומים מחושבים במערכת.</span><span className="rw-bar" aria-hidden /></div>);
+    <div className="rw-gate" data-testid="cc-demo-loading"><span className="rw-gate-mark" aria-hidden><img src="/brand/jeen-mark.svg" alt="" /></span>
+      <b>Jeen מכין את מכתב האישור</b><span className="cc-muted">מנסח מנתוני התיק; הסכומים מחושבים במערכת.</span><span className="rw-bar" aria-hidden /></div>);
   return (
     <div className="rw-gate" data-testid="cc-demo-gate">
       {demo.status === "error" ? <p className="rw-gate-err" data-testid="cc-demo-error">{demo.error}</p>
         : !ready ? <p><b>התיק עדיין אינו מוכן לבחינת אשראי.</b><br />אפשר להכין מכתב אישור בכל זאת: הפריטים הפתוחים יישארו בתיק, והמכתב יכלול תנאי להשלמתם.</p>
-          : <p>מכתב אישור מפורט עם עיקרי התנאים, מנוסח על ידי JEEN מנתוני התיק.</p>}
+          : <p>מכתב אישור מפורט עם עיקרי התנאים, מנוסח על ידי Jeen מנתוני התיק.</p>}
       <div className="rw-gate-acts">
         <button className="rw-btn primary" onClick={() => onMake(!ready, true)} data-testid="cc-demo-make">
           {demo.status === "error" ? "ניסיון חוזר" : ready ? "הכנת מכתב האישור" : "הכנת מכתב אישור בכל זאת"}</button>
@@ -320,10 +320,10 @@ function JeenPanel({ ctx, msgs, busy, lastAiId, chips, onAsk, onUndo, onApply, o
     if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); submit(); }
   };
   return (
-    <aside className="rw-chat jn" data-testid="cc-chat" aria-label="שאל את JEEN">
+    <aside className="rw-chat jn" data-testid="cc-chat" aria-label="שאל את Jeen">
       <span className="jn-strip" aria-hidden><i /><i /><i /></span>
       <header className="jn-head" data-testid="cc-chat-head">
-        <h3 className="jn-title">שאל את<img className="jn-logo" src="/brand/jeen-logo.png" alt="JEEN" /></h3>
+        <h3 className="jn-title">שאל את<img className="jn-logo" src="/brand/jeen-logo.svg" alt="Jeen" /></h3>
         <p className="jn-sub">עוזר AI שמכיר את הבקשה, המסמכים והניתוח הפיננסי</p>
       </header>
       <div className="rw-log" ref={log} aria-live="polite" data-testid="cc-chat-log">
@@ -333,12 +333,12 @@ function JeenPanel({ ctx, msgs, busy, lastAiId, chips, onAsk, onUndo, onApply, o
             <button key={c} className="rw-chip" onClick={() => onAsk(c)} disabled={busy} data-testid="cc-chat-chip">{c}</button>))}</div>
         </div>}
         {msgs.map((m) => <Bubble key={m.id} m={m} ctx={ctx} latest={lastAiId === m.id} onUndo={onUndo} onApply={() => onApply(m)} onRetry={() => onRetry(m.id)} busy={busy} />)}
-        {busy && <div className="rw-msg m-model pending" data-testid="cc-chat-pending"><span className="jn-typing" aria-hidden><i /><i /><i /></span> JEEN בודק בתיק</div>}
+        {busy && <div className="rw-msg m-model pending" data-testid="cc-chat-pending"><span className="jn-typing" aria-hidden><i /><i /><i /></span> Jeen בודק בתיק</div>}
       </div>
       <form className="jn-compose" onSubmit={submit}>
         <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey} rows={2} dir="rtl" maxLength={2000}
-          placeholder={busy ? "JEEN עונה…" : "שאלה על התיק או בקשה לשינוי במכתב"} disabled={busy} aria-label="הודעה ל־JEEN" data-testid="cc-chat-input" />
-        <button type="submit" className="jn-send" disabled={busy || !input.trim()} data-testid="cc-chat-send" aria-label="שליחה ל־JEEN">
+          placeholder={busy ? "Jeen עונה…" : "שאלה על התיק או בקשה לשינוי במכתב"} disabled={busy} aria-label="הודעה ל־Jeen" data-testid="cc-chat-input" />
+        <button type="submit" className="jn-send" disabled={busy || !input.trim()} data-testid="cc-chat-send" aria-label="שליחה ל־Jeen">
           <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden><path d="M16 10H4m0 0 5-5m-5 5 5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
       </form>
@@ -449,19 +449,19 @@ function RewriteBar({ msgs, busy, demo, canUndo, onUndo, onAsk }: { msgs: Msg[];
     <footer className="rw-rewrite jn" data-testid="cc-rewrite">
       <span className="jn-strip" aria-hidden><i /><i /><i /></span>
       <div className="rw-rewrite-row">
-        <img className="rw-rewrite-mark" src="/brand/jeen-mark.png" alt="" />
-        <b className="rw-rewrite-t">שכתוב עם JEEN</b>
+        <img className="rw-rewrite-mark" src="/brand/jeen-mark.svg" alt="" />
+        <b className="rw-rewrite-t">שכתוב עם Jeen</b>
         <div className="rw-rewrite-chips">{[...REWRITES, ...(demo ? [REWRITE_DEMO] : [])].map(([label, q]) => (
           <button key={label} className="rw-chip" onClick={() => onAsk(q)} disabled={busy} data-testid="cc-rewrite-chip">{label}</button>))}</div>
       </div>
       {(busy || last) && <div className={`rw-rewrite-last${last?.error ? " err" : ""}`} data-testid="cc-rewrite-last" aria-live="polite">
-        {busy ? <><span className="jn-typing" aria-hidden><i /><i /><i /></span> JEEN עורך את המכתב…</>
+        {busy ? <><span className="jn-typing" aria-hidden><i /><i /><i /></span> Jeen עורך את המכתב…</>
           : last && <><span className="rw-rewrite-said">{last.text}</span>
             {last.edit?.state === "applied" && canUndo && <button className="cc-link" onClick={onUndo} data-testid="cc-rewrite-undo">בטל</button>}</>}
       </div>}
       <form className="jn-compose wide" onSubmit={submit}>
         <input value={input} onChange={(e) => setInput(e.target.value)} dir="rtl" maxLength={2000} disabled={busy}
-          placeholder="מה לשנות במכתב? למשל: תוסיף שהבקשה כפופה לאימות נתונים" aria-label="הוראת שכתוב ל־JEEN" data-testid="cc-rewrite-input" />
+          placeholder="מה לשנות במכתב? למשל: תוסיף שהבקשה כפופה לאימות נתונים" aria-label="הוראת שכתוב ל־Jeen" data-testid="cc-rewrite-input" />
         <button type="submit" className="rw-btn jeen" disabled={busy || !input.trim()} data-testid="cc-rewrite-send">שכתוב</button>
       </form>
     </footer>

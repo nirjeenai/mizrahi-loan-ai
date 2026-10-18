@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import re
 
 import pytest
 
@@ -16,7 +17,7 @@ from app.llm import gemini as g
 from app.review import case_review
 from app.store import repo
 from tests.loan_helpers import client_for
-from tests.test_banker_intelligence import COMPLETE, GAP, brief, package
+from tests.test_banker_intelligence import COMPLETE, GAP, NO_CONTEXT, brief, package
 
 staff = client_for()
 
@@ -86,6 +87,25 @@ def test_a_question_is_answered_from_this_case_only_with_real_source_ids(monkeyp
     assert borrower["national_id"] not in prompt
     other = bank.get_case("DEMO-MTZ-2026-101")["borrowers"][0]["name_he"]          # another customer's case
     assert other not in prompt
+
+
+def test_the_model_reads_banking_labels_not_internal_codes(monkeypatch):
+    """An answer is only as plain as what the model reads: a state code travels with its Hebrew label and is dropped, an
+    unknown figure is left out instead of shown as an empty structure, and no internal code sits inside Hebrew text,
+    while what is missing and what is unverified still reach the model in Hebrew."""
+    repo.reset_case(NO_CONTEXT)
+    package(COMPLETE)
+    for case in (NO_CONTEXT, COMPLETE):
+        sent = model(monkeypatch, reply(answer="תשובה"))
+        assert ask("מה חסר בתיק כדי להתקדם?", None, case=case).status_code == 200
+        data = sent[0]["contents"][-1]["parts"][0]["text"].split("<case_data>")[1].split("</case_data>")[0]
+        codes = re.findall(r"\b[A-Z]+(?:_[A-Z]+)+\b|\b[A-Z]{2}-\d{2}\b", data)      # NO_DOCUMENTS, CUSTOMER_DECLARED, IS-04
+        assert not codes, codes[:5]
+        assert '{"unit": "ils"}' not in data
+        if case == NO_CONTEXT:
+            assert "טרם הועלו מסמכים" in data and "תלוש שכר לספטמבר 2026" in data and "מוצהרת בלבד" in data
+            assert "טופס הבקשה, הצהרת הלקוח, לא מאומת" in data
+    assert "documents.accepted" not in banker_chat.SYSTEM and "banker_status_he" not in banker_chat.SYSTEM
 
 
 def test_a_checked_revision_comes_back_for_the_editor(monkeypatch):

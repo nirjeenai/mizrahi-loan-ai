@@ -72,7 +72,7 @@ export function DocumentSummary() {
       <div className="sum-head">
         <span className="sum-ic" aria-hidden><ISpark size={18} /></span>
         <div className="grow">
-          <h2 className="sum-title with-brand" id="sum-heading">בדיקת מסמכים חכמה<img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="של JEEN" /></h2>
+          <h2 className="sum-title with-brand" id="sum-heading">בדיקת מסמכים חכמה<img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="של Jeen" /></h2>
           {showProgress
             ? <div className="sum-total" data-testid="card-total"><b>{verified} מתוך {required}</b> דרישות מסמכים הושלמו</div>
             : <div className="sum-total">{status === "NO_PAYSLIPS_REQUIRED" ? "אין מסמכים לבדיקה בתיק זה" : "טוען…"}</div>}
@@ -120,7 +120,7 @@ export function DocumentSummary() {
               <span>עוד {others} מסמכים בתיק מטופלים ישירות מול הבנק</span><IChevron size={14} />
             </button>
           )}
-          <div className="sum-note"><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" />
+          <div className="sum-note"><img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="Jeen" />
             <span>בדיקת המסמכים מסייעת בהכנת התיק. האישור הסופי נתון לבנק.</span></div>
         </div>
       )}

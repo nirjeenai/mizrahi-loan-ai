@@ -81,7 +81,7 @@ export function DocumentReview() {
         <div className="card" style={{ marginTop: 12 }}>
           <div className="row between"><div className="card-title">מה קראנו מהמסמך</div><span className="tiny muted">לחצו על שורה לסימון במסמך</span></div>
           <FactList facts={r.facts} focus={focus} onFocus={(f) => setFocus(focus === f ? null : f)} />
-          <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.png" alt="" />חולץ ונבדק באמצעות JEEN</div>
+          <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.svg" alt="" />חולץ ונבדק באמצעות Jeen</div>
         </div>
         <div className="card">
           <div className="row between"><div className="card-title">הבדיקה לפי הרובריקה</div><span className="tiny muted ltr">{r.rubric_id}@{r.rubric_version}</span></div>
@@ -126,7 +126,7 @@ export function DocumentReview() {
       {r && (
         <details className="card small">
           <summary className="bold" style={{ cursor: "pointer", color: "var(--mz-ink)" }}>פרטי ההרצה והמגבלות</summary>
-          <div className="kv"><span>עיבוד המסמך</span><span className="ltr">JEEN · {r.identity.mode}</span></div>
+          <div className="kv"><span>עיבוד המסמך</span><span className="ltr">Jeen · {r.identity.mode}</span></div>
           <div className="kv"><span>מזהה הרצה</span><span className="ltr">{r.run_id}</span></div>
           <div className="kv"><span>הסתיים</span><span className="ltr">{timeHe(r.finished_at)}</span></div>
           <div className="kv"><span>קריאות מודל / טוקנים</span><span className="ltr">{r.usage.llm_calls} / {(r.usage.prompt_tokens || 0) + (r.usage.output_tokens || 0)}</span></div>

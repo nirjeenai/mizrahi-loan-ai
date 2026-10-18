@@ -151,7 +151,7 @@ Rules:
 - Never say the loan was disbursed, money transferred, documents signed, or that a rate/amount is final or binding.
   Disbursement and signing are future steps that depend on the conditions.
 - No figures at all in your sections: the terms block carries every number. Never mention income, repayment ratios,
-  existing debts, obligo, findings, AI, JEEN, demo data or internal reasoning.
+  existing debts, obligo, findings, AI, Jeen, demo data or internal reasoning.
 - Conditions: refine the wording of the given conditions; keep every one of them; do not add requirements that are not
   in the base (no collateral, guarantor, insurance, fees or dates — the scenario defines none).
 - Natural, warm-formal Hebrew, as an experienced banker would write: one cohesive letter, no repeated disclaimers, no
@@ -198,7 +198,7 @@ def generate(case_id: str, acknowledge_open_issues: bool = False, use_ai: bool =
     if not use_ai:
         return {**out, "text": base_text, "source": "base", "model": None}
     if not settings.gemini_api_key:
-        raise banker_chat.ChatUnavailable("JEEN אינו זמין בסביבה זו: לא הוגדר מפתח Gemini (GEMINI_API_KEY).")
+        raise banker_chat.ChatUnavailable("Jeen אינו זמין בסביבה זו: לא הוגדר מפתח Gemini (GEMINI_API_KEY).")
     ctx = banker_chat.case_context(case_id, intel)
     prompt = (f"<case_data>\n{mask_ids(json.dumps(ctx, ensure_ascii=False))}\n</case_data>\n\n"
               f"<scenario>\n{json.dumps(sc, ensure_ascii=False)}\n</scenario>\n\n"
@@ -226,7 +226,7 @@ def generate(case_id: str, acknowledge_open_issues: bool = False, use_ai: bool =
                          {"role": "user", "parts": [{"text": "The bank's code rejected these sections:\n- " + "\n- ".join(issues)
                                                      + "\nReturn corrected sections."}]}]
     except g.BudgetExceeded:
-        raise banker_chat.ChatUnavailable("JEEN הגיע למכסת הקריאות לשעה זו. נסו שוב מאוחר יותר.") from None
+        raise banker_chat.ChatUnavailable("Jeen הגיע למכסת הקריאות לשעה זו. נסו שוב מאוחר יותר.") from None
     except g.GeminiError:
-        raise banker_chat.ChatUnavailable("JEEN לא הצליח להכין את המכתב כרגע. אפשר לנסות שוב או להשתמש בנוסח הבסיס.") from None
+        raise banker_chat.ChatUnavailable("Jeen לא הצליח להכין את המכתב כרגע. אפשר לנסות שוב או להשתמש בנוסח הבסיס.") from None
     return {**out, "text": base_text, "source": "base", "model": None, "check_issues_he": issues}

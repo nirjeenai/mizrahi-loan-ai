@@ -16,7 +16,7 @@ class JeenTalkProvider:
         return Capabilities(cancel_call=False, get_call=False, send_message=False, hebrew_voice=True, sandbox=False)
 
     def health(self) -> Health:
-        return Health(ok=False, detail="JEEN Talk לא הוגדר, אין חיבור חי")
+        return Health(ok=False, detail="Jeen Talk לא הוגדר, אין חיבור חי")
 
     def create_call(self, req: CallRequest) -> ProviderAck:
         raise ProviderNotConfigured("JEEN Talk is not configured")
