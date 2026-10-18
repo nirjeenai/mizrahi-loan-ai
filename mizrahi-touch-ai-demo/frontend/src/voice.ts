@@ -47,11 +47,16 @@ async function toWav(blob: Blob): Promise<Blob> {
   }
 }
 
-function hebrewVoice(): SpeechSynthesisVoice | undefined {
+function hebrewVoice(lang: "he" | "en" = currentLang()): SpeechSynthesisVoice | undefined {
   const voices = window.speechSynthesis?.getVoices() || [];
-  if (currentLang() === "en") return voices.find((v) => v.lang?.toLowerCase().startsWith("en"));
+  if (lang === "en") return voices.find((v) => v.lang?.toLowerCase().startsWith("en"));
   return voices.find((v) => v.lang?.toLowerCase().startsWith("he")) || voices.find((v) => /carmit/i.test(v.name));
 }
+
+/** the language a reply is spoken in: its own — an earlier Hebrew turn in the English app is read in Hebrew, an English
+ *  one in the Hebrew app in English; Hebrew text in the Hebrew app always has Hebrew letters, so it is read as before */
+const textLang = (text: string): "he" | "en" =>
+  /[\u0590-\u05FF]/.test(text) ? "he" : currentLang() === "en" || /[A-Za-z]/.test(text) ? "en" : "he";
 
 /** the speech language of the customer app: Hebrew, or English in the English app */
 const speechLang = () => (currentLang() === "en" ? "en-US" : "he-IL");
@@ -145,9 +150,10 @@ export class BrowserVoice implements VoiceChannel {
       if (!window.speechSynthesis) return resolve();
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text.replace(/[*#•]/g, ""));
-      const v = hebrewVoice();
+      const lang = textLang(text);
+      const v = hebrewVoice(lang);
       if (v) u.voice = v;
-      u.lang = speechLang();
+      u.lang = lang === "en" ? "en-US" : "he-IL";
       u.rate = 1.02;
       u.onend = () => resolve();
       u.onerror = () => resolve();

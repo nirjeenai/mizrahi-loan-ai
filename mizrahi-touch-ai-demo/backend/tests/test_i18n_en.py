@@ -24,7 +24,7 @@ from app.review import prompts as P
 from app.review import reason_codes as RC
 from app.workflow import outcomes, readiness, requirements
 
-from .golden_util import check
+from .golden_util import GOLDEN, check, normalize
 from .test_golden_hebrew_api import customer_api, seeded  # noqa: F401  (the same seeded cases)
 
 HEBREW = re.compile(r"[֐-׿]")
@@ -50,10 +50,28 @@ def english_values(v, path=""):
             yield from english_values(x, f"{path}[{i}]")
 
 
-@pytest.mark.parametrize("lang", ["he", "en"])
-def test_the_language_header_only_adds_english_siblings(lang):
-    out = customer_api({"X-MZ-Lang": lang})
+def test_the_hebrew_header_only_adds_english_siblings():
+    out = customer_api({"X-MZ-Lang": "he"})
     check("api_customer", strip_english(out))          # the Hebrew golden, byte for byte
+
+
+def test_the_english_header_only_adds_english_siblings_and_the_assistant_answers_in_english():
+    """Everything but the assistant's own turns is the Hebrew golden plus siblings; the assistant of an English session
+    answers in English (here its no-model fallback, from the same case data)."""
+    out = customer_api({"X-MZ-Lang": "en"})
+    agents = {k: v for k, v in out.items() if k.startswith("agent_")}
+    golden = json.loads((GOLDEN / "api_customer.json").read_text(encoding="utf8"))
+    now = json.loads(json.dumps(normalize(strip_english(out)), ensure_ascii=False))      # ids numbered as recorded
+    assert {k: v for k, v in now.items() if not k.startswith("agent_")} == \
+        {k: v for k, v in golden.items() if not k.startswith("agent_")}
+    assert agents
+    for name, a in agents.items():
+        body, turns = a["body"], a["conversation"]
+        assert a["status"] == 200 and body["fallback"] is True, name
+        assert body["reply"].endswith("(A direct answer from your application's data; the smart assistant isn't available "
+                                      "right now.)") and not HEBREW.search(body["reply"]), body["reply"]
+        assert turns[-2]["provenance"]["lang"] == "en" and turns[-1]["provenance"]["lang"] == "en", name
+        assert turns[-1]["text"] == body["reply"]
 
 
 def test_english_siblings_are_english_and_cover_the_customer_screens():

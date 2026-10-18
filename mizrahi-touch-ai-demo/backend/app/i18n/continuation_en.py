@@ -152,3 +152,9 @@ def actions_en(case_id: str, items: list[dict]) -> None:
     for a in items:
         views.action(a, ctx, full, reqs)
 
+
+
+def conversation_en(case_id: str, turns: list[dict]) -> None:
+    """GET /api/cases/{case}/conversation for the English app: English labels for the actions offered under each turn.
+    A follow-up's English is stored on the turn itself (provenance.text_en); a model reply has none and is shown as written."""
+    actions_en(case_id, [a for t in turns for a in (t.get("actions") or [])])

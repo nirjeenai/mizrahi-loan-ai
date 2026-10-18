@@ -123,9 +123,10 @@ export function ApplyV2() {
         <div className="chat-log cv2-log" ref={log} aria-live="polite" data-testid="cv2-log">
           {!draft && !error && <div className="bubble assistant"><span className="spinner" /></div>}
           {draft?.messages.flatMap((m, i) => {
-            // a change of language in the transcript is marked once; earlier messages keep their own language
-            const prev = i > 0 ? draft.messages[i - 1] : null;
-            const divider = prev && msgLang(m, en) !== msgLang(prev, en) && m.role === "assistant"
+            // a change of language in the transcript is marked once, where the assistant's language changes (the
+            // customer's own words never mark it); earlier messages keep their own language
+            const prev = m.role === "assistant" ? draft.messages.slice(0, i).reverse().find((x) => x.role === "assistant") : null;
+            const divider = prev && msgLang(m, en) !== msgLang(prev, en)
               ? <div key={`lang-${m.id}`} className="cv2-lang-divider" role="separator" data-testid="cv2-lang-divider">
                   {msgLang(m, en) === "en" ? "Continuing in English" : "ממשיכים בעברית"}</div> : null;
             const row = (
@@ -246,10 +247,10 @@ export function AssistantMark({ size = 26 }: { size?: number }) {
 }
 
 /** The language a message is shown in: English when the app is English and the message has an English rendering;
- *  otherwise the language it was written in (Hebrew unless the server marked it English). */
+ *  otherwise Hebrew — every assistant message has its Hebrew (text_he) — except the customer's own English words. */
 function msgLang(m: ChatMessage, en: boolean): "he" | "en" {
   if (en && m.text_en) return "en";
-  return m.lang === "en" ? "en" : "he";
+  return m.role === "user" && m.lang === "en" && !m.text_en ? "en" : "he";
 }
 
 function Message({ m, grouped, disabled, actions, onAction }: {

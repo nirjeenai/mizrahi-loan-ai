@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 from .. import auth, i18n
 from ..agent import actions, agent, continuation, tools
-from ..i18n import en as i18n_en, views as i18n_views
+from ..i18n import continuation_en as i18n_continuation, en as i18n_en, views as i18n_views
 from ..bank.mock_bank import bank
 from ..config import settings
 from ..llm import gemini as g
@@ -317,8 +317,13 @@ def audit(case_id: str, request: Request, limit: int = 200):
 @router.get("/cases/{case_id}/conversation")
 def conversation(case_id: str, request: Request):
     auth.require_customer_case(request, case_id)
-    continuation.sync_conversation(case_id)
-    return [{**t, "actions": (t["provenance"] or {}).get("actions") or []} for t in repo.turns(case_id)]
+    lang = i18n.lang(request)
+    continuation.sync_conversation(case_id, lang)
+    turns = [{**t, "actions": (t["provenance"] or {}).get("actions") or []} for t in repo.turns(case_id)]
+    if lang is None:                                   # the English a turn may carry is the customer app's alone
+        return [{**t, "provenance": {k: v for k, v in t["provenance"].items() if k not in ("text_en", "lang")}}
+                if t.get("provenance") and ("text_en" in t["provenance"] or "lang" in t["provenance"]) else t for t in turns]
+    return i18n.localized(lang, turns, lambda ts: i18n_continuation.conversation_en(case_id, ts))
 
 
 class Message(BaseModel):
@@ -333,7 +338,7 @@ def agent_message(case_id: str, msg: Message, request: Request):
     if msg.channel not in ("text", "voice"):
         raise HTTPException(422, "channel must be text or voice")
     try:
-        return agent.respond(case_id, msg.text, msg.channel, msg.provenance)
+        return agent.respond(case_id, msg.text, msg.channel, msg.provenance, lang=i18n.lang(request))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from None
 
@@ -358,9 +363,13 @@ async def transcribe(request: Request, audio: UploadFile = File(...)):
             raise HTTPException(422, "recording is too short")
     started = time.monotonic()
     try:
+        instruction = ("Transcribe this Hebrew speech verbatim in Hebrew. Return only the transcript text, no commentary. "
+                       "If nothing intelligible is said, return an empty string.")
+        if i18n.lang(request) == "en":                  # the customer app in English: the customer speaks English
+            instruction = ("Transcribe this English speech verbatim in English. Return only the transcript text, no "
+                           "commentary. If nothing intelligible is said, return an empty string.")
         resp = g.generate(settings.model_agent, [{"role": "user", "parts": [
-            g.text_part("Transcribe this Hebrew speech verbatim in Hebrew. Return only the transcript text, no commentary. "
-                        "If nothing intelligible is said, return an empty string."), g.inline_part(data, mime)]}],
+            g.text_part(instruction), g.inline_part(data, mime)]}],
             purpose="voice_transcribe", thinking="low", timeout=40)
     except g.GeminiError:
         raise HTTPException(502, "transcription failed") from None

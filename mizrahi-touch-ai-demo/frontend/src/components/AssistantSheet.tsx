@@ -28,6 +28,8 @@ const engineHe = (engine: string) => (engine.startsWith("browser") ? tr("הדפ�
 /** A turn's text in the app's language: a follow-up from the case service carries both languages; anything else is
  *  shown as it was written, in its own direction. */
 const turnText = (t: Turn, en: boolean) => (en && t.provenance?.text_en) || t.text;
+/** an assistant turn written in the other language, with no rendering in the app's (a model reply, an earlier session) */
+const otherLang = (t: Turn, en: boolean) => (en ? !t.provenance?.text_en && t.provenance?.lang !== "en" : t.provenance?.lang === "en");
 const turnDir = (t: Turn, en: boolean) => (en ? (t.provenance?.text_en ? "ltr" : "auto") : t.provenance?.lang === "en" ? "ltr" : undefined);
 
 /** the voice capability line in English, from the same capability the Hebrew line describes */
@@ -131,6 +133,8 @@ export function AssistantSheet() {
                     {t.role === "user" && t.provenance?.engine && <span>{tl("תמלול: ", "Transcribed by ")}{engineHe(String(t.provenance.engine))}</span>}
                     {t.role === "user" && t.provenance?.source === "app_action" && <span>{tl("נשלח מכפתור", "Sent from a button")}</span>}
                     {t.role === "assistant" && cap?.tts && <button className="link tiny" onClick={() => voice.speak(turnText(t, en))} aria-label={tl("השמעה", "Play")}><ISpeaker size={12} /></button>}
+                    {t.role === "assistant" && otherLang(t, en) && (en ? <span className="orig-tag" lang="en" data-testid="turn-original">Original (Hebrew)</span>
+                      : <span data-testid="turn-original">נכתב באנגלית</span>)}
                   </div>
                   {sources.length > 0 && <div className="bubble-sources">{t.channel === "app" ? tl("מקור", "Source") : tl("נבדק מול", "Checked against")}: {sources.join(" · ")}</div>}
                 </div>
