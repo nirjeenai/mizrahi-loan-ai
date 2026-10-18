@@ -1,5 +1,6 @@
 import type { Afford as SimAfford, Issue as SimIssue, Params as SimParams, Product as SimProduct, Rate as SimRate, Result as SimResult, Target as SimTarget } from "./loanCalc";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { currentLang, LANG_SWITCH } from "./i18n";
 
 export const CASE_ID_DEFAULT = "DEMO-MTZ-2026-001";
 
@@ -138,16 +139,16 @@ export interface Readiness {
 export interface Borrower { borrower_id: string; name_he: string; first_name_he: string; national_id: string; employment: string; declared_net_monthly_ils: number; declaration_note_he: string; employer_declared_he: string; role?: string }
 export interface LoanDetails { product: string; product_he: string; purpose: string; purpose_he: string; requested_amount_ils: number; payments: number; note_he?: string }
 export interface BankCase {
-  case_id: string; display_number: string; title_he: string; requested_loan_ils: number; submitted_at: string;
-  preliminary_decision?: { label_he: string; issued_on: string; valid_until: string; amount_ils: number } | null;
-  loan: LoanDetails; accounts?: { account_id: string; label_he: string; bank_he: string; holders: string[] }[];
+  case_id: string; display_number: string; title_he: string; title_en?: string; requested_loan_ils: number; submitted_at: string;
+  preliminary_decision?: { label_he: string; label_en?: string; issued_on: string; valid_until: string; amount_ils: number } | null;
+  loan: LoanDetails; accounts?: { account_id: string; label_he: string; label_en?: string; bank_he: string; bank_en?: string; holders: string[] }[];
   contact?: { consent_voice: boolean; consent_message: boolean; phone_masked?: string };
-  banker: { name_he: string; role_he: string; staff_id?: string };
-  meeting?: { date: string; from: string; to: string; type_he: string } | null; borrowers: Borrower[];
+  banker: { name_he: string; name_en?: string; role_he: string; role_en?: string; staff_id?: string };
+  meeting?: { date: string; from: string; to: string; type_he: string; type_en?: string } | null; borrowers: Borrower[];
   persona_id?: string | null; use_case?: string | null; applicant_type?: "individual" | "company"; banker_assisted?: boolean;
   profile_changed_at?: string | null;
   document_profile?: DocumentProfile;
-  bank_stage: { index: number; of: number; label_he: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
+  bank_stage: { index: number; of: number; label_he: string; label_en?: string; source: string; authoritative: boolean; label_observed_in_screenshot: boolean };
 }
 export interface AuditEvent { event_id: number; at: string; actor: string; action: string; target?: string; detail?: any }
 /** app_action.v1 — derived and validated by the Loan Case Service; the model only picks among them by id. */
@@ -226,11 +227,22 @@ function renew(role: Role, path: string): Promise<boolean> {
   return p;
 }
 const TRANSIENT = new Set([502, 503, 504]);
+/** The customer endpoints whose wording follows the customer app's language (backend: app/i18n.py reads X-MZ-Lang on
+ *  these routes only). Sent from /customer pages only — the presenter pane, banker, admin and system stay Hebrew — and
+ *  merged into the request's own headers. Without the switch (VITE_LANG_SWITCH=0) no request changes. */
+const LOCALIZED = /^\/api\/(cases\/|documents\/|demo\/onboarding|session\/demo\/cases|links\/|voice\/)/;
+function withLang(path: string, init?: RequestInit): RequestInit | undefined {
+  if (!LANG_SWITCH || !window.location.pathname.startsWith("/customer") || !LOCALIZED.test(path)) return init;
+  const headers = new Headers(init?.headers);
+  headers.set("X-MZ-Lang", currentLang());
+  return { ...init, headers };
+}
 
 /** fetch for the app's API. A read is retried twice on a network error or 502/503/504 (a backend restarting); a 401
  *  renews the session it names once and repeats the request once — the server refused it before doing anything, so
  *  repeating a write is safe. Anything else, and a second 401, goes back to the caller unchanged. */
-export async function request(path: string, init?: RequestInit): Promise<Response> {
+export async function request(path: string, given?: RequestInit): Promise<Response> {
+  const init = withLang(path, given);
   const read = !init?.method || ["GET", "HEAD"].includes(init.method.toUpperCase());
   let res!: Response;
   for (let attempt = 0; ; attempt++) {
@@ -265,9 +277,10 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
 const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 export interface SessionCase {
-  case_id: string; display_number: string; title_he: string;
+  case_id: string; display_number: string; title_he: string; title_en?: string;
   /** the demonstrated customer ("התיקים שלי" lists one persona's cases); QA cases have none */
-  persona_id?: string | null; qa?: boolean; use_case?: string | null; applicants_he?: string[]; company_he?: string | null;
+  persona_id?: string | null; qa?: boolean; use_case?: string | null; applicants_he?: string[]; applicants_en?: string[];
+  company_he?: string | null; company_en?: string | null;
 }
 export interface ApplicationOptions {
   product_he: string; policy_version: string; purposes: { id: string; label_he: string; proof_he: string }[];

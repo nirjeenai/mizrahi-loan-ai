@@ -193,6 +193,7 @@ def customer_screens(page: Page, cap: Capture, base: str, tag: str, mobile: bool
             row.locator(".dl-head").first.click()
         page.locator("[data-testid=upload-BRW-A]").first.click()
         expect(page.locator("[data-testid=upload-sheet]")).to_be_visible()
+        page.wait_for_timeout(1000)                          # the sheet's slide-in ends first
         cap.shot(page, f"{tag}-upload-sheet")
         page.goto(base + "/customer")
         expect(page.locator("[data-testid=fab]")).to_be_visible(timeout=20000)

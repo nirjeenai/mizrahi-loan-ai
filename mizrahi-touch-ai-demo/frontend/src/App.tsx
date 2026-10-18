@@ -7,6 +7,7 @@ import { IClose, IPanel } from "./components/Icons";
 import { ScenarioPresenter } from "./components/ScenarioPresenter";
 import { TouchShell } from "./components/TouchShell";
 import { UseCaseScenarios } from "./components/UseCaseScenarios";
+import { LangProvider } from "./i18n";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { BankerConsole } from "./pages/banker/BankerConsole";
 import { Apply } from "./pages/customer/Apply";
@@ -108,7 +109,7 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/customer" replace />} />
-        <Route path="/customer/*" element={<CaseProvider><CustomerApp /></CaseProvider>} />
+        <Route path="/customer/*" element={<LangProvider><CaseProvider><CustomerApp /></CaseProvider></LangProvider>} />
         <Route path="/banker" element={<BankerConsole />} />
         <Route path="/system" element={<SystemPage />} />
         <Route path="/admin" element={<AdminPage />} />

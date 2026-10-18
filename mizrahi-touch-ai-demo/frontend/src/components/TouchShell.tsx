@@ -2,21 +2,35 @@ import { useState, type ReactNode, type UIEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api, type SessionCase } from "../api";
 import { useCase } from "../caseContext";
+import { LANG_SWITCH, useLang, type Lang } from "../i18n";
 import { usePresence } from "../presence";
 import { AssistantSheet } from "./AssistantSheet";
 import { IBulb, ICalendar, IChevronDown, IDocs, IHome, IMenu, ISpark, IStages } from "./Icons";
 import { UploadSheet } from "./UploadSheet";
 
 const TABS = [
-  { to: "/customer", label: "ראשי", icon: <IHome /> },
-  { to: "/customer/documents", label: "מסמכים", icon: <IDocs /> },
-  { to: "/customer/meetings", label: "פגישות", icon: <ICalendar /> },
-  { to: "/customer/stages", label: "שלבים", icon: <IStages /> },
-  { to: "/customer/tools", label: "כלים", icon: <IBulb /> },
+  { to: "/customer", label: "ראשי", en: "Home", icon: <IHome /> },
+  { to: "/customer/documents", label: "מסמכים", en: "Documents", icon: <IDocs /> },
+  { to: "/customer/meetings", label: "פגישות", en: "Meetings", icon: <ICalendar /> },
+  { to: "/customer/stages", label: "שלבים", en: "Stages", icon: <IStages /> },
+  { to: "/customer/tools", label: "כלים", en: "Tools", icon: <IBulb /> },
 ];
+
+/** The language chip in the header's brand corner: it names the other language in that language's own script. */
+function LangChip() {
+  const { lang, setLang } = useLang();
+  const next: Lang = lang === "en" ? "he" : "en";
+  return (
+    <button type="button" className="lang-chip" onClick={() => setLang(next)} lang={next} data-testid="lang-switch" data-lang={lang}
+      aria-label={next === "en" ? "Switch to English" : "מעבר לעברית"} title={next === "en" ? "English" : "עברית"}>
+      {next === "en" ? "EN" : "עב"}
+    </button>
+  );
+}
 
 export function TouchShell({ children, onPresenter }: { children: ReactNode; onPresenter?: () => void }) {
   const { snap, caseId, setCaseId, openAssistant, assistant, upload, assistantOrigin, auth } = useCase();
+  const { lang, en, t } = useLang();
   const loc = useLocation();
   const nav = useNavigate();
   const [menu, setMenu] = useState(false);
@@ -27,34 +41,38 @@ export function TouchShell({ children, onPresenter }: { children: ReactNode; onP
   const applying = loc.pathname.startsWith("/customer/apply");
   const active = (to: string) => (to === "/customer" ? loc.pathname === "/customer" || loc.pathname === "/customer/" : loc.pathname.startsWith(to));
   return (
-    <div className="phone">
+    <div className="phone" {...(en ? { dir: "ltr", lang: "en", "data-lang": lang } : {})}>
       <div className="phone-screen">
         <div className="phone-notch" />
         <div className="statusbar"><span>9:41</span><span>●●● ▮</span></div>
-        <header className="touch-header">
-          <button className="icon-btn" aria-label="תפריט" onClick={() => setMenu(true)}><IMenu /></button>
-          <button className="case-pill" onClick={() => setMenu(true)} aria-label="בחירת תיק">
-            <IChevronDown /><span>{applying ? "בקשת הלוואה חדשה" : snap ? `${snap.case.display_number} ${snap.case.title_he}` : "טוען…"}</span>
+        <header className={`touch-header${LANG_SWITCH ? " with-lang" : ""}`}>
+          <button className="icon-btn" aria-label={t("תפריט", "Menu")} onClick={() => setMenu(true)}><IMenu /></button>
+          <button className="case-pill" onClick={() => setMenu(true)} aria-label={t("בחירת תיק", "Choose an application")}>
+            <IChevronDown /><span>{applying ? t("בקשת הלוואה חדשה", "New loan application") : snap
+              ? `${snap.case.display_number} ${en ? snap.case.title_en || snap.case.title_he : snap.case.title_he}` : t("טוען…", "Loading…")}</span>
           </button>
-          <img className="mark" src="/brand/mizrahi-mark.svg" alt="מזרחי טפחות" style={{ justifySelf: "end" }} />
+          {LANG_SWITCH ? (
+            <span className="brand-corner"><LangChip /><img className="mark" src="/brand/mizrahi-mark.svg" alt={t("מזרחי טפחות", "Mizrahi-Tefahot")} /></span>
+          ) : <img className="mark" src="/brand/mizrahi-mark.svg" alt="מזרחי טפחות" style={{ justifySelf: "end" }} />}
         </header>
         {auth.status === "signed-out" ? (
           <main className="screen">
             <div className="notice" role="status" style={{ marginTop: 16 }} data-testid="no-session">
-              אין חיבור לתיק. הכניסה נעשית דרך מערכת הזיהוי של הבנק.</div>
+              {t(<>אין חיבור לתיק. הכניסה נעשית דרך מערכת הזיהוי של הבנק.</>,
+                <>No application is connected. Sign-in goes through the bank&apos;s identity service.</>)}</div>
           </main>
         ) : (<>
         <main className="screen" onScroll={onScroll}>{children}</main>
         {!assistant.open && !applying && (
           <button className={`fab${assistantOrigin ? " return" : ""}${scrolled && !assistantOrigin ? " mini" : ""}`} onClick={() => openAssistant()} data-testid="fab"
-            aria-label={assistantOrigin ? "חזרה לשיחה עם העוזר" : "שאלו את העוזר"}>
-            <span className="spark"><ISpark size={14} /></span><span className="fab-label">{assistantOrigin ? "חזרה לשיחה" : "עוזר"}</span>
+            aria-label={assistantOrigin ? t("חזרה לשיחה עם העוזר", "Back to the conversation with the assistant") : t("שאלו את העוזר", "Ask the assistant")}>
+            <span className="spark"><ISpark size={14} /></span><span className="fab-label">{assistantOrigin ? t("חזרה לשיחה", "Back to chat") : t("עוזר", "Assistant")}</span>
           </button>
         )}
         <nav className="bottom-nav">
-          {TABS.map((t) => (
-            <button key={t.to} className={active(t.to) ? "on" : ""} onClick={() => nav(t.to)} aria-current={active(t.to) ? "page" : undefined}>
-              {t.icon}<span>{t.label}</span>
+          {TABS.map((tab) => (
+            <button key={tab.to} className={active(tab.to) ? "on" : ""} onClick={() => nav(tab.to)} aria-current={active(tab.to) ? "page" : undefined}>
+              {tab.icon}<span>{en ? tab.en : tab.label}</span>
             </button>
           ))}
         </nav>
@@ -74,38 +92,51 @@ function Drawer({ caseId, onPick, onClose, onPresenter }: {
   const [cases, setCases] = useState<SessionCase[] | null>(null);
   if (cases === null) api.demoCases().then(setCases).catch(() => setCases([]));
   const { reload } = useCase();
+  const { lang, en, t, setLang } = useLang();
   // "התיקים שלי": the applications of the customer being demonstrated; every other demo and QA case stays reachable below
   const current = (cases || []).find((c) => c.case_id === caseId);
   const persona = current?.persona_id;
   const mine = (cases || []).filter((c) => (persona ? c.persona_id === persona : c.case_id === caseId));
   const others = (cases || []).filter((c) => !mine.includes(c));
-  const who = current?.company_he || current?.applicants_he?.join(" ו");
+  const who = en ? current?.company_en || current?.company_he || (current?.applicants_en || current?.applicants_he)?.join(" and ")
+    : current?.company_he || current?.applicants_he?.join(" ו");
   const row = (c: SessionCase) => (
     <button key={c.case_id} onClick={() => onPick(c.case_id)} data-testid="drawer-case" data-case={c.case_id}
       style={{ color: c.case_id === caseId ? "var(--mz-orange)" : undefined }}>
-      {c.display_number} · {c.title_he}
+      {c.display_number} · {en ? c.title_en || c.title_he : c.title_he}
     </button>
   );
   return (
     <div className="drawer" onClick={onClose}>
       <div className="drawer-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="small muted">התיקים שלי{who ? ` · ${who}` : ""}</div>
+        <div className="small muted">{t("התיקים שלי", "My applications")}{who ? ` · ${who}` : ""}</div>
         <div className="drawer-mine" data-testid="drawer-my-cases">{mine.map(row)}</div>
         {others.length > 0 && (
           <details className="drawer-others" data-testid="drawer-other-cases">
-            <summary className="small muted">תיקים של לקוחות אחרים ({others.length})</summary>
+            <summary className="small muted">{t("תיקים של לקוחות אחרים", "Other customers' applications")} ({others.length})</summary>
             {others.map(row)}
           </details>
         )}
         <Link to="/customer/apply" onClick={onClose} data-testid="drawer-apply" style={{ color: "var(--mz-orange)", fontWeight: 700 }}>
-          + בקשת הלוואה חדשה</Link>
-        <div className="small muted" style={{ marginTop: 14 }}>עוד</div>
-        {onPresenter && <button onClick={() => { onClose(); onPresenter(); }} data-testid="drawer-presenter">תרחישים וקבצים להורדה</button>}
-        <Link to="/banker" onClick={onClose}>תצוגת בנקאי, חבילת ראיות</Link>
-        <Link to="/system" onClick={onClose}>מטריצת אינטגרציות, MCP ורובריקות</Link>
-        <button onClick={async () => { if (confirm("לאפס את התיק הזה ולמחוק מסמכים, ממצאים ושיחה?")) { await api.reset(caseId); reload(); onClose(); } }}>
-          איפוס התיק
+          {t("+ בקשת הלוואה חדשה", "+ New loan application")}</Link>
+        <div className="small muted" style={{ marginTop: 14 }}>{t("עוד", "More")}</div>
+        {onPresenter && <button onClick={() => { onClose(); onPresenter(); }} data-testid="drawer-presenter">{t("תרחישים וקבצים להורדה", "Demo scenarios and files (Hebrew)")}</button>}
+        <Link to="/banker" onClick={onClose}>{t("תצוגת בנקאי, חבילת ראיות", "Banker view, evidence package (Hebrew)")}</Link>
+        <Link to="/system" onClick={onClose}>{t("מטריצת אינטגרציות, MCP ורובריקות", "Integrations, MCP and rubrics (Hebrew)")}</Link>
+        <button onClick={async () => { if (confirm(t("לאפס את התיק הזה ולמחוק מסמכים, ממצאים ושיחה?", "Reset this application and delete its documents, findings and conversation?"))) { await api.reset(caseId); reload(); onClose(); } }}>
+          {t("איפוס התיק", "Reset the application")}
         </button>
+        {LANG_SWITCH && (
+          <div className="drawer-lang" role="radiogroup" aria-label={t("שפה", "Language")} data-testid="drawer-lang">
+            <span className="small muted">{t("שפה", "Language")}</span>
+            <span className="drawer-lang-seg">
+              {(["he", "en"] as Lang[]).map((l) => (
+                <button key={l} type="button" role="radio" aria-checked={lang === l} lang={l} className={lang === l ? "on" : ""}
+                  onClick={() => setLang(l)} data-testid={`drawer-lang-${l}`}>{l === "he" ? "עברית" : "English"}</button>
+              ))}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
