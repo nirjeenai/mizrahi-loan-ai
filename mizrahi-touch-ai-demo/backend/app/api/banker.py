@@ -8,7 +8,7 @@ from typing import Literal, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from .. import auth
+from .. import auth, i18n
 from ..bank.mock_bank import bank
 from ..store import repo
 from ..workflow import engine, readiness, review_desk
@@ -36,9 +36,9 @@ def _staff(request: Request, case_id: str) -> dict:
     return auth.require_assigned_staff(request, case_id)
 
 
-def _desk(call):
+def _desk(call, request: Request = None):
     try:
-        return call()
+        return i18n.staff(request, call())
     except DeskError as exc:
         raise HTTPException(exc.status, exc.message_he) from None
 
@@ -57,29 +57,29 @@ def cases(request: Request):
                     "readiness_he": st["state_he_banker"], "counts": st["counts"], "queue": case_queue_counts(cid),
                     "banker": c["banker"], "handoffs": len(review_desk.open_handoffs(cid)),
                     "last_activity_at": (last.get(cid) or {}).get("at")})
-    return out
+    return i18n.staff(request, out)
 
 
 @router.get("/cases/{case_id}/package")
 def package(case_id: str, request: Request):
     _reader(request, case_id)
-    return {**build_package(case_id), "handoffs": repo.handoffs(case_id), "conversation": repo.turns(case_id),
+    return i18n.staff(request, {**build_package(case_id), "handoffs": repo.handoffs(case_id), "conversation": repo.turns(case_id),
             "runs": repo.runs(case_id), "audit": repo.audit_events(case_id, 200),
             "decisions": [review_desk.public_decision(d) for d in repo.decisions(case_id)],
-            "customer_requests": repo.customer_requests(case_id)}
+            "customer_requests": repo.customer_requests(case_id)})
 
 
 @router.get("/cases/{case_id}/workspace")
 def workspace(case_id: str, request: Request):
     _reader(request, case_id)
-    return build_workspace(case_id)
+    return i18n.staff(request, build_workspace(case_id))
 
 
 @router.get("/cases/{case_id}/intelligence")
 def intelligence(case_id: str, request: Request):
     """Banker Intelligence V2: the case briefing, financial context and scenarios. Read-only; writes nothing."""
     _reader(request, case_id)
-    return banker_intelligence.build(case_id)
+    return i18n.staff(request, banker_intelligence.build(case_id))
 
 
 class ChatTurn(BaseModel):
@@ -104,8 +104,8 @@ def chat(case_id: str, body: ChatMessage, request: Request):
     Writes nothing to the case; the browser applies a returned revision to its own editor."""
     _reader(request, case_id)
     try:
-        return banker_chat.respond(case_id, body.message, [t.model_dump() for t in body.history],
-                                   body.draft.model_dump() if body.draft else None)
+        return i18n.staff(request, banker_chat.respond(case_id, body.message, [t.model_dump() for t in body.history],
+                                                       body.draft.model_dump() if body.draft else None, i18n.lang(request)))
     except banker_chat.ChatUnavailable as exc:
         raise HTTPException(503, str(exc)) from None
     except ValueError as exc:
@@ -123,7 +123,7 @@ def demo_approval_letter(case_id: str, body: DemoLetter, request: Request):
     a case not ready for credit review needs `acknowledge_open_issues`."""
     _reader(request, case_id)
     try:
-        return banker_demo_letter.generate(case_id, body.acknowledge_open_issues, body.use_ai)
+        return i18n.staff(request, banker_demo_letter.generate(case_id, body.acknowledge_open_issues, body.use_ai))
     except banker_demo_letter.LetterRefused as exc:
         raise HTTPException(exc.status, exc.message_he) from None
     except banker_chat.ChatUnavailable as exc:
@@ -154,7 +154,7 @@ def decide_document(case_id: str, document_id: str, body: DocumentDecision, requ
     staff = _staff(request, case_id)
     return _desk(lambda: review_desk.decide_document(
         case_id, document_id, staff, DOCUMENT_ACTION[body.action], body.rationale, body.customer_message,
-        body.requested_period, body.acknowledged_finding_ids, body.request_id))
+        body.requested_period, body.acknowledged_finding_ids, body.request_id), request)
 
 
 class MissingRequest(BaseModel):
@@ -169,7 +169,7 @@ class MissingRequest(BaseModel):
 def request_missing(case_id: str, body: MissingRequest, request: Request):
     staff = _staff(request, case_id)
     return _desk(lambda: review_desk.request_missing(case_id, staff, body.borrower_id, body.period, body.customer_message,
-                                                     body.rationale, body.request_id))
+                                                     body.rationale, body.request_id), request)
 
 
 class RequirementRequest(BaseModel):
@@ -182,7 +182,7 @@ class RequirementRequest(BaseModel):
 def request_requirement(case_id: str, requirement_code: str, body: RequirementRequest, request: Request):
     staff = _staff(request, case_id)
     return _desk(lambda: review_desk.request_requirement(case_id, staff, requirement_code, body.customer_message,
-                                                         body.rationale, body.request_id))
+                                                         body.rationale, body.request_id), request)
 
 
 class FindingDecision(BaseModel):
@@ -201,7 +201,7 @@ def decide_finding(case_id: str, finding_id: str, body: FindingDecision, request
     staff = _staff(request, case_id)
     return _desk(lambda: review_desk.decide_finding(
         case_id, finding_id, staff, body.action, body.rationale or body.note, body.customer_message, body.request_id,
-        body.reason_code, body.evidence_document_ids, body.acknowledge_partial))
+        body.reason_code, body.evidence_document_ids, body.acknowledge_partial), request)
 
 
 class Withdraw(BaseModel):
@@ -212,7 +212,7 @@ class Withdraw(BaseModel):
 @router.post("/cases/{case_id}/customer-requests/{customer_request_id}/withdraw")
 def withdraw_request(case_id: str, customer_request_id: str, body: Withdraw, request: Request):
     staff = _staff(request, case_id)
-    return _desk(lambda: review_desk.withdraw_request(case_id, staff, customer_request_id, body.rationale, body.request_id))
+    return _desk(lambda: review_desk.withdraw_request(case_id, staff, customer_request_id, body.rationale, body.request_id), request)
 
 
 class Note(BaseModel):
@@ -225,7 +225,7 @@ class Note(BaseModel):
 @router.post("/cases/{case_id}/notes")
 def add_note(case_id: str, body: Note, request: Request):
     staff = _staff(request, case_id)
-    return _desk(lambda: review_desk.add_note(case_id, staff, body.text, body.document_id, body.finding_id, body.request_id))
+    return _desk(lambda: review_desk.add_note(case_id, staff, body.text, body.document_id, body.finding_id, body.request_id), request)
 
 
 class Acknowledge(BaseModel):
@@ -237,7 +237,7 @@ class Acknowledge(BaseModel):
 def acknowledge_handoff(case_id: str, package_id: str, body: Acknowledge, request: Request):
     """The banker takes the customer's 'transfer to my banker' request into handling. The note stays internal."""
     staff = _staff(request, case_id)
-    return _desk(lambda: review_desk.acknowledge_handoff(case_id, staff, package_id, body.note, body.request_id))
+    return _desk(lambda: review_desk.acknowledge_handoff(case_id, staff, package_id, body.note, body.request_id), request)
 
 
 class Confirm(BaseModel):
@@ -251,7 +251,7 @@ def confirm_preparation(case_id: str, body: Confirm, request: Request):
     handling. Refused while customer actions or banker requests are open. Never a credit decision;
     bank status untouched. The confirmation lapses when the document set changes or the banker reopens the case."""
     staff = _staff(request, case_id)
-    return _desk(lambda: review_desk.confirm_preparation(case_id, staff, body.note, body.request_id))
+    return _desk(lambda: review_desk.confirm_preparation(case_id, staff, body.note, body.request_id), request)
 
 
 @router.post("/cases/{case_id}/recheck")

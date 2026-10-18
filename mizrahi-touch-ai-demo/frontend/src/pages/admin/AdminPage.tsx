@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "../../admin.css";
-import { AdminError, adminApi, KIND_HE, type Json, type Kind, type Report, type Settings, type VersionRow } from "../../adminApi";
+import { AdminError, adminApi, kindL, type Json, type Kind, type Report, type Settings, type VersionRow } from "../../adminApi";
+import { LangSwitch, tr, useLang } from "../../i18n";
 import { Chip, Toast } from "../banker/deskUi";
 import { DocumentsTab } from "./DocumentsTab";
 import { FollowupTab } from "./FollowupTab";
@@ -20,6 +21,8 @@ export interface KindProps { work: Work; edit: Edit; bar: JSX.Element }
 
 const TABS = [["insights", "ביצועים ותובנות"], ["documents", "מסמכים ותהליך"], ["followup", "מעקב והשלמה"], ["prompt", "התאמת הנחיות ותבניות"],
   ["versions", "בדיקה וגרסאות"]] as const;
+const TABS_EN: Record<string, string> = { insights: "Performance & insights", documents: "Documents & process", followup: "Follow-up & completion",
+  prompt: "Instructions & templates", versions: "Testing & versions" };
 type Tab = typeof TABS[number][0];
 const KINDS: Kind[] = ["loan_policy", "talk_prompt"];
 
@@ -29,18 +32,20 @@ const fresh = (s: Settings, kind: Kind): Work => {
 };
 
 function AdminTop({ name }: { name?: string }) {
+  const { t } = useLang();
   return (
     <>
       <div className="console-top">
-        <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
-          <img className="jeen-logo-light" src="/brand/jeen-logo-light.svg" alt="Jeen" /><span className="brand-title">הגדרות השלמת מסמכים · הלוואות</span></div>
-        {name && <span className="staff-chip" title="חיבור צוות הבנק, אותו חיבור של קונסולת הבנקאי.">מחובר/ת: {name}</span>}
+        <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt={t("מזרחי טפחות", "Mizrahi Tefahot")} /><span className="brand-x" aria-hidden>×</span>
+          <img className="jeen-logo-light" src="/brand/jeen-logo-light.svg" alt="Jeen" /><span className="brand-title">{t("הגדרות השלמת מסמכים · הלוואות", "Document completion settings · Loans")}</span></div>
+        {name && <span className="staff-chip" title={t("חיבור צוות הבנק, אותו חיבור של קונסולת הבנקאי.", "Bank staff sign-in, the same one the banker console uses.")}>{t("מחובר/ת", "Signed in")}: {name}</span>}
         <nav>
-          <Link to="/customer">אפליקציית לקוח</Link>
-          <Link to="/banker">בנקאי</Link>
-          <Link to="/admin" className="on">הגדרות</Link>
-          <Link to="/system">מערכת ואינטגרציות</Link>
+          <Link to="/customer">{t("אפליקציית לקוח", "Customer app")}</Link>
+          <Link to="/banker">{t("בנקאי", "Banker")}</Link>
+          <Link to="/admin" className="on">{t("הגדרות", "Settings")}</Link>
+          <Link to="/system">{t("מערכת ואינטגרציות", "System & integrations")}</Link>
         </nav>
+        <LangSwitch tone="dark" />
       </div>
     </>
   );
@@ -48,6 +53,7 @@ function AdminTop({ name }: { name?: string }) {
 
 export function AdminPage() {
   const [params, setParams] = useSearchParams();
+  const { t } = useLang();
   const tab = (TABS.find(([k]) => k === params.get("tab"))?.[0] || "documents") as Tab;
   const [session, setSession] = useState<"loading" | "ok" | "none">("loading");
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -108,7 +114,11 @@ export function AdminPage() {
 
   const fail = useCallback((kind: Kind, e: unknown, what: string) => {
     const err = e as AdminError;
-    const reasons: string[] = err.detail?.reasons || err.detail?.errors?.map((x: any) => `${x.path}: ${x.message}`) || [err.message];
+    const d = err.detail;
+    const reasons: string[] = tr(
+      d?.reasons || d?.errors?.map((x: any) => `${x.path}: ${x.message}`) || [err.message],
+      d?.reasons?.map((r: string, i: number) => d.reasons_en?.[i] || r)
+        || d?.errors?.map((x: any) => `${x.path}: ${x.message_en || x.message}`) || [err.message]);
     patch(kind, { busy: null, reasons, stale: err.status === 409 });
     setToast({ text: `${what}: ${err.message}`, tone: "bad" });
   }, [patch]);
@@ -120,10 +130,11 @@ export function AdminPage() {
       const d = w.draft || await adminApi.openDraft(kind, "עריכה במסך ההגדרות");
       const saved = await adminApi.saveDraft(d.version_id, w.config, d.revision);
       patch(kind, { draft: saved, config: saved.config!, dirty: false, busy: null, stale: false });
-      setToast({ text: `הטיוטה של ${KIND_HE[kind]} נשמרה (v${saved.number}). היא אינה פעילה עד ההפעלה.`, tone: "ok" });
+      setToast({ text: tr(`הטיוטה של ${kindL(kind)} נשמרה (v${saved.number}). היא אינה פעילה עד ההפעלה.`,
+        `${kindL(kind)} draft saved (v${saved.number}). It isn't active until it's published.`), tone: "ok" });
       setRefresh((n) => n + 1);
       return saved;
-    } catch (e) { fail(kind, e, "השמירה נכשלה"); return null; }
+    } catch (e) { fail(kind, e, tr("השמירה נכשלה", "Saving failed")); return null; }
   }, [patch, fail]);
 
   const publish = useCallback(async (kind: Kind) => {
@@ -133,9 +144,10 @@ export function AdminPage() {
     patch(kind, { busy: "publish", reasons: [] });
     try {
       const res = await adminApi.publish(d.version_id, d.revision);
-      setToast({ text: `${KIND_HE[kind]} v${res.published.number} הופעלה (במקום v${res.previous.number}).`, tone: "ok" });
+      setToast({ text: tr(`${kindL(kind)} v${res.published.number} הופעלה (במקום v${res.previous.number}).`,
+        `${kindL(kind)} v${res.published.number} is now active (replacing v${res.previous.number}).`), tone: "ok" });
       await reload([kind]);
-    } catch (e) { fail(kind, e, "ההפעלה נכשלה"); }
+    } catch (e) { fail(kind, e, tr("ההפעלה נכשלה", "Publishing failed")); }
   }, [save, patch, fail, reload]);
 
   const discard = useCallback(async (kind: Kind) => {
@@ -143,9 +155,10 @@ export function AdminPage() {
     patch(kind, { busy: "discard", reasons: [] });
     try {
       if (w.draft) await adminApi.discard(w.draft.version_id, w.draft.revision);
-      setToast({ text: w.draft ? `הטיוטה של ${KIND_HE[kind]} בוטלה.` : "השינויים שלא נשמרו בוטלו.", tone: "ok" });
+      setToast({ text: w.draft ? tr(`הטיוטה של ${kindL(kind)} בוטלה.`, `${kindL(kind)} draft discarded.`)
+        : tr("השינויים שלא נשמרו בוטלו.", "Unsaved changes discarded."), tone: "ok" });
       await reload([kind]);
-    } catch (e) { fail(kind, e, "הביטול נכשל"); }
+    } catch (e) { fail(kind, e, tr("הביטול נכשל", "Discarding failed")); }
   }, [patch, fail, reload]);
 
   const props = (kind: Kind): KindProps => ({
@@ -159,9 +172,9 @@ export function AdminPage() {
     <div className="console desk">
       <AdminTop />
       <div className="desk-loading">
-        {session === "none" ? <span data-testid="no-session">אין חיבור של צוות הבנק.</span>
-          : loadError ? <>לא הצלחנו לטעון את ההגדרות: {loadError} <button className="link" onClick={() => reload()}>ניסיון חוזר</button></>
-            : <><span className="spinner" /> טוען הגדרות…</>}
+        {session === "none" ? <span data-testid="no-session">{t("אין חיבור של צוות הבנק.", "No bank staff session.")}</span>
+          : loadError ? <>{t("לא הצלחנו לטעון את ההגדרות", "We couldn't load the settings")}: {loadError} <button className="link" onClick={() => reload()}>{t("ניסיון חוזר", "Try again")}</button></>
+            : <><span className="spinner" /> {t("טוען הגדרות…", "Loading settings…")}</>}
       </div>
     </div>
   );
@@ -169,25 +182,25 @@ export function AdminPage() {
   const ks = settings.kill_switch;
   return (
     <div className="console desk admin" data-testid="admin-page">
-      <AdminTop name={settings.caller.name_he} />
+      <AdminTop name={t(settings.caller.name_he, settings.caller.name_en || settings.caller.name_he)} />
       {ks.value && (
         <div className="adm-env" data-testid="env-banner">
-          <Chip tone="bad" testId="kill-chip">מתג חירום פעיל: אין פניות יזומות</Chip>
+          <Chip tone="bad" testId="kill-chip">{t("מתג חירום פעיל: אין פניות יזומות", "Emergency switch on: no proactive contact")}</Chip>
         </div>
       )}
       <div className="case-bar adm-bar">
         <div className="adm-title">
-          <h2>הגדרות</h2>
+          <h2>{t("הגדרות", "Settings")}</h2>
           {KINDS.map((k) => (
-            <span key={k} className="small muted" data-testid={`published-${k}`}>{KIND_HE[k]}: <span className="ltr bold">v{settings.published[k].number}</span>
-              {settings.drafts[k] ? ` · טיוטה v${settings.drafts[k]!.number}` : ""}</span>
+            <span key={k} className="small muted" data-testid={`published-${k}`}>{kindL(k)}: <span className="ltr bold">v{settings.published[k].number}</span>
+              {settings.drafts[k] ? ` · ${t("טיוטה", "draft")} v${settings.drafts[k]!.number}` : ""}</span>
           ))}
         </div>
         {tab === "insights" && <DashSwitch />}
-        <nav className="view-tabs" aria-label="לשוניות הגדרות">
+        <nav className="view-tabs" aria-label={t("לשוניות הגדרות", "Settings tabs")}>
           {TABS.map(([k, label]) => (
             <button key={k} className={tab === k ? "on" : ""} aria-current={tab === k ? "page" : undefined} data-testid={`tab-${k}`}
-              onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set("tab", k); return n; }, { replace: true })}>{label}</button>
+              onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set("tab", k); return n; }, { replace: true })}>{t(label, TABS_EN[k])}</button>
           ))}
         </nav>
       </div>
@@ -198,7 +211,8 @@ export function AdminPage() {
         {tab === "followup" && <FollowupTab {...props("loan_policy")} settings={settings} onKillSwitch={async (paused, reason) => {
           try {
             await adminApi.pause(paused, reason);
-            setToast({ text: paused ? "מתג החירום הופעל: לא תתבצע אף פנייה יזומה." : "מתג החירום כובה: המעקב חוזר לפעול לפי המדיניות.", tone: "ok" });
+            setToast({ text: paused ? t("מתג החירום הופעל: לא תתבצע אף פנייה יזומה.", "Emergency switch turned on: no proactive contact will be made.")
+              : t("מתג החירום כובה: המעקב חוזר לפעול לפי המדיניות.", "Emergency switch turned off: follow-up resumes according to the policy."), tone: "ok" });
             await reload();
           } catch (e) { setToast({ text: (e as Error).message, tone: "bad" }); }
         }} />}
@@ -207,9 +221,10 @@ export function AdminPage() {
           onRollback={async (kind, to, reason) => {
             try {
               const row = await adminApi.rollback(kind, to, reason);
-              setToast({ text: `שוחזר: ${KIND_HE[kind]} v${row.number} פעילה (העתק של גרסה קודמת).`, tone: "ok" });
+              setToast({ text: t(`שוחזר: ${kindL(kind)} v${row.number} פעילה (העתק של גרסה קודמת).`,
+                `Restored: ${kindL(kind)} v${row.number} is active (a copy of an earlier version).`), tone: "ok" });
               await reload([kind]);
-            } catch (e) { setToast({ text: `השחזור נכשל: ${(e as Error).message}`, tone: "bad" }); }
+            } catch (e) { setToast({ text: `${t("השחזור נכשל", "Rollback failed")}: ${(e as Error).message}`, tone: "bad" }); }
           }} />}
       </main>
       <Toast message={toast} onClose={() => setToast(null)} />

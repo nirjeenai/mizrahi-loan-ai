@@ -1,23 +1,27 @@
 import type { ReactNode } from "react";
+import { useLang } from "../../i18n";
 import "./bankletter.css";
 
 /** A customer letter on Mizrahi-Tefahot letterhead: logo and document type, the brand rule, the body, and a footer with
- *  the bank's name and the draft status. One layout for every reply type; `demo` puts the non-binding line in the footer. */
+ *  the bank's name and the draft status. One layout for every reply type; `demo` puts the non-binding line in the footer.
+ *  The letter is the customer's (Hebrew): in English the banker-facing labels change and the sheet stays right-to-left. */
 export function LetterSheet({ docType, demo, compact, children }: { docType: string; demo?: boolean; compact?: boolean; children: ReactNode }) {
+  const { en, t } = useLang();
   return (
-    <article className={`bl${compact ? " compact" : ""}`} data-testid="cc-letter">
+    <article className={`bl${compact ? " compact" : ""}`} data-testid="cc-letter" {...(en ? { dir: "rtl", lang: "he" } : {})}>
       <header className="bl-head">
-        <img className="bl-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" />
-        <div className="bl-head-meta">
+        <img className="bl-logo" src="/brand/mizrahi-logo.svg" alt={t("מזרחי טפחות", "Mizrahi-Tefahot")} />
+        <div className="bl-head-meta" {...(en ? { lang: "en" } : {})}>
           <span className="bl-doctype">{docType}</span>
-          <span className="bl-state">טיוטה · טרם נשלחה</span>
+          <span className="bl-state">{t("טיוטה · טרם נשלחה", "Draft · not sent yet")}</span>
         </div>
       </header>
       <div className="bl-rule" aria-hidden><i /><i /></div>
       <div className="bl-body">{children}</div>
       <footer className="bl-foot">
         <span className="bl-foot-bank">בנק מזרחי טפחות בע״מ</span>
-        <span>{demo ? "אינו החלטת אשראי ואינו הסכם הלוואה · לא נשלח ללקוח" : "טיוטה לעיון הבנקאי · לא נשלחה ללקוח"}</span>
+        <span {...(en ? { lang: "en" } : {})}>{demo ? t("אינו החלטת אשראי ואינו הסכם הלוואה · לא נשלח ללקוח", "Not a credit decision and not a loan agreement · not sent to the customer")
+          : t("טיוטה לעיון הבנקאי · לא נשלחה ללקוח", "Draft for the banker's review · not sent to the customer")}</span>
       </footer>
     </article>
   );

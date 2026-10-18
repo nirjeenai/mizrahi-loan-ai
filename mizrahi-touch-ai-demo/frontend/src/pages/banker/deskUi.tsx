@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { timeHe } from "../../api";
+import { timeL } from "../../api";
 
 /** One id per form submission: a double click or a retry is recognised by the service as the same decision. */
 export function newRequestId(): string {
@@ -27,7 +27,7 @@ export function Toast({ message, onClose }: { message: { text: string; tone: "ok
 }
 
 export function When({ at, by }: { at?: string | null; by?: string | null }) {
-  return <span className="tiny muted"><span className="ltr">{timeHe(at)}</span>{by ? ` · ${by}` : ""}</span>;
+  return <span className="tiny muted"><span className="ltr">{timeL(at)}</span>{by ? ` · ${by}` : ""}</span>;
 }
 
 export function useOutsideClose(open: boolean, close: () => void) {

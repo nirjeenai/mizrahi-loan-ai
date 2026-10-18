@@ -1,4 +1,5 @@
 import { http } from "./api";
+import { tr } from "./i18n";
 
 /* The follow-up engine's API (CONTRACTS §8): the customer's view, the banker's card and timeline, and the demo controls
    the presenter drives. Every call goes to the same origin; demo routes answer only in demo mode and say "סימולציה". */
@@ -9,7 +10,7 @@ export interface CustomerFollowup {
   contact: { voice_allowed: boolean; message_allowed: boolean; preferred_channel: string | null };
 }
 export interface FollowupDecision {
-  action: string; explanation_he: string; blocked_by: string[]; rule_ids: string[]; next_eligible_at: string | null;
+  action: string; explanation_he: string; explanation_en?: string; blocked_by: string[]; rule_ids: string[]; next_eligible_at: string | null;
   channel: string | null; policy_version: string;
 }
 export interface BankerFollowup {
@@ -59,3 +60,16 @@ export const ACTION_HE: Record<string, string> = {
   SCHEDULE_CALL: "תזמון שיחה", DISPATCH_NOW: "פנייה עכשיו", BLOCK: "חסום", RESOLVE_AND_CANCEL: "נפתר, המעקב בוטל",
   ESCALATE: "העברה לבנקאי", SNOOZE: "נדחה לבקשת הלקוח",
 };
+export const PLAN_EN: Record<string, string> = {
+  IDLE: "No active follow-up", WAITING: "Waiting for the customer", IN_APP: "In-app reminder", SCHEDULED: "Call scheduled",
+  DISPATCHING: "Dialing", IN_CALL: "On a call", AWAITING_CUSTOMER: "Link sent, waiting for the upload",
+  BLOCKED: "Blocked by policy", PAUSED: "Paused by the banker", CANCELED: "Canceled", ESCALATED: "Passed to the banker", COMPLETED: "Completed",
+};
+export const ACTION_EN: Record<string, string> = {
+  NO_ACTION: "No action needed", IN_APP_ONLY: "In the app only", WAIT: "Wait", SUPPRESS: "No contact", IN_APP_NUDGE: "In-app reminder",
+  SCHEDULE_CALL: "Schedule a call", DISPATCH_NOW: "Contact now", BLOCK: "Blocked", RESOLVE_AND_CANCEL: "Resolved, follow-up canceled",
+  ESCALATE: "Pass to the banker", SNOOZE: "Snoozed at the customer's request",
+};
+/** a follow-up plan state / engine action in the platform's language (the code itself when it has no label) */
+export const planL = (state: string) => tr(PLAN_HE[state], PLAN_EN[state]) || state;
+export const actionL = (action: string) => tr(ACTION_HE[action], ACTION_EN[action]) || action;

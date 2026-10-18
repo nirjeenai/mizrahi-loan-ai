@@ -15,11 +15,13 @@ Locations: `mizrahi-touch-ai-demo/docs/CODEMAP.md` → Frontend.
 - Styling: the single `src/styles.css` with `--mz-*` tokens; reuse existing classes and components before adding new ones.
 - RTL Hebrew: `index.html` sets `dir="rtl"`. Wrap IDs, file names and Latin/number runs in `.ltr`.
   All copy is Hebrew; use `ils`, `monthHe`, `timeHe` and the label maps in `api.ts`.
-- The customer app (`/customer`, only) is also English (`src/i18n.tsx`, README "Hebrew / English customer app"): write
-  customer copy as `t("עברית", "English")` (the Hebrew first, unchanged) and use the `*L` helpers (`ilsL`, `monthL`, `timeL`);
-  prefer a server `*_en` sibling over translating server text. Never let `t()` split one Hebrew text run into several
-  nodes — keep the original Hebrew JSX as its own branch (`en ? <>…</> : <>…</>`). Text without an English source is shown
-  as written and marked (`.orig-he`, `.orig-tag`). Banker, admin, system and presenter stay Hebrew-only.
+- The whole platform is also English (`src/i18n.tsx`, README "Hebrew / English platform"): write
+  copy as `t("עברית", "English")` (the Hebrew first, unchanged) and use the `*L` helpers (`ilsL`, `monthL`, `timeL`);
+  render server text through its `*_en` sibling (`locOf`, `locList`, `<Loc>`) rather than translating it. Never let `t()`
+  split one Hebrew text run into several nodes — keep the original Hebrew JSX as its own branch (`en ? <>…</> : <>…</>`).
+  Source text (a person's own words, a document's printed values, the model's wording) is shown as written and marked
+  (`<Orig>`, `.orig-he`, `.orig-tag`). English-only CSS goes under `html[data-lang=en]`; never mirror document images or
+  evidence coordinates. Never post a `*_en` field back inside an edited configuration.
   Hebrew regressions: `e2e/bilingual_screens.py` (pixels + DOM text vs a baseline build), English: `e2e/check_bilingual.py`.
 - Keep the concept-demo / synthetic-data notice visible; it is part of the product's governance.
 - Banker forms send one `newRequestId()` per submission (`pages/banker/deskUi.tsx`). Identity is the server session

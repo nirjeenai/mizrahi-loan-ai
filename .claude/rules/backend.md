@@ -31,6 +31,9 @@ Locations and couplings: `mizrahi-touch-ai-demo/docs/CODEMAP.md`. Behavior: READ
   `tests/golden/`). English is worded from codes and structured details, never by translating with the model, and never
   changes a figure, verdict, status or permission. A new Hebrew customer string needs its English in `app/i18n/` (the
   `test_i18n_*` coverage tests fail otherwise).
+- Staff routes (banker, presenter, system, admin) return `i18n.staff(request, value)`; a new Hebrew staff text needs an
+  entry in `app/i18n/staff_catalog/*.json` (`e2e/check_staff_i18n.py` lists what is missing). Never wrap an editable
+  configuration the UI posts back, and never add `"lang"` or `*_en` to a response that had no header.
 
 ## Changing a rubric (`backend/rubrics/`)
 1. Never edit a released version. Copy it to `<rubric_id>.v<next semver>.json` and add a `changelog` entry;

@@ -377,25 +377,36 @@ The demo extends the existing Tefahot Touch mortgage journey with an AI document
 
 ---
 
-## Hebrew / English customer app
+## Hebrew / English platform
 
-The customer app (`/customer`) can be used in English. Hebrew stays the default and the approved baseline: its wording,
-layout, logic, figures and AI behaviour are unchanged, and the banker console, admin, system page and presenter pane stay
-Hebrew. English is a second rendering of the same values: it never changes an amount, a verdict, a status, a permission,
-a disclaimer or evidence.
+The whole platform can be used in English: the customer app (`/customer`), the presenter pane, the banker console
+(`/banker`, V1 review desk, V2 briefing, V3 case and the Jeen chat), admin (`/admin`) and the system page (`/system`).
+Hebrew stays the default and the approved baseline: its wording, layout, logic, figures and AI behaviour are unchanged.
+English is a second rendering of the same values: it never changes an amount, a verdict, a status, a permission, a
+disclaimer or evidence.
 
-**Switching.** An "EN" / "עב" chip sits in the header beside the brand mark on every customer screen, and the drawer has a
-"שפה / Language" row (a radio group). Switching changes only the language — the route, the active case, the open
+**Switching.** One language state for the whole platform. A "עברית | English" switch ends the navy console bar on
+`/banker`, `/admin` and `/system`, and sits in the top-left corner beside the presenter toggle on the desktop `/customer`
+page; on the phone an "EN" / "עב" chip sits in the header beside the brand mark, and the drawer has a "שפה / Language"
+row. All three are the same state. Switching changes only the language — the route, the open case and view, the open
 conversation and an unsent message stay; no request is written and no model is called. English is remembered in
-`localStorage["mz.lang"]` (Hebrew stores nothing); `?lang=en` / `?lang=he` deep-link a language. In English the phone
-frame is `dir="ltr" lang="en"` with the latin Open Sans; the page itself, and everything outside `/customer`, keeps
-`dir="rtl" lang="he"`.
+`localStorage["mz.lang"]` (Hebrew stores nothing) across pages and reloads; `?lang=en` / `?lang=he` deep-link a
+language. In English `<html>` is `dir="ltr" lang="en"` with the latin Open Sans; in Hebrew it keeps `dir="rtl" lang="he"`.
+Document images, evidence coordinates and figures are never mirrored.
 
 **How it is built.**
-- Frontend: `frontend/src/i18n.tsx` (`LangProvider` around `/customer` only, `useLang()` → `t(he, en)`, `tr()` outside
-  components). Every Hebrew string stays where it was as the first argument, and where a `t()` call would split one
+- Frontend: `frontend/src/i18n.tsx` (`LangProvider` above the router, `useLang()` → `t(he, en)`, `tr()` outside
+  components, `LangSwitch`, `<Loc>`/`loc`/`locOf`/`locList` for server text with an English sibling, `<Orig>` for source
+  text). Every Hebrew string stays where it was as the first argument, and where a `t()` call would split one
   Hebrew text run into several DOM text nodes, the Hebrew branch is the original JSX verbatim (sub-pixel glyph shifts
-  were measured otherwise). `api.ts` sends `X-MZ-Lang: he|en` from `/customer` pages to the customer endpoints only.
+  were measured otherwise). `api.ts` sends `X-MZ-Lang: he|en` on every `/api` request.
+- Staff responses (banker console, presenter scenarios, system rubrics, admin reports): `i18n.staff(request, value)` adds
+  `*_en` siblings from one catalogue, `app/i18n/staff_en.py` + `app/i18n/staff_catalog/*.json` (`exact` texts and
+  `templates` with typed placeholders — figures copied, months and demo names mapped, nested text translated; composite
+  texts are translated part by part). Editable configurations (`config`, `published`, drafts) and source content
+  (conversations, runs, quotes, printed values, notes) are skipped. `e2e/check_staff_i18n.py` lists what a running
+  backend still returns without English. The banker chat gets an English instruction appended to its prompt when the
+  console is English and marks the answer `lang: "en"`; the customer draft it edits stays in its own language.
 - Backend: routes that call `i18n.lang(request)` add `*_en` siblings to their response (`app/i18n/`: `en.py` catalogue,
   `views.py` overlays built from codes and structured details, `chat_en.py`, `agent_en.py`, `continuation_en.py`,
   `criteria_en.py`). The overlay runs on a deep copy and a failure in it returns the Hebrew response untouched. Without
@@ -429,6 +440,14 @@ every customer endpoint and 11 conversational journeys + the classic questionnai
 and identical after removing the `*_en` siblings with `he`; `test_i18n_*.py`; 40 Hebrew screens (mobile + desktop,
 pixels and DOM text nodes) compared with the `main` build by `e2e/bilingual_screens.py` — differences only at the
 language chip and the drawer's language row; the eight existing browser suites; `e2e/check_bilingual.py` (51 checks).
+The whole-platform extension (2026-10-18, REPLAY, no model call): `test_i18n_staff.py`, `test_i18n_staff_chat.py`,
+`test_i18n_admin.py` (no header → no `*_en` and no `lang`; with the header the Hebrew is unchanged once the siblings are
+removed; the admin configuration round-trips byte for byte; the chat prompt gains the English instruction only for
+English); `e2e/check_staff_i18n.py` (1,608 → 147 distinct staff texts without English — the rest is source content: the
+reviewer's own wording, customer drafts, printed values, a name typed in a test case); `e2e/check_platform_bilingual.py`
+(36 checks: the switch, persistence and the open case; English V1/V2/V3, evidence drawer, mocked Jeen chat, every admin
+tab, system, presenter; no horizontal scroll at 390 / 1440 px; the Hebrew text of six pages identical to a `main`
+build); `e2e/check_bilingual.py` (52 checks).
 
 ## Quick start
 
@@ -911,7 +930,11 @@ Results and screenshots are written to `e2e/artifacts/`, and the screenshots abo
 - Accepting a document is recorded per document. It doesn't change the AI verdict, so case criterion IS-06 (all payslips VALID) can still read NEEDS_REVIEW while the banker has accepted every payslip.
 - During development, one transcription request got HTTP 400 from Gemini and didn't reproduce in later runs. The UI now shows a Hebrew retry message instead of a raw error.
 - Gemini model ids are configurable in `backend/.env`.
-- English (customer app only): the classic questionnaire (`/customer/apply/classic`) stays Hebrew; text with no English source (banker messages, the AI reviewer's own explanations, document content, typed Hebrew) is shown as the Hebrew original, marked; in English sessions the conversational application answers with deterministic English (the model only helps understand), and the typed-English shim knows a fixed phrase list — a phrasing outside it is asked about again rather than guessed; live (Gemini) English assistant answers were not exercised (REPLAY has no agent model). The Hebrew parser reads "12,000 נטו" as conflicting numbers (it reads "12 אלף" / "12000"); this pre-existing Hebrew behaviour was left unchanged.
+- English (staff side): the AI reviewer's own explanations, customer message drafts (what the customer receives),
+  editable policy/agent texts and document-printed values stay as written and are marked Hebrew; a customer name that is
+  not in the demo name list keeps the sentences around it Hebrew; live (Gemini) English banker-chat answers were not
+  exercised — the prompt instruction is unit-tested and the answer was mocked in the browser.
+- English (customer app): the classic questionnaire (`/customer/apply/classic`) stays Hebrew; text with no English source (banker messages, the AI reviewer's own explanations, document content, typed Hebrew) is shown as the Hebrew original, marked; in English sessions the conversational application answers with deterministic English (the model only helps understand), and the typed-English shim knows a fixed phrase list — a phrasing outside it is asked about again rather than guessed; live (Gemini) English assistant answers were not exercised (REPLAY has no agent model). The Hebrew parser reads "12,000 נטו" as conflicting numbers (it reads "12 אלף" / "12000"); this pre-existing Hebrew behaviour was left unchanged.
 
 ## Brand note
 

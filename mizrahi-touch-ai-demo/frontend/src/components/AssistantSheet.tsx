@@ -31,6 +31,8 @@ const turnText = (t: Turn, en: boolean) => (en && t.provenance?.text_en) || t.te
 /** an assistant turn written in the other language, with no rendering in the app's (a model reply, an earlier session) */
 const otherLang = (t: Turn, en: boolean) => (en ? !t.provenance?.text_en && t.provenance?.lang !== "en" : t.provenance?.lang === "en");
 const turnDir = (t: Turn, en: boolean) => (en ? (t.provenance?.text_en ? "ltr" : "auto") : t.provenance?.lang === "en" ? "ltr" : undefined);
+/** in English, a turn shown as written in Hebrew (an earlier session, the customer's own words) is marked as Hebrew */
+const turnLang = (t: Turn, en: boolean) => (en && !t.provenance?.text_en && /[\u0590-\u05FF]/.test(t.text || "") ? { lang: "he" } : {});
 
 /** the voice capability line in English, from the same capability the Hebrew line describes */
 const voiceDetailEn = (cap: VoiceCapability) => `${cap.stt === "browser" ? "the browser's speech recognition" : cap.stt === "server"
@@ -123,7 +125,7 @@ export function AssistantSheet() {
               return (
                 <div key={t.turn_id} className={`bubble ${t.role}${t.channel === "app" ? " app" : ""}${actions.length ? " has-actions" : ""}`}
                   data-role={t.role} data-channel={t.channel} data-turn-id={t.turn_id}>
-                  <div className="bubble-text" dir={turnDir(t, en)}>{turnText(t, en)}</div>
+                  <div className="bubble-text" dir={turnDir(t, en)} {...turnLang(t, en)}>{turnText(t, en)}</div>
                   {actions.length > 0 && (
                     <ActionList actions={actions} turnId={t.turn_id} say={(m, p) => send(m, "text", p)} emphasize={t.turn_id === latestActions} />
                   )}

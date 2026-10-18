@@ -263,7 +263,15 @@ def check_revision(revised: str, current: str, intel: dict, kind: Optional[str] 
 
 
 # ---------------------------------------------------------------- the call
-def _prompt(ctx: dict, draft: Optional[dict], intel: dict, message: str, demo: Optional[dict] = None) -> str:
+# the banker console in English: the same rules and the same fields; only the banker-facing wording changes language.
+# The draft is the customer's message and keeps its own language (Hebrew), so an edit stays Hebrew.
+ENGLISH = ("\n\nLANGUAGE: the banker is using the console in English. Write answer_he and change_summary_he in natural, "
+           "professional banking English (the field names stay as they are). Keep revised_draft_he — the customer's "
+           "message — in the language of the current draft. Keep ₪ amounts and percentages exactly as in the data.")
+
+
+def _prompt(ctx: dict, draft: Optional[dict], intel: dict, message: str, demo: Optional[dict] = None,
+            lang: Optional[str] = None) -> str:
     if draft:
         template = next((d for d in intel.get("drafts") or [] if d["kind"] == draft["kind"]), None)
         draft_block = json.dumps({
@@ -277,7 +285,7 @@ def _prompt(ctx: dict, draft: Optional[dict], intel: dict, message: str, demo: O
     demo_block = f"<demo_scenario>\n{json.dumps(demo, ensure_ascii=False)}\n</demo_scenario>\n\n" if demo else ""
     return (f"<case_data>\n{mask_ids(json.dumps(ctx, ensure_ascii=False))}\n</case_data>\n\n{demo_block}"
             f"<current_draft>\n{draft_block}\n</current_draft>\n\n"
-            f"Banker's message:\n{message}")
+            f"Banker's message:\n{message}" + (ENGLISH if lang == "en" else ""))
 
 
 def _contents(history: list[dict], prompt: str) -> list[dict]:
@@ -306,7 +314,8 @@ def _call(contents: list[dict], trace: str) -> dict:
     return out
 
 
-def respond(case_id: str, message: str, history: list[dict], draft: Optional[dict]) -> dict[str, Any]:
+def respond(case_id: str, message: str, history: list[dict], draft: Optional[dict],
+            lang: Optional[str] = None) -> dict[str, Any]:
     message = (message or "").strip()[:2000]
     if not message:
         raise ValueError("empty message")
@@ -323,7 +332,7 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
     elif draft and not any(d["kind"] == kind for d in intel["drafts"]):
         draft = kind = None
     ctx = case_context(case_id, intel)
-    contents = _contents(history, _prompt(ctx, draft, intel, message, demo))
+    contents = _contents(history, _prompt(ctx, draft, intel, message, demo, lang))
     trace = f"BCHAT-{case_id}"
     try:
         out = _call(contents, trace)
@@ -359,7 +368,7 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
     if rejected and out["intent"] != "declined":
         answer = "לא עדכנתי את הטיוטה: " + " ".join(rejected)
     sources = [s for s in dict.fromkeys(out.get("source_ids") or []) if s in intel["sources"]][:6]
-    return {"intent": out["intent"], "answer_he": answer, "source_ids": sources,
+    return {"intent": out["intent"], "answer_he": answer, **({"lang": "en"} if lang == "en" else {}), "source_ids": sources,
             "sources": {s: {"label_he": intel["sources"][s]["label_he"], "kind": intel["sources"][s]["kind"]} for s in sources},
             "edit": {**edit, "kind": draft["kind"]} if edit else None,
             "rejected_issues_he": rejected or [], "repaired": repaired, "model": settings.model_agent}

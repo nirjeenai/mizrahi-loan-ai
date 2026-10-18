@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, AUTH_EVENT, CASE_ID_DEFAULT, usePolling, type DocView, type Session, type Snapshot } from "./api";
+import { tr } from "./i18n";
 
 /** `replacesDocumentId`: the upload replaces a document the AI review sent back to the customer (no banker request). */
 export interface UploadPreset { requirementCode?: string; period?: string | null; customerRequestId?: string; replacesDocumentId?: string }
@@ -66,7 +67,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
       if (s && (covers(s) || !s.demo_identity)) break;
     }
     if (mine !== run.current) return;
-    setSessionError(s ? null : "השרת אינו זמין כרגע.");
+    setSessionError(s ? null : tr("השרת אינו זמין כרגע.", "The server isn't available right now."));
     setExpired(!!s && !covers(s));
     setSession(s);
   }, []);

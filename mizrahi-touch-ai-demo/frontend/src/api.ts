@@ -235,12 +235,12 @@ function renew(role: Role, path: string): Promise<boolean> {
   return p;
 }
 const TRANSIENT = new Set([502, 503, 504]);
-/** The customer endpoints whose wording follows the customer app's language (backend: app/i18n.py reads X-MZ-Lang on
- *  these routes only). Sent from /customer pages only — the presenter pane, banker, admin and system stay Hebrew — and
- *  merged into the request's own headers. Without the switch (VITE_LANG_SWITCH=0) no request changes. */
-const LOCALIZED = /^\/api\/(cases\/|documents\/|demo\/onboarding|session\/demo\/cases|links\/|voice\/)/;
+/** Every API request carries the platform's language (backend: app/i18n reads X-MZ-Lang on the routes that call
+ *  `lang(request)`; every other route ignores it), merged into the request's own headers. A response then also carries
+ *  the English siblings, so switching language re-renders without refetching. Without the switch (VITE_LANG_SWITCH=0)
+ *  no request changes. */
 function withLang(path: string, init?: RequestInit): RequestInit | undefined {
-  if (!LANG_SWITCH || !window.location.pathname.startsWith("/customer") || !LOCALIZED.test(path)) return init;
+  if (!LANG_SWITCH || !path.startsWith("/api/")) return init;
   const headers = new Headers(init?.headers);
   headers.set("X-MZ-Lang", currentLang());
   return { ...init, headers };
@@ -274,11 +274,13 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await request(path, init);
   if (!res.ok) {
     let detail = `${res.status}`;
+    let original: string | undefined;
     // a known customer-facing message also comes in English (detail_en) when the app's language is English
-    try { const body = await res.json(); detail = (currentLang() === "en" && body.detail_en) || body.detail || JSON.stringify(body); } catch { /* not json */ }
+    try { const body = await res.json(); original = typeof body.detail === "string" ? body.detail : undefined; detail = (currentLang() === "en" && body.detail_en) || body.detail || JSON.stringify(body); } catch { /* not json */ }
     if (res.status === 401) window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: { path } }));
     if (res.status === 401 || res.status === 403) throw new AccessError(res.status, detail);
-    throw new Error(detail);
+    // the server's own (Hebrew) message stays on the error, for code that recognises a refusal by its wording
+    throw Object.assign(new Error(detail), { detailHe: original });
   }
   return res.json() as Promise<T>;
 }
@@ -511,10 +513,12 @@ export interface DeskResult { ok: boolean; duplicate: boolean; decision: Decisio
 // ---------------------------------------------------------------- banker intelligence V2 (api/banker_intelligence.py)
 export interface Datum { value: number | null; unit: "ils" | "pct" | "months"; source_id: string | null }
 /** `origin` marks an input that has no stored source: a value the banker set in the simulator, or one computed alongside. */
-export interface SourceInput { label_he: string; value: number | null; unit: string; source_id: string | null; origin?: "sim" | "calc" }
+export interface SourceInput { label_he: string; label_en?: string; value: number | null; unit: string; source_id: string | null; origin?: "sim" | "calc" }
 export interface IntelSource {
   id: string; kind: "document" | "declared" | "synthetic_bank" | "calculated" | "assumption" | "missing";
   label_he: string; value?: number | string | null; unit?: string; note_he?: string | null;
+  // English siblings (the staff catalogue on the server; the browser's own simulator sources set them directly)
+  label_en?: string; note_en?: string | null; formula_en?: string;
   // document
   value_raw?: string | null; document_id?: string; field?: string; filename?: string; doc_type_he?: string; period_he?: string | null;
   verified?: boolean; witness?: string | null; witness_he?: string; page?: number | null; has_location?: boolean; ai_verdict_he?: string;

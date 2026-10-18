@@ -889,6 +889,8 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .sum-fact { display: flex; flex-direction: column; gap: 2px; padding-inline-end: 22px; margin-inline-end: 22px; border-inline-end: 1px solid var(--mz-line-soft); }
 .sum-fact .sum-label { font-size: 11.5px; font-weight: 600; color: var(--mz-muted); }
 .sum-value { font-size: 13px; font-weight: 700; color: var(--mz-ink); white-space: nowrap; }
+html[data-lang=en] .sum-stat, html[data-lang=en] .sum-fact { flex-shrink: 0; }
+html[data-lang=en] .sum-sub { max-width: 180px; }
 .sum-demo { font-size: 10.5px; font-weight: 700; color: var(--mz-muted); background: var(--mz-bg); border-radius: 4px; padding: 0 5px; margin-inline-start: 4px; }
 .sum-toggle { margin-inline-start: auto; flex: none; background: none; border: 1px solid var(--mz-line); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 700; color: var(--mz-navy); }
 .sum-toggle:hover, .sum-toggle[aria-expanded="true"] { border-color: var(--mz-navy); background: var(--info-soft); }
@@ -1059,6 +1061,7 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .case-step.ready .case-go-arrow { opacity: 1; }
 .case-step.ready .case-go:hover { background: linear-gradient(180deg, #279160 0%, #1f7850 100%); }
 .case-step.ready .case-go:hover .case-go-arrow { transform: translateX(-4px); }
+html[data-lang=en] .case-step.ready .case-go:hover .case-go-arrow { transform: translateX(4px); }
 .case-step.ready .case-go:active { transform: scale(0.985); }
 .case-step.ready .case-go:focus-visible { outline: 3px solid rgba(36, 133, 90, 0.35); outline-offset: 2px; }
 @keyframes case-go-breathe {
@@ -1445,3 +1448,41 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .cv2-lang-divider { align-self: center; margin: 6px 0 2px; padding: 2px 10px; border-radius: 999px; background: var(--mz-bg);
   border: 1px solid var(--mz-line); font-size: 11px; font-weight: 700; color: var(--mz-muted); }
 .cv2-live-q { border-style: dashed; }
+
+/* ===================================================================================================================
+   The platform's language switch (i18n.tsx LangSwitch). On /customer it sits in the top-left corner beside the
+   presenter toggle (the phone keeps its own chip, the same state); on /banker, /admin and /system it ends the navy
+   console bar. In English the whole page is LTR in the Latin face; Hebrew is untouched. */
+.lang-switch { display: inline-flex; align-items: center; padding: 3px; gap: 2px; border-radius: 999px; flex: none; }
+.lang-switch button { border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 700; line-height: 1;
+  padding: 6px 11px; border-radius: 999px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+.lang-switch button[lang=en] { font-family: "Open Sans EN", "Open Sans", Arial, sans-serif; letter-spacing: 0.2px; }
+.lang-switch button:focus-visible { outline: 3px solid var(--mz-orange-ring); outline-offset: 1px; }
+.lang-switch-light { border: 1px solid var(--mz-line); background: rgba(255, 255, 255, 0.9); box-shadow: var(--shadow); }
+.lang-switch-light button { color: var(--mz-muted); }
+.lang-switch-light button:hover { color: var(--mz-ink); }
+.lang-switch-light button.on { background: var(--mz-navy-deep); color: #fff; }
+.lang-switch-dark { border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.06); }
+.lang-switch-dark button { color: #c4cad6; }
+.lang-switch-dark button:hover { color: #fff; }
+.lang-switch-dark button.on { background: #fff; color: var(--mz-navy-deep); }
+.console-top .lang-switch { margin-inline-start: 4px; }
+.hub-corner { position: fixed; z-index: 60; top: 18px; left: 18px; display: flex; align-items: center; gap: 8px; direction: ltr; }
+.hub-corner .presenter-toggle { position: static; }
+.hub-corner .lang-switch { padding: 4px; }
+.hub-corner .lang-switch button { padding: 7px 12px; }
+@media (max-width: 520px) { .hub-corner { display: none; } }
+html[data-lang=en] body { font-family: "Open Sans EN", "Open Sans", "Open Sans Hebrew", Arial, Helvetica, sans-serif; }
+html[data-lang=en] input, html[data-lang=en] button, html[data-lang=en] textarea, html[data-lang=en] select { font-family: inherit; }
+/* a Hebrew original (source text, a document's own words) inside an English screen keeps its own direction */
+html[data-lang=en] .orig-he { text-align: right; }
+html[data-lang=en] .orig-he-inline { display: inline; unicode-bidi: isolate; }
+html[data-lang=en] .orig-he.orig-block { display: block; text-align: right; }
+html[data-lang=en] .orig-tag { display: inline-block; direction: ltr; unicode-bidi: isolate; font-size: 9.5px; font-weight: 800;
+  letter-spacing: 0.3px; color: var(--mz-muted); background: var(--mz-bg); border: 1px solid var(--mz-line); border-radius: 5px;
+  padding: 0 5px; margin-inline-end: 6px; vertical-align: 1px; font-family: "Open Sans EN", "Open Sans", Arial, sans-serif; }
+/* the English tab labels are longer: on a narrow screen the case view tabs wrap instead of widening the page */
+@media (max-width: 820px) { html[data-lang=en] .view-tabs { flex-wrap: wrap; } }
+/* ---- presenter pane, English ---- */
+html[data-lang=en] .all-scn > summary::after { content: "Show ▾"; }
+html[data-lang=en] .all-scn[open] > summary::after { content: "Hide ▴"; }

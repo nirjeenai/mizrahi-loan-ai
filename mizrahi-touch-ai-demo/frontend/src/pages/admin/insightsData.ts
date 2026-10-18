@@ -16,15 +16,24 @@ export interface Variant {
   /** mock JEEN Talk events: attempts across the contacted cases (at most 2 per case), answered, mean answered duration */
   calls: { attempts: number; answered: number; avgSeconds: number };
   question: string;
+  nameEn: string;
+  questionEn: string;
 }
 
 export const PERIOD_HE = "ספטמבר 2026";
+export const PERIOD_EN = "September 2026";
 
 export const HELD_EQUAL = [
   "אותו סדר ערוצים: תיקון עצמי באפליקציה, ואז שיחה",
   "עד 2 פניות לתיק",
   "אותו חלון פנייה ואותם סוגי מסמכים",
   "80 תיקים לכל גרסה",
+];
+export const HELD_EQUAL_EN = [
+  "The same channel order: in-app self-correction, then a call",
+  "Up to 2 contacts per case",
+  "The same contact window and the same document types",
+  "80 cases per variant",
 ];
 
 export const VARIANTS: Variant[] = [
@@ -33,18 +42,21 @@ export const VARIANTS: Variant[] = [
     returned: { self: 10, call: 24 }, uploaded: { self: 9, call: 21 }, ready: { self: 8, call: 16 },
     calls: { attempts: 104, answered: 52, avgSeconds: 74 },
     question: "האם פנייה אחרי 5 דקות מגיעה לפני שהלקוח הספיק לחזור בעצמו?",
+    nameEn: "Variant A", questionEn: "Does a contact after 5 minutes arrive before the customer has had a chance to come back on their own?",
   },
   {
     id: "B", name: "גרסה ב׳", graceMinutes: 20, cases: 80,
     returned: { self: 22, call: 22 }, uploaded: { self: 20, call: 20 }, ready: { self: 19, call: 17 },
     calls: { attempts: 80, answered: 50, avgSeconds: 125 },
     question: "האם הפער נשמר גם בשעות אחרות של היום ובסוגי מסמכים אחרים?",
+    nameEn: "Variant B", questionEn: "Does the gap hold at other times of day and for other document types?",
   },
   {
     id: "C", name: "גרסה ג׳", graceMinutes: 60, cases: 80,
     returned: { self: 26, call: 8 }, uploaded: { self: 24, call: 7 }, ready: { self: 21, call: 5 },
     calls: { attempts: 70, answered: 36, avgSeconds: 108 },
     question: "האם המתנה של שעה מאבדת לקוחות שהיו חוזרים אחרי תזכורת מוקדמת יותר?",
+    nameEn: "Variant C", questionEn: "Does waiting an hour lose customers who would have come back after an earlier reminder?",
   },
 ];
 

@@ -7,7 +7,7 @@ import { IClose, IPanel } from "./components/Icons";
 import { ScenarioPresenter } from "./components/ScenarioPresenter";
 import { TouchShell } from "./components/TouchShell";
 import { UseCaseScenarios } from "./components/UseCaseScenarios";
-import { LangProvider } from "./i18n";
+import { LangProvider, LangSwitch, useLang } from "./i18n";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { BankerConsole } from "./pages/banker/BankerConsole";
 import { Apply } from "./pages/customer/Apply";
@@ -25,39 +25,43 @@ let presenterWasOpen = false;
 /** Stays mounted while collapsed: scenario cards, marks, scroll position and inline confirmations survive a toggle. */
 function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObject<HTMLButtonElement> }) {
   const { caseId } = useCase();
+  const { t } = useLang();
   return (
-    <aside className="hub-side" id="presenter-panel" aria-label="תרחישים" data-testid="presenter-panel"
+    <aside className="hub-side" id="presenter-panel" aria-label={t("תרחישים", "Scenarios")} data-testid="presenter-panel"
       onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}>
       <div className="hub-side-head">
-        <span className="hub-side-title"><IPanel />תרחישים</span>
-        <button ref={closeRef} className="icon-btn" onClick={onClose} aria-label="סגירת התרחישים" title="סגירה"
+        <span className="hub-side-title"><IPanel />{t("תרחישים", "Scenarios")}</span>
+        <button ref={closeRef} className="icon-btn" onClick={onClose} aria-label={t("סגירת התרחישים", "Close the scenarios")} title={t("סגירה", "Close")}
           data-testid="presenter-close"><IClose size={20} /></button>
       </div>
-      <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
+      <div className="cobrand"><img src="/brand/mizrahi-logo.svg" alt={t("מזרחי טפחות", "Mizrahi-Tefahot")} /><span className="brand-x" aria-hidden>×</span>
         <img src="/brand/jeen-logo.svg" alt="Jeen" /></div>
-      <h1>טפחות טאצ׳ × Jeen</h1>
-      <p className="small hub-lead">השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה, הבנקאית מחליטה.</p>
+      <h1>{t("טפחות טאצ׳ × Jeen", "Tefahot Touch × Jeen")}</h1>
+      <p className="small hub-lead">{t("השלמת מסמכים חכמה לבקשת הלוואה: ה-AI קורא, מאמת, מנתב ומלווה את ההשלמה, הבנקאית מחליטה.",
+        "Smart document completion for a loan application: the AI reads, verifies, routes and follows up on what's missing — the banker decides.")}</p>
       <div className="hub-bar">
         <NewDemoButton />
         <div className="hub-bar-links">
-          <Link className="link small" to={`/banker?case=${encodeURIComponent(caseId)}`}>תצוגת הבנקאית</Link>
-          <Link className="link small" to="/system">מערכת ואינטגרציות</Link>
+          <Link className="link small" to={`/banker?case=${encodeURIComponent(caseId)}`}>{t("תצוגת הבנקאית", "Banker view")}</Link>
+          <Link className="link small" to="/system">{t("מערכת ואינטגרציות", "System and integrations")}</Link>
         </div>
       </div>
       <UseCaseScenarios />
       <Link className="btn btn-ghost hub-apply" to="/customer/apply" data-testid="presenter-new-application">
-        + בקשת הלוואה חדשה, שאלון לקוח חדש</Link>
+        {t("+ בקשת הלוואה חדשה, שאלון לקוח חדש", "+ New loan application, new customer questionnaire")}</Link>
       <FollowupSimControls />
       <details className="all-scn more-tests" data-testid="more-tests">
         <summary data-testid="more-tests-toggle">
-          <span className="all-scn-title">בדיקות נוספות</span>
-          <span className="small muted">15 התרחישים המאומתים: 4 תרחישים מנהלים ו־11 תרחישי בדיקה · עם קבצים להורדה</span>
+          <span className="all-scn-title">{t("בדיקות נוספות", "More tests")}</span>
+          <span className="small muted">{t("15 התרחישים המאומתים: 4 תרחישים מנהלים ו־11 תרחישי בדיקה · עם קבצים להורדה",
+            "The 15 verified scenarios: 4 executive scenarios and 11 test scenarios · with files to download")}</span>
         </summary>
         <FeaturedScenarios />
         <details className="all-scn" data-testid="all-scenarios">
           <summary data-testid="all-scenarios-toggle">
-            <span className="all-scn-title">כל תרחישי הבדיקה</span>
-            <span className="small muted">תרחישי הלוואה, קבצים משלימים ותלושי משפחת לביא · לבדיקות ו-QA</span>
+            <span className="all-scn-title">{t("כל תרחישי הבדיקה", "All test scenarios")}</span>
+            <span className="small muted">{t("תרחישי הלוואה, קבצים משלימים ותלושי משפחת לביא · לבדיקות ו-QA",
+              "Loan scenarios, supplementary files and the Lavi family payslips · for testing and QA")}</span>
           </summary>
           <ScenarioPresenter />
         </details>
@@ -67,6 +71,7 @@ function HubSide({ onClose, closeRef }: { onClose: () => void; closeRef: RefObje
 }
 
 function CustomerApp() {
+  const { t } = useLang();
   const [presenter, setPresenterState] = useState(presenterWasOpen);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -94,10 +99,13 @@ function CustomerApp() {
           <Route path="link" element={<LinkLanding />} />
         </Routes>
       </TouchShell>
-      <button ref={toggleRef} className="presenter-toggle" onClick={() => setPresenter(!presenter)} aria-expanded={presenter}
-        aria-controls="presenter-panel" aria-label="תרחישים" title="תרחישים" data-testid="presenter-toggle">
-        <IPanel /><span className="presenter-toggle-label">תרחישים</span>
-      </button>
+      <div className="hub-corner">
+        <LangSwitch />
+        <button ref={toggleRef} className="presenter-toggle" onClick={() => setPresenter(!presenter)} aria-expanded={presenter}
+          aria-controls="presenter-panel" aria-label={t("תרחישים", "Scenarios")} title={t("תרחישים", "Scenarios")} data-testid="presenter-toggle">
+          <IPanel /><span className="presenter-toggle-label">{t("תרחישים", "Scenarios")}</span>
+        </button>
+      </div>
       <div className="hub-scrim" onClick={() => setPresenter(false)} aria-hidden="true" data-testid="presenter-scrim" />
       <HubSide onClose={() => setPresenter(false)} closeRef={closeRef} />
     </div>
@@ -106,15 +114,17 @@ function CustomerApp() {
 
 export function App() {
   return (
+    <LangProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/customer" replace />} />
-        <Route path="/customer/*" element={<LangProvider><CaseProvider><CustomerApp /></CaseProvider></LangProvider>} />
+        <Route path="/customer/*" element={<CaseProvider><CustomerApp /></CaseProvider>} />
         <Route path="/banker" element={<BankerConsole />} />
         <Route path="/system" element={<SystemPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<Navigate to="/customer" replace />} />
       </Routes>
     </BrowserRouter>
+    </LangProvider>
   );
 }

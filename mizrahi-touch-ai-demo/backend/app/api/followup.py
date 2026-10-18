@@ -19,7 +19,7 @@ from ..comms import webhook
 from ..config import settings
 from ..followup import links, orchestrator, presence, tasks
 from ..followup.contract import CALL_OUTCOMES
-from ..i18n import views as i18n_views
+from ..i18n import staff_en, views as i18n_views
 from ..store import repo
 
 router = APIRouter(prefix="/api")
@@ -134,14 +134,14 @@ class ManualCall(BaseModel):
 def banker_followup(case_id: str, request: Request):
     auth.require_staff(request)
     auth._known_case(case_id)
-    return orchestrator.banker_view(case_id)
+    return i18n.staff(request, orchestrator.banker_view(case_id))
 
 
 @router.get("/banker/cases/{case_id}/timeline")
 def banker_timeline(case_id: str, request: Request, limit: int = 200):
     auth.require_staff(request)
     auth._known_case(case_id)
-    return orchestrator.timeline(case_id, max(1, min(limit, 500)))
+    return i18n.staff(request, orchestrator.timeline(case_id, max(1, min(limit, 500))))
 
 
 @router.post("/banker/cases/{case_id}/followup-override")
@@ -149,7 +149,7 @@ def banker_override(case_id: str, body: Override, request: Request):
     staff = auth.require_assigned_staff(request, case_id)
     orchestrator.banker_override(case_id, body.type, body.reason, staff["staff_id"])
     repo.audit(case_id, f"banker:{staff['staff_id']}", f"followup_{body.type}", case_id, {"reason": body.reason})
-    return orchestrator.banker_view(case_id)
+    return i18n.staff(request, orchestrator.banker_view(case_id))
 
 
 @router.post("/banker/cases/{case_id}/followups", status_code=201)
@@ -159,7 +159,9 @@ def banker_manual_call(case_id: str, body: ManualCall, request: Request):
     repo.audit(case_id, f"banker:{staff['staff_id']}", "followup_manual_call", case_id,
                {"reason": body.reason, "action": decision.action, "blocked_by": list(decision.blocked_by)})
     if attempt is None:
+        english = staff_en.translate(decision.explanation_he) if i18n.lang(request) else None
         return JSONResponse(status_code=409, content={"detail": decision.explanation_he,
+                                                      **({"detail_en": english} if english else {}),
                                                       "blocked_by": list(decision.blocked_by)})
     keep = ("attempt_id", "channel", "provider", "simulated", "status", "outcome", "created_at", "link_id")
     return {k: attempt[k] for k in keep}
@@ -230,8 +232,8 @@ def demo_customer_left(case_id: str, request: Request):
     ended = presence.end_all(case_id)
     result = orchestrator.on_event(case_id, "demo:customer_left", actor=actor)
     repo.audit(case_id, actor, "demo_customer_left", case_id, {"ended_sessions": ended})
-    return {**SIM, "ended_sessions": ended, "state": result["state"],
-            "decision": result["decision"].model_dump(mode="json")}
+    return i18n.staff(request, {**SIM, "ended_sessions": ended, "state": result["state"],
+                                "decision": result["decision"].model_dump(mode="json")})
 
 
 @router.post("/demo/cases/{case_id}/talk-outcome")
@@ -256,4 +258,4 @@ def demo_tick(request: Request):
     actor = _demo(request)
     out = orchestrator.tick()
     repo.audit(None, actor, "demo_tick", "", {"evaluated": len(out["evaluated"]), "steps": out["steps"]})
-    return {**SIM, **out}
+    return i18n.staff(request, {**SIM, **out})

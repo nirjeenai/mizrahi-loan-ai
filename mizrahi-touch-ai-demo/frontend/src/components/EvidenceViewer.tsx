@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Fact } from "../api";
 import { witnessL } from "../api";
-import { useLang } from "../i18n";
+import { locOf, useLang } from "../i18n";
 import { ICheck, IAlert } from "./Icons";
 
 /** The decisive fields of every document family, in reading order (the backend's prompts.FAMILY_FIELDS). */
@@ -60,8 +60,8 @@ export function FactList({ facts, focus, onFocus }: { facts: Fact[]; focus?: str
         return (
           <button key={f.field} className={`fact-row ${focus === f.field ? "on" : ""}`} onClick={() => onFocus?.(f.field)}>
             <span className="muted small">{(en && f.label_en) || f.label_he}</span>
-            <span className="bold" style={{ color: "var(--mz-ink)" }}><bdi>{f.value_raw}</bdi></span>
-            <span className={`badge ${verified ? "ok" : "warn"}`} title={f.evidence?.witness_detail || ""}>
+            <span className="bold" style={{ color: "var(--mz-ink)" }}><bdi {...(en && /[\u0590-\u05FF]/.test(f.value_raw || "") ? { lang: "he", dir: "rtl" } : {})}>{f.value_raw}</bdi></span>
+            <span className={`badge ${verified ? "ok" : "warn"}`} title={f.evidence ? locOf(f.evidence, "witness_detail") : ""}>
               {verified ? <ICheck size={11} /> : <IAlert size={11} />}{verified ? t("אומת", "Verified") : t("לא אומת", "Not verified")}
             </span>
           </button>
@@ -69,7 +69,7 @@ export function FactList({ facts, focus, onFocus }: { facts: Fact[]; focus?: str
       })}
       {focus && (() => {
         const f = facts.find((x) => x.field === focus);
-        return f?.evidence ? <div className="tiny muted" style={{ marginTop: 6 }}>{witnessL(f.evidence.witness)} · {f.evidence.witness_detail}</div> : null;
+        return f?.evidence ? <div className="tiny muted" style={{ marginTop: 6 }}>{witnessL(f.evidence.witness)} · {locOf(f.evidence, "witness_detail")}</div> : null;
       })()}
     </div>
   );

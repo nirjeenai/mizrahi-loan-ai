@@ -238,3 +238,9 @@ table.t tr.adm-sim-fail td { background: var(--bad-soft); }
   .ins-row-result { flex-direction: row; align-items: baseline; gap: 8px; }
   .ins-calls dl { grid-template-columns: 1fr 1fr; }
 }
+
+/* English (LTR): the canonical Hebrew values stay Hebrew; the read-only English beside them */
+html[data-lang=en] .adm-en-hint { display: block; color: var(--mz-muted); font-style: italic; margin-top: 2px; }
+html[data-lang=en] .adm-locked-text[dir=auto], html[data-lang=en] .adm-preview-text[dir=auto] { text-align: start; unicode-bidi: plaintext; }
+html[data-lang=en] .ins-row { text-align: left; }
+html[data-lang=en] .ins-link svg { transform: scaleX(-1); }

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, monthHe } from "../api";
 import { useCase } from "../caseContext";
-import { DEMO_RESET_EVENT, FixtureRow, loadPresenterBundle, ROLE_HE, type FeaturedStep, type FixtureDoc } from "./FeaturedScenarios";
+import { loc, locList, locOf, tr, useLang } from "../i18n";
+import { DEMO_RESET_EVENT, FixtureRow, loadPresenterBundle, monthTag, roleL, type FeaturedStep, type FixtureDoc } from "./FeaturedScenarios";
 import { ICheck, IChevronDown } from "./Icons";
 
 /* The six primary demo use cases (UC-01…06), one presenter test case each (TC-01…06), and the new-customer journey.
@@ -26,6 +27,7 @@ const readOpen = (): string[] => { try { return JSON.parse(localStorage.getItem(
 const isBanker = (s: FeaturedStep) => s.role === "banker_correction" || s.role === "banker_accept";
 
 export function UseCaseScenarios() {
+  const { en, t } = useLang();
   const [cases, setCases] = useState<UseCase[] | null>(null);
   const [docs, setDocs] = useState<Record<string, FixtureDoc>>({});
   const [fresh, setFresh] = useState<NewCustomerPack | null>(null);
@@ -45,13 +47,16 @@ export function UseCaseScenarios() {
     return () => window.removeEventListener(DEMO_RESET_EVENT, collapse);
   }, []);
   const toggle = (id: string) => setOpen((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
-  if (failed) return <div className="small muted">פרופילי הלקוח אינם זמינים בשרת (fixtures/presenter).</div>;
+  if (failed) return <div className="small muted">{t("פרופילי הלקוח אינם זמינים בשרת (fixtures/presenter).",
+    "The customer profiles aren't available on the server (fixtures/presenter).")}</div>;
   if (!cases?.length) return null;
   return (
     <section className="uc-section" aria-labelledby="uc-heading" data-testid="use-cases">
-      <h2 id="uc-heading" className="feat-heading">שישה פרופילי לקוח</h2>
-      <div className="small muted feat-sub">כל פרופיל פותח תיק מוכן עם הלקוח, מטרת ההלוואה ורשימת המסמכים, וחבילת קבצים
-        להורדה ולהעלאה מימין.</div>
+      <h2 id="uc-heading" className="feat-heading">{t("שישה פרופילי לקוח", "Six customer profiles")}</h2>
+      {en ? <div className="small muted feat-sub">Each profile opens a prepared case with the customer, the loan purpose and the
+        document list, plus a pack of files to download and upload on the right.</div>
+        : <div className="small muted feat-sub">כל פרופיל פותח תיק מוכן עם הלקוח, מטרת ההלוואה ורשימת המסמכים, וחבילת קבצים
+        להורדה ולהעלאה מימין.</div>}
       <div className="feat-list">
         {cases.map((u) => <UseCaseCard key={u.id} u={u} docs={docs} isOpen={open.includes(u.id)} onToggle={() => toggle(u.id)} />)}
         {fresh && <NewCustomerCard p={fresh} docs={docs} isOpen={open.includes(fresh.id)} onToggle={() => toggle(fresh.id)} />}
@@ -61,17 +66,19 @@ export function UseCaseScenarios() {
 }
 
 function StepList({ steps, docs, testId }: { steps: FeaturedStep[]; docs: Record<string, FixtureDoc>; testId: string }) {
+  useLang();
   return (
     <ul className="fx-list" data-testid={testId}>
       {steps.map((s, i) => (isBanker(s) ? (
         <li key={`${s.file}-${s.role}-${i}`} className="fx uc-banker-step" data-testid="usecase-banker-step" data-role={s.role}>
-          <span className="grow fx-main"><span className="fx-label">{s.labelHe}</span>
-            <span className="fx-sub"><span>{ROLE_HE[s.role]}</span></span>
-            {s.noteHe && <span className="fx-note">{s.noteHe}</span>}</span>
+          <span className="grow fx-main"><span className="fx-label">{loc(s.labelHe, s.labelEn)}</span>
+            <span className="fx-sub"><span>{roleL(s.role)}</span></span>
+            {s.noteHe && <span className="fx-note">{loc(s.noteHe, s.noteEn)}</span>}</span>
         </li>
       ) : docs[s.file] ? (
         <FixtureRow key={`${s.file}-${i}`} doc={docs[s.file]}
-          item={{ ...s, slotHe: [s.slotHe, s.period ? `חודש ${monthHe(s.period)}` : null].filter(Boolean).join(" · "), period: null }}
+          item={{ ...s, slotHe: [s.slotHe, s.period ? `חודש ${monthHe(s.period)}` : null].filter(Boolean).join(" · "),
+            slotEn: [locOf(s, "slotHe"), s.period ? monthTag(s.period) : null].filter(Boolean).join(" · "), period: null }}
           testId="usecase-download" />
       ) : null))}
     </ul>
@@ -80,6 +87,7 @@ function StepList({ steps, docs, testId }: { steps: FeaturedStep[]; docs: Record
 
 function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<string, FixtureDoc>; isOpen: boolean; onToggle: () => void }) {
   const { caseId, auth, openCase, reload } = useCase();
+  const { t } = useLang();
   const nav = useNavigate();
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -90,64 +98,69 @@ function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<s
   const files = (u.steps || []).filter((s) => !isBanker(s)).length;
   const reset = async () => {
     setBusy(true); setMsg(null);
-    try { await api.reset(u.caseId); reload(); setMsg("התיק אופס, אין בו מסמכים."); }
-    catch (e) { setMsg(`האיפוס לא הושלם: ${(e as Error).message}`); } finally { setBusy(false); setAsking(false); }
+    try { await api.reset(u.caseId); reload(); setMsg(tr("התיק אופס, אין בו מסמכים.", "The case was reset; it has no documents.")); }
+    catch (e) { setMsg(tr(`האיפוס לא הושלם: ${(e as Error).message}`, `The reset didn't complete: ${(e as Error).message}`)); } finally { setBusy(false); setAsking(false); }
   };
+  const desc = locOf(u, "demonstratesHe");
   return (
     <article className={`feat uc${here ? " here" : ""}${isOpen ? " open" : ""}`} data-testid={`usecase-${u.id}`} data-case={u.caseId}
       data-use-case={u.useCaseId}>
       <div className="feat-top">
-        <span className="feat-badge info" data-testid="usecase-badge">{u.id} ↔ {u.useCaseId} · {u.badgeHe}</span>
-        {here && <span className="scn-on"><ICheck size={12} />פתוח מימין</span>}
+        <span className="feat-badge info" data-testid="usecase-badge">{u.id} ↔ {u.useCaseId} · {locOf(u, "badgeHe")}</span>
+        {here && <span className="scn-on"><ICheck size={12} />{t("פתוח מימין", "Open on the right")}</span>}
       </div>
-      <h3 className="feat-title">{u.titleHe}</h3>
-      <div className="feat-line" data-testid="usecase-persona"><b>לקוח: </b>{u.personaHe} · {u.profileHe}</div>
-      <div className="feat-line"><b>בקשה: </b>{u.loanHe} · תיק <span className="ltr">{u.caseDisplay}</span></div>
-      <div className="feat-line uc-desc" title={u.demonstratesHe} data-testid="usecase-description">{u.demonstratesHe}</div>
-      {u.bankerAssisted && <div className="feat-line uc-assisted" data-testid="usecase-banker-assisted">מסלול מוגבל, דורש טיפול בנקאי; אין חיתום עסקי.</div>}
+      <h3 className="feat-title">{locOf(u, "titleHe")}</h3>
+      <div className="feat-line" data-testid="usecase-persona"><b>{t("לקוח: ", "Customer: ")}</b>{locOf(u, "personaHe")} · {locOf(u, "profileHe")}</div>
+      <div className="feat-line"><b>{t("בקשה: ", "Application: ")}</b>{locOf(u, "loanHe")} · {t("תיק", "case")} <span className="ltr">{u.caseDisplay}</span></div>
+      <div className="feat-line uc-desc" title={desc} data-testid="usecase-description">{desc}</div>
+      {u.bankerAssisted && <div className="feat-line uc-assisted" data-testid="usecase-banker-assisted">{t("מסלול מוגבל, דורש טיפול בנקאי; אין חיתום עסקי.",
+        "A limited track that needs the banker's handling; no business underwriting.")}</div>}
       <div className="feat-expected info" data-testid="usecase-expected">
-        <span className="feat-k">תוצאה צפויה</span>
-        <span>{u.expectedLabelHe || `${u.requirements.length} מסמכים`}</span>
-        <span className="tiny uc-counts">{u.requirements.length} דרישות{human ? ` · ${human} לבדיקת בנקאי (ללא AI)` : ""}
-          {files ? ` · ${files} קבצים להורדה` : ""}</span>
+        <span className="feat-k">{t("תוצאה צפויה", "Expected outcome")}</span>
+        <span>{locOf(u, "expectedLabelHe") || t(`${u.requirements.length} מסמכים`, `${u.requirements.length} documents`)}</span>
+        <span className="tiny uc-counts">{t(`${u.requirements.length} דרישות`, `${u.requirements.length} requirements`)}{human ? t(` · ${human} לבדיקת בנקאי (ללא AI)`, ` · ${human} for the banker's review (no AI)`) : ""}
+          {files ? t(` · ${files} קבצים להורדה`, ` · ${files} files to download`) : ""}</span>
       </div>
       <div className="feat-actions">
         <button type="button" className="btn btn-dark scn-btn" data-testid="usecase-open-case"
-          onClick={() => { openCase(u.caseId); nav("/customer/documents"); }}>{here ? "למסמכי התיק מימין" : "פתיחת התיק מימין"}</button>
+          onClick={() => { openCase(u.caseId); nav("/customer/documents"); }}>{here ? t("למסמכי התיק מימין", "Go to the case's documents on the right") : t("פתיחת התיק מימין", "Open the case on the right")}</button>
         <button type="button" className="link feat-more" aria-expanded={isOpen} onClick={onToggle} data-testid="usecase-toggle">
-          מסמכים וקבצים <span className="scn-chev" aria-hidden><IChevronDown size={14} /></span>
+          {t("מסמכים וקבצים", "Documents and files")} <span className="scn-chev" aria-hidden><IChevronDown size={14} /></span>
         </button>
       </div>
       {isOpen && (
         <div className="feat-body" data-testid="usecase-requirements">
-          {u.expectHe && <div className="feat-line"><b>מה מצופה: </b>{u.expectHe}</div>}
-          {u.steps?.length ? (<><div className="scn-label">סדר העלאה וקבצים להורדה</div>
+          {u.expectHe && <div className="feat-line"><b>{t("מה מצופה: ", "What to expect: ")}</b>{locOf(u, "expectHe")}</div>}
+          {u.steps?.length ? (<><div className="scn-label">{t("סדר העלאה וקבצים להורדה", "Upload order and files to download")}</div>
             <StepList steps={u.steps} docs={docs} testId="usecase-files" /></>) : null}
-          <div className="scn-label">רשימת המסמכים של התיק</div>
-          {owners.map((o) => (
+          <div className="scn-label">{t("רשימת המסמכים של התיק", "The case's document list")}</div>
+          {owners.map((o) => {
+            const reqs = u.requirements.filter((r) => r.ownerHe === o);
+            return (
             <div key={o}>
-              <div className="tiny bold muted">{o}</div>
+              <div className="tiny bold muted">{locOf(reqs[0], "ownerHe")}</div>
               <ul className="uc-reqs">
-                {u.requirements.filter((r) => r.ownerHe === o).map((r) => (
+                {reqs.map((r) => (
                   <li key={r.code} data-testid="usecase-req" data-code={r.code} data-intake={r.intake}>
-                    <span className="grow">{r.titleHe}</span>
-                    <span className={`badge ${r.intake === "human_review" ? "neutral" : "jeen"}`}>{r.intake === "human_review" ? "בנקאי" : "AI"}</span>
+                    <span className="grow">{locOf(r, "titleHe")}</span>
+                    <span className={`badge ${r.intake === "human_review" ? "neutral" : "jeen"}`}>{r.intake === "human_review" ? t("בנקאי", "Banker") : "AI"}</span>
                   </li>
                 ))}
               </ul>
             </div>
-          ))}
-          {(u.notRequiredHe?.length ?? 0) > 0 && <div className="tiny muted"><b>לא נדרש: </b>{u.notRequiredHe!.join(" · ")}</div>}
-          {u.noteHe && <div className="tiny muted" style={{ marginTop: 4 }}>{u.noteHe}</div>}
+            );
+          })}
+          {(u.notRequiredHe?.length ?? 0) > 0 && <div className="tiny muted"><b>{t("לא נדרש: ", "Not required: ")}</b>{locList(u, "notRequiredHe").join(" · ")}</div>}
+          {u.noteHe && <div className="tiny muted" style={{ marginTop: 4 }}>{locOf(u, "noteHe")}</div>}
           <div className="row" style={{ gap: 10, marginTop: 8, flexWrap: "wrap" }}>
             <a className="link small" href={`/banker?case=${encodeURIComponent(u.caseId)}`} target="_blank" rel="noreferrer"
-              data-testid="usecase-banker-link">תצוגת הבנקאית (לשונית חדשה)</a>
-            {here && !asking && <button className="link small" onClick={() => setAsking(true)} data-testid="usecase-reset">איפוס התיק</button>}
+              data-testid="usecase-banker-link">{t("תצוגת הבנקאית (לשונית חדשה)", "Banker view (new tab)")}</a>
+            {here && !asking && <button className="link small" onClick={() => setAsking(true)} data-testid="usecase-reset">{t("איפוס התיק", "Reset the case")}</button>}
             {here && asking && (
               <span className="row" style={{ gap: 6 }}>
                 <button className="btn btn-orange scn-btn" disabled={busy} onClick={reset} data-testid="usecase-reset-confirm">
-                  {busy && <span className="spinner" />}כן, לאפס</button>
-                <button className="btn btn-ghost scn-btn" disabled={busy} onClick={() => setAsking(false)}>ביטול</button>
+                  {busy && <span className="spinner" />}{t("כן, לאפס", "Yes, reset")}</button>
+                <button className="btn btn-ghost scn-btn" disabled={busy} onClick={() => setAsking(false)}>{t("ביטול", "Cancel")}</button>
               </span>
             )}
           </div>
@@ -159,23 +172,25 @@ function UseCaseCard({ u, docs, isOpen, onToggle }: { u: UseCase; docs: Record<s
 }
 
 function NewCustomerCard({ p, docs, isOpen, onToggle }: { p: NewCustomerPack; docs: Record<string, FixtureDoc>; isOpen: boolean; onToggle: () => void }) {
+  const { en, t } = useLang();
   return (
     <article className={`feat uc uc-new${isOpen ? " open" : ""}`} data-testid="usecase-NEW-CUSTOMER">
-      <div className="feat-top"><span className="feat-badge ok">מסלול 7 · לקוח חדש</span></div>
-      <h3 className="feat-title">{p.titleHe}</h3>
-      <div className="feat-line"><b>לקוחה: </b>{p.personaHe}, אין לה תיק מוכן; התיק נוצר מהשאלון.</div>
-      <div className="feat-line feat-do"><b>איך מריצים: </b>{p.instructionHe}</div>
+      <div className="feat-top"><span className="feat-badge ok">{t("מסלול 7 · לקוח חדש", "Track 7 · new customer")}</span></div>
+      <h3 className="feat-title">{locOf(p, "titleHe")}</h3>
+      {en ? <div className="feat-line"><b>Customer: </b>{locOf(p, "personaHe")}, with no prepared case; the case is created from the questionnaire.</div>
+        : <div className="feat-line"><b>לקוחה: </b>{p.personaHe}, אין לה תיק מוכן; התיק נוצר מהשאלון.</div>}
+      <div className="feat-line feat-do"><b>{t("איך מריצים: ", "How to run it: ")}</b>{locOf(p, "instructionHe")}</div>
       <div className="feat-actions">
-        <Link className="btn btn-dark scn-btn" to="/customer/apply" data-testid="usecase-new-start">פתיחת השאלון מימין</Link>
+        <Link className="btn btn-dark scn-btn" to="/customer/apply" data-testid="usecase-new-start">{t("פתיחת השאלון מימין", "Open the questionnaire on the right")}</Link>
         <button type="button" className="link feat-more" aria-expanded={isOpen} onClick={onToggle} data-testid="usecase-new-toggle">
-          תשובות וקבצים <span className="scn-chev" aria-hidden><IChevronDown size={14} /></span>
+          {t("תשובות וקבצים", "Answers and files")} <span className="scn-chev" aria-hidden><IChevronDown size={14} /></span>
         </button>
       </div>
       {isOpen && (
         <div className="feat-body" data-testid="usecase-new-body">
-          <div className="scn-label">התשובות בשאלון</div>
-          <ul className="feat-bullets">{p.answersHe.map((a) => <li key={a}>{a}</li>)}</ul>
-          <div className="scn-label">קבצים להורדה</div>
+          <div className="scn-label">{t("התשובות בשאלון", "The questionnaire answers")}</div>
+          <ul className="feat-bullets">{locList(p, "answersHe").map((a, i) => <li key={p.answersHe[i]}>{a}</li>)}</ul>
+          <div className="scn-label">{t("קבצים להורדה", "Files to download")}</div>
           <StepList steps={p.steps} docs={docs} testId="usecase-new-files" />
         </div>
       )}

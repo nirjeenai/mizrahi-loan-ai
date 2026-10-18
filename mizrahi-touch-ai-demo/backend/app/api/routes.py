@@ -562,7 +562,7 @@ def _presenter_json(relative: str) -> Optional[dict]:
 
 
 @router.get("/presenter/scenarios")
-def presenter_scenarios():
+def presenter_scenarios(request: Request):
     manifest = _presenter_json(PRESENTER_MANIFEST.name)
     if manifest is None:
         raise HTTPException(404, "presenter manifest not installed")
@@ -579,9 +579,9 @@ def presenter_scenarios():
     # the engine's own rubrics (latest version per family) — what the app on the right actually checks against
     engine = [rubrics.latest(rid) for rid in rubrics.FAMILY_RUBRIC.values() if any(
         r["rubric_id"] == rid for r in rubrics.all_rubrics().values())]
-    return {"manifest": manifest, "files": files, "expected": {ref: _presenter_json(ref) for ref in refs},
+    return i18n.staff(request, {"manifest": manifest, "files": files, "expected": {ref: _presenter_json(ref) for ref in refs},
             "negative_tests": (_presenter_json(PRESENTER_NEGATIVE) or {}).get("tests", []),
-            "rubrics": [{**r, "document_type": r.get("family", "payslip")} for r in engine]}
+            "rubrics": [{**r, "document_type": r.get("family", "payslip")} for r in engine]})
 
 
 @router.get("/presenter/file")
@@ -661,8 +661,8 @@ def mcp_selftest(request: Request):
 
 
 @router.get("/system/rubrics")
-def system_rubrics():
-    return list(rubrics.all_rubrics().values())
+def system_rubrics(request: Request):
+    return i18n.staff(request, list(rubrics.all_rubrics().values()))
 
 
 @router.get("/system/llm")

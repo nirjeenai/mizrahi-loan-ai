@@ -1,8 +1,9 @@
-"""Hebrew / English for the customer app's language switch.
+"""Hebrew / English for the platform's language switch.
 
-Hebrew is the product's language and the default. The customer app sends `X-MZ-Lang: he|en` on its own endpoints
-(frontend/src/api.ts); only the customer routes that call `lang(request)` read it, so the banker console, admin, the
-presenter pane, MCP and every caller without the header get exactly the responses they got before.
+Hebrew is the product's language and the default. The app sends `X-MZ-Lang: he|en` on every API request
+(frontend/src/api.ts); only the routes that call `lang(request)` read it — the customer routes (overlays in views.py)
+and the staff routes: banker console, presenter pane, system page and admin (`staff`, catalogue in staff_en.py). MCP
+and every caller without the header get exactly the responses they got before.
 
 With the header, a response keeps every `*_he` field unchanged and gains `*_en` siblings (`localized`): English the
 customer app shows when its language is English. The overlay works on a deep copy, never on a cached policy or rubric
@@ -52,13 +53,21 @@ def localized(language: Optional[str], value: T_, overlay: Callable[[Any], None]
         return value
 
 
+def staff(request: Any, value: T_) -> T_:
+    """A staff or presenter response with English siblings from the staff catalogue (staff_en) when the app sent its
+    language; the response itself otherwise."""
+    from . import staff_en
+    return localized(lang(request), value, staff_en.response)
+
+
 async def http_exception_handler(request: Any, exc: Any):
     """FastAPI's own handler; when the customer app sent its language, a known Hebrew message also gets `detail_en`."""
     from fastapi.exception_handlers import http_exception_handler as default
     response = await default(request, exc)
     if lang(request) and isinstance(getattr(exc, "detail", None), str):
+        from .staff_en import translate
         from .views import error_text
-        english = error_text(exc.detail)
+        english = error_text(exc.detail) or translate(exc.detail)
         if english:
             from fastapi.responses import JSONResponse
             return JSONResponse({"detail": exc.detail, "detail_en": english}, status_code=exc.status_code,

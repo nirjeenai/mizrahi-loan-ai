@@ -1,0 +1,1563 @@
+{
+ "_about": "English for the banker console's review desk (cases, package, workspace, follow-up, timeline) and the desk's refusals. Built from the code's own Hebrew tables paired with app/i18n/en.py; see staff_en.py.",
+ "exact": {
+  "3 תלושי שכר אחרונים": "Last 3 payslips",
+  "AI בודק מחדש": "AI is re-checking",
+  "AI בודק מסמכים": "AI is checking documents",
+  "אומת מול מסמכים בתיק": "Verified against documents in the case",
+  "אושר על ידי הבנקאי": "Confirmed by the banker",
+  "אחד המסמכים שסומנו אינו מסמך שנבדק בתיק הזה.": "One of the selected documents isn't a checked document in this case.",
+  "אחד המסמכים שסומנו שייך ללווה אחר.": "One of the selected documents belongs to another borrower.",
+  "אי־התאמה חשבונית בתלוש": "The payslip's amounts don't add up",
+  "אימות הכנסה מעסק — לעצמאי אין תלוש שכר, ולכן ההכנסה מאומתת מול רשות המסים או רו״ח": "Verifies business income — the self-employed have no payslip, so income is verified with the Tax Authority or a CPA",
+  "אימות הכנסה משכר — נדרש לכל לווה שמקבל משכורת, גם אם יש לו גם הכנסה מעסק": "Verifies salary income — needed from every borrower who receives a salary, even with business income too",
+  "אין הסבר מהלקוח": "No explanation from the customer",
+  "אין כפילות": "No duplicates",
+  "אין עדיין תלושים מאומתים להשוואה": "No verified payslips to compare yet",
+  "אין עדיין תלושים מתאימים להשוואה מול ההכנסה המוצהרת.": "There are no suitable payslips yet to compare with the declared income.",
+  "אין שיחה פעילה בתיק": "There's no active call in this case",
+  "אינו החלטת אשראי ואינו קבלת מסמכים על ידי הבנק.": "Not a credit decision and not the bank's acceptance of documents.",
+  "אירוע משפחתי": "A family celebration",
+  "אירוע ספק ללא שיחה מוכרת, נדרש בירור": "A provider event with no known call; needs reconciliation",
+  "אישור הכנת מסמכי הבקשה": "Confirm the application documents are prepared",
+  "אישור יתרות ותנועות חתום בידי הבנק": "A balance and transactions confirmation signed by the bank",
+  "אישור יתרות ותנועות מהבנק": "A balance and transactions confirmation from the bank",
+  "אישור עוסק פטור": "Exempt dealer certificate",
+  "אישור עו״ד על מורשי חתימה": "A lawyer's confirmation of authorized signatories",
+  "אישור פתיחת תיק במע״מ (עוסק פטור)": "VAT file opening confirmation (exempt dealer)",
+  "אישור רו״ח על הכנסות השנה האחרונה": "A CPA letter on last year's income",
+  "אישור רו״ח על מורשי חתימה": "A CPA's confirmation of authorized signatories",
+  "אישור רישום כעוסק פטור מרשות המסים": "Registration as an exempt dealer (Osek Patur) from the Tax Authority",
+  "אישור רישום ממע״מ": "VAT registration confirmation",
+  "אישור רישום עוסק": "Business registration certificate",
+  "אישור רישום עוסק ·": "Business registration certificate ·",
+  "אישור רישום עוסק מתוקן": "Corrected business registration certificate",
+  "אם הנתונים ישתנו בהמשך (למשל יתקבלו תלושים נוספים), ייפתח ממצא חדש עם קישור להכרעה הזו.": "If the data changes later (for example, more payslips arrive), a new finding will open with a link to this ruling.",
+  "אם לא תספיקו להשלים, נחזור אליכם בשיחה": "If you don't get to it, we'll call you",
+  "אנחנו בשיחה איתכם כעת": "We're on a call with you now",
+  "אנחנו מתקשרים אליכם כעת": "We're calling you now",
+  "אסמכתה למטרה": "Proof of purpose",
+  "אסמכתה למטרה ·": "Proof of purpose ·",
+  "אסמכתה למטרת ההלוואה": "Proof of the loan's purpose",
+  "אסמכתה למטרת ההלוואה מתוקן": "Corrected proof of the loan's purpose",
+  "אסמכתה שמתארת את מטרת ההלוואה": "A document that describes the purpose of the loan",
+  "אפשר לבקש הסבר ואסמכתה, או לסגור את הבירור על סמך המסמכים שבתיק עם נימוק.": "You can request an explanation and supporting proof, or close the review based on the documents in the case, with a rationale.",
+  "אפשר לדחות עד 24 שעות קדימה.": "You can postpone by up to 24 hours.",
+  "אפשר להשלים את המסמכים כאן באפליקציה": "You can complete your documents here in the app",
+  "בבדיקה": "Checking",
+  "בבדיקה חוזרת": "Checking again",
+  "בבדיקת ה-AI נמצא ממצא שמחייב תיקון מצד הלקוח. אם הממצא שגוי, סמנו אותו כשגוי, ואז אפשר לקבל את המסמך.": "The AI check found an issue the customer must correct. If the finding is wrong, mark it as an error — then the document can be accepted.",
+  "בבדיקת ה-AI נמצא ממצא שמחייב תיקון מצד הלקוח. אם הממצא שגוי, סמנו אותו כשגוי, ורק אז קבלו את המסמך.": "The AI check found an issue the customer must correct. If the finding is wrong, mark it as an error, and only then accept the document.",
+  "בבדיקת מסמכים": "Documents under review",
+  "בבירור": "Escalated",
+  "בדיקת בנקאי": "Banker review",
+  "בהמשך בירור": "Under further review",
+  "ביטול בקשה ללקוח": "Withdraw a request to the customer",
+  "בנק": "Bank",
+  "בנקאי אשראי": "Credit banker",
+  "בסיס לבדיקה העסקית של הבנקאי — הדמו אינו מבצע חיתום עסקי": "The basis for the banker's business review — the demo does no business underwriting",
+  "בעיבוד": "Processing",
+  "בעיבוד AI": "AI processing",
+  "בקשה פתוחה ללקוח": "One open request to the customer",
+  "בקשת הסבר / אסמכתה": "Request an explanation / proof",
+  "בקשת השלמת מסמך": "Request a missing document",
+  "בקשת מסמך נוסף": "Request an additional document",
+  "בתלוש לא מודפס חודש שכר חד־משמעי.": "No unambiguous pay month is printed on the payslip.",
+  "בתלושים": "in the payslips",
+  "דוח ביניים או מאזן בוחן חתום בידי רו״ח": "Interim statements or a trial balance signed by a CPA",
+  "דוח רווח והפסד": "Profit and loss statement",
+  "דוח רווח והפסד ·": "Profit and loss statement ·",
+  "דוח רווח והפסד ביניים": "Interim profit and loss statement",
+  "דוח רווח והפסד חתום בידי רו״ח": "Profit and loss statement signed by a CPA",
+  "דוח רווח והפסד לשנה השוטפת, חתום בידי רו״ח": "A profit and loss statement for the current year, signed by a CPA",
+  "דוח רווח והפסד לתקופה השוטפת": "Profit and loss for the current period",
+  "דוח רווח והפסד מבוקר לשנה האחרונה": "Audited profit and loss statement for the last year",
+  "דוח רווח והפסד מתוקן": "Corrected profit and loss statement",
+  "דוח רווח והפסד עדכני": "Recent profit and loss statement",
+  "דוח שנתי למס הכנסה (טופס 1301) שהוגש": "Annual income tax return (Form 1301) as filed",
+  "דוחות כספיים": "Financial statements",
+  "דוחות כספיים מבוקרים": "Audited financial statements",
+  "דוחות כספיים מבוקרים לשנה האחרונה": "Audited financial statements for the last year",
+  "דוחות כספיים סקורים, אם טרם הושלמה הביקורת": "Reviewed financial statements, if the audit is not finished",
+  "דוחות מע״מ תקופתיים לחצי השנה האחרונה": "Periodic VAT reports for the last six months",
+  "דורש בדיקה": "Needs review",
+  "דורש פעולה מהלקוח": "Customer action required",
+  "דיווח על טעות בזיהוי ה-AI": "Report an AI detection error",
+  "דיווח על טעות של ה-AI מחייב נימוק מפורט.": "Reporting an AI error requires a detailed rationale.",
+  "דף חשבון בנק": "Bank statement",
+  "דף חשבון בנק ·": "Bank statement ·",
+  "דף עו״ש": "Bank statement",
+  "דף עו״ש מתוקן": "Corrected bank statement",
+  "דף תנועות של כל חשבון שהוצהר, ברצף וללא פערים": "Transactions of every declared account, continuous and without gaps",
+  "דפי עו״ש ל־3 החודשים האחרונים": "Bank statements for the last 3 months",
+  "דפי עו״ש עסקי": "Business bank statements",
+  "דפי עו״ש עסקי ל־6 החודשים האחרונים": "Business bank statements for the last 6 months",
+  "דפי תנועות של חשבון החברה": "Transactions of the company's account",
+  "דרישת השלמה נסגרה, מסמך חדש עבר בדיקה": "A completion requirement was closed; a new document passed the check",
+  "דרכון ישראלי בתוקף": "A valid Israeli passport",
+  "ה-AI עדיין בודק מסמכים": "The AI is still checking documents",
+  "ה-AI עדיין בודק מסמכים בתיק, וייתכן שהחודש כבר הועלה. המתינו לסיום הבדיקה ורק אז בקשו את המסמך.": "The AI is still checking documents in the case, and the month may already have been uploaded. Wait for the check to finish, then request the document.",
+  "ה-AI עדיין בודק מסמכים בתיק. המתינו לסיום הבדיקה ורק אז בקשו את המסמך.": "The AI is still checking documents in the case. Wait for the check to finish, then request the document.",
+  "ה-AI עדיין קורא ובודק את המסמך. התוצאה תופיע כאן אוטומטית.": "The AI is still reading and checking the document. The result will appear here automatically.",
+  "האסמכתה אינה תואמת למטרת ההלוואה": "The proof doesn't match the loan's purpose",
+  "הבדיקה לא הושלמה": "The check didn't finish",
+  "הבדיקה מסתמכת על החודש המודפס.": "The check relies on the printed month.",
+  "הבירור נסגר על ידי הבנקאי לאחר בדיקה": "Review closed by the banker after checking",
+  "הבנקאי אישר את הכנת התיק": "The banker confirmed the case is prepared",
+  "הבנקאי אישר את הכנת מסמכי הבקשה": "The banker confirmed the application's documents are prepared",
+  "הבנקאי שלך": "Your banker",
+  "הבנקאית ביקשה מסמך מתוקן": "The banker asked for a corrected document",
+  "הבנקאית המלווה": "Your relationship banker",
+  "הבנקאית שלך": "Your banker",
+  "הבקשה אינה שייכת לתיק.": "The request doesn't belong to this case.",
+  "הבקשה כבר נענתה או נסגרה.": "The request was already answered or closed.",
+  "הגשת בקשה": "Application submitted",
+  "הדוחות הכספיים המבוקרים של השנה האחרונה": "The company's audited financial statements for the last year",
+  "הדרישה אינה שייכת לתיק.": "The requirement doesn't belong to this case.",
+  "הדרישה כבר מולאה או שמסמך עבורה בבדיקה.": "The requirement is already met, or a document for it is being checked.",
+  "הדרישות נגזרות ממדיניות המסמכים שהוצמדה לתיק.": "The requirements are derived from the document policy pinned to the case.",
+  "ההכנה כבר אושרה": "Preparation already confirmed",
+  "ההערה ריקה.": "The note is empty.",
+  "ההשוואה תתעדכן אוטומטית אחרי ההעלאה והבדיקה.": "The comparison will update automatically after the upload and check.",
+  "הוחזר לתיקון · ממתין ללקוח": "Returned for correction · awaiting customer",
+  "הוחלף במסמך חדש": "Replaced by a new document",
+  "הוחלף במסמך שהעליתם": "Replaced by a document the customer uploaded",
+  "הון חוזר לעסק": "Working capital for the business",
+  "הועלה מסמך": "A document was uploaded",
+  "הועלה מסמך חדש אחרי האישור": "a new document was uploaded after the confirmation",
+  "הוצהר בטופס הבקשה": "Declared on the application form",
+  "הוצהר בטופס הבקשה, כולל בונוס צפוי": "Declared on the application form, including an expected bonus",
+  "החודש החסר עדיין נדרש.": "The missing month is still required.",
+  "החודש המבוקש אינו אחד מחודשי השכר הנדרשים.": "The requested month isn't one of the required pay months.",
+  "החודשים הנדרשים": "Required months",
+  "החודשים והתקופות הנדרשים מחושבים לפי תאריך הבדיקה ומדיניות ניתנת להגדרה.": "The required months and periods are computed from the check date and a configurable policy.",
+  "החזרה לתיקון": "Return for correction",
+  "החלטה מקצועית בלי אסמכתה מחייבת נימוק מפורט.": "A professional decision without supporting proof requires a detailed rationale.",
+  "החלטה מקצועית במסגרת המדיניות": "A professional decision within the policy",
+  "החלטת מדיניות": "Policy decision",
+  "הטיפול היזום הסתיים או בוטל": "The proactive follow-up ended or was canceled",
+  "הכלל אינו חל על המקרה": "The rule doesn't apply to this case",
+  "הכנת מסמכי הבקשה אושרה": "Application documents confirmed as prepared",
+  "הלוואה לכל מטרה": "All-purpose loan",
+  "הלוואה לרכב · תיק א׳": "Car loan · case A",
+  "הלוואה לרכב · תיק ב׳": "Car loan · case B",
+  "הלוואה לרכב · תיק ג׳": "Car loan · case C",
+  "הלוואה לרכב · תיק ז׳": "Car loan · case G",
+  "הלוואה לרכב · תיק ח׳": "Car loan · case H",
+  "הלוואה לרכישת רכב": "Car purchase loan",
+  "הלוואה לרכישת רכב · תיק נוסף": "Car purchase loan · second case",
+  "הלוואה לשיפוץ": "Renovation loan",
+  "הלוואה לשיפוץ, בקשה משותפת": "Renovation loan, joint application",
+  "הלוואה פרטית": "Personal loan",
+  "הלווה אינו שייך לתיק.": "The borrower doesn't belong to this case.",
+  "הלקוח העלה מסמך": "The customer uploaded a document",
+  "הלקוח השיב בכתב": "The customer replied in writing",
+  "הלקוח מסר הסבר, לא מאומת": "The customer gave an explanation (unverified)",
+  "הלקוח עדיין בפורטל": "the customer is still in the portal",
+  "הלקוח פתח את הפורטל ואינו פעיל": "the customer opened the portal and is inactive",
+  "הממצא אינו שייך לתיק.": "The finding doesn't belong to this case.",
+  "הממצא ייסגר ויירשם כהכרעה שלך, עם הבסיס, המסמכים התומכים והנימוק.": "The finding will be closed and recorded as your ruling, with the basis, the supporting documents and the rationale.",
+  "הממצא יסומן כטעות בזיהוי של ה-AI ויתועד ביומן לבקרת איכות.": "The finding will be marked as an AI detection error and logged for quality control.",
+  "הממצא כבר הועבר להמשך בירור.": "The finding was already escalated for further review.",
+  "הממצא כבר טופל.": "The finding was already handled.",
+  "הממצא לא ייפתח מחדש, אלא אם הנתונים שעליהם נשען ישתנו.": "The finding won't reopen unless the data it relies on changes.",
+  "המסמך אינו אישור רישום עוסק": "This document isn't a business registration certificate",
+  "המסמך אינו אסמכתה למטרת ההלוואה": "This document isn't a proof of the loan's purpose",
+  "המסמך אינו דוח רווח והפסד": "This document isn't a profit and loss statement",
+  "המסמך אינו דף עו״ש": "This document isn't a bank statement",
+  "המסמך אינו מתאים לדרישה, נא להעלות מסמך חלופי": "The document doesn't match the requirement — a replacement is needed",
+  "המסמך אינו עדכני": "The document isn't recent",
+  "המסמך אינו על שם המבקש/ת": "The document isn't in the applicant's name",
+  "המסמך אינו קריא": "The document can't be read",
+  "המסמך אינו קריא, לא ניתן לזהות את השדות המכריעים": "The document isn't legible; the decisive fields can't be identified",
+  "המסמך אינו שומת מס / אישור רו״ח": "This document isn't a tax assessment / CPA letter",
+  "המסמך אינו שייך לתיק.": "The document doesn't belong to this case.",
+  "המסמך אינו תלוש שכר": "This document isn't a payslip",
+  "המסמך אינו תעודת זהות": "This document isn't an ID card",
+  "המסמך הועלה עבור לווה אחר מזה שהבקשה מתייחסת אליו.": "The document was uploaded for a different borrower than the one the request is about.",
+  "המסמך הזה אינו ממתין להחלפה.": "This document isn't awaiting replacement.",
+  "המסמך הזה כבר הוחלף.": "This document was already replaced.",
+  "המסמך החלופי חייב להיות של אותו לווה.": "The replacement document must belong to the same borrower.",
+  "המסמך טרם הועלה": "The document hasn't been uploaded yet",
+  "המסמך מתוקן": "Corrected document",
+  "המסמך סרוק ואין בו שכבת טקסט, כל ערך מכריע אומת בקריאה חוזרת עצמאית של אזור הערך בתמונה.": "The document is scanned and has no text layer; every decisive value was verified by an independent re-read of its area in the image.",
+  "המסמך שאותו מחליפים אינו שייך לתיק.": "The document being replaced doesn't belong to this case.",
+  "המסמך שהועלה אינו המסמך המבוקש": "The uploaded document isn't the one requested",
+  "הנתון נקרא שגוי מהמסמך": "The value was misread from the document",
+  "הסבר הלקוח נתמך באסמכתה": "The customer's explanation is backed by proof",
+  "הסבר הלקוח, אם נמסר, מצורף אך אינו מהווה ראיה.": "The customer's explanation, if given, is attached but is not evidence.",
+  "הסבר לבדו אינו מספיק לסגירה. בדקו אם מסמך בתיק תומך בו, בקשו אסמכתה, או הכריעו בהחלטה מקצועית מנומקת.": "An explanation alone isn't enough to close the review. Check whether a document in the case supports it, request proof, or rule with a reasoned professional decision.",
+  "הסכם או הצעת מחיר מאולם/ספק": "A contract or quote from the venue or supplier",
+  "הסכם רכישה או הזמנה": "Purchase agreement or order",
+  "העברה לבירור": "Escalate for review",
+  "העברה להמשך בירור": "Escalate for further review",
+  "העמדת ההלוואה": "Loan disbursement",
+  "הערה פנימית": "Internal note",
+  "הפנייה אינה שייכת לתיק.": "The handoff request doesn't belong to this case.",
+  "הפנייה כבר טופלה.": "The handoff request was already handled.",
+  "הפנייה נדחתה": "Contact postponed",
+  "הפער הועבר לבדיקת הבנקאי": "The gap was passed to the banker for review",
+  "הפער הועבר לבדיקת הבנקאי; הסבר הלקוח, אם נמסר, מצורף אך אינו מהווה ראיה.": "The gap was passed to the banker for review; the customer's explanation, if given, is attached but is not evidence.",
+  "הצהרת מחזור שנתי לעוסק פטור": "Annual turnover declaration for an exempt dealer",
+  "הצעת מחיר": "Price quote",
+  "הצעת מחיר או חשבונית מהסוכנות": "A price quote or invoice from the dealership",
+  "הצעת מחיר לציוד": "A quote for the equipment",
+  "הצעת מחיר מקבלן": "A quote from the contractor",
+  "הצעת מחיר, חשבונית או הסכם שמתארים את מטרת ההלוואה": "A quote, invoice or agreement that describes what the loan is for",
+  "השופט לא הכריע בקריטריון זה": "The judge didn't decide this criterion",
+  "השלמת מסמכים": "Document completion",
+  "השלמת מסמכים · תיק ד׳": "Document completion · case D",
+  "השם ומספר הזהות תואמים למבקש/ת": "The name and ID number match the applicant",
+  "התיק מוכן לבדיקת הבנקאי": "The case is ready for banker review",
+  "התקבל · ממתין לבדיקת הבנקאי": "Received · awaiting banker review",
+  "התקבל אצל הבנקאי": "Accepted by the banker",
+  "התקבל אצל הבנקאי, קבלת מסמך בלבד, לא אישור הלוואה": "Accepted by the banker — document acceptance only, not a loan approval",
+  "התקבל על ידי הבנקאי": "Accepted by the banker",
+  "התקבל על ידי הבנקאית לבדיקת המסמכים": "Accepted by the banker for the document review",
+  "התקבל על ידך": "Accepted by you",
+  "התקבל, ממתין לבדיקת הבנקאי (אין בדיקת AI לסוג מסמך זה)": "Received, awaiting banker review (no AI check for this document type)",
+  "התקופה במסמך אינה ברורה": "The period on the document isn't clear",
+  "התשובה ריקה.": "The reply is empty.",
+  "זיהוי כל לווה (או מורשה חתימה) והשוואת השם ומספר הזהות לשאר המסמכים": "Identifies each borrower (or signatory) and lets us compare the name and ID number with the other documents",
+  "ח.פ. מעסיק": "Employer company no.",
+  "חברה בע״מ": "Limited company",
+  "חודש חסר או כפול הוא עובדת כיסוי ולא ממצא שאפשר לסגור. לבקשת המסמך השתמשו ב״בקשת השלמת מסמך״.": "A missing or duplicate month is a coverage fact, not a finding that can be closed. To request the document, use “Request a missing document”.",
+  "חודשים נדרשים שהלקוח טרם העלה, אינם מסמכים שממתינים לאישור": "Required months the customer hasn't uploaded yet — not documents awaiting approval",
+  "חסר": "Missing",
+  "חסר · נשלחה בקשה": "Missing · request sent",
+  "חסר פרט במסמך": "A detail is missing from the document",
+  "חסר פרט חובה במסמך": "A required detail is missing from the document",
+  "חסר שדה חובה בתלוש": "A required field is missing from the payslip",
+  "חסר תלוש אחד": "One payslip missing",
+  "חסר תלוש לחודש נדרש": "A payslip for a required month is missing",
+  "חסרה תקופה": "A period is missing",
+  "חסרה תקופה בדפי העו״ש": "A period is missing from the bank statements",
+  "חסרים": "Missing",
+  "חסרים מסמכים": "Documents missing",
+  "חשבון עו״ש משותף": "Joint current account",
+  "חשבון עו״ש של רועי ואמו": "Current account of Roi and his mother",
+  "חשבון עסקי של החברה": "The company's business account",
+  "חשבונית עסקה": "Invoice",
+  "חתימה על הסכם ההלוואה": "Signing the loan agreement",
+  "טופלו": "Handled",
+  "טופס בקשה": "Application form",
+  "טופס בקשה ·": "Application form ·",
+  "טופס מס / אישור רו״ח": "Tax form / CPA letter",
+  "טופס מס / אישור רו״ח ·": "Tax form / CPA letter ·",
+  "טיפול יזום בהשלמה": "Proactive completion follow-up",
+  "טקסט חשוד במסמך": "Suspicious text in the document",
+  "טרם הועלה": "Not uploaded yet",
+  "טרם הועלה מסמך": "No document uploaded yet",
+  "טרם הועלו מסמכים": "No documents uploaded yet",
+  "טרם נבדק": "Not checked yet",
+  "ייתכנו רכיבים משתנים": "May include variable components",
+  "יש לבחור על מה מבוססת סגירת הבירור.": "Choose what the closing of the review is based on.",
+  "יש להעלות את התלוש הנכון.": "The right payslip needs to be uploaded.",
+  "יש לכתוב ללקוח מה להעלות.": "Write to the customer what to upload.",
+  "יש לכתוב ללקוח מה לתקן או להעלות.": "Write to the customer what to correct or upload.",
+  "יש לכתוב ללקוח מה נדרש.": "Write to the customer what's needed.",
+  "יש לנמק את ביטול הבקשה.": "Give a rationale for withdrawing the request.",
+  "יש לנמק את סגירת הבירור.": "Give a rationale for closing the review.",
+  "יש לנמק קבלה של מסמך שבדיקת ה-AI לא מצאה תקין או שיש בו ממצאים פתוחים.": "Accepting a document the AI check didn't find valid, or one with open findings, requires a rationale.",
+  "יש לסמן את המסמכים שמאמתים את הסגירה.": "Select the documents that support the closing.",
+  "יש לציין מה דורש בירור.": "State what needs review.",
+  "יש לציין מה דורש המשך בירור.": "State what needs further review.",
+  "יש פריטים פתוחים לטיפול הלקוח, לא ניתן לאשר הכנה": "There are open items for the customer to handle; preparation can't be confirmed",
+  "יש תקלה בעיבוד": "There's a processing error",
+  "יתרת סגירה": "Closing balance",
+  "כבר השבתם לבקשה הזו.": "You already replied to this request.",
+  "כבר נשלחה ללקוח בקשה פתוחה בנושא זה.": "An open request on this matter was already sent to the customer.",
+  "כבר נשלחה ללקוח בקשה פתוחה לדרישה הזו.": "An open request for this requirement was already sent to the customer.",
+  "כל החודשים הנדרשים כוסו, אין צורך בפעולה.": "Every required month is covered; no action is needed.",
+  "כל החודשים מכוסים": "All months are covered",
+  "כל המסמכים התקבלו ונבדקו": "All documents were received and checked",
+  "כל המסמכים שויכו נכון": "All documents are correctly assigned",
+  "כל התלושים נמצאו תקינים": "All payslips were found valid",
+  "כפילות ב": "Duplicate in",
+  "כפילות של ממצא אחר": "A duplicate of another finding",
+  "לא ברור אם המסמך הוא אישור רישום עוסק": "Not clear whether the document is a business registration certificate",
+  "לא ברור אם המסמך הוא אסמכתה למטרת ההלוואה": "Not clear whether the document is a proof of the loan's purpose",
+  "לא ברור אם המסמך הוא דוח רווח והפסד": "Not clear whether the document is a profit and loss statement",
+  "לא ברור אם המסמך הוא דף עו״ש": "Not clear whether the document is a bank statement",
+  "לא ברור אם המסמך הוא שומת מס / אישור רו״ח": "Not clear whether the document is a tax assessment / CPA letter",
+  "לא ברור אם המסמך הוא תלוש שכר": "Not clear whether the document is a payslip",
+  "לא ברור אם המסמך הוא תעודת זהות": "Not clear whether the document is an ID card",
+  "לא ברור אם המסמך קריא במלואו": "Not clear whether the document is fully legible",
+  "לא הוכרע": "Not decided",
+  "לא הועלה": "Not uploaded",
+  "לא נבדק אוטומטית": "Not checked automatically",
+  "לא נדרש עוד, פרופיל ההכנסה עודכן": "No longer required — the income profile was updated",
+  "לא נדרשים תלושי שכר מלווה זה, ההכנסה מתועדת במסמכים אחרים לשיקול הבנקאי": "No payslips are required from this borrower; the income is documented in other documents for the banker's judgment",
+  "לא ניתן לקבוע את סוג המסמך כי אינו קריא": "The document type can't be determined because it isn't legible",
+  "לא נמסר הסבר מהלקוח בממצא הזה. בחרו בסיס אחר לסגירה או בקשו הסבר.": "The customer gave no explanation for this finding. Choose another basis for closing it, or request an explanation.",
+  "לא קריא": "Unreadable",
+  "לא תקין": "Not valid",
+  "לבדיקת הבנקאי": "For banker review",
+  "לבקשה זו יש להעלות מסמך.": "This request needs a document upload.",
+  "להעלות את המסמך המבוקש דרך הקישור המאובטח שנשלח אליך": "Upload the requested document through the secure link that was sent to you",
+  "לווה נוסף": "Co-borrower",
+  "לווה ראשי": "Main borrower",
+  "לידיעה": "For information",
+  "ללא הרשאת קשר · תיק ה׳": "No contact consent · case E",
+  "ללקוח תוצג בעדכונים שורה ניטרלית שהנושא נבדק ונסגר, בלי הנימוק הפנימי. לא נוצרת הודעה או בקשה חדשה ללקוח.": "The customer will see a neutral line in their updates saying the matter was checked and closed, without the internal rationale. No new message or request is created for the customer.",
+  "לממצא במסמך מסוים, החזירו את המסמך לתיקון מתוך המסמך עצמו.": "For a finding on a specific document, return the document for correction from the document itself.",
+  "למשל אישור מעסיק על רכיבי שכר משתנים": "for example, an employer's letter on variable pay components",
+  "לעצמאים: שומת המס האחרונה או אישור רו״ח עדכני": "For the self-employed: your latest tax assessment or an up-to-date CPA letter",
+  "לשיקול דעתך": "For your judgment",
+  "לתלוש חסר, בקשו את החודש החסר מתוך שורת החודש.": "For a missing payslip, request the missing month from the month's row.",
+  "מאזן בוחן חתום בידי רו״ח": "Trial balance signed by a CPA",
+  "מאמת את קיום החברה, מספר החברה, בעלי המניות והדירקטורים": "Confirms the company exists, its number, its shareholders and its directors",
+  "מאמת את רישום העסק כעוסק מורשה ואת מספר העוסק שמופיע בדוחות": "Confirms the business's registration as a licensed dealer and the dealer number on its reports",
+  "מאמת שהעסק רשום כעוסק פטור. מעוסק פטור לא נדרשים דוחות מע״מ תקופתיים": "Confirms the business is registered as an exempt dealer. Exempt dealers file no periodic VAT reports",
+  "מוכן לבדיקת בנקאי": "Ready for banker review",
+  "מוכן לבדיקת הבנקאי": "Ready for the banker's review",
+  "מוכן לבדיקת הבנקאי, עם ממצאים פתוחים": "Ready for the banker's review, with open findings",
+  "מועד אפשרי": "Earliest time",
+  "מורשה חתימה": "Authorized signatory",
+  "מורשי חתימה": "Authorized signatories",
+  "מזהה הבקשה כבר שימש בתיק אחר.": "This request ID was already used in another case.",
+  "מזהה הבקשה כבר שימש לפעולה אחרת.": "This request ID was already used for another action.",
+  "מזרחי־טפחות": "Mizrahi-Tefahot",
+  "מטרה אחרת": "Another purpose",
+  "מימון לחברה בע״מ": "Financing for a limited company",
+  "מימון עסקי, פנייה ראשונית": "Business financing, initial request",
+  "מימון ציוד לעסק": "Business equipment financing",
+  "מימון ציוד — ש.ג. מערכות מיזוג בע״מ": "Equipment financing — S.G. Air-Conditioning Systems Ltd.",
+  "ממונה ציות": "Compliance officer",
+  "ממצא לידיעה אינו דורש החלטה.": "An information-only finding doesn't need a decision.",
+  "ממצאים ברמת התיק שה-AI לא סוגר בעצמו": "Case-level findings the AI doesn't close on its own",
+  "ממתין לבדיקתך": "Awaiting your review",
+  "ממתין לבדיקתך · יש ממצאים פתוחים": "Awaiting your review · open findings",
+  "ממתין להחלטה": "Awaiting decision",
+  "ממתין להחלטתך": "Awaiting your decision",
+  "ממתין להשלמות מהלקוח": "Waiting for the customer to complete items",
+  "ממתין ללקוח": "Awaiting the customer",
+  "ממתין למסמכים": "Awaiting documents",
+  "ממתין לפעולת הלקוח": "Awaiting customer action",
+  "ממתינים להחלטתך": "Awaiting your decision",
+  "ממתינים להעלאת מסמכים": "Awaiting document uploads",
+  "ממתינים למסמכים מהלקוח": "Waiting for documents from the customer",
+  "ממתינים לתשובת הלקוח": "Waiting for the customer's reply",
+  "מנהלת מדיניות תפעול": "Operations policy manager",
+  "מנכ״ל ומורשה חתימה": "CEO and authorized signatory",
+  "מסמך": "Document",
+  "מסמך ·": "Document ·",
+  "מסמך אחר": "Other document",
+  "מסמך אחר ·": "Other document ·",
+  "מסמך לא קריא": "Unreadable document",
+  "מסמך לא קריא ·": "Unreadable document ·",
+  "מסמך שמסביר את ההפרש בין ההכנסה שהוצהרה לבין התלושים": "a document that explains the difference between the declared income and the payslips",
+  "מסמכי בקשת ההלוואה, לפי מדיניות המסמכים שהוצמדה לתיק": "The loan application's documents, per the document policy pinned to the case",
+  "מסמכים חסרים": "Missing documents",
+  "מסמכים שה-AI עדיין קורא, או שעיבודם נכשל": "Documents the AI is still reading, or whose processing failed",
+  "מסמכים שהוחזרו לתיקון או שבדיקת ה-AI מצאה בהם בעיה שהלקוח צריך לתקן": "Documents returned for correction, or where the AI check found an issue the customer needs to fix",
+  "מסמכים שהעברת לבירור נוסף": "Documents you escalated for further review",
+  "מסמכים שנבדקו ב-AI וממתינים לקבלה, להחזרה לתיקון או לבירור": "Documents checked by AI and awaiting acceptance, return for correction or escalation",
+  "מסמכים שקיבלת או שהוחלפו, וממצאים שהכרעת בהם": "Documents you accepted or that were replaced, and findings you ruled on",
+  "מספר הזהות אינו תקין": "The ID number isn't valid",
+  "מספר העוסק אינו תואם למבקש/ת": "The dealer number doesn't match the applicant",
+  "מספר זהות": "ID number",
+  "מספר זהות (מודפס כ״מזהה עובד״)": "ID number (printed as “employee ID”)",
+  "מספר חשבון": "Account number",
+  "מספר מסמך": "Document no.",
+  "מספר עובד": "Employee number",
+  "מספר עוסק": "Dealer number",
+  "מעדכן את הדוחות השנתיים לתקופה האחרונה": "Brings the annual statements up to date",
+  "מערכות מיזוג לפרויקט חדש": "Air-conditioning systems for a new project",
+  "מקבל/ת קצבה": "Receives an allowance",
+  "מראה את רווחיות העסק בתקופה האחרונה — משלים את השומה, שמתייחסת לשנה שעברה": "Shows the business's recent profitability — it completes the tax assessment, which covers last year",
+  "מראה מי רשאי לחייב את החברה ובאיזה הרכב חתימה": "Shows who may bind the company and with which signature combination",
+  "מראה שסכום ההלוואה תואם את המטרה שהוצהרה — מסמך אחד לבקשה": "Shows that the loan amount matches the stated purpose — one document per application",
+  "נא להעלות אותו באפליקציה.": "Please upload it in the app.",
+  "נא להעלות אותו כדי להמשיך בבדיקת מסמכי ההכנסה.": "Please upload it so we can continue checking your income documents.",
+  "נא להעלות אותו שוב, רצוי כקובץ PDF מקורי מהמעסיק.": "Please upload it again, preferably as an original PDF from your employer.",
+  "נא להעלות אותם באפליקציה.": "Please upload them in the app.",
+  "נא להעלות את תלוש השכר שלך.": "Please upload your payslip.",
+  "נא להעלות דף תנועות שמכסה אותה.": "Please upload a statement that covers it.",
+  "נא להעלות עותק ברור, עדיף קובץ PDF מקורי מהמעסיק או מאתר השכר.": "Please upload a clear copy, preferably an original PDF from your employer or the payroll website.",
+  "נא להעלות עותק מקורי של התלוש מהמעסיק או מאתר השכר.": "Please upload an original copy of the payslip from your employer or the payroll website.",
+  "נא להעלות תלוש שבו מודפס חודש השכר.": "Please upload a payslip with the pay month printed on it.",
+  "נא להעלות תלוש שכר.": "Please upload a payslip.",
+  "נבדק, תקין": "Checked, valid",
+  "נבקש הסבר קצר, ואם אפשר גם אסמכתה, למשל אישור מעסיק על רכיבי שכר משתנים.": "We'd appreciate a short explanation and, if possible, supporting proof — for example, an employer's letter on variable pay components.",
+  "נבקש הסבר קצר, ואם אפשר גם מסמך תומך.": "We'd appreciate a short explanation and, if possible, a supporting document.",
+  "נדרש אישור רישום עוסק מתוקן.": "A corrected business registration certificate is needed.",
+  "נדרש אסמכתה למטרת ההלוואה מתוקן.": "A corrected proof of the loan's purpose is needed.",
+  "נדרש בירור בנקאי": "Needs banker review",
+  "נדרש בירור בנקאי, נמצא פער בהכנסה": "Needs banker review — an income gap was found",
+  "נדרש דוח רווח והפסד מתוקן.": "A corrected profit and loss statement is needed.",
+  "נדרש דף עו״ש מתוקן.": "A corrected bank statement is needed.",
+  "נדרש המסמך מתוקן.": "A corrected document is needed.",
+  "נדרש שומת מס / אישור רו״ח מתוקן.": "A corrected tax assessment / CPA letter is needed.",
+  "נדרש תלוש שכר מתוקן.": "A corrected payslip is needed.",
+  "נדרש תעודת זהות מתוקן.": "A corrected ID card is needed.",
+  "נדרשת השלמה": "Needs completion",
+  "נדרשת השלמה מצדכם": "Action needed from you",
+  "נטו לתשלום": "Net pay",
+  "נטו שהלקוח הצהיר מול הנטו בתלושים שעברו את בדיקות ההכנסה, בחודשים הנדרשים בלבד; הסף נבדק בקוד": "The customer's declared net income vs. net pay on the payslips that passed the income checks, in the required months only; the threshold is checked in code",
+  "נמצאה אי־עקביות בפרטי הזהות בין המסמכים.": "The identity details are inconsistent across the documents.",
+  "נמצאו בתלוש פרטים שדורשים מסמך נוסף.": "Details on the payslip call for an additional document.",
+  "נסגר, הוחלף במסמך חדש": "Closed — replaced by a new document",
+  "נסגר, המסמך הוחזר לתיקון": "Closed — the document was returned for correction",
+  "נסגר, התקבל על ידי הבנקאי": "Closed — accepted by the banker",
+  "נסגר, ראיה חדשה": "Closed — new evidence",
+  "נסגרה": "Closed",
+  "נסח חברה": "Company registry extract",
+  "נסח חברה מרשם החברות": "Companies Registry extract",
+  "נסח חברה עדכני": "Up-to-date company extract",
+  "נסח מרשם החברות שהופק בחודש האחרון": "A Companies Registry extract issued in the last month",
+  "נפתחה דרישת השלמה": "A completion requirement was opened",
+  "נציג הבנק יחזור אליכם": "A bank representative will get back to you",
+  "נשלחה בקשה לחודשים החסרים.": "A request was sent for the missing months.",
+  "נשלחה בקשה ללקוח": "Request sent to the customer",
+  "נשלחה בקשה ללקוח אחרי האישור": "a request was sent to the customer after the confirmation",
+  "סגירת הבירור לאחר בדיקה": "Close the review after checking",
+  "סה״כ ניכויים": "Total deductions",
+  "סוג המסמך": "Document type",
+  "סוג הרישום": "Registration type",
+  "סוג הרישום אינו תואם לדרישה": "The registration type doesn't match the requirement",
+  "סומן כשגוי על ידי הבנקאי": "Marked as an error by the banker",
+  "סיבה אחרת": "Another reason",
+  "סכום": "Amount",
+  "עבר בדיקת AI, ממתין לקבלת הבנקאי": "Passed the AI check, awaiting the banker's acceptance",
+  "עדכון סטטוס שיחה": "Call status update",
+  "עוסק מורשה": "Licensed dealer (Osek Murshe)",
+  "עוסק פטור": "Exempt dealer (Osek Patur)",
+  "עוסקת מורשית": "Licensed dealer (Osek Murshe)",
+  "עיבוד AI נכשל": "AI processing failed",
+  "עיבוד ה-AI לא הושלם בגלל תקלה טכנית. אפשר לבקש מהלקוח להעלות את הקובץ שוב.": "AI processing didn't complete because of a technical error. You can ask the customer to upload the file again.",
+  "על המסמך הזה יש בקשה פתוחה מהבנקאי, יש להעלות דרך הבקשה.": "This document has an open request from the banker; upload through the request.",
+  "עמוד סרוק, טרם אומת בקריאה חוזרת": "A scanned page, not yet verified by a re-read",
+  "עצמאי/ת": "Self-employed",
+  "עצמאי/ת (עוסק מורשה)": "Self-employed (licensed dealer)",
+  "עצמאי/ת (עוסק פטור)": "Self-employed (exempt dealer)",
+  "פעולה זו זמינה רק לממצאים שממתינים לשיקול דעת הבנקאי.": "This action is available only for findings awaiting the banker's judgment.",
+  "פעולה לא מוכרת.": "Unknown action.",
+  "פעולת בנקאי / לקוח על הטיפול היזום": "A banker / customer action on the proactive follow-up",
+  "פעיל במכשיר אחר": "active on another device",
+  "פער הכנסה · תיק ו׳": "Income gap · case F",
+  "פערים לשיקול דעתך": "Gaps for your judgment",
+  "פרוטוקול דירקטוריון או אישור עו״ד/רו״ח על מורשי החתימה": "A board resolution or a lawyer's/CPA's confirmation of the authorized signatories",
+  "פרוטוקול דירקטוריון על זכויות חתימה": "Board resolution on signing rights",
+  "פרוטוקול מורשי חתימה": "Authorized signatories resolution",
+  "פרטי עורך הדוח חסרים": "The preparer's details are missing",
+  "פריט אחד לתיקון אצל הלקוח": "One item for the customer to correct",
+  "פתוח": "Open",
+  "צילום ברור של תעודת הזהות, כולל הספח אם יש": "A clear photo of your ID card, including the appendix if there is one",
+  "קבלת ההסבר (פעולה קודמת)": "Accept the explanation (earlier action)",
+  "קבלת המסמך": "Accept document",
+  "קבלת פניית הלקוח לטיפול": "Take the customer's handoff request",
+  "קודם להשלים את המסמכים": "Complete the documents first",
+  "ראיה לא אומתה מול הקובץ": "Evidence not verified against the file",
+  "רחל שטרן, בעלת חשבון, אינה לווה בבקשה": "Rachel Stern, an account holder who is not a borrower on this application",
+  "רכב לעבודה": "A car for work",
+  "רכב לעסק ולמשפחה": "A car for the business and the family",
+  "רכב משפחתי": "A family car",
+  "רכב משפחתי חדש": "A new family car",
+  "רכישת רכב": "Buying a car",
+  "רשימת הממצאים במסמך השתנתה מאז שנפתח. רעננו את המסך ובדקו שוב לפני הקבלה.": "The document's findings changed since it was opened. Refresh the screen and check again before accepting.",
+  "רשימת המסמכים נגזרת ממדיניות המסמכים של הבקשה; הבנקאי/ת עשויים לבקש מסמכים נוספים.": "The document list is derived from the application's document policy; the banker may request additional documents.",
+  "שומת מס / אישור רו״ח": "Tax assessment / CPA letter",
+  "שומת מס / אישור רו״ח מתוקן": "Corrected tax assessment / CPA letter",
+  "שומת מס הכנסה לשנה האחרונה": "Income tax assessment for the last year",
+  "שיחה חוזרת במועד שהלקוח ביקש": "a callback at the time the customer asked",
+  "שיחה תוזמנה": "Call scheduled",
+  "שיחת וידאו עם הבנקאית": "Video call with your banker",
+  "שינוי בהעדפות הקשר": "Change in contact preferences",
+  "שינוי בנוכחות הלקוח בפורטל": "Change in the customer's portal presence",
+  "שיפוץ": "Renovation",
+  "שיפוץ הדירה": "Renovating the apartment",
+  "שכבת הטקסט של ה־PDF אינה מדפיסה ערך זה, הערך לא אומת": "The PDF text layer doesn't print this value; the value wasn't verified",
+  "שכיר": "Salaried",
+  "שכיר וגם עצמאי": "Salaried and self-employed",
+  "שכיר/ה": "Salaried",
+  "שכירה": "Salaried",
+  "שכר ברוטו": "Gross pay",
+  "שכר קבוע": "Fixed salary",
+  "שלחנו לכם קישור מאובטח להעלאת המסמך": "We sent you a secure link to upload the document",
+  "שם": "Name",
+  "שם המעסיק": "Employer",
+  "שם הספק": "Supplier",
+  "שם העובד/ת": "Employee name",
+  "שם העסק": "Business name",
+  "שם הקובץ אינו תואם את החודש המודפס": "The file name doesn't match the printed month",
+  "שני לווים": "Two borrowers",
+  "שנת מס": "Tax year",
+  "תאריך הפקה": "Issue date",
+  "תאריך לידה": "Date of birth",
+  "תאריך תשלום": "Payment date",
+  "תאריך תשלום חריג": "Unusual payment date",
+  "תדפיס תנועות מהאתר או מהאפליקציה של הבנק": "A transaction printout from the bank's website or app",
+  "תדפיס תנועות של חשבון החברה": "Transaction printout of the company account",
+  "תוצאות בדיקת ה-AI ותוקף המסמכים לא משתנים. שלב הבקשה בבנק לא משתנה.": "The AI check results and the documents' validity don't change. The application's stage at the bank doesn't change.",
+  "תוצאת בדיקת מסמך בלבד, אינה קבלת המסמך על ידי הבנק ואינה החלטת אשראי.": "A document review result only — not the bank's acceptance of the document and not a credit decision.",
+  "תוקף התעודה פג": "The ID card has expired",
+  "תוקף עד": "Valid until",
+  "תוקף תעודת הזהות פג": "The ID card has expired",
+  "תזרים המזומנים של החברה בפועל": "The company's actual cash flow",
+  "תחזית תזרים או פירוט השימוש במימון": "A cash-flow forecast or a breakdown of how the financing will be used",
+  "תיאור": "Description",
+  "תיקון אצל הלקוח": "Correction with the customer",
+  "תיקון נדרש מהלקוח (זוהה ב-AI)": "Customer correction needed (found by AI)",
+  "תלוש שכר": "Payslip",
+  "תלוש שכר ·": "Payslip ·",
+  "תלוש שכר מתוקן": "Corrected payslip",
+  "תלושי השכר של החודשים האחרונים, כפי שהתקבלו מהמעסיק": "Your payslips for the most recent months, as you received them from your employer",
+  "תמונת ההכנסות וההוצאות בפועל. חשבון משותף נבדק פעם אחת עבור כל הלווים שבו": "Shows actual income and spending. A joint account is checked once for all its borrowers",
+  "תעודת התאגדות ותדפיס פרטי חברה": "Certificate of incorporation and company details printout",
+  "תעודת זהות": "ID card",
+  "תעודת זהות ·": "ID card ·",
+  "תעודת זהות ביומטרית (שני הצדדים)": "Biometric ID card (both sides)",
+  "תעודת זהות מתוקן": "Corrected ID card",
+  "תעודת עוסק מורשה": "Licensed dealer certificate",
+  "תעודת עוסק פטור": "Exempt dealer certificate",
+  "תעודת רישום כעוסק מורשה ממע״מ": "Registration as a licensed dealer (Osek Murshe) with VAT",
+  "תקופה מ־": "Period from",
+  "תקופה עד": "Period to",
+  "תקופת הדוח מ־": "Report period from",
+  "תקופת הדוח עד": "Report period to",
+  "תקופת המסמך לא ברורה": "The document's period isn't clear",
+  "תקופת השכר לא ברורה": "The pay period isn't clear",
+  "תקופת שכר": "Pay period",
+  "תקין": "Valid",
+  "תקין ב-AI": "Valid per AI",
+  "תקלה בבדיקה": "Check error",
+  "תקלה בבדיקה, נדרש טיפול": "The check failed and needs attention",
+  "תקלה בעיבוד, נדרש טיפול": "Processing error — needs attention",
+  "״מוכן לבדיקת בנקאי״ פירושו שדרישות המסמכים התקיימו, לא זכאות, לא ריבית ולא אישור הלוואה.": "“Ready for banker review” means the document requirements are met — not eligibility, not a rate and not a loan approval."
+ },
+ "templates": [
+  [
+   "חשבון עו״ש {n}",
+   "Current account {n}"
+  ],
+  [
+   "{p} ו{p2}",
+   "{p} and {p2}"
+  ],
+  [
+   "{p}, {p2} ו{p3}",
+   "{p}, {p2} and {p3}"
+  ],
+  [
+   "{m} ו{m2}",
+   "{m} and {m2}"
+  ],
+  [
+   "{m}, {m2} ו{m3}",
+   "{m}, {m2} and {m3}"
+  ],
+  [
+   "{m}, {m2}, {m3} ו{m4}",
+   "{m}, {m2}, {m3} and {m4}"
+  ],
+  [
+   "מודפס בשכבת הטקסט של ה־PDF ({n} מופעים בעמוד)",
+   "Printed in the PDF text layer ({n} occurrences on the page)"
+  ],
+  [
+   "אומת בקריאה חוזרת עצמאית של אזור הערך: “{x}”",
+   "Verified by an independent re-read of the value's area: “{x}”"
+  ],
+  [
+   "הקריאה החוזרת לא אישרה את הערך (נקרא: “{x}”)",
+   "The re-read didn't confirm the value (read: “{x}”)"
+  ],
+  [
+   "הקובץ {x} אינו תלוש שכר. יש להעלות תלוש שכר במקומו.",
+   "The file {x} isn't a payslip. A payslip needs to be uploaded instead."
+  ],
+  [
+   "הקובץ {x} אינו תעודת זהות. יש להעלות תעודת זהות במקומו.",
+   "The file {x} isn't an ID card. An ID card needs to be uploaded instead."
+  ],
+  [
+   "הקובץ {x} אינו דף עו״ש. יש להעלות דף עו״ש במקומו.",
+   "The file {x} isn't a bank statement. A bank statement needs to be uploaded instead."
+  ],
+  [
+   "הקובץ {x} אינו אסמכתה למטרת ההלוואה. יש להעלות אסמכתה למטרת ההלוואה במקומו.",
+   "The file {x} isn't a proof of the loan's purpose. A proof of the loan's purpose needs to be uploaded instead."
+  ],
+  [
+   "הקובץ {x} אינו שומת מס / אישור רו״ח. יש להעלות שומת מס / אישור רו״ח במקומו.",
+   "The file {x} isn't a tax assessment / CPA letter. A tax assessment / CPA letter needs to be uploaded instead."
+  ],
+  [
+   "הקובץ {x} אינו אישור רישום עוסק. יש להעלות אישור רישום עוסק במקומו.",
+   "The file {x} isn't a business registration certificate. A business registration certificate needs to be uploaded instead."
+  ],
+  [
+   "הקובץ {x} אינו דוח רווח והפסד. יש להעלות דוח רווח והפסד במקומו.",
+   "The file {x} isn't a profit and loss statement. A profit and loss statement needs to be uploaded instead."
+  ],
+  [
+   "לא ניתן לקרוא את {x}. יש להעלות עותק ברור יותר (PDF מקורי או צילום חד).",
+   "{x} can't be read. A clearer copy is needed (the original PDF or a sharp photo)."
+  ],
+  [
+   "המסמך {x} אינו על שם המבקש/ת: {t}",
+   "The document {x} isn't in the applicant's name: {t}"
+  ],
+  [
+   "במסמך {x}: {t}. הועבר לבדיקת בנקאי.",
+   "In the document {x}: {t}. Passed to the banker for review."
+  ],
+  [
+   "{t}. יש להעלות תעודת זהות בתוקף.",
+   "{t}. A valid ID card needs to be uploaded."
+  ],
+  [
+   "במסמך {x} לא ניתן לזהות את התקופה שהוא מכסה.",
+   "The period the document {x} covers can't be identified."
+  ],
+  [
+   "במסמך {x} {t}",
+   "In the document {x}: {t}"
+  ],
+  [
+   "במסמך {x}: {t}",
+   "In the document {x}: {t}"
+  ],
+  [
+   "במסמך {x} נמצא טקסט המופנה למערכת או לבודק. הטקסט לא בוצע; המסמך הועבר לבדיקת בנקאי.",
+   "The document {x} contains text addressed to the system or the reviewer. The text was not acted on; the document was passed to the banker for review."
+  ],
+  [
+   "במסמך {x} חלק מהערכים המכריעים לא אומתו מול הקובץ המקורי: {t}",
+   "In the document {x} some decisive values weren't verified against the original file: {t}"
+  ],
+  [
+   "{t}. יש להעלות את אישור הרישום המתאים.",
+   "{t}. The matching registration certificate needs to be uploaded."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא תלוש שכר. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is a payslip. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא תעודת זהות. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is an ID card. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא דף עו״ש. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is a bank statement. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא אסמכתה למטרת ההלוואה. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is a proof of the loan's purpose. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא שומת מס / אישור רו״ח. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is a tax assessment / CPA letter. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא אישור רישום עוסק. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is a business registration certificate. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} הוא דוח רווח והפסד. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is a profit and loss statement. The document was passed to the banker for review."
+  ],
+  [
+   "בדיקת ה-AI לא הצליחה לקבוע אם {x} קריא ושלם. המסמך הועבר לבדיקת בנקאי.",
+   "The AI check couldn't determine whether {x} is legible and complete. The document was passed to the banker for review."
+  ],
+  [
+   "המסמך {x} אינו תלוש שכר. יש להעלות תלוש שכר במקומו.",
+   "The document {x} isn't a payslip. A payslip needs to be uploaded instead."
+  ],
+  [
+   "בתלוש {x} לא ניתן לזהות תקופת שכר חד־משמעית.",
+   "No unambiguous pay period can be identified in the payslip {x}."
+  ],
+  [
+   "בתלוש {x} חסר שדה חובה: {t}",
+   "A required field is missing from the payslip {x}: {t}"
+  ],
+  [
+   "בתלוש {x} הסכומים אינם מתיישבים: {t}",
+   "The amounts on the payslip {x} don't add up: {t}"
+  ],
+  [
+   "בתלוש {x} נמצא טקסט המופנה למערכת או לבודק. הטקסט לא בוצע; המסמך הועבר לבדיקת בנקאי.",
+   "The payslip {x} contains text addressed to the system or the reviewer. The text was not acted on; the document was passed to the banker for review."
+  ],
+  [
+   "בתלוש {x} חלק מהערכים המכריעים לא אומתו מול הקובץ המקורי: {t}",
+   "On the payslip {x} some decisive values weren't verified against the original file: {t}"
+  ],
+  [
+   "בתלוש {x} תאריך התשלום אינו מתיישב עם תקופת השכר: {t}",
+   "On the payslip {x} the payment date doesn't fit the pay period: {t}"
+  ],
+  [
+   "{t}, לא הוכרע בבדיקת ה-AI, הועבר לבדיקת בנקאי.",
+   "{t} — not decided by the AI check; passed to the banker for review."
+  ],
+  [
+   "חסר: {t}",
+   "Missing: {t}"
+  ],
+  [
+   "כדי להשלים את בקשת ההלוואה חסר: {t}.",
+   "To complete the loan application, still missing: {t}."
+  ],
+  [
+   "חסרה תקופה בדפי העו״ש, {t}",
+   "A period is missing from the bank statements, {t}"
+  ],
+  [
+   "דפי העו״ש שהועלו לחשבון אינם מכסים את {n} הימים האחרונים.",
+   "The statements uploaded for the account don't cover the last {n} days."
+  ],
+  [
+   "חסרה התקופה: {x}.",
+   "Missing period: {x}."
+  ],
+  [
+   "שם הקובץ {x} מציין את {m}, אך במסמך עצמו מודפס {m2}.",
+   "The file name {x} says {m}, but the document itself is printed {m2}."
+  ],
+  [
+   "חסר תלוש שכר ל{m}, {p}",
+   "Missing payslip for {m}, {p}"
+  ],
+  [
+   "כדי להשלים את מסמכי השכר של {p} חסר תלוש שכר לחודש {m}.",
+   "To complete {p}'s salary documents, the payslip for {m} is still missing."
+  ],
+  [
+   "החודשים הנדרשים: {t}.",
+   "Required months: {t}."
+  ],
+  [
+   "התקבלו {n} תלושים ל{m}, {p}",
+   "{n} payslips received for {m}, {p}"
+  ],
+  [
+   "התקבלו {n} מסמכים שמודפס בהם {m}: {x}. החודש החסר עדיין נדרש.",
+   "{n} documents printed with {m} were received: {x}. The missing month is still required."
+  ],
+  [
+   "התקבלו {n} מסמכים שמודפס בהם {m}: {x}. {x2} (שם הקובץ: {m2}). החודש החסר עדיין נדרש.",
+   "{n} documents printed with {m} were received: {x}. {x2} (the file name says {m2}). The missing month is still required."
+  ],
+  [
+   "התקבלו {n} מסמכים שמודפס בהם {m}: {x}. כל החודשים הנדרשים כוסו, אין צורך בפעולה.",
+   "{n} documents printed with {m} were received: {x}. Every required month is covered; no action is needed."
+  ],
+  [
+   "התקבלו {n} מסמכים שמודפס בהם {m}: {x}. {x2} (שם הקובץ: {m2}). כל החודשים הנדרשים כוסו, אין צורך בפעולה.",
+   "{n} documents printed with {m} were received: {x}. {x2} (the file name says {m2}). Every required month is covered; no action is needed."
+  ],
+  [
+   "המסמך אינו של {p}",
+   "This document isn't {p}'s"
+  ],
+  [
+   "המסמך {x} הועלה עבור {p}, אך {t}.",
+   "The document {x} was uploaded for {p}, but: {t}."
+  ],
+  [
+   "נראה שזהו מסמך של {p}, יש לשייך אותו מחדש או להעלות את המסמך הנכון.",
+   "It looks like {p}'s document; it should be reassigned, or the right document uploaded."
+  ],
+  [
+   "כיסוי החודשים הנדרשים, {p}",
+   "Coverage of the required months, {p}"
+  ],
+  [
+   "כפילות חודשים, {p}",
+   "Duplicate months, {p}"
+  ],
+  [
+   "שיוך מסמכים ללווה, {p}",
+   "Documents assigned to the borrower, {p}"
+  ],
+  [
+   "תקינות מסמכי השכר, {p}",
+   "Validity of the salary documents, {p}"
+  ],
+  [
+   "הכנסה מוצהרת מול תלושים, {p}",
+   "Declared income vs. payslips, {p}"
+  ],
+  [
+   "פער בין ההכנסה המוצהרת לתלושים, {p}",
+   "Gap between declared income and payslips, {p}"
+  ],
+  [
+   "אי־עקביות בזהות, {p}",
+   "Identity details inconsistent, {p}"
+  ],
+  [
+   "כפילות ב: {t}",
+   "Duplicate in: {t}"
+  ],
+  [
+   "חסרים: {t}",
+   "Missing: {t}"
+  ],
+  [
+   "{n} מסמכים שויכו בטעות",
+   "{n} documents were assigned by mistake"
+  ],
+  [
+   "{n} תלושים דורשים בדיקה",
+   "{n} payslips need review"
+  ],
+  [
+   "מוצהר {n} ₪ נטו",
+   "Declared ₪{n} net"
+  ],
+  [
+   "בתלוש {m} {n} ₪ ({n2}%)",
+   "{m} payslip ₪{n} ({n2}%)"
+  ],
+  [
+   "ממוצע {n} תלושים {n2} ₪ ({n3}%)",
+   "Average of {n} payslips ₪{n2} ({n3}%)"
+  ],
+  [
+   "השוואה ראשונית, {n} מתוך {n2} חודשים",
+   "Preliminary comparison, {n} of {n2} months"
+  ],
+  [
+   "השוואה ראשונית, {n} מתוך {n2} חודשים.",
+   "Preliminary comparison, {n} of {n2} months."
+  ],
+  [
+   "בתלוש {m} {n} ₪ ({n2}%).",
+   "{m} payslip ₪{n} ({n2}%)."
+  ],
+  [
+   "ממוצע {n} תלושים {n2} ₪ ({n3}%).",
+   "Average of {n} payslips ₪{n2} ({n3}%)."
+  ],
+  [
+   "הכנסה משולבת: ההצהרה ({n} ₪) כוללת גם הכנסה מעסק, והתלושים ({n2} ₪ בממוצע) מראים רק את השכר, אין השוואה אוטומטית; ההכנסה מהעסק מתועדת בשומה או באישור הרו״ח לשיקול הבנקאי.",
+   "Combined income: the declaration (₪{n}) includes business income too, and the payslips (₪{n2} on average) show only the salary, so there's no automatic comparison; the business income is documented in the tax assessment or CPA letter for the banker's judgment."
+  ],
+  [
+   "בבקשה הוצהרה הכנסה נטו של {n} ₪ לחודש.",
+   "The application declares a net income of ₪{n} a month."
+  ],
+  [
+   "השוואה ראשונית על בסיס {n} מתוך {n2} החודשים הנדרשים: בתלוש {m} הנטו הוא {n3} ₪ ({n4}%).",
+   "Preliminary comparison on {n} of the {n2} required months: the {m} payslip shows ₪{n3} net ({n4}%)."
+  ],
+  [
+   "השוואה ראשונית על בסיס {n} מתוך {n2} החודשים הנדרשים: ממוצע {n5} תלושים הנטו הוא {n3} ₪ ({n4}%).",
+   "Preliminary comparison on {n} of the {n2} required months: the average of {n5} payslips is ₪{n3} net ({n4}%)."
+  ],
+  [
+   "חסרים עדיין: {t}.",
+   "Still missing: {t}."
+  ],
+  [
+   "בתלושים שנבדקו ממוצע הנטו הוא {n} ₪ ({n2}%), על בסיס כל {n3} החודשים הנדרשים.",
+   "In the payslips checked, the average net pay is ₪{n} ({n2}%), based on all {n3} required months."
+  ],
+  [
+   "בדיקת ה-AI לא מצאה בעיה: {n} מתוך {n2} קריטריונים עברו, ו-{n3} ערכים מכריעים אומתו מול הקובץ. נדרשת החלטה שלך כדי לסמן את המסמך כנבדק.",
+   "The AI check found no issue: {n} of {n2} criteria passed, and {n3} decisive values were verified against the file. Your decision is needed to mark the document as reviewed."
+  ],
+  [
+   "תלוש {m}",
+   "{m} payslip"
+  ],
+  [
+   "תלוש {m} · {p}",
+   "{m} payslip · {p}"
+  ],
+  [
+   "בתלוש {m}",
+   "in the {m} payslip"
+  ],
+  [
+   "בממוצע {n} התלושים",
+   "on average across the {n} payslips"
+  ],
+  [
+   "בתלוש {m} הנטו זהה להכנסה המוצהרת",
+   "In the {m} payslip, net pay matches the declared income"
+  ],
+  [
+   "בתלוש {m} הנטו נמוך ב־{n2} ₪ ({n3}%) מההכנסה המוצהרת",
+   "In the {m} payslip, net pay is ₪{n2} ({n3}%) below the declared income"
+  ],
+  [
+   "בתלוש {m} הנטו גבוה ב־{n2} ₪ ({n3}%) מההכנסה המוצהרת",
+   "In the {m} payslip, net pay is ₪{n2} ({n3}%) above the declared income"
+  ],
+  [
+   "בממוצע {n} התלושים הנטו זהה להכנסה המוצהרת",
+   "Across the {n} payslips, on average, net pay matches the declared income"
+  ],
+  [
+   "בממוצע {n} התלושים הנטו נמוך ב־{n2} ₪ ({n3}%) מההכנסה המוצהרת",
+   "Across the {n} payslips, on average, net pay is ₪{n2} ({n3}%) below the declared income"
+  ],
+  [
+   "בממוצע {n} התלושים הנטו גבוה ב־{n2} ₪ ({n3}%) מההכנסה המוצהרת",
+   "Across the {n} payslips, on average, net pay is ₪{n2} ({n3}%) above the declared income"
+  ],
+  [
+   "השוואה ראשונית על בסיס {n} מתוך {n2} חודשים: {t}.",
+   "Preliminary comparison based on {n} of {n2} months: {t}."
+  ],
+  [
+   "בחודשים הזמינים הפער מעל סף הסבולת של {n}%.",
+   "In the available months the gap is above the {n}% tolerance."
+  ],
+  [
+   "בחודשים הזמינים הפער בתוך סף הסבולת של {n}%.",
+   "In the available months the gap is within the {n}% tolerance."
+  ],
+  [
+   "ההשוואה המלאה תתאפשר אחרי {t}.",
+   "The full comparison will be possible after {t}."
+  ],
+  [
+   "{t}, בתוך סף הסבולת של {n}%. לידיעה בלבד; לא נפתח ממצא.",
+   "{t}, within the {n}% tolerance. For information only; no finding was opened."
+  ],
+  [
+   "{t}, בתוך סף {n}%, אך ההגדרות אינן ניתנות להשוואה ודורשות שיקול דעת.",
+   "{t}, within the {n}% tolerance, but the definitions aren't comparable and need judgment."
+  ],
+  [
+   "{t}, מעל סף הסבולת של {n}%. הועבר לשיקול דעתך.",
+   "{t}, above the {n}% tolerance. Passed to you for judgment."
+  ],
+  [
+   "ממוצע הנטו בתלושים {n} ₪ לעומת הצהרה של {n2} ₪ ({n3}%).",
+   "Average net pay on the payslips ₪{n} vs. a declaration of ₪{n2} ({n3}%)."
+  ],
+  [
+   "ההשוואה מבוססת על {n} מתוך {n2} החודשים הנדרשים.",
+   "The comparison is based on {n} of the {n2} required months."
+  ],
+  [
+   "לפני הכרעה מומלץ לבקש את {t}.",
+   "Before ruling, it's recommended to request {t}."
+  ],
+  [
+   "נשלחה בקשה ל{t}.",
+   "A request was sent for {t}."
+  ],
+  [
+   "נשלחה בקשה: {t}.",
+   "Request sent: {t}."
+  ],
+  [
+   "מצב בדיקת מסמכי הבקשה לא ישתנה ({t}).",
+   "The application's document review status won't change ({t})."
+  ],
+  [
+   "מצב בדיקת מסמכי הבקשה: {t} ← {t2}.",
+   "Application document review status: {t} → {t2}."
+  ],
+  [
+   "הבקשה הפתוחה ללקוח („{t}”) תיסגר ותרד מהאפליקציה.",
+   "The open request to the customer (“{t}”) will be closed and removed from the app."
+  ],
+  [
+   "פריטים לשיקול דעתך בתיק: {n} ← {n2}.",
+   "Items for your judgment in the case: {n} → {n2}."
+  ],
+  [
+   "לא התקבל תלוש שכר שמודפס בו {m}.",
+   "No payslip printed with {m} has been received."
+  ],
+  [
+   "הועלה עבור {m}, אך מודפס בו {m2}",
+   "Uploaded for {m}, but printed with {m2}"
+  ],
+  [
+   "הועלה עבור {m}, אך מודפס בו חודש אחר",
+   "Uploaded for {m}, but printed with a different month"
+  ],
+  [
+   "טרם הועלה: {t}.",
+   "Not uploaded yet: {t}."
+  ],
+  [
+   "חסרים {n} תלושים",
+   "{n} payslips missing"
+  ],
+  [
+   "{n} פריטים לתיקון אצל הלקוח",
+   "{n} items for the customer to correct"
+  ],
+  [
+   "{n} בקשות פתוחות ללקוח",
+   "{n} open requests to the customer"
+  ],
+  [
+   "{t}, לא נדרש עוד",
+   "{t}, no longer required"
+  ],
+  [
+   "חסר: {t}, {t2}, {t3}, {t4}",
+   "Missing: {t}, {t2}, {t3}, {t4}"
+  ],
+  [
+   "תלוש שכר מתוקן, {p}",
+   "Corrected payslip, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות תלוש שכר מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected payslip in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות תלוש שכר מתוקן במקום {x}.",
+   "Hello, please upload a corrected payslip in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות תלוש שכר מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected payslip in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות תלוש שכר מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected payslip in place of {x}. {t}."
+  ],
+  [
+   "נדרש תלוש שכר מתוקן במקום {x}",
+   "Corrected payslip needed in place of {x}"
+  ],
+  [
+   "נדרש תלוש שכר מתוקן במקום {x}, {p}",
+   "Corrected payslip needed in place of {x}, {p}"
+  ],
+  [
+   "תעודת זהות מתוקן, {p}",
+   "Corrected ID card, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות תעודת זהות מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected ID card in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות תעודת זהות מתוקן במקום {x}.",
+   "Hello, please upload a corrected ID card in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות תעודת זהות מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected ID card in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות תעודת זהות מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected ID card in place of {x}. {t}."
+  ],
+  [
+   "נדרש תעודת זהות מתוקן במקום {x}",
+   "Corrected ID card needed in place of {x}"
+  ],
+  [
+   "נדרש תעודת זהות מתוקן במקום {x}, {p}",
+   "Corrected ID card needed in place of {x}, {p}"
+  ],
+  [
+   "דף עו״ש מתוקן, {p}",
+   "Corrected bank statement, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות דף עו״ש מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected bank statement in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות דף עו״ש מתוקן במקום {x}.",
+   "Hello, please upload a corrected bank statement in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות דף עו״ש מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected bank statement in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות דף עו״ש מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected bank statement in place of {x}. {t}."
+  ],
+  [
+   "נדרש דף עו״ש מתוקן במקום {x}",
+   "Corrected bank statement needed in place of {x}"
+  ],
+  [
+   "נדרש דף עו״ש מתוקן במקום {x}, {p}",
+   "Corrected bank statement needed in place of {x}, {p}"
+  ],
+  [
+   "אסמכתה למטרת ההלוואה מתוקן, {p}",
+   "Corrected proof of the loan's purpose, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות אסמכתה למטרת ההלוואה מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected proof of the loan's purpose in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות אסמכתה למטרת ההלוואה מתוקן במקום {x}.",
+   "Hello, please upload a corrected proof of the loan's purpose in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות אסמכתה למטרת ההלוואה מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected proof of the loan's purpose in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות אסמכתה למטרת ההלוואה מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected proof of the loan's purpose in place of {x}. {t}."
+  ],
+  [
+   "נדרש אסמכתה למטרת ההלוואה מתוקן במקום {x}",
+   "Corrected proof of the loan's purpose needed in place of {x}"
+  ],
+  [
+   "נדרש אסמכתה למטרת ההלוואה מתוקן במקום {x}, {p}",
+   "Corrected proof of the loan's purpose needed in place of {x}, {p}"
+  ],
+  [
+   "שומת מס / אישור רו״ח מתוקן, {p}",
+   "Corrected tax assessment / CPA letter, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות שומת מס / אישור רו״ח מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected tax assessment / CPA letter in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות שומת מס / אישור רו״ח מתוקן במקום {x}.",
+   "Hello, please upload a corrected tax assessment / CPA letter in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות שומת מס / אישור רו״ח מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected tax assessment / CPA letter in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות שומת מס / אישור רו״ח מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected tax assessment / CPA letter in place of {x}. {t}."
+  ],
+  [
+   "נדרש שומת מס / אישור רו״ח מתוקן במקום {x}",
+   "Corrected tax assessment / CPA letter needed in place of {x}"
+  ],
+  [
+   "נדרש שומת מס / אישור רו״ח מתוקן במקום {x}, {p}",
+   "Corrected tax assessment / CPA letter needed in place of {x}, {p}"
+  ],
+  [
+   "אישור רישום עוסק מתוקן, {p}",
+   "Corrected business registration certificate, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות אישור רישום עוסק מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected business registration certificate in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות אישור רישום עוסק מתוקן במקום {x}.",
+   "Hello, please upload a corrected business registration certificate in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות אישור רישום עוסק מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected business registration certificate in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות אישור רישום עוסק מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected business registration certificate in place of {x}. {t}."
+  ],
+  [
+   "נדרש אישור רישום עוסק מתוקן במקום {x}",
+   "Corrected business registration certificate needed in place of {x}"
+  ],
+  [
+   "נדרש אישור רישום עוסק מתוקן במקום {x}, {p}",
+   "Corrected business registration certificate needed in place of {x}, {p}"
+  ],
+  [
+   "דוח רווח והפסד מתוקן, {p}",
+   "Corrected profit and loss statement, {p}"
+  ],
+  [
+   "שלום {p}, נבקש להעלות דוח רווח והפסד מתוקן במקום {x}.",
+   "Hello {p}, please upload a corrected profit and loss statement in place of {x}."
+  ],
+  [
+   "שלום, נבקש להעלות דוח רווח והפסד מתוקן במקום {x}.",
+   "Hello, please upload a corrected profit and loss statement in place of {x}."
+  ],
+  [
+   "שלום {p}, נבקש להעלות דוח רווח והפסד מתוקן במקום {x}. {t}.",
+   "Hello {p}, please upload a corrected profit and loss statement in place of {x}. {t}."
+  ],
+  [
+   "שלום, נבקש להעלות דוח רווח והפסד מתוקן במקום {x}. {t}.",
+   "Hello, please upload a corrected profit and loss statement in place of {x}. {t}."
+  ],
+  [
+   "נדרש דוח רווח והפסד מתוקן במקום {x}",
+   "Corrected profit and loss statement needed in place of {x}"
+  ],
+  [
+   "נדרש דוח רווח והפסד מתוקן במקום {x}, {p}",
+   "Corrected profit and loss statement needed in place of {x}, {p}"
+  ],
+  [
+   "עיבוד הקובץ {x} לא הושלם.",
+   "Processing of the file {x} didn't complete."
+  ],
+  [
+   "שלום {p}, לא הצלחנו לעבד את הקובץ {x}.",
+   "Hello {p}, we couldn't process the file {x}."
+  ],
+  [
+   "שלום, לא הצלחנו לעבד את הקובץ {x}.",
+   "Hello, we couldn't process the file {x}."
+  ],
+  [
+   "לא הצלחנו לעבד את הקובץ {x}.",
+   "We couldn't process the file {x}."
+  ],
+  [
+   "הקובץ שהועלה עבור {m} מכיל בפועל תלוש של חודש {m2}.",
+   "The file uploaded for {m} actually contains the {m2} payslip."
+  ],
+  [
+   "שלום {p}, המסמך שהעלית עבור {m} מציג את חודש {m2}.",
+   "Hello {p}, the document you uploaded for {m} shows {m2}."
+  ],
+  [
+   "שלום, המסמך שהעלית עבור {m} מציג את חודש {m2}.",
+   "Hello, the document you uploaded for {m} shows {m2}."
+  ],
+  [
+   "המסמך שהעלית עבור {m} מציג את חודש {m2}.",
+   "The document you uploaded for {m} shows {m2}."
+  ],
+  [
+   "כדי להמשיך בבדיקת מסמכי ההכנסה, נא להעלות את תלוש {m}.",
+   "To continue checking your income documents, please upload the {m} payslip."
+  ],
+  [
+   "המסמך {x} אינו על שם הלווה שעבורו הועלה.",
+   "The document {x} isn't in the name of the borrower it was uploaded for."
+  ],
+  [
+   "שלום {p}, המסמך שהועלה עבורך ({x}) אינו על שמך.",
+   "Hello {p}, the document uploaded for you ({x}) isn't in your name."
+  ],
+  [
+   "שלום, המסמך שהועלה עבורך ({x}) אינו על שמך.",
+   "Hello, the document uploaded for you ({x}) isn't in your name."
+  ],
+  [
+   "המסמך שהועלה עבורך ({x}) אינו על שמך.",
+   "The document uploaded for you ({x}) isn't in your name."
+  ],
+  [
+   "נא להעלות את תלוש השכר שלך ל{m}.",
+   "Please upload your payslip for {m}."
+  ],
+  [
+   "הקובץ {x} אינו תלוש שכר.",
+   "The file {x} isn't a payslip."
+  ],
+  [
+   "שלום {p}, הקובץ {x} אינו תלוש שכר.",
+   "Hello {p}, the file {x} isn't a payslip."
+  ],
+  [
+   "נא להעלות תלוש שכר ל{m}.",
+   "Please upload a payslip for {m}."
+  ],
+  [
+   "לא ניתן לקרוא את תלוש {m}.",
+   "The {m} payslip can't be read."
+  ],
+  [
+   "שלום {p}, לא הצלחנו לקרוא את תלוש {m}.",
+   "Hello {p}, we couldn't read the {m} payslip."
+  ],
+  [
+   "שלום, לא הצלחנו לקרוא את תלוש {m}.",
+   "Hello, we couldn't read the {m} payslip."
+  ],
+  [
+   "לא הצלחנו לקרוא את תלוש {m}.",
+   "We couldn't read the {m} payslip."
+  ],
+  [
+   "שלום {p}, בתלוש {m} שהעלית חלק מהפרטים אינם ברורים לנו.",
+   "Hello {p}, some details in the {m} payslip you uploaded aren't clear to us."
+  ],
+  [
+   "שלום, בתלוש {m} שהעלית חלק מהפרטים אינם ברורים לנו.",
+   "Hello, some details in the {m} payslip you uploaded aren't clear to us."
+  ],
+  [
+   "בתלוש {m} שהעלית חלק מהפרטים אינם ברורים לנו.",
+   "Some details in the {m} payslip you uploaded aren't clear to us."
+  ],
+  [
+   "לא ניתן לקרוא את הקובץ {x}.",
+   "The file {x} can't be read."
+  ],
+  [
+   "שלום {p}, לא הצלחנו לקרוא את הקובץ {x}.",
+   "Hello {p}, we couldn't read the file {x}."
+  ],
+  [
+   "שלום, לא הצלחנו לקרוא את הקובץ {x}.",
+   "Hello, we couldn't read the file {x}."
+  ],
+  [
+   "לא הצלחנו לקרוא את הקובץ {x}.",
+   "We couldn't read the file {x}."
+  ],
+  [
+   "שלום {p}, בהקובץ {x} שהעלית חלק מהפרטים אינם ברורים לנו.",
+   "Hello {p}, some details in the file {x} you uploaded aren't clear to us."
+  ],
+  [
+   "שלום, בהקובץ {x} שהעלית חלק מהפרטים אינם ברורים לנו.",
+   "Hello, some details in the file {x} you uploaded aren't clear to us."
+  ],
+  [
+   "בהקובץ {x} שהעלית חלק מהפרטים אינם ברורים לנו.",
+   "Some details in the file {x} you uploaded aren't clear to us."
+  ],
+  [
+   "שלום {p}, בתלוש שהעלית לא מופיע חודש שכר ברור.",
+   "Hello {p}, the payslip you uploaded doesn't show a clear pay month."
+  ],
+  [
+   "שלום, בתלוש שהעלית לא מופיע חודש שכר ברור.",
+   "Hello, the payslip you uploaded doesn't show a clear pay month."
+  ],
+  [
+   "בתלוש שהעלית לא מופיע חודש שכר ברור.",
+   "The payslip you uploaded doesn't show a clear pay month."
+  ],
+  [
+   "תלוש שכר ל{m}, {p}",
+   "Payslip for {m}, {p}"
+  ],
+  [
+   "שלום {p}, המסמך שהעלית עבור {m} מציג את חודש {m2}, ולכן תלוש {m3} עדיין חסר.",
+   "Hello {p}, the document you uploaded for {m} shows {m2}, so the {m3} payslip is still missing."
+  ],
+  [
+   "שלום, המסמך שהעלית עבור {m} מציג את חודש {m2}, ולכן תלוש {m3} עדיין חסר.",
+   "Hello, the document you uploaded for {m} shows {m2}, so the {m3} payslip is still missing."
+  ],
+  [
+   "המסמך שהעלית עבור {m} מציג את חודש {m2}, ולכן תלוש {m3} עדיין חסר.",
+   "The document you uploaded for {m} shows {m2}, so the {m3} payslip is still missing."
+  ],
+  [
+   "שלום {p}, כדי להשלים את בדיקת מסמכי ההכנסה חסר תלוש השכר של {m}.",
+   "Hello {p}, to complete the check of your income documents, the {m} payslip is still missing."
+  ],
+  [
+   "שלום, כדי להשלים את בדיקת מסמכי ההכנסה חסר תלוש השכר של {m}.",
+   "Hello, to complete the check of your income documents, the {m} payslip is still missing."
+  ],
+  [
+   "כדי להשלים את בדיקת מסמכי ההכנסה חסר תלוש השכר של {m}.",
+   "To complete the check of your income documents, the {m} payslip is still missing."
+  ],
+  [
+   "שלום {p}, כדי להשלים את בדיקת ההכנסה חסר תלוש השכר של {m}.",
+   "Hello {p}, to complete the income check, the {m} payslip is still missing."
+  ],
+  [
+   "שלום, כדי להשלים את בדיקת ההכנסה חסר תלוש השכר של {m}.",
+   "Hello, to complete the income check, the {m} payslip is still missing."
+  ],
+  [
+   "כדי להשלים את בדיקת ההכנסה חסר תלוש השכר של {m}.",
+   "To complete the income check, the {m} payslip is still missing."
+  ],
+  [
+   "שלום {p}, כדי להשלים את בדיקת ההכנסה חסרים תלושי השכר של {t}.",
+   "Hello {p}, to complete the income check, the payslips for {t} are still missing."
+  ],
+  [
+   "שלום, כדי להשלים את בדיקת ההכנסה חסרים תלושי השכר של {t}.",
+   "Hello, to complete the income check, the payslips for {t} are still missing."
+  ],
+  [
+   "כדי להשלים את בדיקת ההכנסה חסרים תלושי השכר של {t}.",
+   "To complete the income check, the payslips for {t} are still missing."
+  ],
+  [
+   "תלושי שכר חסרים, {p}",
+   "Missing payslips, {p}"
+  ],
+  [
+   "שלום {p}, ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בתלושים ({n2} ₪).",
+   "Hello {p}, the monthly net income you declared (₪{n}) differs from the net pay in the payslips (₪{n2})."
+  ],
+  [
+   "שלום, ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בתלושים ({n2} ₪).",
+   "Hello, the monthly net income you declared (₪{n}) differs from the net pay in the payslips (₪{n2})."
+  ],
+  [
+   "ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בתלושים ({n2} ₪).",
+   "The monthly net income you declared (₪{n}) differs from the net pay in the payslips (₪{n2})."
+  ],
+  [
+   "שלום {p}, ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בתלוש {m} ({n2} ₪).",
+   "Hello {p}, the monthly net income you declared (₪{n}) differs from the net pay in the {m} payslip (₪{n2})."
+  ],
+  [
+   "שלום, ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בתלוש {m} ({n2} ₪).",
+   "Hello, the monthly net income you declared (₪{n}) differs from the net pay in the {m} payslip (₪{n2})."
+  ],
+  [
+   "ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בתלוש {m} ({n2} ₪).",
+   "The monthly net income you declared (₪{n}) differs from the net pay in the {m} payslip (₪{n2})."
+  ],
+  [
+   "שלום {p}, ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בממוצע {n3} התלושים ({n2} ₪).",
+   "Hello {p}, the monthly net income you declared (₪{n}) differs from the net pay on average across the {n3} payslips (₪{n2})."
+  ],
+  [
+   "שלום, ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בממוצע {n3} התלושים ({n2} ₪).",
+   "Hello, the monthly net income you declared (₪{n}) differs from the net pay on average across the {n3} payslips (₪{n2})."
+  ],
+  [
+   "ההכנסה החודשית נטו שהצהרת ({n} ₪) שונה מהנטו בממוצע {n3} התלושים ({n2} ₪).",
+   "The monthly net income you declared (₪{n}) differs from the net pay on average across the {n3} payslips (₪{n2})."
+  ],
+  [
+   "נבקש הסבר קצר, ואם אפשר גם אסמכתה, {t}.",
+   "We'd appreciate a short explanation and, if possible, supporting proof — {t}."
+  ],
+  [
+   "שלום {p}, בבדיקת המסמכים עלתה שאלה: {t}.",
+   "Hello {p}, a question came up in the document check: {t}."
+  ],
+  [
+   "שלום, בבדיקת המסמכים עלתה שאלה: {t}.",
+   "Hello, a question came up in the document check: {t}."
+  ],
+  [
+   "בבדיקת המסמכים עלתה שאלה: {t}.",
+   "A question came up in the document check: {t}."
+  ],
+  [
+   "הסבר או אסמכתה, {p}",
+   "Explanation or proof, {p}"
+  ],
+  [
+   "שלום {p}, כדי להשלים את בדיקת ההכנסה נבקש להעלות: {t}.",
+   "Hello {p}, to complete the income check, please upload: {t}."
+  ],
+  [
+   "שלום, כדי להשלים את בדיקת ההכנסה נבקש להעלות: {t}.",
+   "Hello, to complete the income check, please upload: {t}."
+  ],
+  [
+   "כדי להשלים את בדיקת ההכנסה נבקש להעלות: {t}.",
+   "To complete the income check, please upload: {t}."
+  ],
+  [
+   "מסמך משלים לבדיקת ההכנסה, {p}",
+   "Supporting document for the income check, {p}"
+  ],
+  [
+   "שלום {p}, כדי להשלים את בקשת ההלוואה נבקש להעלות: {t}. {t2}",
+   "Hello {p}, to complete the loan application, please upload: {t}. {t2}"
+  ],
+  [
+   "שלום, כדי להשלים את בקשת ההלוואה נבקש להעלות: {t}. {t2}",
+   "Hello, to complete the loan application, please upload: {t}. {t2}"
+  ],
+  [
+   "שלום {p}, כדי להשלים את בקשת ההלוואה נבקש להעלות: {t}.",
+   "Hello {p}, to complete the loan application, please upload: {t}."
+  ],
+  [
+   "שלום, כדי להשלים את בקשת ההלוואה נבקש להעלות: {t}.",
+   "Hello, to complete the loan application, please upload: {t}."
+  ],
+  [
+   "שלום {p}, דפי העו״ש שהועלו לחשבון אינם מכסים את {n} הימים האחרונים.",
+   "Hello {p}, the statements uploaded for the account don't cover the last {n} days."
+  ],
+  [
+   "שלום, דפי העו״ש שהועלו לחשבון אינם מכסים את {n} הימים האחרונים.",
+   "Hello, the statements uploaded for the account don't cover the last {n} days."
+  ],
+  [
+   "נדרש תלוש {m}, {p}",
+   "Payslip for {m} needed, {p}"
+  ],
+  [
+   "נדרש: {t}",
+   "Needed: {t}"
+  ],
+  [
+   "נדרש הסבר או אסמכתה, {p}",
+   "Explanation or proof needed, {p}"
+  ],
+  [
+   "נדרש מסמך משלים, {p}",
+   "Supporting document needed, {p}"
+  ],
+  [
+   "נדרש תלוש מתוקן במקום {x}, {p}",
+   "Corrected payslip needed in place of {x}, {p}"
+  ],
+  [
+   "נדרש תלוש מתוקן במקום {x}",
+   "Corrected payslip needed in place of {x}"
+  ],
+  [
+   "לא ניתן לבצע ״{t}״ במסמך במצב ״{t2}״.",
+   "“{t}” can't be done on a document in the “{t2}” state."
+  ],
+  [
+   "כבר נשלחה ללקוח בקשה פתוחה לתלוש {m}.",
+   "An open request for the {m} payslip was already sent to the customer."
+  ],
+  [
+   "{m} אינו חסר כרגע אצל {p}.",
+   "{m} isn't currently missing for {p}."
+  ],
+  [
+   "החודש אינו חסר כרגע אצל {p}.",
+   "The month isn't currently missing for {p}."
+  ],
+  [
+   "ההשוואה מבוססת על {n} מתוך {n2} החודשים הנדרשים. כדי להכריע עכשיו יש לאשר במפורש הכרעה על בסיס חלקי.",
+   "The comparison is based on {n} of the {n2} required months. To rule now, explicitly confirm a ruling on a partial basis."
+  ],
+  [
+   "לא ניתן לאשר במצב {t}",
+   "Can't confirm in the state “{t}”"
+  ],
+  [
+   "{t} (פעיל במכשיר אחר)",
+   "{t} (active on another device)"
+  ],
+  [
+   "{t} (הלקוח עדיין בפורטל)",
+   "{t} (the customer is still in the portal)"
+  ],
+  [
+   "{t} (הלקוח פתח את הפורטל ואינו פעיל)",
+   "{t} (the customer opened the portal and is inactive)"
+  ],
+  [
+   "{t} (שיחה חוזרת במועד שהלקוח ביקש)",
+   "{t} (a callback at the time the customer asked)"
+  ],
+  [
+   "החלטת מדיניות: {x}",
+   "Policy decision: {x}"
+  ],
+  [
+   "עדכון סטטוס שיחה: {x}",
+   "Call status update: {x}"
+  ]
+ ]
+}
