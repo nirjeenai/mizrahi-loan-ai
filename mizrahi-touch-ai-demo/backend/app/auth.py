@@ -214,10 +214,12 @@ def current(request: Request):
 
 
 @router.get("/demo/cases")
-def demo_cases():
+def demo_cases(request: Request):
     """The demo case selector: case number and title only, never case data; the most recently worked-on case first."""
     _demo_only()
-    return _case_rows(repo.by_latest_activity(bank.case_ids()))
+    from . import i18n
+    from .i18n import views as i18n_views
+    return i18n.localized(i18n.lang(request), _case_rows(repo.by_latest_activity(bank.case_ids())), i18n_views.session_cases)
 
 
 @router.post("/demo/customer")

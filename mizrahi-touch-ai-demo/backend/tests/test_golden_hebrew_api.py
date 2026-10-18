@@ -53,7 +53,8 @@ def _customer_views(c, case: str) -> dict:
     return out
 
 
-def test_hebrew_customer_api_is_unchanged():
+def customer_api(headers: dict | None = None) -> dict:
+    """Seeds the cases and reads every customer endpoint (with `headers` on every customer request)."""
     # FULL: the whole package, every review VALID
     for m in ("2026-07", "2026-08", "2026-09"):
         add_doc("BRW-A", m, 14700, f"ido_{m}.pdf", case=FULL)
@@ -73,6 +74,7 @@ def test_hebrew_customer_api_is_unchanged():
         "customer_message": "שלום עידו, חסר לנו תלוש ספטמבר 2026. אפשר להעלות אותו כאן."})
 
     c = client_for(FULL, GAPS, EMPTY)
+    c.headers.update(headers or {})
     out = {case: _customer_views(c, case) for case in (FULL, GAPS, EMPTY)}
     # the prepared cases only, by id: the list's order and the applications in it depend on what else ran in the session
     out["session_cases"] = sorted((x for x in c.get("/api/session/demo/cases").json() if x["case_id"].startswith("DEMO-MTZ")),
@@ -105,4 +107,8 @@ def test_hebrew_customer_api_is_unchanged():
     out["resolve_unknown_action"] = {"status": r.status_code, "body": r.json()}
     r = c.post("/api/demo/onboarding/OBD-NOPE/v2/turn", json={"text": "שלום"})
     out["unknown_draft"] = {"status": r.status_code, "body": r.json()}
-    check("api_customer", out)
+    return out
+
+
+def test_hebrew_customer_api_is_unchanged():
+    check("api_customer", customer_api())

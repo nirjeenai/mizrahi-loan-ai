@@ -8,8 +8,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import auth, db
+from . import auth, db, i18n
 from .api import admin, assistant, banker, followup, routes
 from .config import settings
 from .mcp import server as mcp_server
@@ -30,6 +31,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Mizrahi Tefahot × JEEN — Loan Completion Agent (concept demo)", lifespan=lifespan)
+# the customer app's English for a known error message (app/i18n): FastAPI's own response for everyone else
+app.add_exception_handler(StarletteHTTPException, i18n.http_exception_handler)
 app.include_router(auth.router)
 app.include_router(routes.router)
 app.include_router(assistant.router)

@@ -14,8 +14,9 @@ from fastapi import APIRouter, File, Form, HTTPException, Query, Request, Upload
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from .. import auth
+from .. import auth, i18n
 from ..agent import actions, agent, continuation, tools
+from ..i18n import en as i18n_en, views as i18n_views
 from ..bank.mock_bank import bank
 from ..config import settings
 from ..llm import gemini as g
@@ -134,7 +135,7 @@ def case_snapshot(case_id: str, request: Request):
     case = _case(case_id)
     latest = repo.latest_case_result(case_id)
     state = readiness.compute(case_id)
-    return {"case": case, "stage_dictionary": bank.stage_dictionary(), "readiness": _customer_readiness(state),
+    return i18n.localized(i18n.lang(request), {"case": case, "stage_dictionary": bank.stage_dictionary(), "readiness": _customer_readiness(state),
             "available_actions": [a.model_dump() for a in actions.available(case_id, state)],
             "findings": [_customer_finding(f) for f in repo.findings(case_id)], "statements": repo.statements(case_id),
             "case_review": {k: latest.get(k) for k in ("run_id", "finished_at", "coverage", "income", "semantic", "criteria",
@@ -144,13 +145,13 @@ def case_snapshot(case_id: str, request: Request):
             "document_status": _customer_document_status(case_id),
             "outcomes": _outcomes(case_id, state),
             "updates": [_customer_update(e) for e in repo.audit_events(case_id, 80) if e["action"] in CUSTOMER_UPDATES][:25],
-            "provider": registry.active().identity().model_dump()}
+            "provider": registry.active().identity().model_dump()}, i18n_views.snapshot)
 
 
 @router.get("/cases/{case_id}/documents")
 def case_documents(case_id: str, request: Request):
     auth.require_customer_case(request, case_id)
-    return [_doc_view(d) for d in repo.documents(case_id)]
+    return i18n.localized(i18n.lang(request), [_doc_view(d) for d in repo.documents(case_id)], i18n_views.documents)
 
 
 @router.post("/cases/{case_id}/documents", status_code=202)
@@ -185,8 +186,12 @@ async def upload(case_id: str, request: Request, file: UploadFile = File(...), b
     if replaces:
         repo.audit(case_id, "customer", "customer_replaced_document", doc["document_id"],
                    {"document_id": doc["document_id"], "replaces": replaces, "filename": doc["filename"]})
-    return {"document": _doc_view(doc), "created": created, "note": note, "intent": intent,
-            "answered_request": answered["customer_request_id"] if answered else None, "replaces": replaces}
+    out = {"document": _doc_view(doc), "created": created, "note": note, "intent": intent,
+           "answered_request": answered["customer_request_id"] if answered else None, "replaces": replaces}
+    if note and i18n.lang(request):
+        out["note_en"] = (i18n_en.DUPLICATE_UPLOAD if note.startswith("הקובץ הזה") else
+                          i18n_en.DUPLICATE_OTHER_BORROWER.format(owner=i18n_en.name(owner)))
+    return i18n.localized(i18n.lang(request), out, lambda o: i18n_views.doc_view(o["document"]))
 
 
 class ProfileChange(BaseModel):
@@ -235,11 +240,12 @@ def _document(request: Request, document_id: str) -> dict:
 @router.get("/documents/{document_id}")
 def document_detail(document_id: str, request: Request):
     d = _document(request, document_id)
-    return {**_doc_view(d), "runs": repo.runs(d["case_id"], document_id),
+    return i18n.localized(i18n.lang(request), {**_doc_view(d), "runs": repo.runs(d["case_id"], document_id),
             "findings": [_customer_finding(f) for f in repo.findings(d["case_id"]) if f["document_id"] == document_id
                          or any(e.get("document_id") == document_id for e in f["evidence"])],
             "banker_status": _customer_document_status(d["case_id"]).get(document_id),
-            "outcome": _outcomes(d["case_id"], readiness.compute(d["case_id"]))["documents"].get(document_id)}
+            "outcome": _outcomes(d["case_id"], readiness.compute(d["case_id"]))["documents"].get(document_id)},
+                          i18n_views.document)
 
 
 @router.get("/documents/{document_id}/file")
@@ -373,16 +379,16 @@ def reset(case_id: str, request: Request):
 
 
 @router.get("/stage-dictionary")
-def stage_dictionary():
-    return bank.stage_dictionary()
+def stage_dictionary(request: Request):
+    return i18n.localized(i18n.lang(request), bank.stage_dictionary(), i18n_views.stage_dictionary)
 
 
 # ---------------------------------------------------------------- customer-started applications (demo intake)
 @router.get("/demo/applications/options")
-def application_options():
+def application_options(request: Request):
     if not settings.demo_identity:
         raise HTTPException(404, "demo intake is switched off")
-    return intake.options()
+    return i18n.localized(i18n.lang(request), intake.options(), i18n_views.application_options)
 
 
 @router.post("/demo/applications", status_code=201)
