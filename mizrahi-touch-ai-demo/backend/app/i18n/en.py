@@ -62,6 +62,10 @@ NAMES = {
     "ש.ג. מערכות מיזוג בע״מ": "S.G. Air-Conditioning Systems Ltd.", "כרמי צילום": "Karmi Photography",
     "אזולאי עיצוב פנים": "Azulay Interior Design", "פרידמן הדרכות": "Friedman Training",
     "סטודיו מאיה שטרן, אדריכלות": "Maya Stern Studio, Architecture",
+    # employers the customers declared (mock_bank); a document shows the employer exactly as printed
+    "אביב מערכות דיגיטל בע״מ": "Aviv Digital Systems Ltd.", "אופק לוגיסטיקה בע״מ": "Ofek Logistics Ltd.",
+    "אורן פתרונות תוכנה בע״מ": "Oren Software Solutions Ltd.", "גלי טכנולוגיות בע״מ": "Gali Technologies Ltd.",
+    "שחף הנדסה בע״מ": "Shahaf Engineering Ltd.",
 }
 
 
@@ -356,4 +360,29 @@ ERRORS = {
     "הגעתם למספר המרבי של טיוטות פתוחות": "You've reached the maximum number of open drafts",
     "נא להזין מספר": "Please enter a number",
     "נא להזין שם פרטי ושם משפחה (2–30 תווים)": "Please enter a first and last name (2–30 characters)",
+    "הגעתם למספר המרבי של בקשות פתוחות": "You've reached the maximum number of open applications",
+    "ההודעה ריקה": "The message is empty",
+    "השאלה אינה רלוונטית לתשובות הקודמות": "This question doesn't apply to the earlier answers",
+    "ללווה הנוסף צריך להיות מספר זהות משלו": "The co-borrower needs their own ID number",
+    "מספר הזהות אינו תקין (9 ספרות עם ספרת ביקורת)": "The ID number isn't valid (9 digits with a check digit)",
+    "נא לבחור אחת מהאפשרויות": "Please choose one of the options",
+    "נא לבחור לפחות מקור הכנסה אחד": "Please choose at least one income source",
+    "נא להזין 2–60 תווים": "Please enter 2–60 characters",
+    "עוד אין סימולציה לאשר": "There's no simulation to confirm yet",
+    "עוד אין סימולציה לשמור": "There's no simulation to save yet",
+    "עוד לא ענינו על כל השאלות": "Not all the questions have been answered yet",
 }
+
+
+def error(message_he: str) -> Optional[str]:
+    """The English of a known customer-facing error message (exact, or one of the formatted range messages)."""
+    import re
+    if message_he in ERRORS:
+        return ERRORS[message_he]
+    m = re.fullmatch(r"נא לבחור מספר תשלומים בין (\d+) ל־(\d+)", message_he)
+    if m:
+        return f"Please choose between {m.group(1)} and {m.group(2)} payments"
+    m = re.fullmatch(r"הסכום צריך להיות בין ([\d,]+) ל־([\d,]+) ₪", message_he)
+    if m:
+        return f"The amount must be between ₪{m.group(1)} and ₪{m.group(2)}"
+    return None

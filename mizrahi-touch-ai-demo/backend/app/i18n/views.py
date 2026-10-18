@@ -10,7 +10,7 @@ from ..review import case_review as CR
 from ..review import deterministic as det
 from ..review import reason_codes as RC
 from ..store import repo
-from . import en
+from . import criteria_en, en
 
 _FILE_TEXT_MARK = "\x00"
 
@@ -422,6 +422,7 @@ def doc_view(d: dict) -> None:
             _set(fact, "label", label)
         for c in review.get("criteria") or []:
             _set(c, "title", en.CRITERIA.get(c.get("criterion_id", "")))
+            _set(c, "explanation", criteria_en.explanation(c.get("explanation_he")))
 
 
 def documents(docs: list) -> None:
@@ -492,7 +493,7 @@ def application_options(o: dict) -> None:
 
 def error_text(message_he: str) -> Optional[str]:
     """The English of a customer-facing error message, when it is one of the known ones."""
-    return en.ERRORS.get(message_he)
+    return en.error(message_he)
 
 
 def requirement_title(title_he: str) -> Optional[str]:

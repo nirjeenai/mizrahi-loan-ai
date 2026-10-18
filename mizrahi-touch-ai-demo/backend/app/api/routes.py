@@ -445,6 +445,7 @@ class OnboardingTurn(BaseModel):
     question_id: Optional[str] = None
     value: object = None
     label_he: Optional[str] = Field(None, max_length=120)
+    label_en: Optional[str] = Field(None, max_length=120)
     action: Optional[Literal["edit", "cancel_edit", "simulate_confirm", "simulate_apply"]] = None
     turn_id: Optional[str] = Field(None, max_length=64)
     simulation: Optional[dict] = None
@@ -455,28 +456,28 @@ class SimulationDraft(BaseModel):
 
 
 @router.post("/demo/onboarding/v2", status_code=201)
-def onboarding_v2_start():
+def onboarding_v2_start(request: Request):
     """A new questionnaire draft, asked as a conversation (V2). Same draft table and confirmation as V1."""
-    return _onboarding(onboarding_chat.start)
+    return _onboarding(onboarding_chat.start, i18n.lang(request))
 
 
 @router.get("/demo/onboarding/{draft_id}/v2")
-def onboarding_v2_get(draft_id: str):
-    return _onboarding(onboarding_chat.view, draft_id)
+def onboarding_v2_get(draft_id: str, request: Request):
+    return _onboarding(onboarding_chat.view, draft_id, i18n.lang(request))
 
 
 @router.post("/demo/onboarding/{draft_id}/v2/turn")
-def onboarding_v2_turn(draft_id: str, body: OnboardingTurn):
+def onboarding_v2_turn(draft_id: str, body: OnboardingTurn, request: Request):
     """One customer turn → one assistant message: a quick reply, free text (Gemini by default, else the
     deterministic parser; the questionnaire validates either way) or an edit action. A repeated turn_id is a no-op."""
     return _onboarding(onboarding_chat.turn, draft_id, body.text, body.question_id, body.value, body.label_he, body.action,
-                       body.turn_id, body.simulation)
+                       body.turn_id, body.simulation, body.label_en, i18n.lang(request))
 
 
 @router.post("/demo/onboarding/{draft_id}/v2/simulation")
-def onboarding_v2_simulation(draft_id: str, body: SimulationDraft):
+def onboarding_v2_simulation(draft_id: str, body: SimulationDraft, request: Request):
     """Save the loan simulator's unconfirmed scenario (slider moves): no message, no answer, no model call."""
-    return _onboarding(onboarding_chat.save_simulation, draft_id, body.draft)
+    return _onboarding(onboarding_chat.save_simulation, draft_id, body.draft, i18n.lang(request))
 
 
 @router.post("/demo/onboarding/{draft_id}/v2/confirm")

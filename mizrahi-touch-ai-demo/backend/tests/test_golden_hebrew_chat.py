@@ -24,8 +24,8 @@ def _db():
 class Journey:
     """Records, after every step, the new messages and the whole view except the transcript (which is recorded once)."""
 
-    def __init__(self):
-        self.c = TestClient(app)
+    def __init__(self, headers: dict | None = None):
+        self.c = TestClient(app, headers=headers)
         self.d = self.c.post("/api/demo/onboarding/v2").json()
         self.id = self.d["draft_id"]
         self.steps: list[dict] = [{"step": "start", "view": self.d}]

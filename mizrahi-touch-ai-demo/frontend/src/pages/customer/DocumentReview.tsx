@@ -97,7 +97,7 @@ export function DocumentReview() {
               <span className={`badge ${c.outcome}`}>{(en ? OUTCOME_EN : OUTCOME_HE)[c.outcome]}</span>
               <div>
                 <div className="bold small" style={{ color: "var(--mz-ink)" }}>{(en && c.title_en) || c.title_he} <span className="crit-id">{c.criterion_id} · {c.decided_by === "judge" ? t("שופט LLM", "LLM judge") : c.decided_by === "code" ? t("כלל דטרמיניסטי", "Deterministic rule") : t("כלל + שופט", "Rule + judge")}</span></div>
-                <div className="small muted" style={{ lineHeight: 1.55 }}>{en ? <span lang="he" dir="rtl" className="orig-he-inline">{c.explanation_he}</span> : c.explanation_he}</div>
+                <div className="small muted" style={{ lineHeight: 1.55 }}>{en ? (c.explanation_en || (c.explanation_he ? original(c.explanation_he) : null)) : c.explanation_he}</div>
               </div>
             </div>
           ))}

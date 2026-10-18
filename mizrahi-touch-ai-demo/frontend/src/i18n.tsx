@@ -45,6 +45,12 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(initial);
   current = lang;                                          // set while rendering, so tr() in this render agrees
   useEffect(() => () => { current = "he"; }, []);          // leaving /customer: everything else is Hebrew
+  useEffect(() => {                                        // the tab's title follows; Hebrew keeps index.html's own
+    if (lang !== "en") return;
+    const before = document.title;
+    document.title = "Tefahot Touch × JEEN";
+    return () => { document.title = before; };
+  }, [lang]);
   const value = useMemo<LangCtx>(() => ({ lang, setLang: (l) => { remember(l); setLangState(l); } }), [lang]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

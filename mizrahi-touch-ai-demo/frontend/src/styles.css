@@ -1432,6 +1432,9 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .phone[data-lang=en] input, .phone[data-lang=en] button, .phone[data-lang=en] textarea, .phone[data-lang=en] select { font-family: inherit; }
 /* a Hebrew original shown in an English screen (a banker's message, an AI note): right-aligned in its own direction */
 .phone[data-lang=en] .orig-he { text-align: right; }
+/* English summary rows: the label keeps a readable column instead of yielding all the width to a long value */
+.phone[data-lang=en] .cv2-summary .cv2-line { grid-template-columns: minmax(7.5em, 38%) minmax(0, 1fr); column-gap: 12px; }
+.phone[data-lang=en] .cv2-summary .cv2-line > span:last-child { text-align: right; }
 .phone[data-lang=en] .orig-he-inline { display: block; text-align: right; unicode-bidi: isolate; }
 .phone[data-lang=en] .orig-tag { display: inline-block; direction: ltr; unicode-bidi: isolate; font-size: 9.5px; font-weight: 800;
   letter-spacing: 0.3px; color: var(--mz-muted); background: var(--mz-bg); border: 1px solid var(--mz-line); border-radius: 5px;

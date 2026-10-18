@@ -19,9 +19,10 @@ and the VAT registration recorded; חברה בע״מ is the limited, banker-assi
 the case at confirmation (`annotate_case`)."""
 from __future__ import annotations
 
+import logging
 import re
 import threading
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from .. import db
 from ..config import settings
@@ -29,8 +30,14 @@ from ..policy import store
 from ..review import deterministic as det
 from ..review import rubrics
 from ..util import now_iso
-from . import indication, loan_sim, onboarding, onboarding_llm as llm, onboarding_nlu as nlu
+from .. import i18n
+from ..i18n import chat_en as EN
+from . import indication, loan_sim, onboarding, onboarding_llm as llm, onboarding_nlu as nlu, onboarding_nlu_en as nlu_en
 from .onboarding import BY_ID, OnboardingError
+
+log = logging.getLogger("onboarding_chat")
+# what a message gains when the customer app sent its language; removed again from a view without it
+LANG_KEYS = ("text_en", "lang")
 
 LOAN_FIELDS = ("loan_type", "business_form")
 STAGES: list[tuple[str, str, list[str]]] = [
@@ -80,7 +87,7 @@ def _new_conv() -> dict:
             "summary_for": None, "loan": {}, "held": {}, "turns": [], "llm_calls": 0, "sim": {}}
 
 
-def _load(draft_id: str) -> tuple[dict, dict, dict]:
+def _load(draft_id: str, lang: Optional[str] = None) -> tuple[dict, dict, dict]:
     row = onboarding._row(draft_id)
     a = onboarding._clean_answers(row["answers"])
     conv = db.jload(row.get("conversation"))
@@ -88,7 +95,7 @@ def _load(draft_id: str) -> tuple[dict, dict, dict]:
         conv = _new_conv()
         first = _pending(conv, a)
         _say(conv, f"{OPENING}\nנתחיל, {_prompt(first, conv, a)}" if first == "loan_type" else _prompt(first, conv, a),
-             question_id=first)
+             question_id=first, **_said(lang, lambda: EN.opening(conv, a, first)))
         conv["asked"] = first
         _save(draft_id, conv)
     for k, v in _new_conv().items():
@@ -107,6 +114,54 @@ def _say(conv: dict, text: str, role: str = "assistant", kind: str = "text", **e
     conv["seq"] += 1
     conv["messages"].append({"id": conv["seq"], "role": role, "kind": kind, "text_he": text, "at": now_iso(),
                              **{k: v for k, v in extra.items() if v not in (None, [], "")}})
+
+
+def _said(lang: Optional[str], make: Optional[Callable[[], str]] = None) -> dict:
+    """What a message records of the language when the customer app sent it: the session's language and, where the
+    message has an English source (the assistant's reply, a quick reply's label), its English. Without the header,
+    nothing — the message is exactly what it was before English existed."""
+    if not lang:
+        return {}
+    out: dict[str, Any] = {"lang": lang}
+    if make is not None:
+        try:
+            out["text_en"] = make()
+        except Exception:                          # English must never cost the customer the Hebrew turn
+            log.exception("English wording failed; the message keeps its Hebrew only")
+    return out
+
+
+def _english(t: dict, key: str, make: Callable[[], str]) -> None:
+    """The English twin of one Hebrew sentence of this turn (i18n/chat_en), recorded only when the customer app sent its
+    language. A failure drops this turn's English, never its Hebrew."""
+    rec = t.get("_en")
+    if rec is None:
+        return
+    try:
+        text = make()
+    except Exception:
+        log.exception("English wording failed; the turn keeps its Hebrew only")
+        t["_en"] = None
+        return
+    if isinstance(rec[key], list):
+        rec[key].append(text)
+    else:
+        rec[key] = text
+
+
+def _en_text(make: Callable[[], str]) -> str:
+    try:
+        return make()
+    except Exception:
+        log.exception("English wording failed")
+        return ""
+
+
+def _parser_text(text: Any, pending: Optional[str], lang: Optional[str]) -> str:
+    """The copy of a typed message the deterministic parser reads: the message itself, or for an English session its
+    English rewritten into the parser's Hebrew cue words (onboarding_nlu_en). The message is stored as typed."""
+    clean = " ".join(str(text).split())[:MAX_TEXT]
+    return nlu_en.to_parser(clean, pending) if lang == "en" else clean
 
 
 def _loan(conv: dict, a: dict) -> dict:
@@ -898,7 +953,7 @@ def _set_loan(draft_id: str, conv: dict, a: dict, loan_type: Optional[str], form
 
 def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) -> dict:
     """Record what is valid, hold what does not apply yet, and report what was refused or contradicts an answer."""
-    out: dict[str, Any] = {"rejected": [], "conflicts": [], "held": [], "actions": []}
+    out: dict[str, Any] = {"rejected": [], "conflicts": [], "held": [], "actions": [], "rejected_en": []}
     values = dict(u["values"])
     focus = conv.get("focus")
     before = _v2(conv, a)
@@ -935,6 +990,7 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
         if qid == "income" and sole and "self_employed" not in (value or []):
             out["rejected"].append((qid, "בהלוואה עסקית לעוסק צריכה להיות הכנסה מהעסק. אם אין לך עסק, אפשר לעבור "
                                          "להלוואה פרטית."))
+            out["rejected_en"].append(EN.SOLE_INCOME)
             out["actions"].append({"label_he": "לעבור להלוואה פרטית", "question_id": "loan_type", "value": "personal"})
             continue
         if conflict(qid, value):
@@ -949,11 +1005,13 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
             rule = loan_sim.check_answer(conv, a, qid, onboarding._validate(qid, value))
             if rule:
                 out["rejected"].append((qid, rule[0]))
+                out["rejected_en"].append(_en_text(lambda: EN.rule_message(conv, a, qid, onboarding._validate(qid, value))))
                 out["actions"] += rule[1]
                 continue
             onboarding.answer(draft_id, qid, value)
         except OnboardingError as exc:
             out["rejected"].append((qid, _error_text(qid, exc.message_he, value)))
+            out["rejected_en"].append(_en_text(lambda: EN.error(qid, exc.message_he, value)))
             continue
         a = fresh()
         if focus == qid:
@@ -969,11 +1027,13 @@ def _apply(draft_id: str, conv: dict, a: dict, u: dict, pending: Optional[str]) 
             rule = loan_sim.check_answer(conv, a, qid, onboarding._validate(qid, value))
             if rule:
                 out["rejected"].append((qid, rule[0]))
+                out["rejected_en"].append(_en_text(lambda: EN.rule_message(conv, a, qid, onboarding._validate(qid, value))))
                 out["actions"] += rule[1]
                 continue
             onboarding.answer(draft_id, qid, value)
         except OnboardingError as exc:
             out["rejected"].append((qid, _error_text(qid, exc.message_he, value)))
+            out["rejected_en"].append(_en_text(lambda: EN.error(qid, exc.message_he, value)))
     if focus in LOAN_FIELDS and (lt or form):
         conv["focus"] = None
     a = fresh()
@@ -1065,8 +1125,10 @@ def _llm_reply_ok(reply: str, t: dict) -> bool:
 
 
 # ---------------------------------------------------------------- API
-def view(draft_id: str) -> dict[str, Any]:
-    row, a, conv = _load(draft_id)
+def view(draft_id: str, lang: Optional[str] = None) -> dict[str, Any]:
+    """`lang`: the customer app's language (X-MZ-Lang). With it the view gains `*_en` siblings (i18n/chat_en); without it
+    the view is exactly the Hebrew one, the transcript's English included."""
+    row, a, conv = _load(draft_id, lang)
     base = onboarding.view(draft_id)
     focus = conv.get("focus")
     pending = _pending(conv, a) if row["status"] == "draft" else None
@@ -1078,6 +1140,9 @@ def view(draft_id: str) -> dict[str, Any]:
         snap = m.get("indication")
         extra = {"simulator": {**m["simulator"], "live": m["id"] == live_sim}} if m.get("simulator") else {}
         messages.append({**m, **extra, "stale": bool(snap) and snap.get("key") != current_key})
+        if lang is None:
+            for k in LANG_KEYS:
+                messages[-1].pop(k, None)
     last_actions = next((m.get("actions") for m in reversed(messages) if m["role"] == "assistant"), None)
     simulation = loan_sim.view(conv, a, pending) if row["status"] == "draft" else None
     suggestions: list[str] = []
@@ -1109,11 +1174,11 @@ def view(draft_id: str) -> dict[str, Any]:
     if pending is None and base["summary"]:
         out["summary"] = {**base["summary"], "lines": _summary_lines(conv, a),
                           "intro_he": f"{first + ', ' if first else ''}זה מה שהבנתי. אפשר לשנות כל פרט לפני שפותחים את הבקשה."}
-    return out
+    return i18n.localized(lang, out, lambda o: EN.view(o, conv, a))
 
 
-def start() -> dict[str, Any]:
-    return view(onboarding.start()["draft_id"])
+def start(lang: Optional[str] = None) -> dict[str, Any]:
+    return view(onboarding.start()["draft_id"], lang)
 
 
 def _sim_action(draft_id: str, conv: dict, a: dict, t: dict, kind: str, simulation: Optional[dict],
@@ -1130,6 +1195,7 @@ def _sim_action(draft_id: str, conv: dict, a: dict, t: dict, kind: str, simulati
         prm = loan_sim.draft_params(conv, a)
         t["sim_text"] = (f"עדכנתי בסימולציה: {_ils(prm['amount'])} ב־{prm['term']} תשלומים. "
                          + loan_sim.monthly_sentence(conv, a, prm) + " אם זה מתאים, אפשר לאשר.")
+        _english(t, "sim", lambda: EN.sim_apply_pending(conv, a, prm))
         return a
     base = ({**(loan_sim.confirmed_params(conv, a) or current), "product": current["product"]}
             if kind == "simulate_apply" else current)
@@ -1139,6 +1205,7 @@ def _sim_action(draft_id: str, conv: dict, a: dict, t: dict, kind: str, simulati
     if found:
         msg, acts = loan_sim.issues_text(found)
         t["issues"].append(msg)
+        _english(t, "issues", lambda: EN.issues_text(found, loan_sim.product(conv, a)))
         t["actions"] += acts
         return a
     if conv.get("focus") in loan_sim.SIM_FIELDS:
@@ -1147,21 +1214,26 @@ def _sim_action(draft_id: str, conv: dict, a: dict, t: dict, kind: str, simulati
     t["changes"] = [(k, before.get(k), after.get(k)) for k in ORDER if k != "entity" and before.get(k) != after.get(k)
                     and after.get(k) is not None]
     t["sim_text"] = loan_sim.confirmed_text(conv, a, prm)
+    _english(t, "sim", lambda: EN.confirmed_text(conv, a, prm))
     return a
 
 
 def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] = None, value: Any = None,
          label_he: Optional[str] = None, action: Optional[str] = None, turn_id: Optional[str] = None,
-         simulation: Optional[dict] = None) -> dict[str, Any]:
+         simulation: Optional[dict] = None, label_en: Optional[str] = None, lang: Optional[str] = None) -> dict[str, Any]:
     """One customer turn → exactly one assistant message. A repeated `turn_id` (a double submit) changes nothing.
     `action`: edit · cancel_edit · simulate_confirm (the card's scenario in `simulation`) · simulate_apply (a suggested
-    change in `simulation`)."""
+    change in `simulation`).
+    `lang` (the customer app's X-MZ-Lang): the turn is composed in Hebrew exactly as without it, and the same outcome is
+    also worded in English (i18n/chat_en) and stored beside it. In an English session typed English is read through
+    onboarding_nlu_en, and the reply is the deterministic one (the model may still interpret the message).
+    `label_en`: the English label of the quick reply the customer tapped, shown back in the English app only."""
     with _lock:
-        row, a, conv = _load(draft_id)
+        row, a, conv = _load(draft_id, lang)
         if row["status"] != "draft":
             raise OnboardingError("הבקשה כבר נפתחה, אי אפשר לשנות את התשובות", 409)
         if turn_id and turn_id in conv["turns"]:
-            return view(draft_id)
+            return view(draft_id, lang)
         pending = _pending(conv, a)
         calls_at_start = conv.get("llm_calls", 0)
         u: dict[str, Any] = {}
@@ -1169,12 +1241,13 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                              "interrupted": False, "gross": False, "edit": False, "ack": "", "ind_text": "",
                              "ind_event": None, "ind_snap": None, "summary_text": "", "sim_text": "",
                              "sim_touch": False}
+        t["_en"] = {"ack": "", "issues": [], "answers": [], "sim": ""} if lang else None
         conv.pop("sim_touch", None)
         engine, customer = "rules", ""
         use_llm_reply = False
         su: dict[str, Any] = {}
         if action is None and question_id is None and text:
-            su = loan_sim.understand(" ".join(str(text).split())[:MAX_TEXT], conv, a, pending)
+            su = loan_sim.understand(_parser_text(text, pending, lang), conv, a, pending)
             if su.get("confirm"):
                 action = "simulate_confirm"
 
@@ -1184,29 +1257,34 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                     conv["focus"] = loan_sim.amount_field(conv, a)
                     customer = "שינוי הסימולציה"
                     t["answers"].append("בטח, אפשר לשנות את התרחיש בסימולציה ולאשר מחדש.")
+                    _english(t, "answers", lambda: EN.edit_answer("simulation", conv, a))
                     t["edit"] = True
-                    _say(conv, customer, role="user")
+                    _say(conv, customer, role="user", **_said(lang, lambda: EN.user_edit("simulation")))
                 elif question_id not in BY_ID and question_id not in LOAN_FIELDS or question_id not in _v2(conv, a):
                     raise OnboardingError("אי אפשר לערוך את הפרט הזה")
                 else:
                     conv["focus"] = question_id
                     customer = f"שינוי {FIELD_HE[question_id]}"
                     t["answers"].append(f"בטח. כרגע רשום: {_value_he(question_id, _v2(conv, a)[question_id], a)}.")
+                    _english(t, "answers", lambda: EN.edit_answer(question_id, conv, a))
                     t["edit"] = True
-                    _say(conv, customer, role="user")
+                    _say(conv, customer, role="user", **_said(lang, lambda: EN.user_edit(question_id)))
             else:
                 conv["focus"] = None
                 customer = "ביטול השינוי"
                 t["answers"].append("בסדר, השארתי את מה שהיה.")
-                _say(conv, customer, role="user")
+                _english(t, "answers", lambda: "Fine, I left it as it was.")
+                _say(conv, customer, role="user", **_said(lang, lambda: "Cancel the change"))
         elif action in ("simulate_confirm", "simulate_apply"):
+            typed = bool(text and su.get("confirm"))
             if text and su.get("confirm"):
                 customer = " ".join(str(text).split())[:MAX_TEXT]
             else:
                 prm = {**loan_sim.draft_params(conv, a), **loan_sim.clean(simulation)} if loan_sim.applies(conv, a) else {}
                 customer = (label_he or "")[:80] or (
                     f"זה התרחיש שלי: {_ils(prm['amount'])} ב־{prm['term']} תשלומים" if prm else "אישור הסימולציה")
-            _say(conv, customer, role="user")
+            _say(conv, customer, role="user", **_said(lang, None if typed else
+                                                       lambda: (label_en or "")[:80] or EN.user_scenario(prm)))
             a = _sim_action(draft_id, conv, a, t, action, simulation, pending)
             if t["changes"]:
                 t["ind_event"], t["ind_snap"], t["ind_text"] = _indication_event(conv, a)
@@ -1215,6 +1293,7 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 if question_id not in BY_ID and question_id not in LOAN_FIELDS:
                     raise OnboardingError("שאלה לא מוכרת")
                 customer = (label_he or "")[:80] or _value_he(question_id, value, a)
+                said = _said(lang, lambda: (label_en or "")[:80] or EN.value(question_id, value, a))
                 u = {"values": {question_id: value}, "corrections": {question_id}, "unclear": [], "topics": [],
                      "notes": [], "engine": "rules"}
                 use_llm_reply = True
@@ -1222,6 +1301,8 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 customer = " ".join(str(text or "").split())[:MAX_TEXT]
                 if not customer:
                     raise OnboardingError("ההודעה ריקה")
+                # the customer's own words are stored as written; a suggestion or an action that sends text has its label
+                said = _said(lang, (lambda: label_en[:80]) if label_en else None)
                 masked = su.get("masked", customer)
                 u = (_understand_llm(customer, conv, a, pending, draft_id, masked, frozenset(su.get("numbers") or ()))
                      or _understand_rules(masked, conv, a, pending))
@@ -1230,7 +1311,7 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 u["sim_change"] = bool(su.get("change_intent"))
                 if su.get("product") and "loan_type" not in _v2(conv, a) and "loan_type" not in u["values"]:
                     u["values"]["loan_type"] = "personal"   # "הלוואה ברגע" names a personal-loan product
-            _say(conv, customer, role="user")
+            _say(conv, customer, role="user", **said)
             sim_before = loan_sim.applies(conv, a)
             sim_notes = loan_sim.apply_text(conv, a, su) if su else []
             res = _apply(draft_id, conv, a, u, pending)
@@ -1247,9 +1328,13 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                     nxt = _pending(conv, a)
             intro_next = _sim_question(nxt, conv, a) and not loan_sim._sim(conv)["shown"]
             t["ack"] = _ack(t["changes"], a, conv, frozenset({"purpose", "company_purpose"}) if intro_next else frozenset())
+            _english(t, "ack", lambda: EN.ack(t["changes"], a, conv, frozenset({"purpose", "company_purpose"})
+                                              if intro_next else frozenset()))
             sim_text, sim_acts = loan_sim.notes_text(conv, a, sim_notes, nxt)
             if moved and loan_sim.status(conv, a, nxt) == "confirmed" and not sim_notes:
                 sim_text = loan_sim.monthly_sentence(conv, a)
+            _english(t, "sim", lambda: EN.monthly_sentence(conv, a) if moved and loan_sim.status(conv, a, nxt) == "confirmed"
+                     and not sim_notes else EN.notes_text(conv, a, sim_notes, nxt))
             t["sim_text"], t["sim_touch"] = sim_text, bool(sim_notes or moved)
             t["actions"] += sim_acts
             if t["held"]:
@@ -1259,23 +1344,29 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 t["issues"].append(msg)
                 t["clarifying"] = t["clarifying"] or qid == pending
                 t["sim_touch"] = t["sim_touch"] or (qid in loan_sim.SIM_FIELDS and loan_sim.applies(conv, a))
+            for english in res["rejected_en"]:
+                _english(t, "issues", lambda: english)
             for qid, old, new in res["conflicts"]:
                 t["issues"].append(f"רק לוודא, קודם רשמתי {_value_he(qid, old, a, short=True)}, ועכשיו הבנתי "
                                    f"{_value_he(qid, new, a, short=True)}. מה נכון?")
                 t["actions"] += [{"label_he": _value_he(qid, new, a, short=True), "question_id": qid, "value": new},
                                  {"label_he": _value_he(qid, old, a, short=True), "question_id": qid, "value": old}]
                 t["clarifying"] = True
+                _english(t, "issues", lambda: EN.conflict(qid, old, new, a))
             for un in u["unclear"]:
                 msg, acts = _unclear(un["field"], un.get("kind", ""), conv, a)
                 t["issues"].append(msg)
+                _english(t, "issues", lambda: EN.unclear(un["field"], un.get("kind", ""), conv, a))
                 t["actions"] += acts
                 t["clarifying"] = True
             for n in u["notes"]:
                 if n["kind"] == "gross":
                     t["gross"] = True
                     t["issues"].append(_gross_text(_pending(conv, a)))
+                    _english(t, "issues", lambda: EN.gross(_pending(conv, a)))
                 elif n["kind"] in NOTE_TEXT:
                     t["issues"].append(NOTE_TEXT[n["kind"]](n))
+                    _english(t, "issues", lambda: EN.NOTES[n["kind"]](n))
                     t["clarifying"] = t["clarifying"] or n["kind"] in CLARIFYING_NOTES
             for topic, q in u["topics"]:
                 if topic == "calculate" and t["gross"]:
@@ -1285,21 +1376,26 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                 if topic == "change" and t["changes"]:
                     continue
                 t["off_topic"] = t.get("off_topic") or topic == "off_topic"
+                asked_now = _pending(conv, a)
                 reply, acts = _answer(topic, q, a, conv, _pending(conv, a))
                 if reply:
                     t["answers"].append(reply)
+                    _english(t, "answers", lambda: EN.answer(topic, q, a, conv, asked_now))
                 t["actions"] += acts
             t["interrupted"] = bool(t["issues"] or t["answers"] or t["sim_text"])
             if t["changes"]:
                 t["ind_event"], t["ind_snap"], t["ind_text"] = _indication_event(conv, a)
             if not (t["changes"] or t["held"] or t["issues"] or t["answers"] or t["sim_text"] or t["sim_touch"]):
-                greet = nlu.normalize(customer).strip("!.,? ")
+                greet = nlu.normalize(_parser_text(text, pending, lang) if lang == "en" and text else customer).strip("!.,? ")
                 if greet in ("שלום", "היי", "הי", "בוקר טוב", "ערב טוב", "אהלן"):
                     t["answers"].append("שלום!")
+                    _english(t, "answers", lambda: "Hello!")
                 elif greet.startswith("תודה"):
                     t["answers"].append("בשמחה.")
+                    _english(t, "answers", lambda: "You're welcome.")
                 elif greet not in ("נמשיך", "כן נמשיך", "בוא נמשיך", "בואו נמשיך", "המשך", "יאללה", "אוקיי", "בסדר", "כן"):
                     t["answers"].append(_not_understood(pending))
+                    _english(t, "answers", lambda: EN.not_understood(pending))
                     t["clarifying"] = True
                 t["interrupted"] = True
         t["next"] = _pending(conv, a)
@@ -1313,7 +1409,8 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
 
         reply_text, reply_engine = None, "rules"
         # a turn that carries scenario figures is worded by the deterministic composer: the numbers come from the engine
-        if use_llm_reply and not t["edit"] and not t["sim_text"]:
+        # an English session gets the deterministic English reply (the model words Hebrew only)
+        if use_llm_reply and not t["edit"] and not t["sim_text"] and lang != "en":
             facts = _facts(t, conv, a, customer)
             if _candidate_ok(u, t, conv, a, facts):
                 reply_text, reply_engine = u["candidate"], "llm"     # one call: the interpretation's own reply
@@ -1323,6 +1420,7 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
                     reply_text, reply_engine = candidate, "llm"
         if reply_text is None:
             reply_text = _compose_rules(t, conv, a)
+        reply_lang = _said(lang, (lambda: EN.compose(t, conv, a)) if t["_en"] is not None else None)
         asked = t["next"] if (t["next"] and not t["clarifying"]) else None
         # the card travels with the reply while it is the open question, and whenever this turn changed the scenario
         attach = _sim_question(t["next"], conv, a) or t["sim_touch"] or conv.pop("sim_touch", False)
@@ -1331,7 +1429,7 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
             loan_sim._sim(conv)["shown"] += 1
         _say(conv, reply_text, question_id=asked, indication=t["ind_snap"], insight=t["ind_event"],
              actions=t["actions"][:4], engine=reply_engine, understood_by=engine,
-             llm_calls=str(conv.get("llm_calls", 0) - calls_at_start), simulator=sim_snap)
+             llm_calls=str(conv.get("llm_calls", 0) - calls_at_start), simulator=sim_snap, **reply_lang)
         if asked:
             conv["asked"] = asked
         elif t["next"] is None:
@@ -1339,21 +1437,21 @@ def turn(draft_id: str, text: Optional[str] = None, question_id: Optional[str] =
         if turn_id:
             conv["turns"].append(turn_id)
         _save(draft_id, conv)
-    return view(draft_id)
+    return view(draft_id, lang)
 
 
-def save_simulation(draft_id: str, draft: dict) -> dict[str, Any]:
+def save_simulation(draft_id: str, draft: dict, lang: Optional[str] = None) -> dict[str, Any]:
     """The card's unconfirmed scenario while the customer explores it: no message, no answer, no model call. Returns
     the server's own evaluation of it (the card computes the same figures locally for instant feedback)."""
     with _lock:
-        row, a, conv = _load(draft_id)
+        row, a, conv = _load(draft_id, lang)
         if row["status"] != "draft":
             raise OnboardingError("הבקשה כבר נפתחה, אי אפשר לשנות את התשובות", 409)
         if not loan_sim.applies(conv, a):
             raise OnboardingError("עוד אין סימולציה לשמור", 409)
         loan_sim.save_draft(conv, a, draft)
         _save(draft_id, conv)
-        return {"simulation": loan_sim.view(conv, a, _pending(conv, a))}
+        return i18n.localized(lang, {"simulation": loan_sim.view(conv, a, _pending(conv, a))}, EN.simulation)
 
 
 def annotate_case(draft_id: str, case_id: str) -> None:
