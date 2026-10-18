@@ -41,7 +41,9 @@ MOBILE, DESKTOP = {"width": 390, "height": 844}, {"width": 1440, "height": 900}
 # times shown to the customer come from the server clock: masked in pictures, replaced in text
 # the rendered PDF page is source data whose rasterization varies by a few anti-aliased pixels between renders: it is
 # masked, and the evidence boxes drawn over it are compared through their positions in the DOM text instead
-MASK = ".upd-time, time, [data-testid=card-stale], .statusbar, .bubble-meta, [data-testid=evidence-viewer] img"
+MASK = (".upd-time, time, [data-testid=card-stale], .statusbar, .bubble-meta, [data-testid=evidence-viewer] img, "
+        # environment-dependent: the OS loads speech voices asynchronously; the floating button shrinks on scroll timing
+        ".voice-status, .fab")
 TIME_RE = re.compile(r"\d{1,2}[./]\d{1,2}[./]\d{2,4}(?:,?\s*\|?\s*\d{1,2}:\d{2}(?::\d{2})?)?|\b\d{1,2}:\d{2}(?::\d{2})?\b")
 
 # what the customer types in each language (the Hebrew script is the baseline's)
@@ -123,6 +125,11 @@ def prepare(page: Page, base: str, lang: str, case: str) -> None:
 
 def settle_page(page: Page) -> None:
     page.wait_for_load_state("networkidle")
+    try:                                                     # every image decoded, and the OS speech voices loaded
+        page.wait_for_function("[...document.images].every((i) => i.complete) && (!window.speechSynthesis"
+                               " || speechSynthesis.getVoices().length > 0)", timeout=8000)
+    except Exception:
+        pass
     page.locator(".spinner").first.wait_for(state="detached", timeout=15000) if page.locator(".spinner").count() else None
     try:
         expect(page.locator("[data-testid=evidence-viewer].loading")).to_have_count(0, timeout=10000)
@@ -150,6 +157,16 @@ class Capture:
                     evidence_boxes: [...document.querySelectorAll('.hl')].map(e => [e.dataset.field, e.style.left, e.style.top,
                                                                                      e.style.width, e.style.height, e.className])}; }""")
         body = TIME_RE.sub("<TIME>", text) + ("\n\n--- presenter pane ---\n" + TIME_RE.sub("<TIME>", side) if side else "")
+        body = re.sub(r"^(קול|Voice): .*$", "<VOICE>", body, flags=re.M)
+        # every text node of the phone, with its parent: the same nodes render the same glyph runs
+        nodes = page.evaluate("""() => { const root = document.querySelector('.phone'); if (!root) return [];
+            const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const out = [];
+            for (let n = w.nextNode(); n; n = w.nextNode()) { if (!n.nodeValue.trim() || n.parentElement.closest('.voice-status')) continue;
+              out.push(n.parentElement.tagName.toLowerCase() + '.' + (n.parentElement.className || '') + ' | ' + n.nodeValue); }
+            return out; }""")
+        ids = re.compile(r"\b([A-Z][A-Z0-9]{0,7})-[0-9A-F]{8,12}\b")
+        (self.out / "text" / f"{name}.nodes").write_text("\n".join(ids.sub(r"\1-<ID>", TIME_RE.sub("<TIME>", x)) for x in nodes),
+                                                         encoding="utf8")
         (self.out / "text" / f"{name}.txt").write_text(json.dumps(attrs, ensure_ascii=False) + "\n\n" + body, encoding="utf8")
         self.names.append(name)
         print("shot", name, flush=True)
@@ -197,6 +214,7 @@ def customer_screens(page: Page, cap: Capture, base: str, tag: str, mobile: bool
         cap.shot(page, f"{tag}-upload-sheet")
         page.goto(base + "/customer")
         expect(page.locator("[data-testid=fab]")).to_be_visible(timeout=20000)
+        page.wait_for_function("!window.speechSynthesis || speechSynthesis.getVoices().length > 0", timeout=8000)
         page.locator("[data-testid=fab]").click()
         expect(page.locator("[data-testid=chat-input]")).to_be_visible()
         page.locator("[data-testid=chat-input]").fill(s["ask"])
@@ -281,6 +299,10 @@ def capture(base: str, out: Path, lang: str) -> None:
 
 
 # ---------------------------------------------------------------- compare
+NOISE_PX = 8
+TOLERANCE = 10
+
+
 def compare(a: Path, b: Path, allow: dict[str, list[tuple[int, int, int, int]]] | None = None) -> int:
     """Pixel, text and JSON differences between two captures. `allow`: per screen, regions (css px) where a difference
     is expected (the language switch). Writes <b>/diff/<screen>.png for every screen that differs."""
@@ -304,12 +326,16 @@ def compare(a: Path, b: Path, allow: dict[str, list[tuple[int, int, int, int]]] 
         box = diff.getbbox()
         scale = 2 if name.startswith("m-") else 1
         if box:
-            mask = diff.convert("L").point(lambda v: 255 if v else 0)
+            # a channel difference of at most 10/255 is the compositor's anti-aliasing, never a glyph or layout change
+            mask = diff.convert("L").point(lambda v: 255 if v > TOLERANCE else 0)
             for (l, t, r, btm) in allow.get(name, []) + allow.get("*", []):
                 mask.paste(0, (l * scale, t * scale, r * scale, btm * scale))
             box = mask.getbbox()
             if box:
                 changed = sum(1 for v in mask.get_flattened_data() if v)
+                if changed <= NOISE_PX:                    # isolated anti-aliasing pixels, never a layout or glyph change
+                    report.append(f"noise    {name}: {changed} px")
+                    continue
                 overlay = y.copy()
                 overlay.paste((255, 0, 0), mask=mask)
                 overlay.save(b / "diff" / png.name)
@@ -318,6 +344,13 @@ def compare(a: Path, b: Path, allow: dict[str, list[tuple[int, int, int, int]]] 
                 bad += 1
                 continue
         report.append(f"same     {name}")
+    for txt in sorted((a / "text").glob("*.nodes")):
+        other = b / "text" / txt.name
+        if other.exists() and txt.read_text(encoding="utf8") != other.read_text(encoding="utf8"):
+            u = list(difflib.unified_diff(txt.read_text(encoding="utf8").splitlines(), other.read_text(encoding="utf8").splitlines(),
+                                          "baseline", "now", lineterm="", n=0))
+            report.append(f"NODES    {txt.stem}:\n    " + "\n    ".join(u[2:10]))
+            bad += 1
     for txt in sorted((a / "text").glob("*.txt")):
         other = b / "text" / txt.name
         if not other.exists():

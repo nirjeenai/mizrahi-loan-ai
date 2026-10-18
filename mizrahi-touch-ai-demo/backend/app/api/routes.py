@@ -207,8 +207,9 @@ def change_profile(case_id: str, body: ProfileChange, request: Request):
         out = profile_change.change(case_id, body.borrowers, "customer")
     except profile_change.ProfileError as exc:
         raise HTTPException(exc.status, exc.message_he) from None
-    return {k: v for k, v in out.items() if k != "requirements"} | {
-        "requirements": [{k: r[k] for k in ("code", "title_he", "owner_he", "intake")} for r in out["requirements"]]}
+    return i18n.localized(i18n.lang(request), {k: v for k, v in out.items() if k != "requirements"} | {
+        "requirements": [{k: r[k] for k in ("code", "title_he", "owner_he", "intake")} for r in out["requirements"]]},
+        i18n_views.profile_change)
 
 
 class Reply(BaseModel):

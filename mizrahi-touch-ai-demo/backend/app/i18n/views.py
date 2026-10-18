@@ -493,3 +493,30 @@ def application_options(o: dict) -> None:
 def error_text(message_he: str) -> Optional[str]:
     """The English of a customer-facing error message, when it is one of the known ones."""
     return en.ERRORS.get(message_he)
+
+
+def requirement_title(title_he: str) -> Optional[str]:
+    """A requirement title as composed by requirements.compose ('<policy label> — <owner>'), in English; None when the
+    label is not one of the policy's."""
+    from ..policy import store
+    label, _, owner = title_he.partition(" — ")
+    pol = store.published("loan_policy")["config"]
+    for r in pol["document_requirements"]:
+        months = str((r.get("rules") or {}).get("months") or 3)
+        if r["label_he"].replace("{months}", months) == label and r["id"] in en.REQUIREMENTS:
+            english = en.REQUIREMENTS[r["id"]][0].replace("{months}", months)
+            if not owner:
+                return english
+            owner_en = en.PURPOSE_LABELS.get(owner) or en.name(owner)
+            m = re.match(r"(.+?)(?: \((.+)\))?$", owner)
+            if m and m.group(1).startswith("חשבון"):
+                owner_en = en.account_label(m.group(1)) + (f" ({en.names(m.group(2).split(' ו'))})" if m.group(2) else "")
+            return f"{english} — {owner_en}"
+    return None
+
+
+def profile_change(out: dict) -> None:
+    """POST /api/cases/{id}/profile: the requirements added and removed, in English."""
+    for key in ("added", "removed"):
+        if out.get(key):
+            out[f"{key}_en"] = [requirement_title(t) or t for t in out[key]]

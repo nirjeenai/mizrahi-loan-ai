@@ -3,8 +3,9 @@ import { http } from "./api";
 /* The follow-up engine's API (CONTRACTS §8): the customer's view, the banker's card and timeline, and the demo controls
    the presenter drives. Every call goes to the same origin; demo routes answer only in demo mode and say "סימולציה". */
 export interface CustomerFollowup {
-  state_he: string; nudge: boolean; nudge_text_he: string | null; snooze_until: string | null; simulated: boolean;
-  open_items: { requirement_code: string; title_he: string; customer_text_he: string | null }[];
+  state_he: string; state_en?: string; nudge: boolean; nudge_text_he: string | null; nudge_text_en?: string | null;
+  snooze_until: string | null; simulated: boolean;
+  open_items: { requirement_code: string; title_he: string; title_en?: string; customer_text_he: string | null; customer_text_en?: string | null }[];
   contact: { voice_allowed: boolean; message_allowed: boolean; preferred_channel: string | null };
 }
 export interface FollowupDecision {

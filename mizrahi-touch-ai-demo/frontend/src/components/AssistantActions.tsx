@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { tr, useLang } from "../i18n";
 import { useNavigate } from "react-router-dom";
 import { ActionRefusal, api, type AppAction } from "../api";
 import { useCase } from "../caseContext";
@@ -18,7 +19,7 @@ const HANDLERS: { [K in Kind]: (a: Of<K>, d: Deps) => void } = {
   VIEW_DOCUMENT_REVIEW: (a, d) => d.go(`/customer/documents/${encodeURIComponent(a.params.document_id)}${
     a.params.finding_ids[0] ? `?finding=${encodeURIComponent(a.params.finding_ids[0])}` : ""}`),
   VIEW_CASE_DETAILS: (_a, d) => d.go("/customer/request"),
-  CONTACT_BANKER: (a, d) => d.say(a.params.message_he, { source: "app_action", action_id: a.action_id }),
+  CONTACT_BANKER: (a, d) => d.say(tr(a.params.message_he, a.params.message_en || a.params.message_he), { source: "app_action", action_id: a.action_id }),
 };
 
 const ICONS: Record<Kind, ReactNode> = {
@@ -30,6 +31,10 @@ const STALE_HE: Record<Kind, string> = {
   NAVIGATE_TO_DOCUMENT_UPLOAD: "✓ כבר לא נדרש", VIEW_DOCUMENT_REVIEW: "הממצא כבר טופל", VIEW_MISSING_DOCUMENTS: "✓ אין מסמכים חסרים",
   VIEW_REVIEW_STATUS: "הבדיקה הסתיימה", VIEW_CASE_DETAILS: "לא זמין כרגע", CONTACT_BANKER: "התיק כבר הועבר",
 };
+const STALE_EN: Record<Kind, string> = {
+  NAVIGATE_TO_DOCUMENT_UPLOAD: "✓ No longer needed", VIEW_DOCUMENT_REVIEW: "The finding was already handled", VIEW_MISSING_DOCUMENTS: "✓ No missing documents",
+  VIEW_REVIEW_STATUS: "The check has finished", VIEW_CASE_DETAILS: "Not available right now", CONTACT_BANKER: "The application was already passed on",
+};
 
 const supported = (a: { type: string }): a is AppAction => a.type in HANDLERS;
 
@@ -38,7 +43,7 @@ export function useActionRunner(say?: Say) {
   const { caseId, closeAssistant, closeUpload, openAssistant, assistantOrigin, setAssistantOrigin } = useCase();
   const nav = useNavigate();
   return async (offered: AppAction, turnId?: string) => {
-    if (offered.case_id !== caseId) throw new ActionRefusal(403, "הפעולה שייכת לתיק אחר ולא בוצעה.");
+    if (offered.case_id !== caseId) throw new ActionRefusal(403, tr("הפעולה שייכת לתיק אחר ולא בוצעה.", "This action belongs to another application and was not carried out."));
     const action = await api.resolveAction(caseId, offered.action_id, turnId);
     const deps: Deps = {
       go: (path) => {
@@ -56,6 +61,7 @@ export function useActionRunner(say?: Say) {
 export function ActionList({ actions, turnId, say, testId, emphasize = true }:
   { actions: AppAction[]; turnId?: string; say?: Say; testId?: string; emphasize?: boolean }) {
   const { snap } = useCase();
+  const { en, t } = useLang();
   const run = useActionRunner(say);
   const [busy, setBusy] = useState<string | null>(null);
   const [refused, setRefused] = useState<Set<string>>(new Set());
@@ -77,22 +83,22 @@ export function ActionList({ actions, turnId, say, testId, emphasize = true }:
       if (e instanceof ActionRefusal) {
         setRefused((s) => new Set(s).add(a.action_id));
         setNote(e.message);
-      } else setNote("לא הצלחתי לפתוח את הפעולה כרגע. נסו שוב.");
+      } else setNote(t("לא הצלחתי לפתוח את הפעולה כרגע. נסו שוב.", "I couldn't open that right now. Please try again."));
     } finally {
       setBusy(null);
     }
   };
 
   return (
-    <div className="act-list" role="group" aria-label="פעולות מוצעות" data-testid={testId}>
+    <div className="act-list" role="group" aria-label={t("פעולות מוצעות", "Suggested actions")} data-testid={testId}>
       {rows.map(({ action: a, stale }, i) => (
         <button key={a.action_id} type="button" className={`act-btn${i === primary ? " primary" : ""}${stale ? " stale" : ""}`}
           disabled={stale || busy !== null} onClick={() => click(a)}
           data-action-id={a.action_id} data-action-type={a.type} data-stale={stale ? "true" : undefined}>
           <span className="act-ic" aria-hidden>{ICONS[a.type]}</span>
           <span className="act-txt">
-            <span className="act-label">{a.label_he}</span>
-            {(stale || a.detail_he) && <span className="act-detail">{stale ? STALE_HE[a.type] : a.detail_he}</span>}
+            <span className="act-label">{(en && a.label_en) || a.label_he}</span>
+            {(stale || a.detail_he) && <span className="act-detail">{stale ? (en ? STALE_EN : STALE_HE)[a.type] : (en && a.detail_en) || a.detail_he}</span>}
           </span>
           {busy === a.action_id ? <span className="spinner" /> : !stale && <span className="act-go" aria-hidden><IChevron size={16} /></span>}
         </button>

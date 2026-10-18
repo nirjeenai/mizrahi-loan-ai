@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { api, ils, type ChatAction, type ChatDraft, type ChatMessage, type ChatStage, type ChatTurn } from "../../api";
+import { api, ils, ilsL, type ChatAction, type ChatDraft, type ChatMessage, type ChatStage, type ChatTurn } from "../../api";
 import { useCase } from "../../caseContext";
+import { tr, useLang } from "../../i18n";
 import { ICheck, ISend, ISpark } from "../../components/Icons";
 import { LoanSimulator, SimulatorSnapshot } from "../../components/LoanSimulator";
 
@@ -22,6 +23,7 @@ export function ApplyV2() {
   const input = useRef<HTMLInputElement>(null);
   const composer = useRef<HTMLDivElement>(null);
   const shown = useRef(0);
+  const { en, t } = useLang();
 
   const fresh = async () => {
     const d = await api.chatStart();
@@ -32,7 +34,7 @@ export function ApplyV2() {
     const saved = localStorage.getItem(DRAFT_KEY);
     (saved ? api.chat(saved).catch(() => null) : Promise.resolve(null))
       .then((d) => (d && d.status === "draft" ? setDraft(d) : fresh()))
-      .catch(() => setError("פתיחת בקשה חדשה אינה זמינה בסביבה זו."));
+      .catch(() => setError(tr("פתיחת בקשה חדשה אינה זמינה בסביבה זו.", "Starting a new application isn't available in this environment.")));
   }, []);
   const count = draft?.messages.length ?? 0;
   useEffect(() => {
@@ -75,9 +77,12 @@ export function ApplyV2() {
       if (fromInput) requestAnimationFrame(() => input.current?.focus());
     }
   };
-  const act = (a: ChatAction) => a.simulation ? send({ action: "simulate_apply", simulation: a.simulation, label_he: a.label_he }, a.label_he)
-    : a.text ? send({ text: a.text }, a.label_he)
-    : send({ question_id: a.question_id!, value: a.value, label_he: a.label_he }, a.label_he);
+  // the server's Hebrew label is what it records; the English one (label_en) is the customer's echo in the English app
+  const shownLabel = (x: { label_he: string; label_en?: string }) => (en && x.label_en) || x.label_he;
+  const withEn = (x: { label_en?: string }) => (en && x.label_en ? { label_en: x.label_en } : {});
+  const act = (a: ChatAction) => a.simulation ? send({ action: "simulate_apply", simulation: a.simulation, label_he: a.label_he, ...withEn(a) }, shownLabel(a))
+    : a.text ? send({ text: a.text, ...withEn(a) }, shownLabel(a))
+    : send({ question_id: a.question_id!, value: a.value, label_he: a.label_he, ...withEn(a) }, shownLabel(a));
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const t = text.trim();
@@ -90,7 +95,7 @@ export function ApplyV2() {
       const r = await api.chatConfirm(draft.draft_id);
       localStorage.removeItem(DRAFT_KEY);
       openCase(r.case_id);
-      nav("/customer/documents", { state: { handoff: "v2", first: draft.first_name_he } });
+      nav("/customer/documents", { state: { handoff: "v2", first: (en && draft.first_name_en) || draft.first_name_he } });
     } catch (e) { setError((e as Error).message); setBusy(false); }
   };
   const restart = async () => { setBusy(true); setError(null); shown.current = 0; try { await fresh(); } finally { setBusy(false); } };
@@ -99,68 +104,86 @@ export function ApplyV2() {
   const lastAssistant = draft ? [...draft.messages].reverse().find((m) => m.role === "assistant") : undefined;
   // while the assistant asks a clarification, its own choices are the only buttons on screen
   const clarifying = !!lastAssistant?.actions?.length;
+  // a pending question asked in the other language: it is asked again here, live, in the app's language (not saved)
+  const askedOther = !!draft && !!p && draft.status === "draft" && !!lastAssistant && msgLang(lastAssistant, en) !== (en ? "en" : "he")
+    && !(p.kind === "simulator") ? (en ? p.prompt_en : p.prompt_he) : null;
   return (
     <div className="cv2-page">
       {draft && draft.messages.some((m) => m.role === "user") && (
         <div className="cv2-top">
-          <button className="link small cv2-restart" onClick={restart} disabled={busy} data-testid="cv2-restart">התחלה מחדש</button>
+          <button className="link small cv2-restart" onClick={restart} disabled={busy} data-testid="cv2-restart">{t("התחלה מחדש", "Start over")}</button>
         </div>
       )}
       <div className="card cv2" data-testid="apply-v2" data-draft={draft?.draft_id} data-engine={draft?.engine}>
         <div className="cv2-head">
           <AssistantMark size={36} />
-          <div className="cv2-id"><b>העוזר הדיגיטלי</b><span>מזרחי־טפחות · בקשת הלוואה</span></div>
+          <div className="cv2-id"><b>{t("העוזר הדיגיטלי", "Digital assistant")}</b><span>{t("מזרחי־טפחות · בקשת הלוואה", "Mizrahi-Tefahot · loan application")}</span></div>
         </div>
         {draft && <Stages stages={draft.stages} />}
         <div className="chat-log cv2-log" ref={log} aria-live="polite" data-testid="cv2-log">
           {!draft && !error && <div className="bubble assistant"><span className="spinner" /></div>}
           {draft?.messages.flatMap((m, i) => {
+            // a change of language in the transcript is marked once; earlier messages keep their own language
+            const prev = i > 0 ? draft.messages[i - 1] : null;
+            const divider = prev && msgLang(m, en) !== msgLang(prev, en) && m.role === "assistant"
+              ? <div key={`lang-${m.id}`} className="cv2-lang-divider" role="separator" data-testid="cv2-lang-divider">
+                  {msgLang(m, en) === "en" ? "Continuing in English" : "ממשיכים בעברית"}</div> : null;
             const row = (
-              <Message key={m.id} m={m} grouped={i > 0 && draft.messages[i - 1].role === "assistant"} disabled={busy}
+              <Message key={m.id} m={m} grouped={i > 0 && draft.messages[i - 1].role === "assistant" && !divider} disabled={busy}
                 actions={m.id === lastAssistant?.id ? m.actions : undefined} onAction={act} />
             );
-            if (!m.simulator) return [row];
+            if (divider && !m.simulator) return [divider, row];
+            if (!m.simulator) return divider ? [divider, row] : [row];
             const card = m.simulator.live && draft.simulation && draft.status === "draft"
               ? <LoanSimulator key={`sim-${m.id}`} sim={draft.simulation} draftId={draft.draft_id} busy={busy} registerFlush={registerFlush}
                   onConfirm={(simulation, label) => send({ action: "simulate_confirm", simulation, label_he: label }, label)} />
               : <SimulatorSnapshot key={`sim-${m.id}`} s={m.simulator} />;
-            return [row, card];
+            return divider ? [divider, row, card] : [row, card];
           })}
+          {askedOther && !busy && (
+            <div className="cv2-row" data-testid="cv2-current-question">
+              <AssistantMark />
+              <div className="cv2-stack"><div className="bubble assistant cv2-live-q">{askedOther}</div></div>
+            </div>
+          )}
           {echo && <div className="bubble user">{echo}</div>}
-          {busy && <div className="bubble assistant cv2-typing" aria-label="העוזר כותב"><i /><i /><i /></div>}
+          {busy && <div className="bubble assistant cv2-typing" aria-label={t("העוזר כותב", "The assistant is typing")}><i /><i /><i /></div>}
         </div>
         {draft?.status === "draft" && (
           <div className="cv2-composer" ref={composer}>
             {p && p.kind !== "simulator" && p.replies.length > 0 && !clarifying && (
-              <div className="onb-replies cv2-replies" role="group" aria-label={p.prompt_he} data-testid="cv2-pending" data-question={p.question_id}>
+              <div className="onb-replies cv2-replies" role="group" aria-label={(en && p.prompt_en) || p.prompt_he} data-testid="cv2-pending" data-question={p.question_id}>
                 {p.replies.map((r) => (
                   <button key={r.label_he} className="onb-reply" disabled={busy} data-testid="cv2-reply" data-value={JSON.stringify(r.value)}
-                    onClick={() => send({ question_id: p.question_id, value: r.value, label_he: r.label_he }, r.label_he)}>{r.label_he}</button>
+                    onClick={() => send({ question_id: p.question_id, value: r.value, label_he: r.label_he, ...withEn(r) }, shownLabel(r))}>{shownLabel(r)}</button>
                 ))}
               </div>
             )}
             {p && (p.kind === "simulator" || p.replies.length === 0 || clarifying) && <span hidden data-testid="cv2-pending" data-question={p.question_id} data-kind={p.kind} />}
             <div className="cv2-suggest">
               {p?.editing && (
-                <button className="cv2-chip cancel" disabled={busy} onClick={() => send({ action: "cancel_edit" }, "ביטול השינוי")}
-                  data-testid="cv2-cancel-edit">ביטול השינוי</button>
+                <button className="cv2-chip cancel" disabled={busy} onClick={() => send({ action: "cancel_edit" }, t("ביטול השינוי", "Cancel the change"))}
+                  data-testid="cv2-cancel-edit">{t("ביטול השינוי", "Cancel the change")}</button>
               )}
-              {!clarifying && draft.suggestions.filter((s) => s !== "למה צריך את זה?").map((s) => (
-                <button key={s} className="cv2-chip" disabled={busy} onClick={() => send({ text: s }, s)} data-testid="cv2-suggestion">{s}</button>
-              ))}
+              {!clarifying && draft.suggestions.filter((s) => s !== "למה צריך את זה?").map((s) => {
+                const label = (en && draft.suggestions_en?.[draft.suggestions.indexOf(s)]) || s;
+                return <button key={s} className="cv2-chip" disabled={busy} onClick={() => send({ text: s, ...(label !== s ? { label_en: label } : {}) }, label)} data-testid="cv2-suggestion">{label}</button>;
+              })}
             </div>
             <form className="cv2-input" onSubmit={submit}>
               <input ref={input} className="input" value={text} onChange={(e) => setText(e.target.value)} maxLength={500}
-                placeholder={p?.kind === "simulator" ? "אפשר גם לכתוב, למשל: רק 80 אלף, או עד 2,500 בחודש"
+                placeholder={en ? (p?.kind === "simulator" ? "You can also type, e.g. just 80,000, or up to 2,500 a month"
+                  : p?.placeholder_en || p?.placeholder_he || "Ask me anything about the application…")
+                  : p?.kind === "simulator" ? "אפשר גם לכתוב, למשל: רק 80 אלף, או עד 2,500 בחודש"
                   : p?.placeholder_he || "אפשר לשאול אותי כל שאלה על הבקשה…"} enterKeyHint="send" autoComplete="off"
-                aria-label="הודעה לעוזר" data-testid="cv2-input" />
-              <button className="cv2-send" disabled={busy || !text.trim()} aria-label="שליחה" data-testid="cv2-send"><ISend size={18} /></button>
+                aria-label={t("הודעה לעוזר", "Message to the assistant")} data-testid="cv2-input" />
+              <button className="cv2-send" disabled={busy || !text.trim()} aria-label={t("שליחה", "Send")} data-testid="cv2-send"><ISend size={18} /></button>
             </form>
           </div>
         )}
         {error && <div className="notice" role="alert" style={{ margin: "8px 10px 0" }} data-testid="cv2-error">{error}</div>}
       </div>
-      {draft?.summary && !p && <Summary draft={draft} busy={busy} onEdit={(q, label) => send({ question_id: q, action: "edit" }, `שינוי ${label}`)} onConfirm={confirm} />}
+      {draft?.summary && !p && <Summary draft={draft} busy={busy} onEdit={(q, label) => send({ question_id: q, action: "edit" }, t(`שינוי ${label}`, `Change: ${label}`))} onConfirm={confirm} />}
     </div>
   );
 }
@@ -169,24 +192,31 @@ export function ApplyV2() {
 export function ApplyHandoff() {
   const loc = useLocation();
   const nav = useNavigate();
+  const { en, t } = useLang();
   const state = loc.state as { handoff?: string; first?: string | null } | null;
   if (state?.handoff !== "v2") return null;
   return (
     <div className="cv2-handoff" role="status" data-testid="cv2-handoff">
       <AssistantMark size={26} />
       <div className="grow">
-        {state.first ? `${state.first}, ` : ""}סיימנו להכין את הבקשה שלך. עכשיו נעבור למסמכים שיעזרו לבנק לבדוק אותה
-        אפשר להעלות אותם כאן, ואני אעזור לך להבין אם משהו חסר. פתיחת הבקשה עדיין אינה אישור הלוואה.
+        {en ? <>{state.first ? `${state.first}, ` : ""}your application is ready. Next come the documents that help the bank review it.
+          You can upload them here, and I&apos;ll help you see whether anything is missing. Opening the application is not a loan approval.</>
+          : <>{state.first ? `${state.first}, ` : ""}סיימנו להכין את הבקשה שלך. עכשיו נעבור למסמכים שיעזרו לבנק לבדוק אותה
+        אפשר להעלות אותם כאן, ואני אעזור לך להבין אם משהו חסר. פתיחת הבקשה עדיין אינה אישור הלוואה.</>}
       </div>
-      <button className="link tiny" onClick={() => nav(loc.pathname, { replace: true, state: null })} aria-label="סגירה">הבנתי</button>
+      <button className="link tiny" onClick={() => nav(loc.pathname, { replace: true, state: null })} aria-label={t("סגירה", "Close")}>{t("הבנתי", "Got it")}</button>
     </div>
   );
 }
 
 function Stages({ stages }: { stages: ChatStage[] }) {
+  const { en } = useLang();
   const i = stages.findIndex((s) => s.state === "current");
   const cur = stages[i];
-  const caption = !cur ? "" : cur.id === "summary" ? "כמעט סיימנו, נשאר לעבור על הסיכום ולאשר"
+  const label = (s: ChatStage) => (en && s.label_en) || s.label_he;
+  const caption = !cur ? "" : en ? (cur.id === "summary" ? "Almost done — just review the summary and confirm"
+    : `Step ${i + 1} of ${stages.length} · ${label(cur)}${cur.total > 1 ? ` · question ${Math.min(cur.answered + 1, cur.total)} of ${cur.total}` : ""}`)
+    : cur.id === "summary" ? "כמעט סיימנו, נשאר לעבור על הסיכום ולאשר"
     : `שלב ${i + 1} מתוך ${stages.length} · ${cur.label_he}${cur.total > 1 ? ` · שאלה ${Math.min(cur.answered + 1, cur.total)} מתוך ${cur.total}` : ""}`;
   return (
     <div className="cv2-stages" data-testid="cv2-stages">
@@ -194,7 +224,7 @@ function Stages({ stages }: { stages: ChatStage[] }) {
         {stages.map((s) => (
           <li key={s.id} className={s.state} data-testid={`cv2-stage-${s.id}`} data-state={s.state} aria-current={s.state === "current" ? "step" : undefined}>
             <span className="dot">{s.state === "done" ? <ICheck size={11} /> : null}</span>
-            <span className="lbl">{s.label_he}</span>
+            <span className="lbl">{label(s)}</span>
           </li>
         ))}
       </ol>
@@ -215,11 +245,22 @@ export function AssistantMark({ size = 26 }: { size?: number }) {
   );
 }
 
+/** The language a message is shown in: English when the app is English and the message has an English rendering;
+ *  otherwise the language it was written in (Hebrew unless the server marked it English). */
+function msgLang(m: ChatMessage, en: boolean): "he" | "en" {
+  if (en && m.text_en) return "en";
+  return m.lang === "en" ? "en" : "he";
+}
+
 function Message({ m, grouped, disabled, actions, onAction }: {
   m: ChatMessage; grouped: boolean; disabled: boolean;
   actions?: ChatAction[]; onAction: (a: ChatAction) => void;
 }) {
-  if (m.role === "user") return <div className="bubble user" data-testid="cv2-msg" data-kind="user">{m.text_he}</div>;
+  const { en } = useLang();
+  const text = (en && m.text_en) || m.text_he;
+  // a message shown in a language other than the app's (an earlier turn, or the customer's own words) keeps its direction
+  const dir = en ? (m.text_en ? undefined : "auto") : m.lang === "en" && !m.text_en ? "ltr" : undefined;
+  if (m.role === "user") return <div className="bubble user" data-testid="cv2-msg" data-kind="user" dir={dir}>{text}</div>;
   const legacyInsight = m.kind === "insight";
   return (
     <div className={`cv2-row${grouped ? " grouped" : ""}`}>
@@ -228,11 +269,11 @@ function Message({ m, grouped, disabled, actions, onAction }: {
         {m.indication && <IndicationCard m={m} />}
         {!legacyInsight && (
           <div className={`bubble assistant${m.kind === "withdrawn" || m.insight === "withdrawn" ? " cv2-muted" : ""}${actions?.length ? " has-actions" : ""}`}
-            data-testid="cv2-msg" data-kind={m.kind} data-question={m.question_id} data-engine={m.engine}>
-            {m.text_he}
+            data-testid="cv2-msg" data-kind={m.kind} data-question={m.question_id} data-engine={m.engine} dir={dir}>
+            {text}
             {actions && actions.length > 0 && (
               <div className="cv2-actions">
-                {actions.map((a) => <button key={a.label_he} className="onb-reply" disabled={disabled} onClick={() => onAction(a)} data-testid="cv2-action">{a.label_he}</button>)}
+                {actions.map((a) => <button key={a.label_he} className="onb-reply" disabled={disabled} onClick={() => onAction(a)} data-testid="cv2-action">{(en && a.label_en) || a.label_he}</button>)}
               </div>
             )}
           </div>
@@ -242,8 +283,9 @@ function Message({ m, grouped, disabled, actions, onAction }: {
   );
 }
 
-const nis = (n: number) => `${Math.round(n).toLocaleString("en-US")} ₪`;
+const nis = (n: number) => tr(`${Math.round(n).toLocaleString("en-US")} ₪`, `₪${Math.round(n).toLocaleString("en-US")}`);
 const BANK_PATH = ["הערכה", "מסמכים", "בדיקת הבנק", "החלטת הבנק"];
+const BANK_PATH_EN = ["Assessment", "Documents", "Bank review", "Bank decision"];
 
 /** The DEMO preliminary assessment, read in three seconds: what was requested, what it costs a month, whether to go
  *  on. The bank's process sits under it as a path with the customer on its first step, so a preliminary assessment is
@@ -251,51 +293,55 @@ const BANK_PATH = ["הערכה", "מסמכים", "בדיקת הבנק", "החל�
 function IndicationCard({ m }: { m: ChatMessage }) {
   const ind = m.indication!;
   const [open, setOpen] = useState(false);
+  const { en, t } = useLang();
   if (m.stale) {
     return (
       <div className="cv2-insight stale" data-testid="cv2-insight" data-stale="1" data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils}>
-        <span className="ia-k">הערכה קודמת</span>
+        <span className="ia-k">{t("הערכה קודמת", "Earlier assessment")}</span>
         <s className="ia-old">{nis(ind.requested_amount_ils)}</s>
-        <span className="ia-k">· {ind.payments} תשלומים</span>
-        <span className="ia-badge" data-testid="cv2-insight-stale">עודכנה</span>
+        {en ? <span className="ia-k">· {ind.payments} payments</span> : <span className="ia-k">· {ind.payments} תשלומים</span>}
+        <span className="ia-badge" data-testid="cv2-insight-stale">{t("עודכנה", "Updated")}</span>
       </div>
     );
   }
   return (
     <div className={`cv2-insight ${ind.within ? "ok" : "warn"}`} data-testid="cv2-insight" data-stale="0"
-      data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils} role="group" aria-label="הערכה ראשונית לבקשה">
+      data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils} role="group" aria-label={t("הערכה ראשונית לבקשה", "Preliminary assessment of the application")}>
       <div className="ia-head">
         <img src="/brand/jeen-mark.png" alt="" aria-hidden />
-        <span>הערכה ראשונית</span>
-        <span className="ia-not">לא אישור הלוואה</span>
+        <span>{t("הערכה ראשונית", "Preliminary assessment")}</span>
+        <span className="ia-not">{t("לא אישור הלוואה", "Not a loan approval")}</span>
       </div>
       <div className="ia-amount" data-testid="cv2-insight-amount">
-        <span className="ia-k">ביקשת</span>
-        <b><span className="ltr">{ind.requested_amount_ils.toLocaleString("en-US")}</span><i>₪</i></b>
+        <span className="ia-k">{t("ביקשת", "You asked for")}</span>
+        <b>{en ? <><i>₪</i><span className="ltr">{ind.requested_amount_ils.toLocaleString("en-US")}</span></>
+          : <><span className="ltr">{ind.requested_amount_ils.toLocaleString("en-US")}</span><i>₪</i></>}</b>
       </div>
       <p className="ia-monthly" data-testid="cv2-insight-monthly">
-        כ־<b>{nis(ind.requested_monthly_ils)}</b> בחודש<span className="ia-dot">·</span>{ind.payments} תשלומים
+        {en ? <>About <b>{nis(ind.requested_monthly_ils)}</b> a month<span className="ia-dot">·</span>{ind.payments} payments</>
+          : <>כ־<b>{nis(ind.requested_monthly_ils)}</b> בחודש<span className="ia-dot">·</span>{ind.payments} תשלומים</>}
       </p>
       <div className="ia-status" data-testid="cv2-insight-status">
         <span className="ia-icon" aria-hidden>{ind.within ? <ICheck size={13} /> : "!"}</span>
         <div>
-          <b>{ind.within ? "אפשר להמשיך לבדיקת הבנק" : "גבוה מההערכה הראשונית"}</b>
-          <span>{ind.within ? "הצעד הבא: עוד כמה פרטים, ואז מסמכים" : "אפשר להמשיך כך, הבנק יבדוק את הבקשה"}</span>
+          <b>{ind.within ? t("אפשר להמשיך לבדיקת הבנק", "You can go on to the bank's review") : t("גבוה מההערכה הראשונית", "Higher than the preliminary assessment")}</b>
+          <span>{ind.within ? t("הצעד הבא: עוד כמה פרטים, ואז מסמכים", "Next: a few more details, then documents") : t("אפשר להמשיך כך, הבנק יבדוק את הבקשה", "You can continue as is — the bank will review the application")}</span>
         </div>
       </div>
-      <ol className="ia-path" aria-label="השלבים עד החלטת הבנק">
-        {BANK_PATH.map((s, i) => <li key={s} className={i === 0 ? "here" : ""} aria-current={i === 0 ? "step" : undefined}><i />{s}</li>)}
+      <ol className="ia-path" aria-label={t("השלבים עד החלטת הבנק", "The steps to the bank's decision")}>
+        {BANK_PATH.map((s, i) => <li key={s} className={i === 0 ? "here" : ""} aria-current={i === 0 ? "step" : undefined}><i />{en ? BANK_PATH_EN[i] : s}</li>)}
       </ol>
       <button className="ia-more" aria-expanded={open} onClick={() => setOpen((o) => !o)} data-testid="cv2-insight-more">
-        איך הגענו לזה <span aria-hidden>{open ? "−" : "+"}</span>
+        {en ? <>How we got here <span aria-hidden>{open ? "−" : "+"}</span></> : <>איך הגענו לזה <span aria-hidden>{open ? "−" : "+"}</span></>}
       </button>
       {open && (
         <dl className="ia-facts" data-testid="cv2-insight-facts">
-          <div><dt>הכנסה נטו שמסרת</dt><dd>{nis(ind.declared_net_ils)}<small>הצהרה</small></dd></div>
-          {ind.ratio != null && <div><dt>חלק מההכנסה להחזר (הנחה)</dt><dd>{Math.round(ind.ratio * 100)}%</dd></div>}
-          {ind.annual_rate != null && <div><dt>ריבית להמחשה</dt><dd>{+(ind.annual_rate * 100).toFixed(2)}% לשנה</dd></div>}
-          <div><dt>תקרה תיאורטית בנוסחה</dt><dd>{nis(ind.max_amount_ils)}<small>לא מסגרת אשראי</small></dd></div>
-          <p>{ind.co_borrower_pending ? "ההכנסה של הלווה הנוסף עוד לא נכללה. " : ""}לפי מה שמסרת והנחות חישוב כלליות בלבד, בלי נתוני אשראי, חשבונות או התחייבויות. זו לא בדיקת זכאות ולא אישור.</p>
+          <div><dt>{t("הכנסה נטו שמסרת", "Net income you gave")}</dt><dd>{nis(ind.declared_net_ils)}<small>{t("הצהרה", "Declared")}</small></dd></div>
+          {ind.ratio != null && <div><dt>{t("חלק מההכנסה להחזר (הנחה)", "Share of income for repayment (assumption)")}</dt><dd>{Math.round(ind.ratio * 100)}%</dd></div>}
+          {ind.annual_rate != null && <div><dt>{t("ריבית להמחשה", "Illustrative rate")}</dt><dd>{+(ind.annual_rate * 100).toFixed(2)}{t("% לשנה", "% a year")}</dd></div>}
+          <div><dt>{t("תקרה תיאורטית בנוסחה", "Theoretical ceiling in the formula")}</dt><dd>{nis(ind.max_amount_ils)}<small>{t("לא מסגרת אשראי", "Not a credit limit")}</small></dd></div>
+          <p>{en ? <>{ind.co_borrower_pending ? "The co-borrower's income isn't included yet. " : ""}Based only on what you told us and general calculation assumptions — no credit data, accounts or obligations. This is not an eligibility check and not an approval.</>
+            : <>{ind.co_borrower_pending ? "ההכנסה של הלווה הנוסף עוד לא נכללה. " : ""}לפי מה שמסרת והנחות חישוב כלליות בלבד, בלי נתוני אשראי, חשבונות או התחייבויות. זו לא בדיקת זכאות ולא אישור.</>}</p>
         </dl>
       )}
     </div>
@@ -304,41 +350,48 @@ function IndicationCard({ m }: { m: ChatMessage }) {
 
 function Summary({ draft, busy, onEdit, onConfirm }: { draft: ChatDraft; busy: boolean; onEdit: (q: string, label: string) => void; onConfirm: () => void }) {
   const s = draft.summary!;
+  const { en, t } = useLang();
   const owners = [...new Set(s.requirements.map((r) => r.owner_he || ""))];
   return (
     <section className="card onb-summary cv2-summary" data-testid="cv2-summary" data-entity={s.profile.entity}>
-      <div className="card-title">סיכום הבקשה</div>
-      <p className="small muted" style={{ margin: "4px 0 6px", lineHeight: 1.6 }}>{s.intro_he}</p>
+      <div className="card-title">{t("סיכום הבקשה", "Application summary")}</div>
+      <p className="small muted" style={{ margin: "4px 0 6px", lineHeight: 1.6 }}>{(en && s.intro_en) || s.intro_he}</p>
       {s.lines.map((l) => (
         <div key={l.question_id} className="kv cv2-line" data-testid="cv2-line" data-question={l.question_id}>
-          <span>{l.label_he}</span>
-          <span><span className="cv2-val">{l.value_he}</span>
-            <button className="link tiny cv2-edit" disabled={busy} onClick={() => onEdit(l.question_id, l.label_he)}
-              data-testid={`cv2-edit-${l.question_id}`} aria-label={`שינוי ${l.label_he}`}>שינוי</button></span>
+          <span>{(en && l.label_en) || l.label_he}</span>
+          <span><span className="cv2-val">{(en && l.value_en) || l.value_he}</span>
+            <button className="link tiny cv2-edit" disabled={busy} onClick={() => onEdit(l.question_id, (en && l.label_en) || l.label_he)}
+              data-testid={`cv2-edit-${l.question_id}`} aria-label={t(`שינוי ${l.label_he}`, `Change ${l.label_en || l.label_he}`)}>{t("שינוי", "Change")}</button></span>
         </div>
       ))}
       {draft.indication && (
         <div className="cv2-summary-ind" data-testid="cv2-summary-indication">
-          אינדיקציה ראשונית: הבקשה ל־<b className="ltr">{ils(draft.indication.requested_amount_ils)}</b>{" "}
+          {en ? <>Preliminary indication: your request for <b className="ltr">{ilsL(draft.indication.requested_amount_ils)}</b>{" "}
+            {draft.indication.within ? "looks possible to take forward for an initial review" : "is higher than the preliminary assessment shows as possible"} (estimated repayment
+            about <span className="ltr">{ilsL(draft.indication.requested_monthly_ils)}</span> over {draft.indication.payments} payments), based on the income
+            you gave and general calculation assumptions. This is not an eligibility check and not an approval.</>
+            : <>אינדיקציה ראשונית: הבקשה ל־<b className="ltr">{ils(draft.indication.requested_amount_ils)}</b>{" "}
           {draft.indication.within ? "נראית אפשרית להמשך בדיקה ראשונית" : "גבוהה ממה שההערכה הראשונית מראה כאפשרי"} (החזר משוער
           כ־<span className="ltr">{ils(draft.indication.requested_monthly_ils)}</span> ב־{draft.indication.payments} תשלומים), לפי ההכנסה
-          שמסרת והנחות חישוב כלליות. זו אינה בדיקת זכאות ואינה אישור.
+          שמסרת והנחות חישוב כלליות. זו אינה בדיקת זכאות ואינה אישור.</>}
         </div>
       )}
       {s.profile.banker_assisted && (
         <div className="notice navy small" style={{ marginTop: 10 }} data-testid="cv2-banker-assisted">
-          מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות, אין חיתום עסקי ואין החלטת אשראי אוטומטית.</div>
+          {t("מסלול עסקי מוגבל: הבקשה מטופלת בליווי הבנקאית. כאן אוספים את מסמכי הזיהוי והדוחות, אין חיתום עסקי ואין החלטת אשראי אוטומטית.",
+            "Limited business path: your banker handles this application. Here we collect the ID and financial documents; there's no business underwriting and no automatic credit decision.")}</div>
       )}
-      <div className="section-label" style={{ margin: "14px 0 6px" }}>המסמכים שיידרשו ({s.requirements.length})</div>
+      <div className="section-label" style={{ margin: "14px 0 6px" }}>{en ? <>Documents you&apos;ll need ({s.requirements.length})</> : <>המסמכים שיידרשו ({s.requirements.length})</>}</div>
       <ul className="onb-reqs">
         {owners.flatMap((o) => s.requirements.filter((r) => (r.owner_he || "") === o)).map((r) => (
-          <li key={r.code} data-testid="cv2-req" data-code={r.code} data-owner={r.owner_he || ""}>{r.title_he}</li>
+          <li key={r.code} data-testid="cv2-req" data-code={r.code} data-owner={r.owner_he || ""}>{(en && r.title_en) || r.title_he}</li>
         ))}
       </ul>
       <div className="tiny muted" style={{ lineHeight: 1.6, marginTop: 8 }}>
-        פתיחת הבקשה אינה אישור הלוואה, היא מכינה את רשימת המסמכים לבדיקת הבנק. גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.</div>
+        {en ? <>Opening the application is not a loan approval — it prepares the document list for the bank&apos;s review. Policy version: <span className="ltr">{s.policy_version}</span>.</>
+          : <>פתיחת הבקשה אינה אישור הלוואה, היא מכינה את רשימת המסמכים לבדיקת הבנק. גרסת מדיניות: <span className="ltr">{s.policy_version}</span>.</>}</div>
       <button className="btn btn-orange" style={{ width: "100%", marginTop: 12 }} disabled={busy} onClick={onConfirm} data-testid="cv2-confirm">
-        {busy && <span className="spinner" />}אישור ופתיחת הבקשה</button>
+        {busy && <span className="spinner" />}{t("אישור ופתיחת הבקשה", "Confirm and open the application")}</button>
     </section>
   );
 }

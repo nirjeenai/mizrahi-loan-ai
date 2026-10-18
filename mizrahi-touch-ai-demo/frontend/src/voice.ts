@@ -4,6 +4,7 @@
  * for JEEN Talk replaces only this adapter.
  */
 import { api } from "./api";
+import { currentLang, tr } from "./i18n";
 
 export interface VoiceCapability { stt: "browser" | "server" | "none"; tts: boolean; detail: string }
 export interface VoiceChannel {
@@ -48,14 +49,18 @@ async function toWav(blob: Blob): Promise<Blob> {
 
 function hebrewVoice(): SpeechSynthesisVoice | undefined {
   const voices = window.speechSynthesis?.getVoices() || [];
+  if (currentLang() === "en") return voices.find((v) => v.lang?.toLowerCase().startsWith("en"));
   return voices.find((v) => v.lang?.toLowerCase().startsWith("he")) || voices.find((v) => /carmit/i.test(v.name));
 }
+
+/** the speech language of the customer app: Hebrew, or English in the English app */
+const speechLang = () => (currentLang() === "en" ? "en-US" : "he-IL");
 
 async function browserSttAvailable(): Promise<boolean> {
   if (!SRClass) return false;
   if (typeof SRClass.available === "function") {
     try {
-      const r = await SRClass.available({ langs: ["he-IL"], processLocally: false });
+      const r = await SRClass.available({ langs: [speechLang()], processLocally: false });
       return r === "available" || r === "downloadable" || r === true;
     } catch { return true; }
   }
@@ -83,9 +88,9 @@ export class BrowserVoice implements VoiceChannel {
 
   listen(onPartial: (t: string) => void, onFinal: (t: string, meta: Record<string, unknown>) => void, onError: (e: string) => void) {
     if (this.sttMode === "server") return this.listenServer(onPartial, onFinal, onError);
-    if (!SRClass) { onError("זיהוי דיבור אינו זמין"); return () => {}; }
+    if (!SRClass) { onError(tr("זיהוי דיבור אינו זמין", "Speech recognition isn't available")); return () => {}; }
     const rec = new SRClass();
-    rec.lang = "he-IL";
+    rec.lang = speechLang();
     rec.interimResults = true;
     rec.continuous = false;
     let finalText = "";
@@ -101,10 +106,11 @@ export class BrowserVoice implements VoiceChannel {
     rec.onerror = (ev: any) => {
       if (ev.error === "language-not-supported" || ev.error === "network") {
         this.sttMode = "server";
-        onError("זיהוי הדיבור של הדפדפן אינו זמין, עובר לתמלול בשרת. לחצו שוב על המיקרופון.");
-      } else if (ev.error !== "no-speech" && ev.error !== "aborted") onError(`שגיאת מיקרופון: ${ev.error}`);
+        onError(tr("זיהוי הדיבור של הדפדפן אינו זמין, עובר לתמלול בשרת. לחצו שוב על המיקרופון.",
+          "The browser's speech recognition isn't available, switching to server transcription. Tap the microphone again."));
+      } else if (ev.error !== "no-speech" && ev.error !== "aborted") onError(tr(`שגיאת מיקרופון: ${ev.error}`, `Microphone error: ${ev.error}`));
     };
-    rec.onend = () => { if (finalText.trim()) onFinal(finalText.trim(), { source: "asr", engine: "browser-webspeech-he-IL", confidence }); };
+    rec.onend = () => { if (finalText.trim()) onFinal(finalText.trim(), { source: "asr", engine: `browser-webspeech-${speechLang()}`, confidence }); };
     rec.start();
     return () => { try { rec.stop(); } catch { /* already stopped */ } };
   }
@@ -120,17 +126,17 @@ export class BrowserVoice implements VoiceChannel {
       recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
       recorder.onstop = async () => {
         stream?.getTracks().forEach((t) => t.stop());
-        onPartial("מתמלל…");
+        onPartial(tr("מתמלל…", "Transcribing…"));
         try {
           const captured = new Blob(chunks, { type: recorder?.mimeType || "audio/webm" });
           const r = await api.transcribe(await toWav(captured).catch(() => captured));
           if (r.text) onFinal(r.text, { source: "asr", engine: r.engine, latency_ms: r.latency_ms });
-          else onError("לא זוהה דיבור");
-        } catch { onError("לא הצלחתי לתמלל את ההקלטה, נסו שוב או הקלידו את השאלה"); }
+          else onError(tr("לא זוהה דיבור", "No speech was detected"));
+        } catch { onError(tr("לא הצלחתי לתמלל את ההקלטה, נסו שוב או הקלידו את השאלה", "I couldn't transcribe the recording — please try again or type your question")); }
       };
       recorder.start();
       if (stopped) recorder.stop();
-    }).catch(() => onError("אין הרשאה למיקרופון"));
+    }).catch(() => onError(tr("אין הרשאה למיקרופון", "No microphone permission")));
     return () => { stopped = true; if (recorder && recorder.state !== "inactive") recorder.stop(); };
   }
 
@@ -141,7 +147,7 @@ export class BrowserVoice implements VoiceChannel {
       const u = new SpeechSynthesisUtterance(text.replace(/[*#•]/g, ""));
       const v = hebrewVoice();
       if (v) u.voice = v;
-      u.lang = "he-IL";
+      u.lang = speechLang();
       u.rate = 1.02;
       u.onend = () => resolve();
       u.onerror = () => resolve();

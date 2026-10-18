@@ -1,18 +1,25 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { monthHe, VERDICT_HE, type AuditEvent, type DocView } from "../api";
+import { localeL, monthHe, monthL, VERDICT_EN, VERDICT_HE, type AuditEvent, type DocView } from "../api";
 import { useCase } from "../caseContext";
+import { currentLang, tr, useLang } from "../i18n";
 import { IAlert, IBell, ICheck, IChevronDown, IClock, IDocs, IUpload } from "./Icons";
 
 type Tone = "action" | "ok" | "bad" | "info";
 /** a file name inside a Hebrew sentence, bidi-isolated (FSI…PDI) so its dots and brackets stay in place */
 const iso = (name?: string | null) => (name ? `\u2068${name}\u2069` : "");
-interface Item { key: string; at: string; title: string; body: string; tone: Tone }
+/** `upload`: the upload line (its own icon); `orig`: the body is the banker's own words, shown in their language */
+interface Item { key: string; at: string; title: string; body: string; tone: Tone; upload?: boolean; orig?: boolean }
+type Described = { title: string; body: string; tone: Tone; upload?: boolean; orig?: boolean };
 
-function describe(e: AuditEvent, docs: DocView[], banker: string): { title: string; body: string; tone: Tone } | null {
+function describe(e: AuditEvent, docs: DocView[], banker: string): Described | null {
+  return currentLang() === "en" ? describeEn(e, docs, banker) : describeHe(e, docs, banker);
+}
+
+function describeHe(e: AuditEvent, docs: DocView[], banker: string): Described | null {
   const doc = docs.find((d) => d.document_id === e.target);
   const file = iso(e.detail?.filename || doc?.filename);
   switch (e.action) {
-    case "document_uploaded": return { title: "מסמך הועלה לתיק", body: `${file}, הבדיקה החכמה התחילה.`, tone: "info" };
+    case "document_uploaded": return { title: "מסמך הועלה לתיק", body: `${file}, הבדיקה החכמה התחילה.`, tone: "info", upload: true };
     case "document_reviewed": {
       // a payslip read correctly can still be the wrong month: say which month it prints when the file name claims another
       const named = doc?.review?.file_name_period;
@@ -51,6 +58,48 @@ function describe(e: AuditEvent, docs: DocView[], banker: string): { title: stri
   }
 }
 
+/** The same events in English. A banker's message to the customer is quoted as written (`orig`). */
+function describeEn(e: AuditEvent, docs: DocView[], banker: string): Described | null {
+  const doc = docs.find((d) => d.document_id === e.target);
+  const file = iso(e.detail?.filename || doc?.filename);
+  const request = (): Described => ({ title: `New request from ${banker}`, body: e.detail?.customer_message || "", tone: "action", orig: true });
+  switch (e.action) {
+    case "document_uploaded": return { title: "Document uploaded", body: `${file} — the smart check has started.`, tone: "info", upload: true };
+    case "document_reviewed": {
+      const named = doc?.review?.file_name_period;
+      if (e.detail?.period && named && named !== e.detail.period)
+        return { title: `Identified as the ${monthL(e.detail.period)} payslip`,
+          body: `${iso(doc?.filename)}: the file name says ${monthL(named)}, but the payslip is printed ${monthL(e.detail.period)}.`, tone: "action" };
+      return { title: "The document's smart check is complete",
+        body: `${iso(doc?.filename)}: ${VERDICT_EN[e.detail?.verdict] || ""}${e.detail?.period ? ` · printed ${monthL(e.detail.period)}` : ""}`,
+        tone: e.detail?.verdict === "VALID" ? "ok" : "action" };
+    }
+    case "case_reviewed": return { title: "Your documents were re-checked", body: "We checked all your application's documents against the requirements again.", tone: "info" };
+    case "customer_statement_recorded": return { title: "Your explanation was recorded", body: "It was attached to the finding and passed to your banker. It doesn't close the finding.", tone: "ok" };
+    case "banker_handoff_created": return { title: "Your application was sent to your banker", body: "The findings and evidence are waiting for your banker.", tone: "info" };
+    case "banker_finding_decision":
+      if (e.detail?.action === "REQUEST_DOCUMENT" || e.detail?.action === "REQUEST_EXPLANATION") return request();
+      if (e.detail?.action === "ESCALATE_FINDING") return { title: "An item is being looked into further", body: `${banker} is still looking into an item in your application. Nothing is needed from you right now.`, tone: "info" };
+      return { title: `${banker} reviewed an item in your application`, body: e.detail?.action === "DISMISS_FINDING" ? "The finding was checked and found not relevant." : "The item was checked and closed.", tone: "ok" };
+    case "banker_request_withdrawn": return { title: "A request was withdrawn", body: "You don't need to do anything about it.", tone: "info" };
+    case "banker_handoff_acknowledged": return { title: `${banker} received your message`, body: "It's being handled. If anything is needed from you, a request will appear here.", tone: "ok" };
+    case "banker_document_decision":
+      if (e.detail?.action === "REQUEST_CORRECTION") return request();
+      if (e.detail?.action === "ACCEPT_DOCUMENT") return { title: "Document accepted for the document review", body: `${banker} accepted ${file}. This is not a loan approval.`, tone: "ok" };
+      return { title: "A document is being looked into", body: `${banker} is checking ${file}. Nothing is needed from you right now.`, tone: "info" };
+    case "banker_requested_document": return request();
+    case "customer_request_responded":
+      return e.detail?.statement_id ? { title: "Your reply was saved", body: `Your explanation was passed to ${banker}. It doesn't close the item.`, tone: "ok" }
+        : { title: "Your document was attached to the request", body: "It goes through the smart check and back to your banker.", tone: "ok" };
+    case "banker_confirmed_preparation": return { title: "Your banker confirmed your documents are prepared", body: "This confirms the documents only — it is not a decision on the loan.", tone: "ok" };
+    case "document_review_failed":
+      return { title: "A document's check failed", tone: "bad", body: String(e.detail?.final) === "True" || e.detail?.final === true
+        ? `${file ? `${file}: ` : ""}the check stopped after several attempts. You can try again from the home screen or upload the file again.`
+        : "We'll try again automatically; you can also upload it again." };
+    default: return null;
+  }
+}
+
 /** A banker closing a finding: the only event kind that is folded when it repeats back to back. */
 const isClose = (e: AuditEvent) => e.action === "banker_finding_decision"
   && !["REQUEST_DOCUMENT", "REQUEST_EXPLANATION", "ESCALATE_FINDING"].includes(e.detail?.action);
@@ -75,8 +124,9 @@ function fold(events: AuditEvent[], docs: DocView[], banker: string): Item[] {
     if (isClose(e) && prev?.close === `${d.title}|${d.body}` && prev.last !== undefined && Math.abs(prev.last - at) <= FOLD_WINDOW_MS) {
       prev.closes = (prev.closes || 1) + 1;
       prev.last = at;
-      prev.title = `${banker} בדק/ה ${prev.closes} נושאים בתיק`;
-      prev.body = e.detail?.action === "DISMISS_FINDING" ? "הממצאים נבדקו ונמצאו לא רלוונטיים." : "כל הנושאים נבדקו ונסגרו.";
+      prev.title = tr(`${banker} בדק/ה ${prev.closes} נושאים בתיק`, `${banker} reviewed ${prev.closes} items in your application`);
+      prev.body = e.detail?.action === "DISMISS_FINDING" ? tr("הממצאים נבדקו ונמצאו לא רלוונטיים.", "The findings were checked and found not relevant.")
+        : tr("כל הנושאים נבדקו ונסגרו.", "All the items were checked and closed.");
       continue;
     }
     out.push({ key: String(e.event_id), at: e.at, ...d, ...(isClose(e) ? { close: `${d.title}|${d.body}`, last: at } : {}),
@@ -86,16 +136,17 @@ function fold(events: AuditEvent[], docs: DocView[], banker: string): Item[] {
 }
 
 const ICON: Record<Tone, ReactNode> = { action: <IDocs size={18} />, ok: <ICheck size={18} />, bad: <IAlert size={17} />, info: <IClock size={17} /> };
-const dateHe = (iso: string) => new Date(iso).toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "numeric" });
-const clockHe = (iso: string) => new Date(iso).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+const dateHe = (iso: string) => new Date(iso).toLocaleDateString(localeL(), { day: "2-digit", month: "2-digit", year: "numeric" });
+const clockHe = (iso: string) => new Date(iso).toLocaleTimeString(localeL(), { hour: "2-digit", minute: "2-digit" });
 
 /** "עדכונים אחרונים": the three latest customer-visible updates, and the whole list one tap away. */
 export function RecentUpdates() {
   const { snap, docs, caseId } = useCase();
+  const { en, t } = useLang();
   const [all, setAll] = useState(false);
   useEffect(() => setAll(false), [caseId]);
   if (!snap) return null;
-  const banker = snap.case.banker.name_he;
+  const banker = (en && snap.case.banker.name_en) || snap.case.banker.name_he;
   const full: Item[] = snap.updates.flatMap((e) => {
     const d = describe(e, docs, banker);
     return d ? [{ key: String(e.event_id), at: e.at, ...d }] : [];
@@ -105,18 +156,19 @@ export function RecentUpdates() {
     <section className="card upd-card" aria-labelledby="upd-heading" data-testid="recent-updates">
       <div className="upd-head">
         <span className="upd-bell" aria-hidden><IBell size={16} /></span>
-        <h2 className="sum-title" id="upd-heading">{all ? "כל העדכונים בתיק" : "עדכונים אחרונים"}</h2>
+        <h2 className="sum-title" id="upd-heading">{all ? t("כל העדכונים בתיק", "All updates") : t("עדכונים אחרונים", "Recent updates")}</h2>
       </div>
       {full.length === 0 ? (
-        <div className="upd-empty">עדיין אין עדכונים בתיק. כשתעלו מסמכים או כשתגיע בקשה מ{banker}, העדכון יופיע כאן.</div>
+        <div className="upd-empty">{en ? <>No updates yet. When you upload documents or {banker} sends a request, it will appear here.</>
+          : <>עדיין אין עדכונים בתיק. כשתעלו מסמכים או כשתגיע בקשה מ{banker}, העדכון יופיע כאן.</>}</div>
       ) : (
         <ol className="timeline upd-list">
           {items.map((it) => (
             <li className={`upd-item ${it.tone}`} key={it.key} data-testid="update-item">
-              <span className="upd-ic" aria-hidden>{it.tone === "info" && it.title === "מסמך הועלה לתיק" ? <IUpload size={17} /> : ICON[it.tone]}</span>
+              <span className="upd-ic" aria-hidden>{it.tone === "info" && it.upload ? <IUpload size={17} /> : ICON[it.tone]}</span>
               <div className="grow">
                 <div className="upd-title">{it.title}</div>
-                {it.body && <div className="upd-body">{it.body}</div>}
+                {it.body && <div className="upd-body">{en && it.orig ? <bdi lang="he" dir="rtl">{it.body}</bdi> : it.body}</div>}
               </div>
               <span className="upd-dot" aria-hidden />
               <time className="upd-time" dateTime={it.at}><span className="ltr">{dateHe(it.at)}</span><span className="ltr">{clockHe(it.at)}</span></time>
@@ -126,7 +178,8 @@ export function RecentUpdates() {
       )}
       {full.length > 3 && (
         <button className="upd-more" onClick={() => setAll(!all)} aria-expanded={all} data-testid="updates-toggle">
-          <span>{all ? "הצגת העדכונים האחרונים בלבד" : <>לכל ההיסטוריה <span className="muted">({full.length})</span></>}</span>
+          <span>{all ? t("הצגת העדכונים האחרונים בלבד", "Show recent updates only") : en ? <>Full history <span className="muted">({full.length})</span></>
+            : <>לכל ההיסטוריה <span className="muted">({full.length})</span></>}</span>
           <span className={`upd-chev${all ? " up" : ""}`}><IChevronDown size={16} /></span>
         </button>
       )}

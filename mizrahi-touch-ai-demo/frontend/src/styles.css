@@ -1432,3 +1432,11 @@ pre.json { direction: ltr; text-align: left; background: #0f1724; color: #d6e2f0
 .phone[data-lang=en] input, .phone[data-lang=en] button, .phone[data-lang=en] textarea, .phone[data-lang=en] select { font-family: inherit; }
 /* a Hebrew original shown in an English screen (a banker's message, an AI note): right-aligned in its own direction */
 .phone[data-lang=en] .orig-he { text-align: right; }
+.phone[data-lang=en] .orig-he-inline { display: block; text-align: right; unicode-bidi: isolate; }
+.phone[data-lang=en] .orig-tag { display: inline-block; direction: ltr; unicode-bidi: isolate; font-size: 9.5px; font-weight: 800;
+  letter-spacing: 0.3px; color: var(--mz-muted); background: var(--mz-bg); border: 1px solid var(--mz-line); border-radius: 5px;
+  padding: 0 5px; margin-inline-end: 6px; vertical-align: 1px; }
+/* the conversation: where its language changes, and a pending question asked again in the app's language */
+.cv2-lang-divider { align-self: center; margin: 6px 0 2px; padding: 2px 10px; border-radius: 999px; background: var(--mz-bg);
+  border: 1px solid var(--mz-line); font-size: 11px; font-weight: 700; color: var(--mz-muted); }
+.cv2-live-q { border-style: dashed; }

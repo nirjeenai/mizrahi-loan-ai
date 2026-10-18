@@ -113,7 +113,8 @@ function Drawer({ caseId, onPick, onClose, onPresenter }: {
         <div className="drawer-mine" data-testid="drawer-my-cases">{mine.map(row)}</div>
         {others.length > 0 && (
           <details className="drawer-others" data-testid="drawer-other-cases">
-            <summary className="small muted">{t("תיקים של לקוחות אחרים", "Other customers' applications")} ({others.length})</summary>
+            {en ? <summary className="small muted">Other customers&apos; applications ({others.length})</summary>
+              : <summary className="small muted">תיקים של לקוחות אחרים ({others.length})</summary>}
             {others.map(row)}
           </details>
         )}

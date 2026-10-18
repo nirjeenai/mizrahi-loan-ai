@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Fact } from "../api";
-import { WITNESS_HE } from "../api";
+import { witnessL } from "../api";
+import { useLang } from "../i18n";
 import { ICheck, IAlert } from "./Icons";
 
 /** The decisive fields of every document family, in reading order (the backend's prompts.FAMILY_FIELDS). */
@@ -22,13 +23,14 @@ export function EvidenceViewer({ documentId, facts, page = 1, focus, onFocus, dp
   const loaded = loadedSrc === src;
   const root = useRef<HTMLDivElement>(null);
   const shown = facts.filter((f) => f.evidence?.bbox && f.evidence.page === page && f.evidence.page_size);
+  const { en, t } = useLang();
   useEffect(() => {
     if (loaded && focus && autoScroll) root.current?.querySelector(".hl.focus")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [loaded, focus, autoScroll]);
   return (
     <div className={`viewer${interactive ? " interactive" : ""}${loaded ? "" : " loading"}`} ref={root} data-testid="evidence-viewer">
-      <img key={src} src={src} alt="עמוד המסמך המקורי" onLoad={() => setLoadedSrc(src)} />
-      {!loaded && <div className="viewer-wait"><span className="spinner" /> טוען את עמוד המסמך…</div>}
+      <img key={src} src={src} alt={t("עמוד המסמך המקורי", "The original document page")} onLoad={() => setLoadedSrc(src)} />
+      {!loaded && <div className="viewer-wait"><span className="spinner" /> {t("טוען את עמוד המסמך…", "Loading the document page…")}</div>}
       {loaded && shown.map((f) => {
         const [x0, y0, x1, y1] = f.evidence!.bbox!;
         const [w, h] = f.evidence!.page_size!;
@@ -36,7 +38,7 @@ export function EvidenceViewer({ documentId, facts, page = 1, focus, onFocus, dp
         const on = focus ? focus === f.field : MAIN.includes(f.field);
         const cls = quiet ? (focus === f.field ? "hl focus" : "hl quiet") : `hl ${on ? "" : "dim"}${focus === f.field ? " focus" : ""}`;
         return (
-          <div key={`${documentId}:${page}:${f.field}`} className={cls} title={`${f.label_he}: ${f.value_raw ?? ""}`}
+          <div key={`${documentId}:${page}:${f.field}`} className={cls} title={`${(en && f.label_en) || f.label_he}: ${f.value_raw ?? ""}`}
             data-field={f.field}
             style={{ left: `${(x0 / w) * 100 - 0.6}%`, top: `${(y0 / h) * 100 - 0.5}%`, width: `${((x1 - x0) / w) * 100 + 1.2}%`,
               height: `${((y1 - y0) / h) * 100 + 1}%`, borderStyle: verified ? "solid" : "dashed",
@@ -49,6 +51,7 @@ export function EvidenceViewer({ documentId, facts, page = 1, focus, onFocus, dp
 
 export function FactList({ facts, focus, onFocus }: { facts: Fact[]; focus?: string | null; onFocus?: (f: string) => void }) {
   const ordered = [...facts].sort((a, b) => MAIN.indexOf(a.field) - MAIN.indexOf(b.field)).filter((f) => MAIN.includes(f.field));
+  const { en, t } = useLang();
   return (
     <div>
       {ordered.map((f) => {
@@ -56,17 +59,17 @@ export function FactList({ facts, focus, onFocus }: { facts: Fact[]; focus?: str
         const verified = w === "text_layer_exact" || w === "vision_reread_confirmed";
         return (
           <button key={f.field} className={`fact-row ${focus === f.field ? "on" : ""}`} onClick={() => onFocus?.(f.field)}>
-            <span className="muted small">{f.label_he}</span>
+            <span className="muted small">{(en && f.label_en) || f.label_he}</span>
             <span className="bold" style={{ color: "var(--mz-ink)" }}><bdi>{f.value_raw}</bdi></span>
             <span className={`badge ${verified ? "ok" : "warn"}`} title={f.evidence?.witness_detail || ""}>
-              {verified ? <ICheck size={11} /> : <IAlert size={11} />}{verified ? "אומת" : "לא אומת"}
+              {verified ? <ICheck size={11} /> : <IAlert size={11} />}{verified ? t("אומת", "Verified") : t("לא אומת", "Not verified")}
             </span>
           </button>
         );
       })}
       {focus && (() => {
         const f = facts.find((x) => x.field === focus);
-        return f?.evidence ? <div className="tiny muted" style={{ marginTop: 6 }}>{WITNESS_HE[f.evidence.witness]} · {f.evidence.witness_detail}</div> : null;
+        return f?.evidence ? <div className="tiny muted" style={{ marginTop: 6 }}>{witnessL(f.evidence.witness)} · {f.evidence.witness_detail}</div> : null;
       })()}
     </div>
   );
