@@ -265,7 +265,7 @@ function IndicationCard({ m }: { m: ChatMessage }) {
     <div className={`cv2-insight ${ind.within ? "ok" : "warn"}`} data-testid="cv2-insight" data-stale="0"
       data-max={ind.max_amount_ils} data-requested={ind.requested_amount_ils} role="group" aria-label="הערכה ראשונית לבקשה">
       <div className="ia-head">
-        <img src="/brand/jeen-mark.png" alt="" aria-hidden />
+        <img src="/brand/jeen-mark.svg" alt="" aria-hidden />
         <span>הערכה ראשונית</span>
         <span className="ia-not">לא אישור הלוואה</span>
       </div>

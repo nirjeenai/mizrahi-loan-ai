@@ -77,7 +77,7 @@ export class BrowserVoice implements VoiceChannel {
     const server = !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
     this.sttMode = browser ? "browser" : server ? "server" : "none";
     const detail = this.sttMode === "browser" ? "זיהוי דיבור עברי של הדפדפן" :
-      this.sttMode === "server" ? "הקלטה ותמלול עברי בשרת JEEN" : "אין קלט קולי בדפדפן זה, אפשר להקליד";
+      this.sttMode === "server" ? "הקלטה ותמלול עברי בשרת Jeen" : "אין קלט קולי בדפדפן זה, אפשר להקליד";
     return { stt: this.sttMode, tts, detail: `${detail}${tts ? " · הקראה בקול עברי" : " · אין קול עברי להקראה"}` };
   }
 
@@ -155,12 +155,12 @@ export class BrowserVoice implements VoiceChannel {
 /** JEEN Talk slot — becomes active when JEEN Talk credentials and an agent with the Case MCP tools exist. */
 export class JeenTalkVoice implements VoiceChannel {
   id = "jeen-talk" as const;
-  label = "JEEN Talk";
+  label = "Jeen Talk";
   async capability(): Promise<VoiceCapability> {
-    return { stt: "none", tts: false, detail: "JEEN Talk אינו מחובר בסביבה זו, נדרשים כתובת, מפתח Developer API וסוכן עברי" };
+    return { stt: "none", tts: false, detail: "Jeen Talk אינו מחובר בסביבה זו, נדרשים כתובת, מפתח Developer API וסוכן עברי" };
   }
   listen(_p: (t: string) => void, _f: (t: string, m: Record<string, unknown>) => void, onError: (e: string) => void) {
-    onError("JEEN Talk אינו מחובר");
+    onError("Jeen Talk אינו מחובר");
     return () => {};
   }
   async speak() { /* not connected */ }

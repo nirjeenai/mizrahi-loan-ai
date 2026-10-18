@@ -1,10 +1,10 @@
 /* Banker V3 "מענה מוצע ללקוח" (.rw-*) and the JEEN assistant surfaces (.jn-*).
    Draft preview on the right (first grid column in RTL), the JEEN panel on the left; long replies are edited in a
    document workspace (modal) with the JEEN rewrite bar at its foot. One pane at a time below 900px.
-   JEEN palette = the three tiles of the JEEN mark (lilac · coral · amber) on a deep ink; used as a thin strip and in
+   JEEN palette = the three pills of the official Jeen mark (pink #ffb1fc · orange #ff4d2d · amber #ffae34) on a deep ink; used as a thin strip and in
    small motion only, so the section stays a sober banking surface. */
 .rw {
-  --jn-lilac: #e9b7ee; --jn-coral: #e85d4c; --jn-amber: #f5a95b; --jn-ink: #1d2130;
+  --jn-lilac: #ffb1fc; --jn-coral: #ff4d2d; --jn-amber: #ffae34; --jn-ink: #1d2130;
   --jn-line: #ebe5f2; --jn-tint: #fbf8fd; --jn-ring: #f3eaf8;
 }
 .rw .cc-card-head { align-items: center; }
@@ -84,7 +84,7 @@
   background: linear-gradient(180deg, var(--jn-tint) 0, #fff 160px); box-shadow: 0 1px 2px rgba(30, 35, 50, 0.04); }
 .jn-head { padding: 17px 16px 12px; border-bottom: 1px solid #f1edf5; }
 .jn-title { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 17px; font-weight: 800; color: var(--jn-ink); line-height: 1; }
-.jn-logo { height: 24px; width: auto; display: block; flex: none; margin-top: 1px; }
+.jn-logo { height: 21px; width: auto; display: block; flex: none; margin: 2.5px 0 1.5px; }
 .jn-sub { margin: 6px 0 0; font-size: 12px; color: var(--mz-muted); }
 /* contain:size keeps a long conversation from growing the row: the log fills the height the draft sets and scrolls */
 .rw-log { flex: 1 1 0; min-height: 0; contain: size; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
@@ -122,7 +122,7 @@
 .rw-modal-wrap { position: fixed; inset: 0; z-index: 1000; direction: rtl; font-size: 14px; color: var(--mz-text); display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(22, 26, 36, 0.48); backdrop-filter: blur(2px);
   animation: rw-fade 0.16s ease-out; }
 @keyframes rw-fade { from { opacity: 0; } to { opacity: 1; } }
-.rw-modal { --jn-lilac: #e9b7ee; --jn-coral: #e85d4c; --jn-amber: #f5a95b; --jn-ink: #1d2130; --jn-ring: #f3eaf8;
+.rw-modal { --jn-lilac: #ffb1fc; --jn-coral: #ff4d2d; --jn-amber: #ffae34; --jn-ink: #1d2130; --jn-ring: #f3eaf8;
   width: min(1080px, 100%); height: min(94vh, 1040px); display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; background: #eef0f3;
   box-shadow: 0 24px 64px rgba(15, 20, 30, 0.28); animation: rw-rise 0.2s ease-out; }
 @keyframes rw-rise { from { transform: translateY(8px); opacity: 0.6; } to { transform: none; opacity: 1; } }

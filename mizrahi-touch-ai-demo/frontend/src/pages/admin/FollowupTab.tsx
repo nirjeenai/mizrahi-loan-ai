@@ -7,7 +7,7 @@ import { FieldErrors, Lock, NumberField, Toggle } from "./ui";
 const DAYS: [string, string][] = [["SUN", "א׳"], ["MON", "ב׳"], ["TUE", "ג׳"], ["WED", "ד׳"], ["THU", "ה׳"], ["FRI", "ו׳"], ["SAT", "שבת"]];
 const AFTER_APP: [string, string[]][] = [["שיחה קולית", ["voice"]], ["הודעה", ["message"]], ["שיחה, ואז הודעה", ["voice", "message"]],
   ["הודעה, ואז שיחה", ["message", "voice"]], ["ללא ערוץ נוסף", []]];
-const MODE_HE: Record<string, string> = { simulation: "סימולציה", off: "כבוי", live: "חי (ספק JEEN Talk)" };
+const MODE_HE: Record<string, string> = { simulation: "סימולציה", off: "כבוי", live: "חי (ספק Jeen Talk)" };
 
 export function FollowupTab({ work, edit, bar, settings, onKillSwitch }: KindProps & {
   settings: Settings; onKillSwitch: (paused: boolean, reason: string) => Promise<void>;
@@ -32,12 +32,12 @@ export function FollowupTab({ work, edit, bar, settings, onKillSwitch }: KindPro
             <h3>הפעלה</h3>
             <Toggle label="מעקב יזום אחרי מסמכים חסרים" checked={!!f.auto_followup_enabled} onChange={set("followup.auto_followup_enabled")}
               hint="כבוי: הלקוח רואה את המשימות באפליקציה, אבל אין תזכורות ושיחות יזומות" testId="f-auto" />
-            <Toggle label="ערוץ שיחה (JEEN Talk)" checked={!!talk.enabled} onChange={set("talk.enabled")} testId="t-enabled" />
+            <Toggle label="ערוץ שיחה (Jeen Talk)" checked={!!talk.enabled} onChange={set("talk.enabled")} testId="t-enabled" />
             <label className="adm-field"><span className="adm-label">מצב ספק השיחות</span>
               <select value={talk.mode} onChange={(e) => set("talk.mode")(e.target.value)} data-testid="t-mode">
                 {Object.entries(MODE_HE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
-              <span className="tiny muted">במצב חי, שיחה תתבצע רק כשספק JEEN Talk מחובר ומוגדר. כרגע הוא אינו מוגדר.</span>
+              <span className="tiny muted">במצב חי, שיחה תתבצע רק כשספק Jeen Talk מחובר ומוגדר. כרגע הוא אינו מוגדר.</span>
               <FieldErrors report={report} path="talk.mode" />
             </label>
           </div>

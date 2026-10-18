@@ -231,7 +231,7 @@ export function UploadSheet() {
               {busy ? <span className="spinner" /> : null}{human ? "העלאה לבדיקת הבנקאי" : "העלאה ובדיקה חכמה"}
             </button>
             <div className="tiny muted" style={{ lineHeight: 1.6 }}>
-              המסמך נשמר בתיק ונבדק בבדיקת המסמכים החכמה של JEEN. התוצאה היא בדיקת מסמך אוטומטית, לא קבלת המסמך על ידי הבנק.
+              המסמך נשמר בתיק ונבדק בבדיקת המסמכים החכמה של Jeen. התוצאה היא בדיקת מסמך אוטומטית, לא קבלת המסמך על ידי הבנק.
             </div>
           </>)}
           {doc && (<>
@@ -245,7 +245,7 @@ export function UploadSheet() {
                   המסמך נשמר בתיק ויועבר לבדיקת {snap?.case.banker.name_he || "הבנקאי"}. לסוג מסמך זה אין בדיקת AI, ולכן הוא לא סומן ״תקין״.
                 </div>
               ) : (<>
-              <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.png" alt="" />עיבוד מסמכים באמצעות JEEN</div>
+              <div className="jeen-by" style={{ marginTop: 10 }}><img src="/brand/jeen-mark.svg" alt="" />עיבוד מסמכים באמצעות Jeen</div>
               <div className="stage-list" data-testid="upload-stages">
                 {STAGES.map(([k, label], i) => (
                   <div key={k} className={`stage-item ${i < stageIndex || doc.status === "reviewed" ? "done" : i === stageIndex ? "now" : ""}`}>

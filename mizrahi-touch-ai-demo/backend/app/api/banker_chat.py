@@ -46,7 +46,7 @@ DRAFT_PURPOSE = {
                "the financing-terms block and the closing DEMO notice come from the bank's code.",
 }
 
-SYSTEM = """You are JEEN, an AI colleague inside the Mizrahi-Tefahot banker workspace.
+SYSTEM = """You are Jeen, an AI colleague inside the Mizrahi-Tefahot banker workspace.
 You help ONE human banker with ONE selected loan application: you answer questions about the case and you revise the
 customer-reply draft shown next to you. The banker decides everything; you never decide credit.
 
@@ -64,7 +64,8 @@ ANSWERING QUESTIONS
    calculated by the system (חישוב), bank-context data (נתוני בנק, לא מאומתים, not verified against bank systems), or an
    assumption for the calculation (הנחה). Do not describe the case, its data or the workspace as a demo, synthetic,
    simulated or a test (the approval letter keeps its own title and closing notice, below). "AI checked" a document is
-   not the banker accepting it: banker acceptance is documents.accepted / each document's banker_status_he.
+   not the banker accepting it: only the banker's status on each document, and the count of documents the banker
+   accepted, say that the bank accepted it.
 3. To explain a calculation, use the formula_he and inputs of its entry in `sources` with the actual values. Never
    recompute or alter the system's figures.
 4. The recommendation is a recommendation to the banker, not a credit decision. Nothing in the case is approved.
@@ -106,8 +107,15 @@ EDITING THE DRAFT
    In every other draft, rule 9 applies in full: no approval wording at all.
 
 STYLE
-Natural, professional Hebrew addressed to the banker. Short: 1–5 sentences, or a few "•" lines for lists. Plain text only.
-Use ₪ amounts and percentages exactly as in the data. Never quote JSON keys, field names or source ids in the text."""
+Write as an experienced credit colleague briefing the banker: natural, professional Hebrew; the direct answer first, then
+the facts that support it, then the practical next step when there is one. Short: 1–5 sentences, or a few "•" lines for
+lists. Plain text only. Use ₪ amounts and percentages exactly as in the data.
+<case_data> is the bank's internal structure and the banker never sees it, so translate it into banking language:
+- Name what a thing is, never how it is stored: no JSON keys, field names, source ids, internal codes or English status
+  values (such as NO_DOCUMENTS, CUSTOMER_DECLARED, partial), and no "null", "field" or "JSON". Name a file only if asked.
+- When information is missing or uncertain, say plainly what is missing and what it holds up, e.g. "לא ניתן להשלים את
+  הבדיקה בשלב זה, כי עדיין חסרים נתוני ההכנסה נטו ופרטי המעסיק של הלקוח." Keep the caveats that matter (declared and
+  not verified, an assumption, not checked) in plain words; never hide a gap and never fill it with a guess."""
 
 SCHEMA = g.S("object", properties={
     "intent": g.S("string", enum=INTENTS),
@@ -117,15 +125,24 @@ SCHEMA = g.S("object", properties={
     "change_summary_he": g.S("string"),
 }, required=["intent", "answer_he", "source_ids", "revised_draft_he", "change_summary_he"])
 
-# keys that identify people, accounts or internal records and that no answer needs
+# keys that identify people, accounts or internal records and that no answer needs, and state codes whose Hebrew
+# label travels beside them (state_he, headline_he, label_he): the model reads the label, never the code
 _DROP = {"document_id", "v1_item", "has_location", "staff_id", "company_number", "accounts", "fixture_id", "fixture_ids",
          "employer_document_source_id", "subject_source_id", "bounds", "borrower_id", "witness", "banker_status",
-         "case_status", "drafts", "recommended_draft", "version", "generated_at", "case_id", "source"}
+         "case_status", "drafts", "recommended_draft", "version", "generated_at", "case_id", "source",
+         "state", "code", "label_observed_in_screenshot"}
+
+
+def _empty(v: Any) -> bool:
+    """Nothing to say: no value, or a measure whose value is unknown ({"unit": "ils"}). The Hebrew reasons and unknowns
+    already say what is missing, so the model is not shown a bare structure to describe."""
+    return v in (None, [], {}, "") or (isinstance(v, dict) and set(v) == {"unit"})
 
 
 def _scrub(obj: Any) -> Any:
     if isinstance(obj, dict):
-        return {k: _scrub(v) for k, v in obj.items() if k not in _DROP and v not in (None, [], {}, "")}
+        out = {k: _scrub(v) for k, v in obj.items() if k not in _DROP}
+        return {k: v for k, v in out.items() if not _empty(v)}
     if isinstance(obj, list):
         return [_scrub(v) for v in obj]
     return obj
@@ -158,7 +175,7 @@ _DISCLOSURE = re.compile(r"אינ[הו]\s+(?:מהווה\s+)?(?:אישור|התח
                          r"(?:לא|טרם)\s+(?:אושרה|אושר)")
 _INTERNAL = [("יחס החזר", re.compile(r"יחס\s+ה?החזר|DSR", re.IGNORECASE)), ("אובליגו", re.compile(r"אובליגו")),
              ("נתוני דמו", re.compile(r"(?<![א-ת])[הבמו]?דמו(?![א-ת])|סינתטי|synthetic|fixture", re.IGNORECASE)),
-             ("הנחת הדגמה", re.compile(r"הנחת\s+ה?הדגמה|הדגמה")), ("JEEN / AI", re.compile(r"JEEN|בינה\s+מלאכותית|\bAI\b"))]
+             ("הנחת הדגמה", re.compile(r"הנחת\s+ה?הדגמה|הדגמה")), ("Jeen / AI", re.compile(r"(?i:jeen)|בינה\s+מלאכותית|\bAI\b"))]
 _LINK = re.compile(r"https?://|www\.", re.IGNORECASE)
 # claims no draft may make, the demo approval letter included: the money was paid out, the documents were signed
 _DONE = [re.compile(r"(?:הכסף|הכספים|סכום\s+ההלוואה|ההלוואה)\s+(?:כבר\s+)?(?:הועבר[הו]?|הועמד[הו]?|הופקד[הו]?|שולמ?[הו]?)(?![א-ת])"),
@@ -294,7 +311,7 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
     if not message:
         raise ValueError("empty message")
     if not settings.gemini_api_key:
-        raise ChatUnavailable("JEEN אינו זמין בסביבה זו: לא הוגדר מפתח Gemini (GEMINI_API_KEY).")
+        raise ChatUnavailable("Jeen אינו זמין בסביבה זו: לא הוגדר מפתח Gemini (GEMINI_API_KEY).")
     intel = banker_intelligence.build(case_id)
     kind = draft["kind"] if draft else None
     demo, base = None, ""
@@ -334,10 +351,10 @@ def respond(case_id: str, message: str, history: list[dict], draft: Optional[dic
             if not rejected:
                 edit = {"text": revised, "summary_he": (out.get("change_summary_he") or "").strip()}
     except g.BudgetExceeded:
-        raise ChatUnavailable("JEEN הגיע למכסת הקריאות לשעה זו. נסו שוב מאוחר יותר.") from None
+        raise ChatUnavailable("Jeen הגיע למכסת הקריאות לשעה זו. נסו שוב מאוחר יותר.") from None
     except g.GeminiError as exc:
         log.warning("banker chat failed: %s", exc)
-        raise ChatUnavailable("JEEN לא הצליח לענות כרגע. הטיוטה לא השתנתה, אפשר לנסות שוב.") from None
+        raise ChatUnavailable("Jeen לא הצליח לענות כרגע. הטיוטה לא השתנתה, אפשר לנסות שוב.") from None
     answer = re.sub(r"[*`]+", "", out.get("answer_he") or "").strip()
     if rejected and out["intent"] != "declined":
         answer = "לא עדכנתי את הטיוטה: " + " ".join(rejected)

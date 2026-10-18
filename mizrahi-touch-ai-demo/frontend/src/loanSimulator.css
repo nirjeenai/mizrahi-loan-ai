@@ -5,7 +5,7 @@
    Signature: the cost ribbon under the monthly figure — principal (ink) · interest (coral) · fees (amber) — resized live,
    so a longer term visibly costs more. Everything else stays quiet and tight. */
 .ls {
-  --jn-lilac: #e9b7ee; --jn-coral: #e85d4c; --jn-amber: #f5a95b; --jn-ink: #1d2130;
+  --jn-lilac: #ffb1fc; --jn-coral: #ff4d2d; --jn-amber: #ffae34; --jn-ink: #1d2130;
   --jn-line: #ece6f2; --jn-tint: #fbf8fd; --jn-ring: #f3eaf8; --ls-muted: #7a7486;
   position: relative; align-self: stretch; box-sizing: border-box; overflow: hidden;
   margin: -4px 0 2px; margin-inline-start: 33px;          /* the assistant's column: avatar 26px + gap 7px */

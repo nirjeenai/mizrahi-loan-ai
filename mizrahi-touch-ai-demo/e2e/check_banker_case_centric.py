@@ -116,7 +116,7 @@ def michal(page: Page, c: httpx.Client) -> None:
           and page.locator("[data-testid=cc-rec]").count() == 1, " → ".join(sections))
     check("complete: the recommendation reads exactly as specified, matches the state, and is not an approval",
           rec.get_attribute("data-state") == "READY_FOR_CREDIT_REVIEW" == x["recommendation"]["state"]
-          and page.locator("[data-testid=cc-rec] .cc-jeen").inner_text() == "המלצת JEEN"
+          and page.locator("[data-testid=cc-rec] .cc-jeen").inner_text() == "המלצת Jeen"
           and page.locator("[data-testid=cc-rec-title]").inner_text() == "מומלץ להתקדם בתהליך ההלוואה"
           and page.locator("[data-testid=cc-rec-text]").inner_text() == x["recommendation"]["headline_he"]
           == "התיק הושלם מבחינת מסמכים. על בסיס הנתונים שנאספו ניתן להתקדם לבחינת בקשת האשראי. נבחנו 3 חלופות מימון לצורך סימולציה. קביעת זכאות, סכום ותנאים מחייבת אימות נוסף והחלטת הבנק."

@@ -117,7 +117,7 @@ def build(case_id: str) -> dict[str, Any]:
         bid = b["borrower_id"]
         declared = b.get("declared_net_monthly_ils") or 0
         sid_decl = src.add(f"declared:{bid}", "declared", label_he=f"הכנסה נטו מוצהרת, {b['first_name_he']}", value=declared,
-                           origin_he="טופס הבקשה (CUSTOMER_DECLARED), לא מאומת", note_he=b.get("declaration_note_he")) \
+                           origin_he="טופס הבקשה, הצהרת הלקוח, לא מאומת", note_he=b.get("declaration_note_he")) \
             if declared else None
         inc = (latest_case.get("income") or {}).get(bid) or {}
         row = next((r for r in ws["borrowers"] if r["borrower_id"] == bid), None)
@@ -136,7 +136,7 @@ def build(case_id: str) -> dict[str, Any]:
                               unit="ils", formula_he=f"סכום הנטו בתלושים ÷ {len(months)} חודשים",
                               inputs=[{"label_he": f"נטו {m['period_he']}", "value": m["net_ils"], "unit": "ils",
                                        "source_id": m["source_id"]} for m in months],
-                              note_he="תלושים שעברו את בדיקות ההכנסה בלבד, בחודשים הנדרשים (בדיקת IS-04 בקוד).")
+                              note_he="תלושים שעברו את בדיקות ההכנסה בלבד, בחודשים הנדרשים.")
         finding = next((i for i in finding_items if i["finding"]["code"] == "DECLARED_VS_DOCUMENT_INCOME_VARIANCE"
                         and i["borrower_id"] == bid), None)
         unresolved = bool(finding and finding["finding"]["status"] == "open")
@@ -460,7 +460,7 @@ def build(case_id: str) -> dict[str, Any]:
         target = first_missing["v1_item"] if first_missing else corrections[0]["v1_item"] if corrections else None
         next_action = {"kind": "request_documents", "label_he": "בקשת ההשלמות מהלקוח", "v1_item": target}
     elif rec_state == "PROCESSING":
-        headline, tone, doc_status = "JEEN עדיין בודק את המסמכים שהועלו. תמונת המצב תתעדכן אוטומטית בסיום הבדיקה.", "neutral", "בבדיקה"
+        headline, tone, doc_status = "Jeen עדיין בודק את המסמכים שהועלו. תמונת המצב תתעדכן אוטומטית בסיום הבדיקה.", "neutral", "בבדיקה"
         next_action = {"kind": "wait", "label_he": "ממתינים לסיום בדיקת המסמכים", "v1_item": None}
     elif rec_state == "NO_DOCUMENTS":
         headline = "טרם הועלו מסמכים לבקשה. אין עדיין בסיס מתועד לתמונה פיננסית, הנתונים שלהלן מוצהרים בלבד."
@@ -555,7 +555,7 @@ def build(case_id: str) -> dict[str, Any]:
     for m in missing:
         risks.append({"kind": "missing", "title_he": m["title_he"], "text_he": m["status_he"], "tone": "miss",
                       "who_he": "חסר בתיק", "v1_item": m["v1_item"], "source_ids": []})
-    unknowns = [{"label_he": "תנועות בדפי העו״ש", "text_he": "JEEN אימת את פרטי הדף (בעלים, תקופה, יתרת סגירה) אך לא חילץ תנועות."},
+    unknowns = [{"label_he": "תנועות בדפי העו״ש", "text_he": "Jeen אימת את פרטי הדף (בעלים, תקופה, יתרת סגירה) אך לא חילץ תנועות."},
                 {"label_he": "הוצאות מחיה ודיור", "text_he": "אינן כלולות בחישוב; ההכנסה שנותרת היא מדד תיאורי בלבד."},
                 {"label_he": "נתוני אשראי חיצוניים", "text_he": "אין חיבור, לא נבדקו."}]
     if context_missing:

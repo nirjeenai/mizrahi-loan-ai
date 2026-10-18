@@ -35,7 +35,7 @@ export function CaseCentricV3({ caseId, ws, openV1 }: { caseId: string; ws: Work
     if (src) setStack((prev) => [...prev, src]);
   }, [x]);
   if (!x) return <div className="desk-loading">{intel.error ? <>לא הצלחנו לטעון את התיק. <button className="link" onClick={intel.reload}>ניסיון חוזר</button></>
-    : <><span className="spinner" /> JEEN מכין את התיק…</>}</div>;
+    : <><span className="spinner" /> Jeen מכין את התיק…</>}</div>;
   const ctx: Ctx = { x, open, openV1 };
   const go = (id: string) => scroller.current?.querySelector(`#${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   return (
@@ -71,7 +71,7 @@ const TITLE: Record<string, string> = {
   CLARIFICATION_REQUIRED: "נדרש בירור לפני בחינת האשראי",
   DOCUMENTS_INCOMPLETE: "נדרשת השלמת מסמכים לפני בחינת האשראי",
   NO_DOCUMENTS: "טרם התקבלו מסמכים בתיק",
-  PROCESSING: "JEEN עדיין בודק את המסמכים",
+  PROCESSING: "Jeen עדיין בודק את המסמכים",
   ERROR: "בדיקת המסמכים לא הושלמה",
 };
 const applicantName = (x: Intelligence) => x.applicant.company?.name_he || x.applicant.borrowers.map((b) => b.name_he).join(" ו");
@@ -179,7 +179,7 @@ function Recommendation({ ctx, go }: { ctx: Ctx; go: (id: string) => void }) {
   return (
     <section className={`cc-rec t-${tone}`} data-testid="cc-rec" data-state={r.state}>
       <div className="cc-rec-in">
-        <div className="cc-rec-top"><span className="cc-jeen">המלצת JEEN</span></div>
+        <div className="cc-rec-top"><span className="cc-jeen">המלצת Jeen</span></div>
         <span className="cc-rec-mark" aria-hidden>{tone === "ok" ? "✓" : tone === "neutral" ? "…" : "!"}</span>
         <h2 data-testid="cc-rec-title">{TITLE[r.state] || r.documentation.status_he}</h2>
         <p data-testid="cc-rec-text">{r.headline_he}</p>

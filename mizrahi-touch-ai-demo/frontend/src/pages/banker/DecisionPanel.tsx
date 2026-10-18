@@ -76,7 +76,7 @@ function DocumentPanel({ item, ws, staff, readOnly, finish, showEvidence }: Ctx<
     || item.requests.length > 0;
   return (<>
     <section className="dp-sec dp-summary z-ai" data-testid="ai-summary">
-      <div className="dp-head"><span className="dp-eyebrow">סיכום בדיקת AI</span><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" /></div>
+      <div className="dp-head"><span className="dp-eyebrow">סיכום בדיקת AI</span><img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="Jeen" /></div>
       <div className={`dp-callout ${tone}`} data-testid="attention">
         {item.ai.attention_he.map((t, i) => <p key={i} className={i === 0 ? "lead" : ""}>{t}</p>)}
       </div>
@@ -356,7 +356,7 @@ function CaseFindingPanel({ item, ws, staff, readOnly, finish }: Ctx<CaseFinding
   const inc = item.income;
   return (<>
     <section className="dp-sec z-ai">
-      <div className="dp-head"><span className="dp-eyebrow">ממצא ברמת התיק</span><img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="Jeen" /></div>
+      <div className="dp-head"><span className="dp-eyebrow">ממצא ברמת התיק</span><img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="Jeen" /></div>
       <div className="row wrap">
         <Chip tone={f.status === "open" ? "navy" : "neutral"}>{f.status === "open" ? f.review_state_he : f.status_he}</Chip>
         {item.escalated && <Chip tone="info">בהמשך בירור</Chip>}

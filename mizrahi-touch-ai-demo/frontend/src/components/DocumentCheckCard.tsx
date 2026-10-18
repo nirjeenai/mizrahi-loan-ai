@@ -216,7 +216,7 @@ export function DocumentCheckCard() {
         <div className="grow">
           <div className="ai-head">
             <h2 className="ai-heading" id="ai-card-heading">{acting ? "מה צריך לעשות עכשיו?" : "מה קורה עכשיו?"}</h2>
-            <img className="ai-logo" src="/brand/jeen-logo.png" alt="JEEN" />
+            <img className="ai-logo" src="/brand/jeen-logo.svg" alt="Jeen" />
           </div>
           <div className="ai-state" data-testid="readiness-state">{BUSY.includes(status) && <span className="spinner" />}{view.title}</div>
         </div>
@@ -245,7 +245,7 @@ export function DocumentCheckCard() {
               <span>{view.more}</span>
               <button className="link" onClick={go(requirementsTarget)}>לכל המסמכים החסרים</button>
             </div>
-          ) : <span className="ai-by">מופעל על ידי JEEN</span>}
+          ) : <span className="ai-by">מופעל על ידי Jeen</span>}
           <button className={`ai-ask${view.more ? " icon" : ""}`} data-testid="card-secondary" onClick={() => openAssistant(view.ask.prompt)}
             aria-label={view.ask.label} title={view.ask.label}><ISpark size={13} />{!view.more && view.ask.label}</button>
         </div>

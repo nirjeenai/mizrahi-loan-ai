@@ -267,7 +267,7 @@ def demo_live(page: Page) -> None:
     before = page.locator("[data-testid=cc-chat-msg][data-role=model]").count()
     page.locator("[data-testid=cc-rewrite-input]").fill("תנסח את זה בצורה רשמית יותר ותוסיף הסבר על תנאי ההחזר.")
     page.locator("[data-testid=cc-rewrite-send]").click()
-    expect(page.locator("[data-testid=cc-rewrite-last]")).to_contain_text("JEEN עורך", timeout=5000)
+    expect(page.locator("[data-testid=cc-rewrite-last]")).to_contain_text("Jeen עורך", timeout=5000)
     expect(page.locator("[data-testid=cc-chat-msg][data-role=model]")).to_have_count(before + 1, timeout=120000)
     after = draft(page)
     said = page.locator("[data-testid=cc-rewrite-last]").inner_text()

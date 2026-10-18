@@ -91,7 +91,7 @@ export function LoanSimulator({ sim, draftId, busy, onConfirm, registerFlush }: 
     <section className={`ls ls-${state}`} {...common}>
       <span className="ls-strip" aria-hidden><i /><i /><i /></span>
       <header className="ls-head">
-        <img className="ls-mark" src="/brand/jeen-mark.png" alt="" />
+        <img className="ls-mark" src="/brand/jeen-mark.svg" alt="" />
         {sim.candidates.length > 1 ? (
           <button className="ls-product" aria-expanded={picking} onClick={() => setPicking((x) => !x)} disabled={busy} data-testid="ls-product">
             <span>{product.label_he}</span><IChevronDown size={14} />
@@ -147,7 +147,7 @@ export function LoanSimulator({ sim, draftId, busy, onConfirm, registerFlush }: 
 export function SimulatorSnapshot({ s }: { s: SimSnapshot }) {
   return (
     <div className="ls-snap" data-testid="ls-snapshot">
-      <img src="/brand/jeen-mark.png" alt="" aria-hidden />
+      <img src="/brand/jeen-mark.svg" alt="" aria-hidden />
       <span>{s.status === "confirmed" ? "תרחיש שנבחר" : "טיוטה"}</span>
       <span >{ilsWhole(s.amount)}</span><span>· {s.term} תשלומים</span>
       {s.monthly_payment != null && <span>· <span >{ilsWhole(s.monthly_payment)}</span> בחודש</span>}
@@ -427,7 +427,7 @@ function Compact({ product, prm, monthly, afford, onEdit, busy }: { product: Pro
   afford: ReturnType<typeof affordability>; onEdit: () => void; busy: boolean }) {
   return (
     <div className="ls-compact" data-testid="ls-compact">
-      <img className="ls-mark" src="/brand/jeen-mark.png" alt="" />
+      <img className="ls-mark" src="/brand/jeen-mark.svg" alt="" />
       <div className="ls-compact-t">
         <span className="ls-compact-k"><ICheck size={11} />{product.label_he}</span>
         <span className="ls-compact-v">

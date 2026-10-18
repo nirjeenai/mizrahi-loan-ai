@@ -65,7 +65,7 @@ export function Stages() {
   return (
     <>
       <div className="page-title">שלבים</div>
-      <p className="page-sub">כאן רואים איפה הבקשה עומדת בבנק, ואיפה עומדת בדיקת המסמכים החכמה של JEEN.</p>
+      <p className="page-sub">כאן רואים איפה הבקשה עומדת בבנק, ואיפה עומדת בדיקת המסמכים החכמה של Jeen.</p>
       <section className="card st-card" aria-labelledby="st-bank">
         <h2 className="st-title" id="st-bank">שלב הבקשה בבנק</h2>
         <ol className="st-list">
@@ -88,7 +88,7 @@ export function Stages() {
       </section>
 
       <section className="card st-card" aria-labelledby="st-jeen">
-        <h2 className="st-title with-brand" id="st-jeen">בדיקת המסמכים החכמה<img className="jeen-logo-inline" src="/brand/jeen-logo.png" alt="של JEEN" /></h2>
+        <h2 className="st-title with-brand" id="st-jeen">בדיקת המסמכים החכמה<img className="jeen-logo-inline" src="/brand/jeen-logo.svg" alt="של Jeen" /></h2>
         {noPayslips ? <div className="st-foot">אין מסמכים לבדיקה בתיק זה. מסמכי התיק מטופלים ישירות מול הבנק.</div> : (<>
           {required > 0 && (<>
             <div className="st-progress"><b>{verified} מתוך {required}</b> דרישות מסמכים הושלמו</div>

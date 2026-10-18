@@ -33,7 +33,7 @@ function AdminTop({ name }: { name?: string }) {
     <>
       <div className="console-top">
         <div className="brand"><img className="mz-logo" src="/brand/mizrahi-logo.svg" alt="מזרחי טפחות" /><span className="brand-x" aria-hidden>×</span>
-          <img className="jeen-logo-light" src="/brand/jeen-logo-light.png" alt="Jeen" /><span className="brand-title">הגדרות השלמת מסמכים · הלוואות</span></div>
+          <img className="jeen-logo-light" src="/brand/jeen-logo-light.svg" alt="Jeen" /><span className="brand-title">הגדרות השלמת מסמכים · הלוואות</span></div>
         {name && <span className="staff-chip" title="חיבור צוות הבנק, אותו חיבור של קונסולת הבנקאי.">מחובר/ת: {name}</span>}
         <nav>
           <Link to="/customer">אפליקציית לקוח</Link>
