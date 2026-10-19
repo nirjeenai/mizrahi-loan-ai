@@ -1,0 +1,12 @@
+{
+  "exact": {
+    "תעודת זהות — מאיה שטרן (צילום נוסף)": "ID card — Maya Stern (additional photo)",
+    "תעודת זהות — גלעד ששון (מורשה חתימה)": "ID card — Gilad Sasson (authorized signatory)",
+    "פרוטוקול מורשי חתימה — ש.ג. מערכות מיזוג": "Authorized signatories resolution — S.G. Air-Conditioning Systems",
+    "תעודת זהות — עידו (פג תוקף)": "ID card — Ido (expired)",
+    "תעודת זהות — צילום לא קריא": "ID card — unreadable photo"
+  },
+  "templates": [
+    ["תלושי שכר של {t}", "Payslips for {t}"]
+  ]
+}

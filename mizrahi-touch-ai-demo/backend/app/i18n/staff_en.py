@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -67,6 +68,27 @@ def _compile(he: str) -> re.Pattern:
     return re.compile("".join(out), re.S)
 
 
+_people_at: float = 0.0
+_people_names: frozenset = frozenset()
+
+
+def _people() -> frozenset:
+    """The borrowers' names on every case (refreshed every 30 s): a name the customer typed has no Latin spelling, and
+    it stays exactly as typed inside the English, as in the customer app (en.name)."""
+    global _people_at, _people_names
+    if time.monotonic() - _people_at > 30:
+        from ..bank.mock_bank import bank
+        names = set()
+        for cid in bank.case_ids():
+            try:
+                for b in bank.get_case(cid).get("borrowers") or []:
+                    names.update(n for n in (b.get("name_he"), b.get("first_name_he")) if n)
+            except Exception:                           # a case that can't be read adds no names
+                continue
+        _people_names, _people_at = frozenset(names), time.monotonic()
+    return _people_names
+
+
 _stamp: tuple = ()
 
 
@@ -98,8 +120,9 @@ def _value(kind: str, v: str, depth: int) -> Optional[str]:
         return v
     if kind == "m":
         return _month(v)
-    if kind == "p":
-        return en.NAMES.get(v.strip())
+    if kind == "p":                                     # a demo name, a catalogued name, or a name typed in Latin letters
+        v = v.strip()
+        return en.NAMES.get(v) or catalog()[0].get(v) or (v if v and (not HE.search(v) or v in _people()) else None)
     return _tr(v, depth + 1)
 
 
@@ -113,26 +136,35 @@ def _fill(rx: re.Pattern, english: str, m: re.Match, depth: int) -> Optional[str
     return _PH.sub(lambda p: values.get(f"{p[1]}{p[2] or '0'}", p[0]), english)
 
 
-_SPLITS = ["\n", " · ", " — ", " – ", " | ", "; "]
 _SENTENCE = re.compile(r"(?<=[.!?])\s+(?=\S)")
 
 
 def _parts(text: str, depth: int) -> Optional[str]:
-    for sep in _SPLITS:
-        if sep in text:
-            parts = text.split(sep)
-            out = [_tr(p, depth + 1) if p.strip() else p for p in parts]
-            return sep.join(out) if all(o is not None for o in out) else None
+    """A text built from parts, part by part: every way of splitting it is tried in turn (lines, " · ", sentences,
+    "; ", ": ", a comma list, a Hebrew "ו" list, " — "…) and the first one whose parts all translate wins."""
+    def whole(parts: list[str], sep: str) -> Optional[str]:
+        out = [_tr(p, depth + 1) if p.strip() else p for p in parts]
+        return sep.join(out) if all(o is not None for o in out) else None
+
+    for sep in ("\n", " · "):
+        if sep in text and (got := whole(text.split(sep), sep)) is not None:
+            return got
     sentences = _SENTENCE.split(text)
-    if len(sentences) > 1:
-        out = [_tr(s, depth + 1) for s in sentences]
-        return " ".join(out) if all(o is not None for o in out) else None
-    for sep in (": ", ", "):
+    if len(sentences) > 1 and (got := whole(sentences, " ")) is not None:
+        return got
+    for sep in ("; ", ": ", ", "):
         if sep in text:
             head, _, tail = text.partition(sep)
-            a, b = _tr(head, depth + 1), _tr(tail, depth + 1)
-            if a is not None and b is not None:
-                return f"{a}{sep}{b}"
+            if (got := whole([head, tail], sep)) is not None:
+                return got
+    # a Hebrew list's last item joined by "ו" ("אוגוסט וספטמבר 2026", "… ואסמכתה למטרה"): A and B, when both translate
+    for m in re.finditer(r" ו(?=[\u0590-\u05FF])", text):
+        a, b = _tr(text[:m.start()], depth + 1), _tr(text[m.end():], depth + 1)
+        if a is not None and b is not None:
+            return f"{a} and {b}"
+    for sep in (" — ", " – ", " | "):
+        if sep in text and (got := whole(text.split(sep), sep)) is not None:
+            return got
     return None
 
 
@@ -145,14 +177,22 @@ def _known(text: str) -> Optional[str]:
     month = _month(text)
     if month:
         return month
+    if text in _people():                               # a borrower's name as typed (no Latin spelling known)
+        return text
     got = criteria_en.explanation(text) or en.error(text)
     if got:
         return got
     from .views import requirement_title
     try:
-        return requirement_title(text)
+        got = requirement_title(text)
     except Exception:                                   # no published policy yet (tests, a fresh DATA_DIR)
         return None
+    if not got:
+        return None
+    rest = got
+    for person in sorted(_people(), key=len, reverse=True):  # a typed name stays as typed; anything else Hebrew means
+        rest = rest.replace(person, "")                     # the title was only half recognised
+    return got if not HE.search(rest) else None
 
 
 def _tr(text: str, depth: int = 0) -> Optional[str]:
