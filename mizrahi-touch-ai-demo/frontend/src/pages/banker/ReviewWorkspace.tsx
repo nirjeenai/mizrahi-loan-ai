@@ -441,13 +441,15 @@ function DocumentEvidence({ item, focus, setFocus, onSelect, ws }: { item: DocIt
   const mismatch = item.claimed_period && item.period && item.claimed_period !== item.period;
   const borrower = ws.case.borrowers.find((b) => b.borrower_id === item.borrower_id);
   const pick = (f: string) => setFocus({ documentId: item.document_id, field: f });
-  const { t } = useLang();
+  const { en, t } = useLang();
   return (
     <div className="ev ev-doc">
       <header className="ev-head">
         <div className="ev-head-row">
           <div>
-            <div className="ev-title" data-testid="evidence-title">{locOf(item, "doc_type_he")} · {(borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he")}</div>
+            <div className="ev-title" data-testid="evidence-title">{en && !((borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he"))
+              ? locOf(item, "doc_type_he") /* English: no dangling "·" when the document has no owner (a purpose proof) */
+              : <>{locOf(item, "doc_type_he")} · {(borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he")}</>}</div>
             <div className="ev-meta">
               {item.period_he || item.claimed_period ? <span>{t("חודש מודפס:", "Printed month:")} <b>{locOf(item, "period_he") || "-"}</b></span>
                 : <span>{t("סוג:", "Type:")} <b>{locOf(item, "doc_type_he")}</b></span>}

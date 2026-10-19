@@ -441,7 +441,7 @@ function Reasons({ ctx }: { ctx: Ctx }) {
   const docLine = { text_he: pending ? `חסרים ${pending} פריטים בתיק, ראו בראש המסך.`
     : d.open_findings ? `המסמכים הושלמו; ${d.open_findings === 1 ? "ממצא אחד ממתין" : `${d.open_findings} ממצאים ממתינים`} לבירור שלך.`
       : d.total ? `המסמכים הנדרשים הושלמו (${progress}).` : "טרם הועלו מסמכים.",
-    text_en: pending ? `${pending} items are missing from the case; see the top of the screen.`
+    text_en: pending ? `${pending === 1 ? "One item is" : `${pending} items are`} missing from the case; see the top of the screen.`
       : d.open_findings ? `Documents complete; ${d.open_findings === 1 ? "one finding awaits" : `${d.open_findings} findings await`} your clarification.`
         : d.total ? `The required documents are complete (${progress}).` : "No documents uploaded yet.",
     tone: pending || d.open_findings ? "warn" : d.total ? "ok" : "info", source_ids: [] as string[] };

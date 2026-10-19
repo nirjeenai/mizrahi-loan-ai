@@ -1486,3 +1486,6 @@ html[data-lang=en] .orig-tag { display: inline-block; direction: ltr; unicode-bi
 /* ---- presenter pane, English ---- */
 html[data-lang=en] .all-scn > summary::after { content: "Show ▾"; }
 html[data-lang=en] .all-scn[open] > summary::after { content: "Hide ▴"; }
+/* English tables: headers start-aligned like their cells; an LTR detail cell stays a table cell */
+html[data-lang=en] table.t th { text-align: start; }
+html[data-lang=en] table.t td.ltr { display: table-cell; }

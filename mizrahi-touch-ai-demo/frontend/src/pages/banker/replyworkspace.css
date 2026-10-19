@@ -200,3 +200,5 @@
 @media (prefers-reduced-motion: reduce) {
   .rw-flash .bl-body, .rw-bar::after, .jn-typing i, .rw-modal-wrap, .rw-modal { animation: none; }
 }
+/* English: the send arrow points the way the text runs */
+html[data-lang=en] .jn-send svg { transform: scaleX(-1); }

@@ -182,6 +182,8 @@ def translate(text: Optional[str]) -> Optional[str]:
     if not text or not HE.search(text):
         return None
     got = _tr(text)
+    if got is not None and re.search(r"\s·\s*$", text):  # a title whose last part is empty ("אסמכתה למטרה · ")
+        got = re.sub(r"\s*·\s*$", "", got)
     return got if got is not None and got != text else None
 
 
