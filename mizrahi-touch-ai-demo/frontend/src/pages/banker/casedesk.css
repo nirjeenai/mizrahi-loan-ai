@@ -479,7 +479,7 @@ html[dir=ltr] .cd-inspector { animation-name: cd-slide-ltr; }
 }
 @media (max-width: 900px) {
   .console.desk.ax { height: auto; min-height: 100vh; overflow: visible; }
-  .console.desk.ax .case-bar { position: sticky; top: 0; flex-wrap: wrap; padding: 8px 12px; }
+  .console.desk.ax .case-bar { position: relative; flex-wrap: wrap; padding: 8px 12px; }  /* three rows on a phone: it scrolls away */
   .ax-views { margin-inline-start: 0; width: 100%; }
   .ax-seg { flex: 1; overflow-x: auto; scrollbar-width: none; }
   .ax-seg button { flex: 1 0 auto; padding: 0 10px; font-size: 13px; }
@@ -497,7 +497,6 @@ html[dir=ltr] .cd-inspector { animation-name: cd-slide-ltr; }
   .cd-row { grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; padding: 12px; }
   .cd-row .cd-chev { display: none; }
   .cd-row .cd-pill { grid-column: 2; justify-self: start; }
-  .cd-nav { position: sticky; top: 104px; flex-wrap: wrap; gap: 8px; }
   .cd-split { display: flex; flex-direction: column; }
   .cd-inspector { border-inline-start: none; border-top: 1px solid var(--ax-line); animation: none; }
   .cd-canvas .ev-head { padding: 14px 16px; }
@@ -517,3 +516,117 @@ html[dir=ltr] .cd-inspector { animation-name: cd-slide-ltr; }
 @media (prefers-contrast: more) {
   .console.desk.ax { --ax-line: rgba(28, 36, 49, 0.3); --ax-line-2: rgba(28, 36, 49, 0.5); --ax-muted: #4a5260; }
 }
+
+/* ==========================================================================================================
+   Round 2: the navigator docks in the case bar, the next step shows the pile of work, months group per borrower.
+   ========================================================================================================== */
+
+/* the case bar's middle: empty on the overview, the item navigator while an item is open */
+.ax-bar-slot { flex: 1 1 auto; min-width: 0; display: flex; justify-content: center; }
+.ax-bar-slot:empty { pointer-events: none; }
+.cd-nav.docked { flex: 1; min-height: 0; padding: 0; gap: 14px; background: none; border: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+  animation: cd-fade 0.25s ease both; }
+.cd-nav.docked .cd-dots { justify-content: center; }
+.cd-back.all-done { color: var(--ax-ok); background: var(--ax-ok-soft); }
+.cd-back.all-done:hover { background: #dcf1e6; }
+.cd-nav-tier { white-space: nowrap; }
+.cd-dot { transition: transform 0.22s var(--ax-ease), box-shadow 0.22s var(--ax-ease), width 0.22s var(--ax-ease), background-color 0.5s ease; }
+
+/* the next step and the pile of work it acts on */
+.cd-next { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; column-gap: 32px; }
+.cd-next.has-stack { grid-template-columns: minmax(0, 1fr) 260px; }
+.cd-next-text { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.cd-stack {
+  --spread: 30px; --tilt: 4.5deg; --dir: 1;
+  position: relative; width: 260px; height: 168px; border: none; padding: 0; background: none; cursor: pointer; border-radius: 16px;
+}
+html[dir=ltr] .cd-stack { --dir: -1; }
+.cd-stack:hover, .cd-stack:focus-visible { --spread: 46px; --tilt: 8deg; }
+.cd-stack:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(46, 58, 78, 0.22); }
+.cd-paper {
+  position: absolute; top: 18px; left: calc(50% - 46px); width: 92px; height: 120px; border-radius: 9px; overflow: hidden; background: #fff;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08), 0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 24px -12px rgba(16, 24, 40, 0.35);
+  translate: calc(var(--o) * var(--spread) * -1 * var(--dir)) calc(var(--i) * 3px);
+  rotate: calc(var(--o) * var(--tilt) * -1 * var(--dir));
+  transition: translate 0.5s var(--ax-ease), rotate 0.5s var(--ax-ease), box-shadow 0.3s;
+  animation: cd-deal 0.6s var(--ax-ease) both; animation-delay: calc(var(--i) * 70ms + 80ms);
+}
+.cd-stack:hover .cd-paper { translate: calc(var(--o) * var(--spread) * -1 * var(--dir)) calc(var(--i) * 3px - 6px); }
+.cd-stack:active .cd-paper { transition-duration: 0.12s; translate: calc(var(--o) * var(--spread) * -1 * var(--dir)) calc(var(--i) * 3px - 2px); }
+@keyframes cd-deal { from { opacity: 0; transform: translateY(14px) scale(0.94); } to { opacity: 1; transform: none; } }
+.cd-paper img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.cd-paper.k-missing { background: #fbfbfc; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); outline: 1.5px dashed #cdd2da; outline-offset: -1.5px; }
+.cd-paper-ph { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #a5adb8; padding: 8px; text-align: center; }
+.cd-paper-label { font-size: 12px; font-weight: 650; color: var(--ax-muted); line-height: 1.25; }
+.cd-paper.k-case_finding { background: var(--ax-ai-soft); }
+.cd-paper-glyph { font-size: 26px; font-weight: 700; color: var(--ax-ai); line-height: 1; }
+.cd-paper-ok { position: absolute; bottom: 6px; inset-inline-end: 6px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ax-ok); color: #fff; font-size: 11px; font-weight: 800; box-shadow: 0 0 0 2px #fff; }
+.cd-stack-more {
+  position: absolute; bottom: 4px; left: 50%; translate: -50% 0; z-index: 20; height: 24px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center;
+  background: var(--ax-ink); color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 4px 12px -4px rgba(16, 24, 40, 0.4);
+}
+
+/* a borrower's missing payslip months: one row, one chip per month */
+.cd-row-months { cursor: default; }
+.cd-row-months:hover { background: transparent; }
+.cd-row-title-btn { border: none; background: none; padding: 0; text-align: start; cursor: pointer; color: var(--ax-ink); font: inherit; font-size: 14.5px; font-weight: 600; }
+.cd-row-title-btn:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ax-line-2); }
+.cd-mchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
+.cd-mchip {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 999px; border: 1px dashed #cdd2da; background: #fff;
+  font-size: 12.5px; font-weight: 600; color: var(--ax-text); transition: border-color 0.15s, background-color 0.15s, transform 0.1s var(--ax-ease);
+}
+.cd-mchip:hover { border-style: solid; border-color: var(--ax-line-2); background: #f8f9fb; }
+.cd-mchip:active { transform: scale(0.96); }
+.cd-mchip:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(46, 58, 78, 0.22); }
+.cd-mchip-dot { width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ax-bad); }
+.cd-mchip.asked { border-style: solid; border-color: #f6d3ac; background: #fff7ef; color: #8c4a06; }
+.cd-mchip.asked .cd-mchip-dot { background: var(--ax-orange); box-shadow: none; }
+.cd-sec-head h2 .cd-pill { height: 24px; font-size: 12px; font-weight: 600; margin-inline-start: 4px; }
+
+/* a missing item on its own: its state beside the title, and the way to ask for all of them */
+.cd-solo-head { flex-wrap: wrap; }
+.cd-solo-head .cd-pill { margin-inline-start: auto; }
+.cd-solo-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 14px; padding: 14px 24px 18px;
+  border-top: 1px solid var(--ax-line); background: #fafbfc; font-size: 13px; color: var(--ax-muted); }
+.cd-solo-foot .cd-link { font-size: 13px; }
+.cd-solo .dp { padding-bottom: 8px; }
+
+/* the toast: a floating capsule that says what just happened */
+.console.desk.ax .desk-toast {
+  bottom: 24px; display: flex; align-items: center; gap: 10px; padding: 12px 18px 12px 16px; border-radius: 16px; max-width: min(640px, calc(100vw - 32px));
+  background: rgba(28, 36, 49, 0.9); backdrop-filter: saturate(180%) blur(16px); -webkit-backdrop-filter: saturate(180%) blur(16px);
+  font-size: 13.5px; font-weight: 600; box-shadow: 0 18px 40px -12px rgba(16, 24, 40, 0.45); animation: cd-toast 0.42s var(--ax-ease) both;
+}
+.console.desk.ax .desk-toast::before { content: "✓"; flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ax-ok); color: #fff; font-size: 12px; font-weight: 800; }
+.console.desk.ax .desk-toast.bad { background: rgba(160, 40, 30, 0.94); }
+.console.desk.ax .desk-toast.bad::before { content: "!"; background: #fff; color: var(--ax-bad); }
+@keyframes cd-toast { from { opacity: 0; transform: translate(-50%, 16px) scale(0.97); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+@media (max-width: 1240px) { .cd-next.has-stack { grid-template-columns: minmax(0, 1fr) 220px; } .cd-stack { width: 220px; --spread: 24px; } }
+@media (max-width: 1060px) { .cd-nav.docked .cd-nav-where { margin-inline-start: 0; } }
+@media (max-width: 900px) {
+  .ax-bar-slot:not(:empty) { order: 3; flex-basis: 100%; }
+  .cd-nav.docked { flex-wrap: nowrap; justify-content: space-between; }
+  .cd-nav.docked .cd-nav-where { display: none; }
+  .cd-next.has-stack { grid-template-columns: minmax(0, 1fr); }
+  .cd-stack { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cd-paper { animation: cd-fade 0.2s ease both !important; transition: none !important; }
+  .console.desk.ax .desk-toast { animation: none; }
+}
+
+/* scroll edge: the bar's divider and a soft shadow appear only while content scrolls under it */
+.console.desk.ax .case-bar { border-bottom-color: transparent; transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+.console.desk.ax .case-bar[data-scrolled] { border-bottom-color: var(--ax-line); box-shadow: 0 8px 18px -14px rgba(16, 24, 40, 0.4); }
+/* leaving: the reverse of the way in */
+.cd-scrim.leaving { animation: cd-fade-out 0.22s ease both; }
+.cd-scrim.leaving .cd-sheet { animation: cd-sheet-out 0.22s cubic-bezier(0.64, 0, 0.78, 0) both; }
+@keyframes cd-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes cd-sheet-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(16px) scale(0.98); } }
+/* small English labels read better with a touch of tracking; Hebrew keeps its own spacing */
+html[dir=ltr] .cd-step-detail, html[dir=ltr] .cd-sec-hint, html[dir=ltr] .cd-next-eyebrow, html[dir=ltr] .cd-facts dt, html[dir=ltr] .cd-row-meta { letter-spacing: 0.01em; }
+.cd .dp-success .btn { flex: none; white-space: nowrap; }

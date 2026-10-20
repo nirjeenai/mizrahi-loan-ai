@@ -635,31 +635,38 @@ the audit and the permissions are unchanged. Nothing on it is computed by a mode
   `review_state`, `can_confirm` and `preparation`; none of them is the bank's stage, which stays a separate fact in the
   header, labelled demo. The next step is chosen in code, in this order: items for your decision → AI still checking →
   a failed check → missing documents nobody requested → waiting for the customer (opens "מעקב השלמה") → documents ready
-  for the preparation confirmation → confirmed (opens V3). Below it the work is grouped by who holds it: *לטיפולך*
+  for the preparation confirmation → confirmed (opens V3). Beside it, the work that step acts on is shown as a small fanned
+  stack (up to four): the real first page of each document, a dashed card naming each missing one; it is the same action
+  as the main button. Below it the work is grouped by who holds it: *לטיפולך*
   (decide, judgment, escalated), *אצל הלקוח* (correction, missing), *בבדיקת AI*, *הושלם* (collapsed). Each row shows the
-  document's real first page, the AI verdict or the banker's status, and the reason when it needs attention. The side
-  column carries the preparation step, payslip months and income, and the policy's requirements.
+  document's real first page, the AI verdict or the banker's status, and the reason when it needs attention. A borrower's
+  missing payslip months are one row with a chip per month (each opens that month); a status every row of a section
+  shares is shown once, in the section's header. The side column carries the preparation step (only when it can be
+  confirmed), payslip months and income, and the policy's requirements.
 - **Requesting missing documents in one step.** "בקשת המסמכים מהלקוח" opens a sheet with every missing item that can be
   requested (no open request, allowed by the service). Each keeps its own deterministic draft, editable; an item can be
   left out; one optional internal rationale applies to all. A preview shows the customer's cards in Hebrew before saving.
   Saving makes one `REQUEST_MISSING_DOCUMENT` request per item (`/missing-requests` or `/requirements/{code}/request`),
   each with its own `request_id`, so a retry records nothing twice. Nothing sends an SMS, an e-mail or a notification.
-- **Focused review** (`?item=`). A navigator replaces the side queue: back to the overview, the item's group and position,
-  one dot per item coloured by who holds it, previous/next. A document or a case-level finding opens beside its decision
+- **Focused review** (`?item=`). A navigator replaces the side queue and sits in the case bar itself (so the document gets
+  the height): "כל הפריטים" back to the overview, how many items are left for your decision (or "אין פריטים שממתינים
+  לך"), one dot per item coloured by who holds it, previous/next. The order is fixed for the session: a decided item keeps
+  its place and its dot turns green. A document or a case-level finding opens beside its decision
   panel (the evidence pane and key fields are the classic ones, the fields no longer truncate); a missing requirement opens
-  as one centred card with its related files and the request action. J/K move between items, N goes to the next item that
+  as one centred card with its state, its related files and the request action, plus "request all N in one step" when
+  more are missing. J/K move between items, N goes to the next item that
   needs action, Esc returns to the overview and scrolls back to the row.
 - **Views.** The case bar has one switch — *סקירת התיק* (the desk), *תמונת מצב Jeen* (V2), *תיק מוכן* (V3) — and a "עוד"
   menu with *מעקב השלמה*, *שיחה עם הלקוח*, *יומן ופרטים טכניים* and *סקירה קלאסית (V1)* (`?view=classic`, below). The
   choice is remembered per browser (`mz.banker.ui`); V2/V3 actions open the desk at the item, or the classic review when
   that is the remembered choice.
 - **Design.** System font, tabular figures, one accent per meaning (navy: your decision, amber: with the customer, green:
-  done or ready, JEEN purple: what the AI found, Mizrahi orange: something the customer will see). The case bar and the
-  navigator are translucent; motion is short and critically damped, and `prefers-reduced-motion`,
+  done or ready, JEEN purple: what the AI found, Mizrahi orange: something the customer will see). The case bar is
+  translucent and shows its edge only while content scrolls under it; the request sheet leaves the way it came in; motion is short and critically damped, and `prefers-reduced-motion`,
   `prefers-reduced-transparency` and `prefers-contrast` are respected. Styles: `pages/banker/casedesk.css`, scoped to
   `.console.desk.ax`.
 
-`e2e/check_case_desk.py` verifies it in Chrome on an isolated stack without Gemini (40 checks).
+`e2e/check_case_desk.py` verifies it in Chrome on an isolated stack without Gemini (43 checks).
 
 ### Banker review workspace (classic V1, `?view=classic`) and human decisions
 

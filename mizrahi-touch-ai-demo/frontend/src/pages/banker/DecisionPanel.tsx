@@ -366,12 +366,15 @@ function MissingPanel({ item, ws, staff, readOnly, finish, solo, showEvidence }:
   const [open, setOpen] = useState(false);
   const { en, t } = useLang();
   const borrower = ws.case.borrowers.find((b) => b.borrower_id === item.borrower_id);
+  // on its own (the case desk) the card's header already names the item and its state: say only what it adds
+  const restates = solo && !!item.title_he && item.explanation_he.includes(item.title_he.replace(/[\s·—-]+$/u, ""));
+  const lead = !solo || !restates || item.related_documents.length > 0 || !!item.duplicate_note_he;
   return (<>
-    <section className="dp-sec z-info">
-      <div className="dp-eyebrow">{t("מסמך חסר", "Missing document")}</div>
-      <div className="row wrap"><Chip tone={item.open_request ? "warn" : "neutral"} testId="missing-status">{locOf(item, "status_he")}</Chip>
-        {item.family_he && <Chip>{locOf(item, "family_he")}</Chip>}{borrower && <Chip>{locOf(borrower, "name_he")}</Chip>}</div>
-      <p className="small">{locOf(item, "explanation_he")}</p>
+    {lead && <section className="dp-sec z-info">
+      {!solo && <div className="dp-eyebrow">{t("מסמך חסר", "Missing document")}</div>}
+      {!solo && <div className="row wrap"><Chip tone={item.open_request ? "warn" : "neutral"} testId="missing-status">{locOf(item, "status_he")}</Chip>
+        {item.family_he && <Chip>{locOf(item, "family_he")}</Chip>}{borrower && <Chip>{locOf(borrower, "name_he")}</Chip>}</div>}
+      {!restates && <p className="small">{locOf(item, "explanation_he")}</p>}
       {solo && item.related_documents.length > 0 && (
         <div className="missing-related" data-testid="missing-related">
           <div className="small bold">{t("ייתכן שקשור:", "Possibly related:")}</div>
@@ -383,7 +386,7 @@ function MissingPanel({ item, ws, staff, readOnly, finish, solo, showEvidence }:
         </div>
       )}
       {solo && item.duplicate_note_he && <div className="tiny muted">{locOf(item, "duplicate_note_he")}</div>}
-    </section>
+    </section>}
     {item.open_request && <OpenRequest r={item.open_request} ws={ws} staff={staff} readOnly={readOnly} finish={finish} />}
     {(item.allowed_actions.includes("request_missing") || item.allowed_actions.includes("request_requirement")) && !readOnly && (
       <section className="dp-sec dp-decide z-act" data-testid="decision-actions">

@@ -76,6 +76,12 @@ def request_sheet(page: Page, case: str | None) -> None:
     check("overview: four pipeline steps", page.locator("[data-testid=case-progress] [data-step]").count() == 4)
     check("overview: the next step offers the batch request", page.locator("[data-testid=next-step] [data-testid=compose-requests]").count() == 1,
           page.locator(".cd-next-title").inner_text())
+    stack = page.locator("[data-testid=work-stack]")
+    check("overview: the next step shows the pile of missing documents", stack.count() == 1 and stack.locator(".cd-paper").count() >= 2,
+          f"{stack.get_attribute('data-count') if stack.count() else 0} items")
+    months = page.locator("[data-testid=months-row]")
+    check("overview: a borrower's missing payslip months are one row with a chip per month",
+          months.count() >= 1 and months.first.locator("[data-testid=queue-item]").count() >= 2, f"{months.count()} rows")
     shot(page, "01-overview-nothing-uploaded")
     page.locator("[data-testid=next-step] [data-testid=compose-requests]").click()
     sheet = page.locator("[data-testid=request-sheet]")
@@ -100,7 +106,7 @@ def request_sheet(page: Page, case: str | None) -> None:
           toast.inner_text())
     expect(page.locator("[data-testid=request-sheet]")).to_have_count(0)
     page.wait_for_timeout(1200)
-    sent = page.locator("[data-testid=queue-item][data-kind=missing] .cd-pill.warn").count()
+    sent = page.locator("[data-testid=queue-item][data-kind=missing][data-requested=true]").count()
     check("rows: the requested items read 'request sent'", sent == n - 1, f"{sent} rows")
     check("next step: the one item left out is still offered", "1" in page.locator(".cd-next-title").inner_text() or "אחד" in page.locator(".cd-next-title").inner_text(),
           page.locator(".cd-next-title").inner_text())
@@ -114,9 +120,11 @@ def review(page: Page, case: str | None) -> None:
     overview(page, case)
     page.locator("[data-testid=next-step-primary]").click()
     expect(page.locator("[data-testid=evidence-pane] .ev-title")).to_be_visible(timeout=20000)
-    check("review: the document beside the decision, the navigator above",
+    check("review: the document beside the decision, the navigator docked in the case bar",
           page.locator(".cd-canvas").count() == 1 and page.locator(".cd-inspector [data-testid=decision-actions]").count() == 1
-          and page.locator("[data-testid=nav-dot]").count() >= 2)
+          and page.locator(".case-bar #ax-bar-slot [data-testid=nav-dot]").count() >= 2)
+    opened = page.url.split("item=")[-1].replace("%3A", ":")
+    dots_before = page.locator("[data-testid=nav-dot]").evaluate_all("ds => ds.map(d => d.dataset.itemId)")
     shot(page, "05-review-document")
     first = page.url
     page.locator("[data-testid=action-accept]").click()
@@ -127,6 +135,11 @@ def review(page: Page, case: str | None) -> None:
     page.locator("[data-testid=confirm-accept]").click()
     expect(page.locator("[data-testid=decision-success]")).to_be_visible(timeout=20000)
     shot(page, "06-accepted")
+    page.wait_for_timeout(1500)                                           # the workspace refresh after the decision
+    dots_after = page.locator("[data-testid=nav-dot]").evaluate_all("ds => ds.map(d => d.dataset.itemId)")
+    dot = page.locator(f"[data-testid=nav-dot][data-item-id='{opened}']")
+    check("after a decision: the item keeps its place in the navigator and its dot turns green",
+          dots_after[:len(dots_before)] == dots_before and "t-done" in (dot.get_attribute("class") or ""), opened)
     page.locator("[data-testid=next-item]").click()
     page.wait_for_timeout(600)
     check("after a decision: 'next item' opens another item", page.url != first)

@@ -201,6 +201,8 @@ function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
           </div>
         )}
       </div>
+      {/* the case desk moves its item navigator into this slot while an item is open, so review gets the full height */}
+      <div id="ax-bar-slot" className="ax-bar-slot" />
       <ViewSwitch view={view} onView={onView} />
     </div>
   );

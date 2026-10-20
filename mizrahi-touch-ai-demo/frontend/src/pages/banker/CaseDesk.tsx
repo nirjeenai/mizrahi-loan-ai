@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { api, ilsL, type CaseFindingItem, type DeskResult, type DocItem, type MissingItem, type QueueItem, type Workspace } from "../../api";
 import { IChevron, IDocs } from "../../components/Icons";
 import { Loc, locOf, Orig, tr, useLang } from "../../i18n";
@@ -38,7 +39,7 @@ export function CaseDesk({ ws, selected, onSelect, onOverview, reload, staff, re
       {(ws.handoffs?.length || 0) > 0 && <div className="cd-handoffs"><HandoffBanner ws={ws} reload={reload} readOnly={readOnly} onToast={setToast} /></div>}
       {current
         ? <ReviewMode key="review" ws={ws} current={current} byId={byId} onSelect={onSelect} onOverview={onOverview} reload={reload} staff={staff}
-            readOnly={readOnly} onToast={setToast} />
+            readOnly={readOnly} onToast={setToast} onCompose={() => setComposing(true)} />
         : <Overview key="overview" ws={ws} onOpen={open} reload={reload} readOnly={readOnly} onToast={setToast} onCompose={() => setComposing(true)}
             openV3={openV3} openFollowup={openFollowup} returnTo={lastOpened.current} />}
       {composing && <RequestSheet ws={ws} onClose={() => setComposing(false)}
@@ -88,10 +89,10 @@ function Overview({ ws, onOpen, reload, readOnly, onToast, onCompose, openV3, op
   openV3: () => void; openFollowup: () => void; returnTo: string | null;
 }) {
   const { t } = useLang();
-  const byId = useMemo(() => Object.fromEntries(ws.items.map((i) => [i.id, i])), [ws.items]);
   const [scrolled, setScrolled] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
+  useScrollEdge(scrolled);
   // coming back from an item: the row it came from is where the eye returns
   useEffect(() => {
     if (!returnTo) return;
@@ -124,7 +125,8 @@ function Overview({ ws, onOpen, reload, readOnly, onToast, onCompose, openV3, op
                 <section key={s.key} className={`cd-sec s-${s.key}`} id={`cd-sec-${s.key}`} data-testid={`desk-section-${s.key}`}>
                   <header className="cd-sec-head">
                     <div className="cd-sec-titles">
-                      <h2>{s.title} <span className="cd-count">{s.ids.length}</span></h2>
+                      <h2>{s.title} <span className="cd-count">{s.ids.length}</span>
+                        {sectionRows(ws, s.ids).shared && <span className={`cd-pill ${sectionRows(ws, s.ids).shared!.tone}`} data-testid="section-status">{sectionRows(ws, s.ids).shared!.text}</span>}</h2>
                       <span className="cd-sec-hint">{s.hint}</span>
                     </div>
                     {s.key === "customer" && requestable.length > 0 && !readOnly && (
@@ -134,7 +136,12 @@ function Overview({ ws, onOpen, reload, readOnly, onToast, onCompose, openV3, op
                     {s.key === "done" && <button className="cd-btn cd-btn-plain" aria-expanded={!collapsed} onClick={() => setShowDone(!showDone)}
                       data-testid="toggle-done">{collapsed ? t("הצגה", "Show") : t("הסתרה", "Hide")}</button>}
                   </header>
-                  {!collapsed && <div className="cd-list">{s.ids.map((id) => byId[id] && <ItemRow key={id} item={byId[id]} ws={ws} onOpen={onOpen} />)}</div>}
+                  {!collapsed && (() => {
+                    const { rows, shared } = sectionRows(ws, s.ids);
+                    return <div className="cd-list">{rows.map((r) => r.kind === "months"
+                      ? <MonthsRow key={r.key} items={r.items} ws={ws} onOpen={onOpen} hidePill={!!shared} />
+                      : <ItemRow key={r.item.id} item={r.item} ws={ws} onOpen={onOpen} hidePill={!!shared} />)}</div>;
+                  })()}
                 </section>
               );
             })}
@@ -267,6 +274,10 @@ function NextStep({ ws, onOpen, onCompose, readOnly, reload, onToast, openV3, op
   let tone: "you" | "customer" | "working" | "ready" | "done" | "bad" | "idle";
   let title: string; let body: ReactNode = null;
   let primary: ReactNode = null; const secondary: ReactNode[] = [];
+  // the work the next step acts on, shown as a small pile of the real documents (or placeholders for missing ones)
+  let stack: { items: QueueItem[]; onClick: () => void; label: string } | null = null;
+  const itemsOf = (ids: string[]) => ids.map((id) => ws.items.find((i) => i.id === id)).filter(Boolean) as QueueItem[];
+  const decidedDocs = () => ws.items.filter((i): i is DocItem => i.kind === "document" && i.banker.status === "ACCEPTED");
   const btn = (label: string, onClick: () => void, cls: string, testId: string, disabled = false) =>
     <button key={testId} className={`cd-btn ${cls}`} onClick={onClick} data-testid={testId} disabled={disabled}>{label}</button>;
   if (yoursIds.length) {
@@ -280,12 +291,16 @@ function NextStep({ ws, onOpen, onCompose, readOnly, reload, onToast, openV3, op
         : t("ה-AI סיים לבדוק את המסמכים. עברו עליהם אחד אחד: קבלה, החזרה לתיקון או העברה לבירור.",
           "The AI finished checking the documents. Go through them one by one: accept, return for correction, or escalate.");
     primary = btn(t("התחלת הסקירה", "Start the review"), () => onOpen((firstAttention?.id) || yoursIds[0]), "cd-btn-primary", "next-step-primary");
+    const ordered = itemsOf(yoursIds).sort((a, b) => Number(b.attention) - Number(a.attention));
+    stack = { items: ordered, onClick: () => onOpen(ordered[0].id), label: t("פתיחת הפריט הראשון לסקירה", "Open the first item for review") };
     if (requestable.length && !readOnly) secondary.push(btn(requestable.length === 1 ? t("בקשת המסמך החסר", "Request the missing document")
       : t(`בקשת ${requestable.length} מסמכים חסרים`, `Request ${requestable.length} missing documents`), onCompose, "cd-btn-secondary", "compose-requests"));
   } else if (working) {
     tone = "working";
     title = t("ה-AI בודק את המסמכים", "The AI is checking the documents");
     body = t("התיק יתעדכן כאן מעצמו כשהבדיקה תסתיים. בינתיים אין מה להחליט.", "The case updates here by itself when the check finishes. There's nothing to decide in the meantime.");
+    const busy = itemsOf(groupItems(ws, ["processing"]));
+    if (busy.length) stack = { items: busy, onClick: () => onOpen(busy[0].id), label: t("פתיחת המסמך שבבדיקה", "Open the document being checked") };
   } else if (ws.review_state.state === "ERROR") {
     tone = "bad";
     title = locOf(ws.review_state, "label_he");
@@ -302,6 +317,7 @@ function NextStep({ ws, onOpen, onCompose, readOnly, reload, onToast, openV3, op
         "You can request them all in one step. Each document appears to the customer in the app with its own upload button — no SMS or email.");
     if (!readOnly) primary = btn(n === 1 ? t("בקשת המסמך מהלקוח", "Request the document") : t("בקשת המסמכים מהלקוח", "Request the documents"), onCompose, "cd-btn-customer", "compose-requests");
     secondary.push(btn(t("מעבר פריט אחר פריט", "Go item by item"), () => onOpen(requestable[0].id), "cd-btn-secondary", "next-step-item"));
+    if (!readOnly) stack = { items: requestable, onClick: onCompose, label: t("בקשת המסמכים החסרים", "Request the missing documents") };
   } else if (customerIds.length) {
     tone = "customer";
     title = t("ממתינים ללקוח", "Waiting for the customer");
@@ -311,12 +327,14 @@ function NextStep({ ws, onOpen, onCompose, readOnly, reload, onToast, openV3, op
       + t(". הבקשות מוצגות ללקוח באפליקציה; כשיעלה מסמך, ה-AI יבדוק אותו והוא יחזור אלייך.", ". The requests are shown to the customer in the app; when a document arrives, the AI checks it and it comes back to you.");
     primary = btn(t("מעקב השלמה", "Completion follow-up"), openFollowup, "cd-btn-primary", "next-step-primary");
     secondary.push(btn(t("פתיחת הפריטים", "Open the items"), () => onOpen(customerIds[0]), "cd-btn-secondary", "next-step-item"));
+    stack = { items: itemsOf(customerIds), onClick: () => onOpen(customerIds[0]), label: t("פתיחת הפריטים שאצל הלקוח", "Open the items with the customer") };
   } else if (ws.preparation) {
     tone = "done";
     title = t("הכנת מסמכי הבקשה אושרה", "The application documents are confirmed as prepared");
     body = <>{t("האישור נרשם בתיק עם חבילת הראיות", "The confirmation is recorded in the case with the evidence package")} <When at={ws.preparation.confirmed_at} />{ws.preparation.note ? <> · <Orig text={ws.preparation.note} /></> : null}.
       {" "}{t("זו אינה החלטת אשראי.", "This is not a credit decision.")}</>;
     primary = btn(t("פתיחת התיק המוכן", "Open the prepared case"), openV3, "cd-btn-ok", "open-ready-case");
+    stack = { items: decidedDocs(), onClick: openV3, label: t("פתיחת התיק המוכן", "Open the prepared case") };
   } else if (ws.can_confirm.allowed) {
     tone = "ready";
     title = t("המסמכים מוכנים לאישור ההכנה", "The documents are ready for your confirmation");
@@ -325,13 +343,15 @@ function NextStep({ ws, onOpen, onCompose, readOnly, reload, onToast, openV3, op
       {ws.can_confirm.open_banker_items > 0 && <> {t(`${ws.can_confirm.open_banker_items} ממצאים לשיקול דעתך יישארו פתוחים ויתועדו בחבילה.`, `${ws.can_confirm.open_banker_items} findings for your judgment will stay open and be recorded in the package.`)}</>}</>;
     if (!readOnly) primary = btn(t("אישור הכנת המסמכים", "Confirm document preparation"), () => setConfirming(true), "cd-btn-ok", "confirm-preparation");
     secondary.push(btn(t("פתיחת התיק המוכן", "Open the prepared case"), openV3, "cd-btn-secondary", "open-ready-case"));
+    stack = { items: decidedDocs(), onClick: openV3, label: t("פתיחת התיק המוכן", "Open the prepared case") };
   } else {
     tone = "idle";
     title = t("אין עדיין מסמכים בתיק", "There are no documents in the case yet");
     body = locOf(ws.can_confirm, "reason_he") || null;
   }
   return (
-    <section className={`cd-next t-${tone}`} data-testid="next-step" data-tone={tone} aria-live="polite">
+    <section className={`cd-next t-${tone}${stack?.items.length ? " has-stack" : ""}`} data-testid="next-step" data-tone={tone} aria-live="polite">
+      <div className="cd-next-text">
       <div className="cd-next-eyebrow" data-testid="banker-readiness">{locOf(ws.review_state, "label_he")}</div>
       <h2 className="cd-next-title">{title}</h2>
       {body && <p className="cd-next-body">{body}</p>}
@@ -341,8 +361,36 @@ function NextStep({ ws, onOpen, onCompose, readOnly, reload, onToast, openV3, op
       {confirming ? <ConfirmPrep ws={ws} onCancel={() => setConfirming(false)} onDone={(text) => { setConfirming(false); onToast({ text, tone: "ok" }); reload(); }}
         onError={(text) => onToast({ text, tone: "bad" })} />
         : (primary || secondary.length > 0) && <div className="cd-next-actions">{primary}{secondary}</div>}
+      </div>
+      {stack && stack.items.length > 0 && <WorkStack items={stack.items} onClick={stack.onClick} label={stack.label} done={tone === "done" || tone === "ready"} />}
     </section>
   );
+}
+
+/** Up to four cards, fanned like papers on a desk: the real first page of each document, a dashed placeholder naming
+ *  each missing one. It opens fanned a little wider under the pointer; it is the same action as the step's main button. */
+function WorkStack({ items, onClick, label, done }: { items: QueueItem[]; onClick: () => void; label: string; done: boolean }) {
+  const shown = items.slice(0, 4);
+  const n = shown.length;
+  return (
+    <button className={`cd-stack${done ? " done" : ""}`} onClick={onClick} aria-label={label} title={label} data-testid="work-stack" data-count={items.length}>
+      {shown.map((it, i) => (
+        <span key={it.id} className={`cd-paper k-${it.kind}`} style={{ "--i": i, "--o": i - (n - 1) / 2, zIndex: 10 - i } as CSSProperties} aria-hidden>
+          {it.kind === "document" ? <img src={`/api/documents/${it.document_id}/pages/1.png?dpi=60`} alt="" loading="lazy" />
+            : <span className="cd-paper-ph">{it.kind === "case_finding" ? <span className="cd-paper-glyph">≠</span> : <IDocs size={20} />}
+              <span className="cd-paper-label">{cardLabel(it)}</span></span>}
+          {done && it.kind === "document" && <span className="cd-paper-ok">✓</span>}
+        </span>
+      ))}
+      {items.length > n && <span className="cd-stack-more" aria-hidden>+{items.length - n}</span>}
+    </button>
+  );
+}
+
+function cardLabel(item: QueueItem): string {
+  if (item.kind === "missing") return item.period_he ? locOf(item, "period_he").split(" ")[0] : locOf(item, "family_he") || locOf(item, "title_he").split(/[—·]/)[0].trim();
+  if (item.kind === "case_finding") return tr("פער", "Gap");
+  return locOf(item, "doc_type_he");
 }
 
 function ConfirmPrep({ ws, onCancel, onDone, onError }: { ws: Workspace; onCancel: () => void; onDone: (text: string) => void; onError: (text: string) => void }) {
@@ -373,6 +421,65 @@ function ConfirmPrep({ ws, onCancel, onDone, onError }: { ws: Workspace; onCance
 
 // ---------------------------------------------------------------- rows
 
+type Row = { kind: "item"; item: QueueItem } | { kind: "months"; key: string; items: MissingItem[] };
+
+/** A section's rows: a borrower's missing payslip months read as one row with a chip per month, and a status every row
+ *  shares is said once, in the section's header, instead of on each row. */
+function sectionRows(ws: Workspace, ids: string[]): { rows: Row[]; shared: { text: string; tone: string } | null } {
+  const items = ids.map((id) => ws.items.find((i) => i.id === id)).filter(Boolean) as QueueItem[];
+  const months: Record<string, MissingItem[]> = {};
+  for (const i of items) if (i.kind === "missing" && i.period && i.borrower_id) (months[i.borrower_id] ||= []).push(i);
+  const rows: Row[] = [];
+  const placed = new Set<string>();
+  for (const i of items) {
+    if (placed.has(i.id)) continue;
+    const group = i.kind === "missing" && i.period && i.borrower_id ? months[i.borrower_id] : null;
+    if (group && group.length > 1) {
+      rows.push({ kind: "months", key: `months:${i.borrower_id}`, items: group });
+      group.forEach((g) => placed.add(g.id));
+    } else {
+      rows.push({ kind: "item", item: i });
+      placed.add(i.id);
+    }
+  }
+  const statuses = rows.map((r) => (r.kind === "item" ? statusOf(r.item) : monthsStatus(r.items)));
+  const same = rows.length > 1 && statuses.every((x) => x.text === statuses[0].text);
+  return { rows, shared: same ? statuses[0] : null };
+}
+
+function monthsStatus(items: MissingItem[]): { text: string; tone: string } {
+  const asked = items.filter((i) => i.open_request).length;
+  if (!asked) return statusOf(items[0]);
+  if (asked === items.length) return { text: tr("נשלחו בקשות", "Requests sent"), tone: "warn" };
+  return { text: tr(`${asked} מתוך ${items.length} נתבקשו`, `${asked} of ${items.length} requested`), tone: "warn" };
+}
+
+function MonthsRow({ items, ws, onOpen, hidePill }: { items: MissingItem[]; ws: Workspace; onOpen: (id: string) => void; hidePill: boolean }) {
+  const { en, t } = useLang();
+  const b = ws.case.borrowers.find((x) => x.borrower_id === items[0].borrower_id);
+  const st = monthsStatus(items);
+  return (
+    <div className="cd-row cd-row-months attn" data-testid="months-row">
+      <span className="cd-thumb missing" aria-hidden><IDocs size={18} /></span>
+      <span className="cd-row-main">
+        <button className="cd-row-title cd-row-title-btn" onClick={() => onOpen(items[0].id)}>
+          <span className="cd-attn" aria-hidden />{t("תלושי שכר", "Payslips")} · {b ? (en ? locOf(b, "name_he") : b.first_name_he) : locOf(items[0], "borrower_he")}</button>
+        <span className="cd-mchips">
+          {items.map((i) => (
+            <button key={i.id} className={`cd-mchip${i.open_request ? " asked" : ""}`} onClick={() => onOpen(i.id)}
+              data-testid="queue-item" data-item-id={i.id} data-kind="missing" data-requested={i.open_request ? "true" : "false"}
+              title={i.open_request ? t("נשלחה בקשה", "Request sent") : locOf(i, "status_he")}>
+              <span className="cd-mchip-dot" aria-hidden />{(locOf(i, "period_he") || "").split(" ")[0]}
+            </button>
+          ))}
+        </span>
+      </span>
+      {!hidePill ? <span className={`cd-pill ${st.tone}`}>{st.text}</span> : <span />}
+      <Chev dir="fwd" />
+    </div>
+  );
+}
+
 function Thumb({ item }: { item: QueueItem }) {
   const [failed, setFailed] = useState(false);
   if (item.kind === "document" && !failed) {
@@ -382,7 +489,7 @@ function Thumb({ item }: { item: QueueItem }) {
   return <span className={`cd-thumb ${item.kind === "missing" ? "missing" : "file"}`} aria-hidden><IDocs size={18} /></span>;
 }
 
-function ItemRow({ item, ws, onOpen }: { item: QueueItem; ws: Workspace; onOpen: (id: string) => void }) {
+function ItemRow({ item, ws, onOpen, hidePill = false }: { item: QueueItem; ws: Workspace; onOpen: (id: string) => void; hidePill?: boolean }) {
   const { en, t } = useLang();
   const st = statusOf(item);
   let meta: ReactNode = null;
@@ -400,14 +507,15 @@ function ItemRow({ item, ws, onOpen }: { item: QueueItem; ws: Workspace; onOpen:
   }
   return (
     <button className={`cd-row k-${item.kind}${item.attention ? " attn" : ""}`} onClick={() => onOpen(item.id)}
-      data-testid="queue-item" data-item-id={item.id} data-kind={item.kind}>
+      data-testid="queue-item" data-item-id={item.id} data-kind={item.kind}
+      {...(item.kind === "missing" ? { "data-requested": item.open_request ? "true" : "false" } : {})}>
       <Thumb item={item} />
       <span className="cd-row-main">
         <span className="cd-row-title">{item.attention && <span className="cd-attn" aria-label={t("דורש תשומת לב", "Needs attention")} />}{titleOf(item, ws)}</span>
         {meta && <span className="cd-row-meta">{meta}</span>}
         {why && <span className="cd-row-why">{why}</span>}
       </span>
-      <span className={`cd-pill ${st.tone}`}>{st.text}</span>
+      {!hidePill ? <span className={`cd-pill ${st.tone}`}>{st.text}</span> : <span />}
       <Chev dir="fwd" />
     </button>
   );
@@ -420,7 +528,8 @@ function PrepCard({ ws, readOnly, reload, onToast, openV3 }: { ws: Workspace; re
   const [confirming, setConfirming] = useState(false);
   const yours = groupItems(ws, YOURS).length;
   // when nothing else is open the next-step card already carries this step
-  if (ws.preparation || (ws.can_confirm.allowed && !yours && !requestableOf(ws).length && !groupItems(ws, CUSTOMER).length)) return null;
+  // not ready: the pipeline's last step already says why; ready with nothing else open: the next step carries it
+  if (!ws.can_confirm.allowed || ws.preparation || (!yours && !requestableOf(ws).length && !groupItems(ws, CUSTOMER).length)) return null;
   const ready = ws.can_confirm.allowed;
   return (
     <section className="cd-card" data-testid="case-step" data-ready={ready ? "true" : "false"}>
@@ -491,7 +600,7 @@ function RequirementsCard({ ws, onOpen }: { ws: Workspace; onOpen: (id: string) 
             <button className={`cd-req ${REQ_TONE[r.ai_state] || "neutral"}`} onClick={() => open(r.code)} data-testid="requirement-row" data-code={r.code} data-state={r.ai_state} title={locOf(r, "title_he")}>
               <span className="cd-month-dot" aria-hidden />
               <span className="cd-req-name">{locOf(r, "family_he")}{r.borrower_he && r.family !== "purpose_proof" ? <span className="cd-faint"> · {locOf(r, "borrower_he")}</span> : null}</span>
-              <span className="cd-req-state">{locOf(r, "ai_state_he")}{r.family === "payslip" ? <span className="ltr"> · {r.units}</span> : null}</span>
+              <span className="cd-req-state">{locOf(r, "ai_state_he")}{r.family === "payslip" ? <> · <span className="ltr">{r.units}</span></> : null}</span>
             </button>
           </li>
         ))}
@@ -502,14 +611,42 @@ function RequirementsCard({ ws, onOpen }: { ws: Workspace; onOpen: (id: string) 
 
 // ---------------------------------------------------------------- focused review of one item
 
-function ReviewMode({ ws, current, byId, onSelect, onOverview, reload, staff, readOnly, onToast }: {
+/** The case bar draws its edge only while content runs underneath it (a scroll-edge effect instead of a fixed divider). */
+function useScrollEdge(on: boolean) {
+  useEffect(() => {
+    const bar = document.querySelector(".console.desk.ax .case-bar");
+    bar?.toggleAttribute("data-scrolled", on);
+    return () => bar?.removeAttribute("data-scrolled");
+  }, [on]);
+}
+
+/** The case bar's slot (BankerConsole) once it is in the document; the navigator renders into it. */
+function useBarSlot(): HTMLElement | null {
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => { setSlot(document.getElementById("ax-bar-slot")); }, []);
+  return slot;
+}
+
+function ReviewMode({ ws, current, byId, onSelect, onOverview, reload, staff, readOnly, onToast, onCompose }: {
   ws: Workspace; current: QueueItem; byId: Record<string, QueueItem>; onSelect: (id: string) => void; onOverview: () => void; reload: () => void;
-  staff: string; readOnly: boolean; onToast: (t: ToastMsg) => void;
+  staff: string; readOnly: boolean; onToast: (t: ToastMsg) => void; onCompose: () => void;
 }) {
   const { t } = useLang();
   const [focus, setFocus] = useState<Focus | null>(null);
   useEffect(() => { setFocus(null); }, [current.id]);
-  const order = useMemo(() => ws.groups.flatMap((g) => g.items).filter((id) => byId[id]), [ws.groups, byId]);
+  // the order is fixed for the review session: a decided item keeps its place (its dot turns green) instead of jumping
+  // to another group; items that appear meanwhile (a replacement upload) are added at the end
+  const frozen = useRef<string[] | null>(null);
+  const order = useMemo(() => {
+    const live = ws.groups.flatMap((g) => g.items).filter((id) => byId[id]);
+    const kept = (frozen.current || live).filter((id) => byId[id]);
+    const next = [...kept, ...live.filter((id) => !kept.includes(id))];
+    frozen.current = next;
+    return next;
+  }, [ws.groups, byId]);
+  const slot = useBarSlot();
+  useScrollEdge(true);                                  // the document runs right under the bar
+  const requestable = requestableOf(ws);
   const actionable = useMemo(() => groupItems(ws, [...YOURS, ...CUSTOMER]), [ws]);
   const move = useCallback((step: number) => {
     if (!order.length) return;
@@ -543,14 +680,20 @@ function ReviewMode({ ws, current, byId, onSelect, onOverview, reload, staff, re
   const panel = <DecisionPanel key={current.id} item={current} ws={ws} staff={staff} readOnly={readOnly} focus={focus} solo={current.kind === "missing"}
     onDone={(text) => { onToast({ text, tone: "ok" }); reload(); }} onError={(text) => onToast({ text, tone: "bad" })}
     onNext={nextActionable} hasNext={actionable.some((id) => id !== current.id)} showEvidence={showEvidence} />;
+  const nav = <Navigator ws={ws} current={current} order={order} byId={byId} onSelect={onSelect} onOverview={onOverview} move={move} docked={!!slot} />;
+  const batch = current.kind === "missing" && !current.open_request && requestable.length > 1 && requestable.some((i) => i.id === current.id) && !readOnly;
   return (
     <div className="cd-review">
-      <Navigator ws={ws} current={current} order={order} byId={byId} onSelect={onSelect} onOverview={onOverview} move={move} />
+      {slot ? createPortal(nav, slot) : nav}
       {current.kind === "missing" ? (
         <div className="cd-solo-wrap" data-testid="evidence-pane">
           <div className="cd-solo cd-enter" key={current.id} data-testid="missing-evidence">
             <MissingHead item={current} ws={ws} />
             <div className="cd-solo-panel" data-testid="decision-panel">{panel}</div>
+            {batch && <div className="cd-solo-foot">
+              <span>{t(`חסרים בתיק עוד ${requestable.length - 1} מסמכים.`, `${requestable.length - 1} more documents are missing in the case.`)}</span>
+              <button className="cd-link" onClick={onCompose} data-testid="compose-requests-solo">{t(`בקשת כל ${requestable.length} המסמכים בפעולה אחת`, `Request all ${requestable.length} documents in one step`)}</button>
+            </div>}
           </div>
         </div>
       ) : (
@@ -575,29 +718,26 @@ function MissingHead({ item, ws }: { item: MissingItem; ws: Workspace }) {
       <h2 className="cd-solo-title" data-testid="missing-title">{en ? (item.period_he ? `No ${locOf(item, "period_he")} payslip received from ${borrower ? locOf(borrower, "name_he") : ""}`
         : `${locOf(item, "status_he")}: ${titleOf(item, ws)}`)
         : item.period_he ? `לא התקבל תלוש ${item.period_he} של ${borrower?.name_he || ""}` : `${item.status_he}: ${titleOf(item, ws)}`}</h2>
+      <span className={`cd-pill ${statusOf(item).tone}`} data-testid="missing-status">{statusOf(item).text}</span>
     </header>
   );
 }
 
-const TIER_LABEL: Record<Tier, [string, string]> = { yours: ["לטיפולך", "For you"], customer: ["אצל הלקוח", "With the customer"],
-  processing: ["בבדיקת AI", "Being checked"], done: ["הושלם", "Done"] };
-
-function Navigator({ ws, current, order, byId, onSelect, onOverview, move }: {
+function Navigator({ ws, current, order, byId, onSelect, onOverview, move, docked }: {
   ws: Workspace; current: QueueItem; order: string[]; byId: Record<string, QueueItem>; onSelect: (id: string) => void; onOverview: () => void;
-  move: (step: number) => void;
+  move: (step: number) => void; docked: boolean;
 }) {
   const { t } = useLang();
   const i = order.indexOf(current.id);
-  const tier = tierOf(current.group);
-  const sameTier = order.filter((id) => tierOf(byId[id].group) === tier);
+  const left = groupItems(ws, YOURS).length;
   let lastTier: Tier | null = null;
   return (
-    <nav className="cd-nav" aria-label={t("ניווט בין פריטי התיק", "Move between the case's items")} data-testid="review-queue">
-      <button className="cd-back" onClick={onOverview} data-testid="back-to-case" title={t("חזרה לסקירת התיק (Esc)", "Back to the case overview (Esc)")}>
-        <Chev dir="bwd" />{t("סקירת התיק", "Case overview")}</button>
-      <div className="cd-nav-where" aria-live="polite">
-        <span className={`cd-nav-tier t-${tier}`}>{t(...TIER_LABEL[tier])}</span>
-        <span className="cd-nav-pos">{t(`${sameTier.indexOf(current.id) + 1} מתוך ${sameTier.length}`, `${sameTier.indexOf(current.id) + 1} of ${sameTier.length}`)}</span>
+    <nav className={`cd-nav${docked ? " docked" : ""}`} aria-label={t("ניווט בין פריטי התיק", "Move between the case's items")} data-testid="review-queue">
+      <button className={`cd-back${left ? "" : " all-done"}`} onClick={onOverview} data-testid="back-to-case" title={t("חזרה לסקירת התיק (Esc)", "Back to the case overview (Esc)")}>
+        <Chev dir="bwd" />{t("כל הפריטים", "All items")}</button>
+      <div className="cd-nav-where" aria-live="polite" data-testid="nav-left">
+        {left ? <span className="cd-nav-tier t-yours">{t(left === 1 ? "נותר פריט אחד להחלטתך" : `נותרו ${left} להחלטתך`, left === 1 ? "1 left for your decision" : `${left} left for your decision`)}</span>
+          : <span className="cd-nav-tier t-done">✓ {t("אין פריטים שממתינים לך", "Nothing is waiting for you")}</span>}
       </div>
       <div className="cd-dots" role="list" aria-label={t("כל הפריטים", "All items")}>
         {order.map((id) => {
@@ -635,12 +775,20 @@ function RequestSheet({ ws, onClose, onDone }: { ws: Workspace; onClose: () => v
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const sheet = useRef<HTMLDivElement>(null);
+  const [leaving, setLeaving] = useState(false);
+  // the sheet leaves along the path it came in on (down and out, the page brightening behind it), then unmounts
+  const close = useCallback(() => {
+    if (busy || leaving) return;
+    setLeaving(true);
+    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(onClose, still ? 0 : 220);
+  }, [busy, leaving, onClose]);
+  useEffect(() => { sheet.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus(); }, []);
   useEffect(() => {
-    sheet.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !busy) { e.stopPropagation(); onClose(); } };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopPropagation(); close(); } };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [busy, onClose]);
+  }, [close]);
   const chosen = items.filter((i) => picked.has(i.id));
   const from = ws.case.banker.name_he;
   const cardTitle = (i: MissingItem) => {
@@ -667,7 +815,7 @@ function RequestSheet({ ws, onClose, onDone }: { ws: Workspace; onClose: () => v
       `${ok} requests were saved and are shown to the customer in the app, each document with its own upload button. No SMS, email or notification was sent.`));
   };
   return (
-    <div className="cd-scrim" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+    <div className={`cd-scrim${leaving ? " leaving" : ""}`} onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
       <div className="cd-sheet" role="dialog" aria-modal="true" aria-labelledby="cd-sheet-title" ref={sheet} data-testid="request-sheet">
         <header className="cd-sheet-head">
           <div>
@@ -676,7 +824,7 @@ function RequestSheet({ ws, onClose, onDone }: { ws: Workspace; onClose: () => v
               "Each document gets its own request with its own message. The messages are built from the case data, and you can edit each one.")
               : t("הבקשות יישמרו בתיק ויוצגו ללקוח באפליקציה. לא נשלחת הודעת SMS, דוא״ל או התראה.", "The requests will be saved in the case and shown to the customer in the app. No SMS, email or notification is sent.")}</p>
           </div>
-          <button className="cd-icon-btn" onClick={onClose} disabled={busy} aria-label={t("סגירה", "Close")}>✕</button>
+          <button className="cd-icon-btn" onClick={close} disabled={busy} aria-label={t("סגירה", "Close")}>✕</button>
         </header>
         <div className="cd-sheet-body">
           {step === "pick" ? (<>
