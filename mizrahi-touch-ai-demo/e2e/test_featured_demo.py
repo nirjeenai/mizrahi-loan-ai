@@ -235,7 +235,7 @@ def run(page: Page, banker: Page) -> None:
           all(witnesses.get(k) == "text_layer_exact" for k in ("employee_name", "employee_id", "salary_period", "gross_pay", "net_pay"))
           and first["review"]["identity"]["models"]["extract"] == "replay-recorded", json.dumps(witnesses))
     shot(page, "04-pass-document")
-    banker.goto(f"{BASE}/banker?case={PASS}")
+    banker.goto(f"{BASE}/banker?case={PASS}&view=classic")
     expect(banker.locator("[data-testid=queue-group-decide] [data-testid=queue-item]")).to_have_count(3, timeout=20000)
     banker.locator("[data-testid=queue-group-decide] [data-testid=queue-item]").first.click()
     shot(banker, "05-pass-banker")
@@ -269,7 +269,7 @@ def run(page: Page, banker: Page) -> None:
           and s["outcomes"]["borrowers"]["BRW-B"]["label_he"] == LABEL["REVIEW"]
           and {d["review"]["verdict"] for d in api.get(f"/api/cases/{REVIEW}/documents").json()} == {"VALID"})
     shot(page, "07-review-home")
-    banker.goto(f"{BASE}/banker?case={REVIEW}")
+    banker.goto(f"{BASE}/banker?case={REVIEW}&view=classic")
     item = banker.locator("[data-testid=queue-group-judgment] [data-testid=queue-item]")
     expect(item).to_have_count(1, timeout=20000)
     item.click()
@@ -305,7 +305,7 @@ def run(page: Page, banker: Page) -> None:
           wrong["review"]["verdict"] == "INVALID" and s["outcomes"]["documents"][wrong["document_id"]]["outcome"] == "BLOCKER"
           and page.locator("[data-testid=card-primary]").inner_text().strip() == "העלאת מסמך חלופי")
     shot(page, "09-blocker-home")
-    banker.goto(f"{BASE}/banker?case={BLOCKER}")
+    banker.goto(f"{BASE}/banker?case={BLOCKER}&view=classic")
     row = banker.locator(f"[data-testid=queue-group-correction] [data-testid=queue-item][data-item-id='doc:{wrong['document_id']}']")
     expect(row).to_be_visible(timeout=20000)
     row.click()
@@ -333,7 +333,7 @@ def run(page: Page, banker: Page) -> None:
           and s["outcomes"]["documents"][new["document_id"]]["outcome"] == "PASS" and s["readiness"]["customer_status"] == "CHECKS_COMPLETE"
           and s["document_status"][wrong["document_id"]]["status"] == "REPLACED")
     shot(page, "12-blocker-after")
-    banker.goto(f"{BASE}/banker?case={BLOCKER}")
+    banker.goto(f"{BASE}/banker?case={BLOCKER}&view=classic")
     new_row = banker.locator(f"[data-testid=queue-item][data-item-id='doc:{new['document_id']}']")
     expect(new_row).to_be_visible(timeout=20000)
     new_row.click()

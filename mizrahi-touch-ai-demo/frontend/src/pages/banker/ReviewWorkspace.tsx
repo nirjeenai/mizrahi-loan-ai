@@ -8,7 +8,7 @@ import { BANKER_TONE, Chip, newRequestId, Toast, VERDICT_TONE, When } from "./de
 /** Where the evidence pane points: a document, and optionally one field (and page) on it. */
 export interface Focus { documentId: string; field?: string | null; page?: number }
 const ACTIONABLE = ["decide", "judgment", "escalated", "correction", "missing"];
-const MONTH_TONE: Record<string, string> = { verified: "ok", accepted: "ok", in_review: "navy", missing: "miss", requested: "warn", unknown: "neutral" };
+export const MONTH_TONE: Record<string, string> = { verified: "ok", accepted: "ok", in_review: "navy", missing: "miss", requested: "warn", unknown: "neutral" };
 
 export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnly, stale, openV3 }: {
   ws: Workspace; selected: string | null; onSelect: (id: string) => void; reload: () => void; staff: string; readOnly: boolean; stale: boolean;
@@ -84,7 +84,7 @@ export function ReviewWorkspace({ ws, selected, onSelect, reload, staff, readOnl
 }
 
 /** A customer's "pass me to my banker" request (assistant or MCP). The banker takes it into handling; the note stays internal. */
-function HandoffBanner({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: () => void; readOnly: boolean;
+export function HandoffBanner({ ws, reload, readOnly, onToast }: { ws: Workspace; reload: () => void; readOnly: boolean;
   onToast: (t: { text: string; tone: "ok" | "bad" }) => void }) {
   const [busy, setBusy] = useState<string | null>(null);
   const { en, t } = useLang();
@@ -231,7 +231,7 @@ function BorrowerStrip({ ws, onSelect }: { ws: Workspace; onSelect: (id: string)
   );
 }
 
-function IncomeLine({ income }: { income: Workspace["borrowers"][number]["income"] }) {
+export function IncomeLine({ income }: { income: Workspace["borrowers"][number]["income"] }) {
   const { en } = useLang();
   if (income.declared_net_monthly_ils == null) return null;
   if (en) return (
@@ -429,7 +429,7 @@ function KeyFields({ item, field, onPick }: { item: DocItem; field: string | nul
   );
 }
 
-function DocumentEvidence({ item, focus, setFocus, onSelect, ws }: { item: DocItem; focus: Focus | null; setFocus: (f: Focus | null) => void;
+export function DocumentEvidence({ item, focus, setFocus, onSelect, ws }: { item: DocItem; focus: Focus | null; setFocus: (f: Focus | null) => void;
   onSelect: (id: string) => void; ws: Workspace }) {
   const picked = focus?.documentId === item.document_id && !!focus.field;
   const field = picked ? focus!.field! : defaultField(item);
@@ -449,7 +449,7 @@ function DocumentEvidence({ item, focus, setFocus, onSelect, ws }: { item: DocIt
           <div>
             <div className="ev-title" data-testid="evidence-title">{en && !((borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he"))
               ? locOf(item, "doc_type_he") /* English: no dangling "·" when the document has no owner (a purpose proof) */
-              : <>{locOf(item, "doc_type_he")} · {(borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he")}</>}</div>
+              : <>{locOf(item, "doc_type_he")}{(borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he") ? ` · ${(borrower ? locOf(borrower, "name_he") : "") || locOf(item, "borrower_he")}` : ""}</>}</div>
             <div className="ev-meta">
               {item.period_he || item.claimed_period ? <span>{t("חודש מודפס:", "Printed month:")} <b>{locOf(item, "period_he") || "-"}</b></span>
                 : <span>{t("סוג:", "Type:")} <b>{locOf(item, "doc_type_he")}</b></span>}
@@ -525,7 +525,7 @@ function MissingEvidence({ item, onSelect, ws }: { item: MissingItem; onSelect: 
   );
 }
 
-function FindingEvidence({ item, focus, setFocus, ws }: { item: CaseFindingItem; focus: Focus | null; setFocus: (f: Focus | null) => void; ws: Workspace }) {
+export function FindingEvidence({ item, focus, setFocus, ws }: { item: CaseFindingItem; focus: Focus | null; setFocus: (f: Focus | null) => void; ws: Workspace }) {
   const active = focus?.documentId || item.evidence_documents[0]?.document_id;
   const doc = ws.items.find((i): i is DocItem => i.kind === "document" && i.document_id === active);
   const ev = item.evidence_documents.find((e) => e.document_id === active);

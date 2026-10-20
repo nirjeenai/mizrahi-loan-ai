@@ -622,9 +622,48 @@ Each document collapses to a single root cause: an unreadable page yields only D
 
 **What the customer sees first.** The home screen (`pages/customer/Home.tsx`) is one page, top to bottom: a greeting from the borrowers' first names (with a decorative inline SVG); the bank stage card (`MockBankAdapter`, shown as stored and never relabelled from AI state; when the case has a preliminary decision it adds "אישור עקרוני · אינו אישור סופי", the wording the Documents screen already uses); the action card; the assigned banker (a synthetic demo portrait for Dana Cohen, `frontend/public/people/dana-cohen.jpg`, with an initials fallback for other bankers or a failed load; "כתיבת פנייה" to the assistant, and the case meeting on one line, or "אין פגישה מתוכננת"); the document summary; the three latest updates; and the request details. The action card (`DocumentCheckCard`) is orange ("מה צריך לעשות עכשיו?") only when the customer has something to do, and neutral ("מה קורה עכשיו?") while waiting. An open banker request comes first: its own title is the action ("נדרש תלוש ספטמבר 2026 — עידו"), the banker's message is quoted as written (two lines on screen, attributed to the banker), and the button is named after the requested month and opens the upload sheet preset to the request. Without a request, missing months lead to the backend's first upload action (`available_actions`, the same one the assistant offers): the card is titled by that borrower and month ("חסר תלוש ספטמבר 2026 של עידו") and the button opens the upload sheet preset to them. One footer line names what the action does not cover ("עוד 3 תלושים של נועה", further requests) with a link to the full list, so one action never reads as the only missing item; the assistant shortcut sits in the same row. The document summary (`DocumentSummary`) has one row per borrower (status, required months fulfilled, a link to that borrower on the Documents screen) and keeps four numbers apart: required months fulfilled (the total), and files uploaded, reviewed and accepted by the banker (one line); "איך סופרים" expands the counting rule, the documents handled directly with the bank and the "final approval is the bank's" note. It offers a second upload only for a borrower the action card does not lead to and who has no open banker request. The update list (`RecentUpdates`) folds for display only: set re-checks are left out, an upload is left out once its review is listed, retries of one failed review show the latest attempt, and identical banker closures in a row become one line; banker requests and the customer's answers are never folded, and "לכל העדכונים בתיק" shows the snapshot's full list (the last 25 customer-visible events). There is no read/unread state, so nothing is marked "new". After a case switch nothing from the previous case is shown until the new snapshot arrives (`caseContext`). When refreshes fail twice in a row while a case is on screen, one line above the cards says the data may be out of date since the last successful refresh, with a retry; it clears on the next successful refresh. The assistant button shrinks to its icon while the screen is scrolled, and the bottom navigation and scroll padding respect the device safe area. The status itself is `readiness.customer_status`, derived from the same persisted facts with its own precedence (`workflow/readiness.py`): no documents (AWAITING_UPLOAD), a review that stopped (ERROR), work in progress (PROCESSING, or REVALIDATING after an earlier set review), a document to fix (CORRECTION_REQUIRED), months still missing (MISSING_DOCUMENTS), the banker's confirmation, open banker items or payslips not yet verified (BANKER_REVIEW), and only then CHECKS_COMPLETE. Its counter is required months covered by a VALID payslip or by one the banker accepted: a duplicate counts once, a document that is unreviewed or not VALID counts only after a banker accepts it, and a payslip the banker sent back for correction (or that was replaced) never counts. An open banker correction request makes the status CORRECTION_REQUIRED, and any other open banker request MISSING_DOCUMENTS. The required months come from the case rubric and the simulation date, so they are known before the first upload.
 
-### Banker review workspace and human decisions
+### Banker case desk — the default view (`CaseDesk.tsx`)
 
-The console's default view is one review workspace: **queue → original document with evidence → decision panel**. The queue is built by the service (`GET /api/banker/cases/{id}/workspace`, `api/banker_package.py`) and groups items by what the banker can do:
+`/banker` opens the case desk. It answers five questions in order: where am I (customer, case, loan, bank stage), where the
+case stands, what matters now, what to do next, and what happens after. It reads the same workspace payload as the
+classic review and records every decision through the same `DecisionPanel` forms and routes, so the state semantics,
+the audit and the permissions are unchanged. Nothing on it is computed by a model.
+
+- **Overview** (no `?item=`). One surface holds the four steps of the documentation track and the next step under them:
+  *מסמכים מהלקוח* (missing, requested, to correct), *בדיקת AI* (checking, checked, failed), *הסקירה שלך* (items awaiting
+  your decision) and *הכנת התיק* (can be confirmed, confirmed). Each step is derived from `summary`, `groups`,
+  `review_state`, `can_confirm` and `preparation`; none of them is the bank's stage, which stays a separate fact in the
+  header, labelled demo. The next step is chosen in code, in this order: items for your decision → AI still checking →
+  a failed check → missing documents nobody requested → waiting for the customer (opens "מעקב השלמה") → documents ready
+  for the preparation confirmation → confirmed (opens V3). Below it the work is grouped by who holds it: *לטיפולך*
+  (decide, judgment, escalated), *אצל הלקוח* (correction, missing), *בבדיקת AI*, *הושלם* (collapsed). Each row shows the
+  document's real first page, the AI verdict or the banker's status, and the reason when it needs attention. The side
+  column carries the preparation step, payslip months and income, and the policy's requirements.
+- **Requesting missing documents in one step.** "בקשת המסמכים מהלקוח" opens a sheet with every missing item that can be
+  requested (no open request, allowed by the service). Each keeps its own deterministic draft, editable; an item can be
+  left out; one optional internal rationale applies to all. A preview shows the customer's cards in Hebrew before saving.
+  Saving makes one `REQUEST_MISSING_DOCUMENT` request per item (`/missing-requests` or `/requirements/{code}/request`),
+  each with its own `request_id`, so a retry records nothing twice. Nothing sends an SMS, an e-mail or a notification.
+- **Focused review** (`?item=`). A navigator replaces the side queue: back to the overview, the item's group and position,
+  one dot per item coloured by who holds it, previous/next. A document or a case-level finding opens beside its decision
+  panel (the evidence pane and key fields are the classic ones, the fields no longer truncate); a missing requirement opens
+  as one centred card with its related files and the request action. J/K move between items, N goes to the next item that
+  needs action, Esc returns to the overview and scrolls back to the row.
+- **Views.** The case bar has one switch — *סקירת התיק* (the desk), *תמונת מצב Jeen* (V2), *תיק מוכן* (V3) — and a "עוד"
+  menu with *מעקב השלמה*, *שיחה עם הלקוח*, *יומן ופרטים טכניים* and *סקירה קלאסית (V1)* (`?view=classic`, below). The
+  choice is remembered per browser (`mz.banker.ui`); V2/V3 actions open the desk at the item, or the classic review when
+  that is the remembered choice.
+- **Design.** System font, tabular figures, one accent per meaning (navy: your decision, amber: with the customer, green:
+  done or ready, JEEN purple: what the AI found, Mizrahi orange: something the customer will see). The case bar and the
+  navigator are translucent; motion is short and critically damped, and `prefers-reduced-motion`,
+  `prefers-reduced-transparency` and `prefers-contrast` are respected. Styles: `pages/banker/casedesk.css`, scoped to
+  `.console.desk.ax`.
+
+`e2e/check_case_desk.py` verifies it in Chrome on an isolated stack without Gemini (40 checks).
+
+### Banker review workspace (classic V1, `?view=classic`) and human decisions
+
+The classic review (`?view=classic`, "סקירה קלאסית (V1)" in the case bar's menu; the console's default before the case desk) is one workspace: **queue → original document with evidence → decision panel**. The decision panel, the evidence pane and every rule below are shared with the case desk. The queue is built by the service (`GET /api/banker/cases/{id}/workspace`, `api/banker_package.py`) and groups items by what the banker can do:
 
 | Group | What is in it |
 |---|---|
@@ -667,7 +706,7 @@ Every decision is a persisted transition in `workflow/review_desk.py`, written i
 
 ### Banker Intelligence V2 — case briefing, financial context and scenarios
 
-A second presentation of the same case, beside V1: the case bar's switch **V1 · סקירה | V2 · תמונת מצב Jeen** (`?view=intel`; the choice is remembered per browser, and V1 stays the default). V2 is read-only. It writes nothing, records no decision, and every action ("הפעולה הבאה", "פתיחה בסקירת המסמכים") opens the V1 workspace at the right item, so approval semantics, audit and state transitions are unchanged.
+A second presentation of the same case, beside the case desk: **תמונת מצב Jeen** in the case bar's switch (`?view=intel`; the choice is remembered per browser, and the case desk is the default). V2 is read-only. It writes nothing, records no decision, and every action ("הפעולה הבאה", "פתיחה בסקירת המסמכים") opens the case desk at the right item (the classic review when that is the remembered choice), so approval semantics, audit and state transitions are unchanged.
 
 **Layout (executive-first, compact).**
 - **Header:** one light strip with the case context (name, loan, amount, payments, profile), a short recommendation title, one sentence built from the briefing's own numbers, and one action ("מעבר לטיפול בתיק", or the clarification/request action, opening V1 at the item). Open blockers (income gap, requested amount above the quote, missing items) show as chips in the header and are never hidden behind "show more". Documentation completion ("מסמכים הושלמו") and banker review ("ממתין לבדיקת בנקאי" / "המסמכים התקבלו על ידך") are separate pills. A disclaimer reads "המלצת המשך בלבד · לא אישור אשראי".
@@ -689,7 +728,7 @@ A second presentation of the same case, beside V1: the case bar's switch **V1 ·
 
 ### Banker Case-Centric V3 — the prepared case, top to bottom (design alternative to V2)
 
-A third presentation of the same intelligence payload: **V3 · תיק מוכן** in the case bar (`?view=case`, remembered like V2). It is a design experiment beside V2, not a replacement: one centered column of white sections that reads as a prepared banking brief rather than a dashboard. It uses the same endpoint, arithmetic, sources and drafts as V2 and is read-only; the only backend addition is the reply chat below. Every action opens V1.
+A third presentation of the same intelligence payload: **V3 · תיק מוכן** in the case bar (`?view=case`, remembered like V2). It is a design experiment beside V2, not a replacement: one centered column of white sections that reads as a prepared banking brief rather than a dashboard. It uses the same endpoint, arithmetic, sources and drafts as V2 and is read-only; the only backend addition is the reply chat below. Every action opens the case desk at the item.
 
 - **Order.** Header (customer, "הלוואה ל<מטרה> · סכום · תשלומים", documentation status, **מעבר לטיפול בתיק** → V1 at the recommendation's next item) → three figures (net income, estimated payment, combined ratio) → customer and loan details → the customer's documents → financial analysis → financing alternatives → the JEEN recommendation, as the conclusion of what came before → reasoning and conditions → proposed reply.
 - **Recommendation.** A conclusion card on the column's edges with centered content: the label, a status seal, a short title chosen in code from the recommendation state (for example READY_FOR_CREDIT_REVIEW → "מומלץ להתקדם בתהליך ההלוואה", CLARIFICATION_REQUIRED → "נדרש בירור לפני בחינת האשראי"), the backend's own sentence, and a three-part basis row (document requirements, income basis, combined ratio). A hairline links it to the reasoning card below.

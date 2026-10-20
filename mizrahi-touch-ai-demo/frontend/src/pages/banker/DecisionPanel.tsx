@@ -8,6 +8,8 @@ import type { Focus } from "./ReviewWorkspace";
 interface PanelProps {
   item: QueueItem; ws: Workspace; staff: string; readOnly: boolean; focus?: Focus | null;
   onDone: (text: string) => void; onError: (text: string) => void; onNext: () => void; hasNext: boolean; showEvidence: (f: Focus) => void;
+  /** the case desk shows a missing item on its own, without an evidence pane: the panel then carries the related files */
+  solo?: boolean;
 }
 type Submit = (requestId: string) => Promise<DeskResult>;
 const STATUS_WORD: Record<string, string> = {
@@ -360,7 +362,7 @@ function FindingRow({ f, ws, readOnly, finish, showEvidence }: { f: DeskFinding;
 }
 
 // ---------------------------------------------------------------- missing document
-function MissingPanel({ item, ws, staff, readOnly, finish }: Ctx<MissingItem>) {
+function MissingPanel({ item, ws, staff, readOnly, finish, solo, showEvidence }: Ctx<MissingItem>) {
   const [open, setOpen] = useState(false);
   const { en, t } = useLang();
   const borrower = ws.case.borrowers.find((b) => b.borrower_id === item.borrower_id);
@@ -370,6 +372,17 @@ function MissingPanel({ item, ws, staff, readOnly, finish }: Ctx<MissingItem>) {
       <div className="row wrap"><Chip tone={item.open_request ? "warn" : "neutral"} testId="missing-status">{locOf(item, "status_he")}</Chip>
         {item.family_he && <Chip>{locOf(item, "family_he")}</Chip>}{borrower && <Chip>{locOf(borrower, "name_he")}</Chip>}</div>
       <p className="small">{locOf(item, "explanation_he")}</p>
+      {solo && item.related_documents.length > 0 && (
+        <div className="missing-related" data-testid="missing-related">
+          <div className="small bold">{t("ייתכן שקשור:", "Possibly related:")}</div>
+          {item.related_documents.map((d) => (
+            <button key={d.document_id} className="related-doc" onClick={() => showEvidence({ documentId: d.document_id })}>
+              <span className="ltr">{d.filename}</span><span className="small muted">{locOf(d, "note_he")}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {solo && item.duplicate_note_he && <div className="tiny muted">{locOf(item, "duplicate_note_he")}</div>}
     </section>
     {item.open_request && <OpenRequest r={item.open_request} ws={ws} staff={staff} readOnly={readOnly} finish={finish} />}
     {(item.allowed_actions.includes("request_missing") || item.allowed_actions.includes("request_requirement")) && !readOnly && (

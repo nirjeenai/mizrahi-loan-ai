@@ -212,7 +212,7 @@ def main() -> int:
               f"turns={len(turns)} runs={len(runs)}")
 
         # 12 · banker evidence package and human decision
-        page.goto(f"{BASE}/banker?case={CASE}")
+        page.goto(f"{BASE}/banker?case={CASE}&view=classic")
         expect(page.locator("[data-testid=banker-readiness]")).to_be_visible(timeout=20000)
         page.locator("[data-testid=queue-group-judgment] [data-testid=queue-item]").first.click()
         expect(page.locator("[data-testid=decision-panel] .notice", has_text="הסבר הלקוח")).to_be_visible()

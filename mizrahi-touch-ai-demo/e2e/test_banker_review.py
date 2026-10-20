@@ -101,7 +101,7 @@ def main() -> int:
         page = ctx.new_page()
 
         # 1–2 · open the case and see what needs attention
-        page.goto(f"{BASE}/banker?case={CASE}")
+        page.goto(f"{BASE}/banker?case={CASE}&view=classic")
         expect(page.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
         w = ws()
         decide = next(g for g in w["groups"] if g["key"] == "decide")["items"]
@@ -226,7 +226,7 @@ def main() -> int:
         cust.locator(".phone").screenshot(path=str(ART / "08-customer-after-upload.png"))
 
         # 12–13 · back in the console: new result, history and old evidence preserved
-        page.goto(f"{BASE}/banker?case={CASE}")
+        page.goto(f"{BASE}/banker?case={CASE}&view=classic")
         expect(page.locator(f"[data-item-id='doc:{new_doc}']")).to_be_visible(timeout=20000)
         w2 = ws()
         old = next(i for i in w2["items"] if i["id"] == f"doc:{docs['ido09']}")

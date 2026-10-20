@@ -191,7 +191,7 @@ def journey_a(page: Page, banker: Page) -> None:
           not [t for t in v["tasks"] if OPEN(t)] and not v["attempts"], v["plan"]["state"])
     check("A · case status: ready for the banker", v["case_status"] == "READY_FOR_BANKER", v["case_status"])
     clock(reset=True)
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     banker.locator("[data-item-id^='doc:']").first.click()
     expect(banker.locator("[data-testid=evidence-viewer] .hl").first).to_be_visible(timeout=20000)
@@ -267,7 +267,7 @@ def journey_b(page: Page, banker: Page) -> None:
     check("B · the banker sees what was missing, the simulated call, its link and the resolution in the timeline",
           "נשלח קישור" in banker.locator("[data-testid=fu-attempts]").inner_text() and "דרישת השלמה נסגרה" in tl and "שיחה תוזמנה" in tl)
     shot(banker, "B-banker-followup")
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     customer(case)
     sep = next(d["document_id"] for d in api.get(f"/api/cases/{case}/documents").json() if d["filename"] == "ido_2026_09_CORRECTED.pdf")

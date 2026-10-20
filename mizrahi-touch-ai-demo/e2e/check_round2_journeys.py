@@ -243,7 +243,7 @@ def sim(page: Page, testid: str) -> str:
 
 
 def banker_decide(banker: Page, case: str, document_id: str, action: str) -> None:
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     banker.locator(f"[data-item-id='doc:{document_id}']").click()
     expect(banker.locator("[data-testid=evidence-viewer] img")).to_be_visible(timeout=20000)
@@ -316,7 +316,7 @@ def run_tc(page: Page, banker: Page, tc: str) -> None:
     page.goto(f"{BASE}/customer/documents")
     expect(page.locator("[data-testid=docs-progress]")).to_contain_text(f"{s['readiness']['progress']['done']} מתוך", timeout=15000)
     shot(page, f"{tc}-final-documents")
-    banker.goto(f"{BASE}/banker?case={u['caseId']}")
+    banker.goto(f"{BASE}/banker?case={u['caseId']}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     shot(banker, f"{tc}-banker")
 
@@ -411,7 +411,7 @@ def profile_change(page: Page, banker: Page) -> None:
     check("profile change · the payslip task is canceled and no contact about payslips ever runs",
           all(canceled.get(t) == "CANCELED" for t in pay_tasks) and not about_payslips,
           f"tasks {[canceled.get(t) for t in pay_tasks]} · attempts {len(v['attempts'])}")
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     staff()
     matrix = api.get(f"/api/banker/cases/{case}/workspace").json()["requirement_matrix"]
@@ -544,7 +544,7 @@ def new_customer(page: Page, banker: Page) -> None:
     clock(reset=True)
     page.goto(f"{BASE}/customer/documents")
     shot(page, "NEW-complete")
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     id_doc = doc_id(case, "id_card_neta.pdf")
     banker.locator(f"[data-item-id='doc:{id_doc}']").click()
@@ -557,7 +557,7 @@ def new_customer(page: Page, banker: Page) -> None:
 
 def banker_checks(banker: Page) -> None:
     case = USE["TC-05"]["caseId"]
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     copy = doc_id(case, "id_card_maya_COPY.pdf")
     item = banker.locator(f"[data-item-id='doc:{copy}']")
@@ -569,7 +569,7 @@ def banker_checks(banker: Page) -> None:
     check("TC-05 · banker: Maya's ID filed under Roy is marked replaced, attributed to מאיה שטרן", "הוחלף" in text and "מאיה" in text)
     shot(banker, "TC-05-banker-replaced-id")
     case = USE["TC-06"]["caseId"]
-    banker.goto(f"{BASE}/banker?case={case}")
+    banker.goto(f"{BASE}/banker?case={case}&view=classic")
     expect(banker.locator("[data-testid=banker-assisted]")).to_be_visible(timeout=20000)
     staff()
     matrix = {m["code"]: m["ai_state"] for m in api.get(f"/api/banker/cases/{case}/workspace").json()["requirement_matrix"]}

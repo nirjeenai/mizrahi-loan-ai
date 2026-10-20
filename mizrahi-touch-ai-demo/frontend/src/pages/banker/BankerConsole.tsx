@@ -5,11 +5,13 @@ import { api, AUTH_EVENT, outcomeL, timeL, usePolling, type BankerCaseRow, type 
 import { Chip, useOutsideClose, When } from "./deskUi";
 import { FollowupView } from "./FollowupView";
 import { CaseCentricV3 } from "./CaseCentricV3";
+import { CaseDesk } from "./CaseDesk";
 import { IntelligenceV2 } from "./IntelligenceV2";
 import { ReviewWorkspace } from "./ReviewWorkspace";
 
-type View = "intel" | "case" | "review" | "followup" | "conversation" | "technical";
-/** The banker's last choice between the classic review (V1), the intelligence briefing (V2) and the case workspace (V3); V1 when never chosen. */
+type View = "intel" | "case" | "review" | "classic" | "followup" | "conversation" | "technical";
+/** The banker's last choice between the case desk (default), the intelligence briefing (V2), the prepared case (V3) and the
+ *  classic three-pane review (V1); the case desk when never chosen. */
 const UI_PREF = "mz.banker.ui";
 const CASE_PREF = "mz.banker.case";
 
@@ -39,7 +41,7 @@ export function BankerConsole() {
   const [params, setParams] = useSearchParams();
   const caseId = params.get("case") || "";
   const pref = localStorage.getItem(UI_PREF);
-  const view = (params.get("view") as View) || (pref === "intel" || pref === "case" ? pref : "review");
+  const view = (params.get("view") as View) || (pref === "intel" || pref === "case" || pref === "classic" ? pref : "review");
   // the console works on a staff session; in demo mode it obtains the demo banker's session without a login
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const ensureSession = useCallback(async () => {
@@ -89,7 +91,7 @@ export function BankerConsole() {
   }, [patch]);
   const reload = useCallback(() => { ws.reload(); cases.reload(); }, [ws, cases]);
   const switchView = useCallback((v: View) => {
-    if (v === "intel" || v === "case" || v === "review") localStorage.setItem(UI_PREF, v);
+    if (v === "intel" || v === "case" || v === "review" || v === "classic") localStorage.setItem(UI_PREF, v);
     patch({ view: v === "review" ? null : v });
   }, [patch]);
   const w = me && ws.data && ws.data.case_id === caseId ? ws.data : null;
@@ -98,14 +100,14 @@ export function BankerConsole() {
   const mine = cases.data?.find((c) => c.banker.staff_id === staff)?.banker;
   const myName = me ? (mine ? locOf(mine, "name_he") : loc(me.name_he, me.name_en)) : "";
   if (!me) return (
-    <div className="console desk">
+    <div className="console desk ax">
       <ConsoleTop active="banker" />
       <div className="desk-loading">{session === undefined ? <span className="spinner" />
         : <span data-testid="no-session">{t("אין חיבור של צוות הבנק.", "No bank staff session.")}</span>}</div>
     </div>
   );
   return (
-    <div className="console desk">
+    <div className="console desk ax">
       <ConsoleTop active="banker" identity={en ? `${readOnly ? "View only · " : ""}Signed in: ${myName}`
         : `${readOnly ? "צפייה בלבד · " : ""}מחובר/ת: ${me.name_he}`} />
       <CaseBar caseId={caseId} cases={cases.data || []} ws={w} view={view} staff={staff} onOpen={cases.reload}
@@ -113,12 +115,15 @@ export function BankerConsole() {
       {!w ? <div className="desk-loading">{ws.error ? <>{t("לא הצלחנו לטעון את התיק.", "We couldn't load the case.")} <button className="link" onClick={ws.reload}>{t("ניסיון חוזר", "Try again")}</button></> : <><span className="spinner" /> {t("טוען את התיק…", "Loading the case…")}</>}</div>
         : view === "intel" || view === "case" ? (() => {
             const openV1 = (item?: string | null) => {
-              localStorage.setItem(UI_PREF, "review");
-              patch({ view: null, item: item || null });
+              const back = localStorage.getItem(UI_PREF) === "classic" ? "classic" : "review";
+              localStorage.setItem(UI_PREF, back);
+              patch({ view: back === "classic" ? "classic" : null, item: item || null });
             };
             return view === "intel" ? <IntelligenceV2 caseId={caseId} ws={w} openV1={openV1} /> : <CaseCentricV3 caseId={caseId} ws={w} openV1={openV1} />;
           })()
-        : view === "review" ? <ReviewWorkspace ws={w} selected={params.get("item")} onSelect={(id) => patch({ item: id })} reload={reload}
+        : view === "review" ? <CaseDesk ws={w} selected={params.get("item")} onSelect={(id) => patch({ item: id })} onOverview={() => patch({ item: null })}
+            reload={reload} staff={staff} readOnly={readOnly} stale={!!ws.error} openV3={() => switchView("case")} openFollowup={() => switchView("followup")} />
+          : view === "classic" ? <ReviewWorkspace ws={w} selected={params.get("item")} onSelect={(id) => patch({ item: id })} reload={reload}
             staff={staff} readOnly={readOnly} stale={!!ws.error} openV3={() => switchView("case")} />
           : view === "followup" ? <FollowupView caseId={caseId} readOnly={readOnly} />
           : view === "conversation" ? <ConversationView caseId={caseId} ws={w} />
@@ -175,8 +180,9 @@ function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
           <span className="case-names" title={ws ? locOf(ws.case, "title_he") : undefined}>{ws?.document_profile?.company ? `${locOf(ws.document_profile.company, "name_he")} · ` : ""}
             {en ? (ws ? ws.case.borrowers.map((b) => locOf(b, "name_he")) : current ? locList(current, "borrowers") : []).join(" & ")
               : ws ? ws.case.borrowers.map((b) => b.name_he).join(" ו") : current?.borrowers.join(" ו")}</span>
-          {ws?.document_profile?.profile_label_he && <span className="case-profile" data-testid="banker-profile-label">{locOf(ws.document_profile, "profile_label_he")}</span>}
-          {ws?.document_profile?.banker_assisted && <span className="case-profile assisted" data-testid="banker-assisted">{t("ליווי בנקאי · מסלול עסקי מוגבל", "Banker-assisted · limited business track")}</span>}
+          {/* the case desk shows the profile in its own header; the other views keep it here */}
+          {view !== "review" && ws?.document_profile?.profile_label_he && <span className="case-profile" data-testid="banker-profile-label">{locOf(ws.document_profile, "profile_label_he")}</span>}
+          {view !== "review" && ws?.document_profile?.banker_assisted && <span className="case-profile assisted" data-testid="banker-assisted">{t("ליווי בנקאי · מסלול עסקי מוגבל", "Banker-assisted · limited business track")}</span>}
           <span aria-hidden>▾</span>
         </button>
         {open && (
@@ -195,17 +201,46 @@ function CaseBar({ caseId, cases, ws, view, staff, onOpen, onCase, onView }: {
           </div>
         )}
       </div>
-      <div className="ui-switch" role="group" aria-label={t("גרסת התצוגה", "View version")} data-testid="banker-ui-switch">
-        <button className={view === "review" ? "on" : ""} onClick={() => onView("review")} data-testid="ui-v1" title={t("סקירת המסמכים הקיימת", "The existing document review")}>{t("V1 · סקירה", "V1 · Review")}</button>
-        <button className={view === "intel" ? "on v2" : "v2"} onClick={() => onView("intel")} data-testid="ui-v2" title={t("Banker Intelligence V2, תמונת מצב, ניתוח פיננסי וסימולציה", "Banker Intelligence V2: case briefing, financial analysis and simulation")}>{t("V2 · תמונת מצב Jeen", "V2 · Jeen briefing")}</button>
-        <button className={view === "case" ? "on v3" : "v3"} onClick={() => onView("case")} data-testid="ui-v3" title={t("Banker Case-Centric V3, התיק המוכן, מלמעלה למטה", "Banker Case-Centric V3: the prepared case, top to bottom")}>{t("V3 · תיק מוכן", "V3 · Prepared case")}</button>
-      </div>
-      <nav className="view-tabs" aria-label={t("תצוגות", "Views")}>
-        {(en ? [["review", "Document review"], ["followup", "Completion follow-up"], ["conversation", "Customer conversation"], ["technical", "Log & technical details"]] as [View, string][]
-          : [["review", "סקירת מסמכים"], ["followup", "מעקב השלמה"], ["conversation", "שיחה עם הלקוח"], ["technical", "יומן ופרטים טכניים"]] as [View, string][]).map(([k, label]) => (
-          <button key={k} className={view === k ? "on" : ""} onClick={() => onView(k)} aria-current={view === k ? "page" : undefined}>{label}</button>
+      <ViewSwitch view={view} onView={onView} />
+    </div>
+  );
+}
+
+/** One control for how the case is shown: the case desk, the Jeen briefing (V2) and the prepared case (V3) side by side;
+ *  the supporting views (follow-up, conversation, log) and the classic V1 review in one menu beside them. */
+function ViewSwitch({ view, onView }: { view: View; onView: (v: View) => void }) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  useOutsideClose(open, () => setOpen(false));
+  const main: [View, string, string, string][] = [
+    ["review", t("סקירת התיק", "Case review"), "ui-v1", t("המסמכים, הממצאים והצעד הבא", "Documents, findings and the next step")],
+    ["intel", t("תמונת מצב Jeen", "Jeen briefing"), "ui-v2", t("Banker Intelligence V2, תמונת מצב, ניתוח פיננסי וסימולציה", "Banker Intelligence V2: case briefing, financial analysis and simulation")],
+    ["case", t("תיק מוכן", "Prepared case"), "ui-v3", t("Banker Case-Centric V3, התיק המוכן, מלמעלה למטה", "Banker Case-Centric V3: the prepared case, top to bottom")],
+  ];
+  const more: [View, string][] = [
+    ["followup", t("מעקב השלמה", "Completion follow-up")], ["conversation", t("שיחה עם הלקוח", "Customer conversation")],
+    ["technical", t("יומן ופרטים טכניים", "Log & technical details")], ["classic", t("סקירה קלאסית (V1)", "Classic review (V1)")],
+  ];
+  const inMore = more.find(([k]) => k === view);
+  return (
+    <div className="ax-views">
+      <div className="ax-seg" role="group" aria-label={t("תצוגת התיק", "Case view")} data-testid="banker-ui-switch">
+        {main.map(([k, label, testId, title]) => (
+          <button key={k} className={view === k ? "on" : ""} aria-pressed={view === k} onClick={() => onView(k)} data-testid={testId} title={title}>{label}</button>
         ))}
-      </nav>
+      </div>
+      <div className="ax-more" data-popover>
+        <button className={`ax-more-btn${inMore ? " on" : ""}`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="more-views">
+          {inMore ? inMore[1] : t("עוד", "More")} <span aria-hidden>▾</span></button>
+        {open && (
+          <div className="ax-menu" role="menu">
+            {more.map(([k, label], i) => (
+              <button key={k} role="menuitemradio" aria-checked={view === k} className={`${view === k ? "on" : ""}${i === more.length - 1 ? " sep" : ""}`}
+                onClick={() => { onView(k); setOpen(false); }} data-testid={`view-${k}`}>{label}</button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -336,14 +336,14 @@ def incomplete(page: Page, c: httpx.Client) -> None:
           and "ניתוח חלקי" in page.locator("[data-testid=cc-fig-dsr]").inner_text())
     miss.first.click()
     expect(page.locator("[data-testid=review-queue]")).to_be_visible(timeout=15000)
-    check("incomplete: a missing tile opens that item in V1", "missing" in page.url, page.url)
+    check("incomplete: a missing tile opens that item in the case desk", "missing" in page.url, page.url)
 
 
 def switching(page: Page) -> None:
     page.evaluate("localStorage.removeItem('mz.banker.ui')")
     page.goto(f"{BASE}/banker?case={MICHAL}")
     expect(page.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
-    check("V1: without a choice the console opens the existing review workspace", page.locator("[data-testid=cc-root]").count() == 0)
+    check("default: without a choice the console opens the case desk", page.locator("[data-testid=case-desk]").count() == 1 and page.locator("[data-testid=cc-root]").count() == 0)
     page.locator("[data-testid=ui-v2]").click()
     expect(page.locator(f"[data-testid=bi-root][data-case='{MICHAL}']")).to_be_visible(timeout=20000)
     check("V2: the intelligence briefing still renders beside V3", page.locator("[data-testid=bi-brief]").is_visible())

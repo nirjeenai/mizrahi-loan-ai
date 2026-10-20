@@ -262,7 +262,7 @@ def run(page: Page, banker: Page) -> None:
     shot(page, "05-journey-document")
 
     # ------------------------------------------------------------ banker review → evidence inspection
-    banker.goto(f"{BASE}/banker?case={JOURNEY}")
+    banker.goto(f"{BASE}/banker?case={JOURNEY}&view=classic")
     expect(banker.locator("[data-testid=review-queue]")).to_be_visible(timeout=20000)
     w = ws(JOURNEY)
     banker.locator("[data-testid=coverage-toggle]").click()
@@ -358,7 +358,7 @@ def run(page: Page, banker: Page) -> None:
     home(page)
     expect(page.locator("[data-testid=card-primary]")).to_have_text(re.compile("העלאת מסמך חלופי"), timeout=15000)
     shot(page, "14-blocker-home")
-    banker.goto(f"{BASE}/banker?case={BLOCKER}")
+    banker.goto(f"{BASE}/banker?case={BLOCKER}&view=classic")
     banker.locator(f"[data-item-id='doc:{bad}']").click()
     expect(banker.locator("[data-testid=action-accept]")).to_be_disabled(timeout=15000)
     check("wrong type: the banker cannot accept it as an ID card", True)
@@ -426,7 +426,7 @@ def run(page: Page, banker: Page) -> None:
         text = page.locator(".phone").inner_text() if path.startswith("/customer") else page.locator("body").inner_text()
         if MORTGAGE.search(text):
             leftovers.append(f"{path}: {MORTGAGE.search(text).group(0)}")
-    banker.goto(f"{BASE}/banker?case={JOURNEY}")
+    banker.goto(f"{BASE}/banker?case={JOURNEY}&view=classic")
     banker.wait_for_timeout(1500)
     if MORTGAGE.search(banker.locator("body").inner_text()):
         leftovers.append("/banker")

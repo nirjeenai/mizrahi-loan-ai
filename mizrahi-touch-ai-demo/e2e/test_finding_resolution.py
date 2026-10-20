@@ -98,7 +98,7 @@ def panel(page: Page) -> str:
 
 
 def open_item(page: Page, case: str, item_id: str) -> None:
-    page.goto(f"{BASE}/banker?case={case}&item={item_id}")
+    page.goto(f"{BASE}/banker?case={case}&item={item_id}&view=classic")
     expect(page.locator(f"[data-testid=queue-item][data-item-id='{item_id}']")).to_have_attribute("aria-current", "true", timeout=20000)
 
 

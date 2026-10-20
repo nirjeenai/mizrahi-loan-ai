@@ -163,7 +163,7 @@ def run() -> None:
         bank = b.new_context(viewport={"width": 1600, "height": 1000}, locale="he-IL").new_page()
         for case, tag in (("DEMO-MTZ-2026-009", "c009"), ("DEMO-MTZ-2026-008", "c008"), ("DEMO-MTZ-2026-011", "c011"),
                           ("DEMO-MTZ-2026-005", "c005"), ("DEMO-MTZ-2026-006", "c006")):
-            bank.goto(f"{BASE}/banker?case={case}")
+            bank.goto(f"{BASE}/banker?case={case}&view=classic")
             bank.wait_for_selector("[data-testid=review-queue]", timeout=20000)
             record(bank, f"banker-{tag}-review")
         bank.locator("[data-testid=coverage-toggle]").click()
@@ -187,7 +187,7 @@ def run() -> None:
         mob.locator("[data-testid='req-PAYSLIPS:BRW-A'] .dl-head").click()
         mob.locator("[data-testid=upload-BRW-A]").first.click()
         record(mob, "mobile-upload-sheet")
-        mob.goto(f"{BASE}/banker?case=DEMO-MTZ-2026-009")
+        mob.goto(f"{BASE}/banker?case=DEMO-MTZ-2026-009&view=classic")
         mob.wait_for_timeout(2500)
         record(mob, "mobile-banker")
         b.close()

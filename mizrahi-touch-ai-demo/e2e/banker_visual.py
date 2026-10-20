@@ -60,7 +60,7 @@ def main() -> None:
         for width in (1440, 1366):
             page = browser.new_page(viewport={"width": width, "height": 900}, locale="he-IL")
             for name, item in scenes if width == 1440 else scenes[:2]:
-                page.goto(f"{BASE}/banker?case={CASE}" + (f"&item={item}" if item else ""))
+                page.goto(f"{BASE}/banker?case={CASE}&view=classic" + (f"&item={item}" if item else ""))
                 wait_ready(page)
                 tag = f"{name}-{width}"
                 page.screenshot(path=str(OUT / f"{tag}.png"))
